@@ -1,0 +1,35 @@
+{
+  "name": "logseq-full-house-plugin",
+  "version": "0.0.1",
+  "description": "Logseq Templates you will really love ❤️",
+  "author": "stdword",
+  "repository": "https://github.com/stdword/logseq13-full-house-plugin.git",
+  "license": "MIT",
+  "logseq": {
+    "id": "logseq-full-house",
+    "title": "Full House Templates",
+    "icon": "./icon.png",
+    "main": "./index.html"
+  },
+  "scripts": {
+    "dev": "vite",
+    "clean": "rm -r ./dist/*",
+    "build": "tsc && vite build && cp ./assets/* ./dist && cp package.json ./dist",
+    "preinstall": "npx only-allow pnpm",
+    "test": "ts-doctest ./ ./tests && jest"
+  },
+  "dependencies": {
+    "@logseq/libs": "^0.0.14",
+    "@types/node": "^18.14.2",
+    "dayjs": "^1.11.7",
+    "eta": "^2.0.1",
+    "logseq-dateutils": "^0.0.26"
+  },
+  "devDependencies": {
+    "jest": "^29.4.3",
+    "typescript": "^4.9.5",
+    "typescript-doctest": "^1.1.0",
+    "vite": "^4.1.4",
+    "vite-plugin-logseq": "^1.1.2"
+  }
+}
