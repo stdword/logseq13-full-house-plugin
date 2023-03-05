@@ -25,10 +25,40 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 - ✨ The long list of valuable ideas to implement ⤵️
 
 ## Very quick overview
-<details open>
-  <summary><b>...</b></summary>
-  ...
+<img width="60%" src="https://user-images.githubusercontent.com/1984175/222939346-f29ac2e0-5b68-461c-aed3-3853d6c0c6a2.gif" />
+
+<details closed>
+  <summary><b>Video</b></summary>
+  <video src="https://user-images.githubusercontent.com/1984175/222938639-a46f94dc-2a91-41c0-9f6e-9c877dc7b61b.mp4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">
+  </video>
 </details>
+
+```markdown
+- template:: book
+  - ``{ ! var [ authors, name ] = c.page.name.split(' — ') _}``
+    alias:: ``{ ref(name) }``
+		author:: ``{ authors.split(', ').map(ref).join(', ') }``
+		category:: [[📖/art]]
+		tags:: book,
+  - # Book overview
+  - ...
+  - rendered with template «``{ c.template.name }``» [→] (``{ ref(c.template.block) }``)
+  - on ``{ date.now }``
+```
+```markdown
+- [[Tiago Forte — Building a Second Brain]]
+```
+```markdown
+- alias:: [[Building a Second Brain]]
+  author:: [[Tiago Forte]]
+  category:: [[📖/art]]
+  tags:: book,
+- # Book overview
+- ...
+- rendered with template «book» [→](((6403ec06-...)))
+- on Sun, 05 Mar 2023 01:12:01 GMT
+```
+
 
 ## Installation
 
