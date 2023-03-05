@@ -1,9 +1,10 @@
 <p align="center">
-  <img align="center" width="20%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/icon.png?raw=true"/>
+  <img align="center" width="15%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/icon.png?raw=true"/>
 </p>
 
-<h1 align="center" style="text-align: center; width: fit-content; margin-left: auto; margin-right: auto;"><img align="center" width="64px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/>Logseq13: Full House Templates</h1>
+<h1 align="center" style="text-align: center; width: fit-content; margin-left: auto; margin-right: auto;">Full House Templates</h1>
 
+<p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b>Logseq13</b> family of plugins</i></p>
 <p align="center">
   <a href="https://github.com/stdword/logseq13-full-house-plugin">Home</a> |
   Tutorial | Showcases | Documentation
