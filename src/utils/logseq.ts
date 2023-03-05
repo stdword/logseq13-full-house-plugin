@@ -27,14 +27,14 @@ export async function insertContent(
     content: string,
     options: { positionOnArg?: number, positionOnText?: string } = {},
 ) {
-    const block = await logseq.Editor.getCurrentBlock()
-    if (!block) {
+    const cursor = await logseq.Editor.getEditingCursorPosition()
+    if (!cursor) {
         console.warn(p`Attempt to insert content while not in editing state`)
         return
     }
 
-    // TODO: logseq needs api to set selection in editing state
-    // to implemet feature like sublime text snippets: placeholders switched by TAB
+    // TODO: logseq needs API to set selection in editing state
+    // to implement feature like sublime text snippets: placeholders switched by TAB
     // text ${1:arg1} snippet ${2:arg2}
 
     const { positionOnArg, positionOnText } = options
@@ -62,9 +62,10 @@ export async function insertContent(
     else
         position = content.indexOf(positionOnText!)
 
-    // TODO: do not erase the rest block content
-    await logseq.Editor.updateBlock(block.uuid, content)
-    logseq.Editor.editBlock(block.uuid, { pos: position })
+    const block = await logseq.Editor.getCurrentBlock()
+    await logseq.Editor.exitEditingMode()
+    await logseq.Editor.updateBlock(block!.uuid, content)
+    logseq.Editor.editBlock(block!.uuid, { pos: position })
  }
 
 export enum LogseqViewType { page, block, journals }

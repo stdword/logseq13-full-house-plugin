@@ -11,7 +11,7 @@ import { dayjs } from './context'
 import { LogseqDayjsState }  from './utils/dayjs_logseq_plugin'
 
 
-async function onSettingsChanged() {
+async function onAppSettingsChanged() {
     // TODO work with locales
     // preferredLanguage
     // preferredStartOfWeek
@@ -28,7 +28,7 @@ async function init() {
 
     // Logseq reads config setting `preferredDateFormat` with some delay
     // So we need to wait some time
-    setTimeout(onSettingsChanged, 100)
+    setTimeout(onAppSettingsChanged, 100)
 }
 
 
@@ -36,20 +36,22 @@ async function main() {
     init()
 
     const commandName = 'template'
-    const commandLabel = 'FullHouse → Insert template'
+    const commandLabel = 'Full House → Insert template'
     const commandContent = `{{renderer :${commandName}, TEMPLATE NAME, (optional) page reference}}`
 
     logseq.App.registerCommandPalette({ key: 'insert-template', label: commandLabel }, async (e) => {
-        const block = await logseq.Editor.getCurrentBlock()
-        if (!block) {
-            logseq.UI.showMsg('Start editing block', 'warning', {timeout: 5000})
+        const position = await logseq.Editor.getEditingCursorPosition()
+        if (!position) {
+            logseq.UI.showMsg('Start editing block to insert template in it', 'warning', {timeout: 5000})
             return
         }
+        // else TODO: ask to insert template to the end of current page
+
         insertContent(commandContent, { positionOnArg: 1 })
     })
 
     logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
-        insertContent(commandContent)
+        insertContent(commandContent, { positionOnArg: 1 })
     })
 
     logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
@@ -77,7 +79,7 @@ async function main() {
     })
 
     logseq.onSettingsChanged((old, new_) => {
-        onSettingsChanged()
+        onAppSettingsChanged()
     })
 }
 
