@@ -1,7 +1,12 @@
-# First steps
+# First steps (after intalling plugin)
 ## Rendering template
-- To create a template add `template` property with its name as a value (just like Logseq standard templates)
-- Parent block will be skipped during rendering (by default)
+- To **create a template** from block add `template` property with its name as a value (just like Logseq standard templates)
+- To **render a template**:
+  - Type-in `/`-command «Full House → Insert temeplate» or select it from `Command Palette` (Ctrl+Shift+P or ⌘⇧P)
+  - To the current editing block will be inserted special command that will render template
+  - Specify your template name and remove third optional argument (will return to it later)
+  - Press Enter or Esc to start rendering
+- Template **root (parent) block** will be skipped during rendering (by default)
   - But you can change this behaviour with `template-including-parent` property
   - Use any value that can be interpreted as «Yes»
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/222982171-b4813611-5b1b-463a-8cab-6a6d40e1d213.gif"/>
