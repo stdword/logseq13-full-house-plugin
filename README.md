@@ -66,7 +66,7 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 ### From Logseq Marketplace (recommended way):
 <span>    </span><img width="40%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/marketplace.png?raw=true" />
 
-- Click «...» and open the «Plugins» section (or press t p)
+- Click «...» and open the «Plugins» section (or press `t p`)
 - Click on the «Marketplace»
 - On the «Plugins» tab search for «Full House Templates» plugin and click install
 - See the Documentation and Showcases to start using your new superpower :)
