@@ -1,12 +1,12 @@
 {
-  "name": "logseq-full-house-plugin",
+  "name": "logseq13-full-house-plugin",
   "version": "0.0.1",
   "description": "Templates you will really love ❤️",
   "author": "stdword",
   "repository": "https://github.com/stdword/logseq13-full-house-plugin.git",
   "license": "MIT",
   "logseq": {
-    "id": "logseq-full-house",
+    "id": "logseq13-full-house",
     "title": "Full House Templates",
     "icon": "./icon.png",
     "main": "./index.html"

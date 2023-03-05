@@ -16,7 +16,7 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 
 ## ⚜️ Features
 - 💪 Rendering templates :)
-- 🤘 Accessing to any meta information: pages titles, block properties, content, your graph, etc.
+- 🤘 Accessing to any meta information: pages titles, blocks properties & content, your graph, etc.
 - 📅 Full support of dates-work: parsing, formatting, shifting
 - ☘️ Focusing on UX and simplicity: no more headache on where to add a space to make it work
 - 🔗 Easily make a reference to any journal page: relative to now moment, the current page, specific date ow whatever you want
@@ -61,6 +61,17 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 
 
 ## Installation
+### From Logseq Marketplace (recommended way):
+- Click «...» and open the «Plugins» section (or press t p)
+- Click on the «Marketplace»
+- On the «Plugins» tab search for «Full House Templates» plugin and click install
+- See the Documentation and Showcases to start using your new superpower :)
+
+### Manual way (in case of any troubles with recommended way)
+- Enable «Developer mode» in «...» → Settings → Advanced
+- Download the latest plugin release in a raw .zip archive from here and unzip it
+- Go to the «...» → Plugins, click «Load unpacked plugin» and point to the unzipped plugin
+- ⚠️ The important point here is: every new plugin release should be updated manually
 
 
 ## Roadmap
