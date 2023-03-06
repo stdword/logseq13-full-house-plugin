@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.0.0...v1.0.1) (2023-03-06)
+
+
+### Bug Fixes
+
+* return image for installation instructions ([01ec7f4](https://github.com/stdword/logseq13-full-house-plugin/commit/01ec7f411f8cea3ed0a6933bcc15123fa2b55908))
+
 # 1.0.0 (2023-03-06)
 
 > First public release
