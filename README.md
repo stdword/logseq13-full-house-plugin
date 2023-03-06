@@ -1,5 +1,5 @@
 <p align="center">
-  <img align="center" width="15%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/icon.png?raw=true"/>
+  <img align="center" width="15%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/icon.png?raw=true"/>
 </p>
 
 <h1 align="center" style="text-align: center; width: fit-content; margin-left: auto; margin-right: auto;">Full House Templates</h1>
