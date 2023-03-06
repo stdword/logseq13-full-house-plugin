@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.0.2...v1.0.3) (2023-03-06)
+
+
+### Bug Fixes
+
+* review package structure — move icon to top-level ([87eaa70](https://github.com/stdword/logseq13-full-house-plugin/commit/87eaa70ac1d867a2294f53763f867917a89a110d))
+
 ## [1.0.2](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.0.1...v1.0.2) (2023-03-06)
 
 
