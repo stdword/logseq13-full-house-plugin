@@ -13,7 +13,7 @@
     },
     "scripts": {
         "preinstall": "npx only-allow pnpm",
-        "clean": "rm -r ./dist/*",
+        "clean": "rm -r ./dist/* || true",
         "dev": "vite",
         "test": "ts-doctest ./ ./tests && jest",
         "build-assets": "cp ./assets/* ./dist && cp package.json ./dist",
