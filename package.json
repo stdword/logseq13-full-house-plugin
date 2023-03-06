@@ -8,7 +8,7 @@
     "logseq": {
         "id": "logseq13-full-house",
         "title": "Full House Templates",
-        "icon": "./icon.png",
+        "icon": "./assets/icon.png",
         "main": "./dist/index.html"
     },
     "scripts": {
@@ -16,9 +16,8 @@
         "clean": "rm -r ./dist/* || true",
         "dev": "vite",
         "test": "ts-doctest ./ ./tests && jest",
-        "build-assets": "cp ./assets/* ./dist && cp package.json ./dist",
-        "build": "tsc && vite build --mode=dev && npm run build-assets",
-        "prod": "npm run clean && vite build && npm run build-assets"
+        "build": "tsc && vite build --mode=dev",
+        "prod": "npm run clean && vite build"
     },
     "dependencies": {
         "@logseq/libs": "^0.0.14",
