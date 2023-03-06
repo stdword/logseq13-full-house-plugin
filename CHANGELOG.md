@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.0.1...v1.0.2) (2023-03-06)
+
+
+### Bug Fixes
+
+* update tutorial and trigger build ([c9156df](https://github.com/stdword/logseq13-full-house-plugin/commit/c9156df8b67115cdd4660c0bc540858756c64677))
+
 ## [1.0.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.0.0...v1.0.1) (2023-03-06)
 
 
