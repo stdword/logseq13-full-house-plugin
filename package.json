@@ -18,7 +18,7 @@
         "test": "ts-doctest ./ ./tests && jest",
         "build-assets": "cp ./assets/* ./dist && cp package.json ./dist",
         "build": "tsc && vite build --mode=dev && npm run build-assets",
-        "prod": "npm run test && npm run clean && vite build && npm run build-assets"
+        "prod": "npm run clean && vite build && npm run build-assets"
     },
     "dependencies": {
         "@logseq/libs": "^0.0.14",
