@@ -9,7 +9,7 @@
         "id": "logseq13-full-house",
         "title": "Full House Templates",
         "icon": "./icon.png",
-        "main": "./index.html"
+        "main": "./dist/index.html"
     },
     "scripts": {
         "preinstall": "npx only-allow pnpm",
