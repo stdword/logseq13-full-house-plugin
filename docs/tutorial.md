@@ -1,5 +1,5 @@
 # First steps (after intalling plugin)
-## Rendering template
+## Rendering named template
 - To **create a template** from block add `template` property with its name as a value (just like Logseq standard templates)
 - To **render a template**:
   - Type-in `/`-command «Full House → Insert temeplate» or select it from `Command Palette` (Ctrl+Shift+P or ⌘⇧P)
@@ -35,11 +35,11 @@
 
 </td></tr></table>
 
-
-
-
-
-
+## Rendering any block or page as a template
+- In fact there is no rule to have a «template» property in the block to render it
+  - Just use block or page reference instead of template name
+    - `{{renderer :template, ((64004111-...)) }}`
+  - For that case parent block is included by default
 
 
 
