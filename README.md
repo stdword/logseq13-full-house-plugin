@@ -21,7 +21,7 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 - 🤘 Accessing to any meta information: pages titles, blocks properties & content, your graph, etc.
 - 📅 Full support of dates-work: parsing, formatting, shifting
 - ☘️ Focusing on UX and simplicity: no more headache on where to add a space to make it work
-- 🔗 Easily make a reference to any journal page: relative to now moment, the current page, specific date ow whatever you want
+- 🔗 Easily make a reference to any journal page: relative to now moment, the current page, specific date or whatever you want
 - 👻 Custom logic with JS vars, conditions, loops and environment (if you know what I mean 😈)
 - 🛠 A set of handy template tags to work with
 - ✨ The long list of valuable ideas to implement ⤵️
@@ -29,11 +29,9 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 ## Very quick overview
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/222939346-f29ac2e0-5b68-461c-aed3-3853d6c0c6a2.gif" />
 
-<details closed>
-  <summary><b>Video</b></summary>
-  <video src="https://user-images.githubusercontent.com/1984175/222938639-a46f94dc-2a91-41c0-9f6e-9c877dc7b61b.mp4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">
-  </video>
-</details>
+<table><tr><td>
+
+<details><summary>Template</summary><p>
 
 ```markdown
 - template:: book
@@ -47,9 +45,11 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
   - rendered with template «``{ c.template.name }``» [→] (``{ ref(c.template.block) }``)
   - on ``{ date.now }``
 ```
+
 ```markdown
 - [[Tiago Forte — Building a Second Brain]]
 ```
+
 ```markdown
 - alias:: [[Building a Second Brain]]
   author:: [[Tiago Forte]]
@@ -60,6 +60,18 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 - rendered with template «book» [→](((6403ec06-...)))
 - on Sun, 05 Mar 2023 01:12:01 GMT
 ```
+</p></details> 
+
+</td><td>
+
+<details closed>
+  <summary><b>Video</b></summary>
+  <video src="https://user-images.githubusercontent.com/1984175/222938639-a46f94dc-2a91-41c0-9f6e-9c877dc7b61b.mp4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">
+  </video>
+</details>
+
+</td></tr></table>
+
 
 
 ## Installation
