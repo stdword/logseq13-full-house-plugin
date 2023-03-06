@@ -73,10 +73,9 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 </td></tr></table>
 
 
-
 ## Installation
 ### From Logseq Marketplace (recommended way):
-<span>    </span><img width="40%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/marketplace.png?raw=true" />
+<span>    </span><img width="40%" src="https://user-images.githubusercontent.com/1984175/223046274-e1b6a192-b7b5-4973-98f4-d9d2ff5ee048.png" />
 
 - Click «...» and open the «Plugins» section (or press `t p`)
 - Click on the «Marketplace»
