@@ -23,6 +23,7 @@ Eta.configure({
         raw: '~',
     },
     plugins: [], // TODO: https://github.com/nebrelbug/eta_plugin_mixins
+
     filter: (value: any): string => {
         if (typeof value === 'function')
             value = value()
@@ -32,7 +33,7 @@ Eta.configure({
 
         return value.toString()
     },
-})
+ })
 
 
 export enum VariableType {
@@ -77,32 +78,6 @@ export class Template implements ITemplate {
     public block: BlockEntity
     public name: string
     public includingParent: boolean
-
-    static async createByName(templateName: string): Promise<Template | null> {
-        const query = `
-            [:find (pull ?b [*])
-             :where
-                [?b :block/properties ?props]
-                [(get ?props :${Template.nameProperty}) ?name]
-                [(= ?name "${templateName}")]
-            ]
-        `.trim()
-
-        const ret = await logseq.DB.datascriptQuery(query)
-        if (!ret)
-            return null
-
-        const results = ret.flat()
-        if (!results || results.length === 0)
-            return null
-
-        const templateBlock = await logseq.Editor.getBlock(
-            results[0].uuid,
-            {includeChildren: true},
-        ) as BlockEntity
-
-        return new Template(templateBlock)
-    }
 
     constructor(block: BlockEntity) {
         this.block = block
@@ -161,7 +136,6 @@ export class Template implements ITemplate {
         })
     }
 }
-
 
 export class InlineTemplate implements ITemplate {
     public body: string

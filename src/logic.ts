@@ -3,7 +3,7 @@ import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin
 
 import { Template, InlineTemplate } from './template'
 import { PageContext, BlockContext, getConfigContext } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage } from './utils'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
 
@@ -41,20 +41,28 @@ export let renderTemplateInBlock =
     lockOn( ([uuid, ..._]) => uuid ) (
 async (
     uuid: string,
-    templateName: string,
+    templateRef: LogseqReference,
     pageRef: LogseqReference | null,
 ) => {
     console.debug(p`Render to block`, {uuid})
 
-    const template = await Template.createByName(templateName);
-    if (!template)
-        throw new StateError(`There's no such template: "${templateName}"`, {templateName})
+    const templateBlock = await getBlock(
+        templateRef, {
+        byProperty: Template.nameProperty,
+        includeChildren: true,
+    })
+    if (!templateBlock)
+        throw new StateError(
+            `There's no such template: "${templateRef.original}"`,
+            {templateRef},
+        )
 
+    const template = new Template(templateBlock)
     if (template.isEmpty())
         throw new StateMessage(
-            `Template "${templateName}" is empty.\n` +
-            `Add child blocks or set \`template-including-parent:: yes\``,
-            {templateName},
+            `Template "${template.name || templateRef.original}" is empty.\n` +
+            `Add child blocks or set "template-including-parent:: yes"`,
+            {templateRef},
         )
 
     const [ page, block ] = await getCurrentContext(uuid, pageRef)
@@ -76,7 +84,7 @@ async (
     catch (error) {
         const message = (error as Error).message
         throw new RenderError(
-            `Cannot render template "${templateName}": ${message}`,
+            `Cannot render template "${template.name || templateRef.original}": ${message}`,
             {template, error},
         )
     }
@@ -94,5 +102,6 @@ async (
 
     await logseq.Editor.exitEditingMode(false)
 
+    // to prevent too often re-renderings
     await sleep(3000)
  })

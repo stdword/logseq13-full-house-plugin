@@ -45,7 +45,7 @@ async function main() {
             logseq.UI.showMsg('Start editing block to insert template in it', 'warning', {timeout: 5000})
             return
         }
-        // else TODO: ask to insert template to the end of current page
+        // else TODO: ask UI to insert template to the end of current page
 
         insertContent(commandContent, { positionOnArg: 1 })
     })
@@ -55,21 +55,21 @@ async function main() {
     })
 
     logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
-        let [ type, templateRef, contextPageRef, ...args ] = payload.arguments;
-        if (!isCommand(type, commandName))
+        let [ type_, templateRef_, contextPageRef_, ...args ] = payload.arguments
+        if (!isCommand(type_, commandName))
             return
 
-        templateRef = cleanMacroArg(templateRef)
-        const ref = parseReference(cleanMacroArg(contextPageRef))
-        if (ref && ref.type === 'block') {
+        const templateRef = parseReference(cleanMacroArg(templateRef_))
+        const contextPageRef = parseReference(cleanMacroArg(contextPageRef_))
+        if (contextPageRef && contextPageRef.type === 'block') {
             logseq.UI.showMsg('Argument should be a page reference', 'error', {timeout: 5000})
             return
         }
 
-        console.debug(p`Rendering macro`, {type, templateRef, ref, args});
+        console.debug(p`Rendering macro`, {type_, templateRef, contextPageRef, args})
 
         try {
-            await renderTemplateInBlock(payload.uuid, templateRef, ref)
+            await renderTemplateInBlock(payload.uuid, templateRef, contextPageRef)
         } catch (error) {
             if (error instanceof StateError)
                 logseq.UI.showMsg(error.message, 'error', {timeout: 5000})

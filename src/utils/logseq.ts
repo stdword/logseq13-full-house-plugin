@@ -105,14 +105,68 @@ export function parseReference(ref: string): LogseqReference | null {
         value = Number(value)
     }
 
+    if (type_ != 'id')
+        value = (value as string).trim()
+
     return { type: type_, value, original: ref } as LogseqReference
  }
 
 export async function getPage(ref: LogseqReference): Promise<PageEntity | null> {
-    if (ref.type === 'block')
+    if (['block', 'block?'].includes(ref.type))
         return null
 
     return await logseq.Editor.getPage(ref.value)
+ }
+
+export async function getBlock(
+    ref: LogseqReference,
+    {
+        byProperty = '',
+        includeChildren = false,
+    }: { byProperty?: string, includeChildren?: boolean }
+): Promise<BlockEntity | null> {
+    if (['page', 'tag'].includes(ref.type))
+        return null
+
+    if (['name', 'block?'].includes(ref.type)) {
+        byProperty = byProperty.trim().toLowerCase()
+        if (byProperty.startsWith(':'))
+            byProperty = byProperty.slice(1)
+
+        if (!byProperty)
+            return null
+
+        const query = `
+            [:find (pull ?b [*])
+             :where
+                [?b :block/properties ?props]
+                [(get ?props :${byProperty}) ?name]
+                [(= ?name "${ref.value}")]
+            ]
+        `.trim()
+
+        const ret = await logseq.DB.datascriptQuery(query)
+        if (ret) {
+            const results = ret.flat()
+            if (results.length !== 0) {
+                if (results.length > 1)
+                    console.info(
+                        p`Found multiple results block with property "${byProperty}:: ${ref.value}". Taken first`,
+                        {results},
+                    )
+
+                if (!includeChildren)
+                    return results[0]
+
+                return await logseq.Editor.getBlock(
+                    results[0].id,
+                    {includeChildren: true},
+                ) as BlockEntity
+            }
+        }
+    }
+
+    return await logseq.Editor.getBlock(ref.value, {includeChildren})
  }
 
 export function cleanMacroArg(arg: string | null | undefined): string {
