@@ -3,23 +3,23 @@ import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin
 
 import { Template, InlineTemplate } from './template'
 import { PageContext, BlockContext, getConfigContext } from './context'
-import { p, IBlockNode, lockOn, sleep } from './utils'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
 
 /*
- * @raises StateError: `pageName` doesn't exist
+ * @raises StateError: `pageRef` doesn't exist
  */
 async function getCurrentContext(
     forBlockUUID: string,
-    pageName: string = '',
+    pageRef: LogseqReference | null,
 ): Promise<[PageEntity | null, BlockEntity | null]> {
     let page: PageEntity | null = null
-    if (pageName) {
-        // TODO: use query for page instead of name
-        const pageExists = await logseq.Editor.getPage(pageName)
+    if (pageRef) {
+        // TODO: use query for page instead of ref
+        const pageExists = await getPage(pageRef)
         if (!pageExists)
-            throw new StateError(`Page does't exist: "${pageName}"`, {pageName})
+            throw new StateError(`Page doesn't exist: "${pageRef.original}"`, {pageRef})
         page = pageExists
     }
 
@@ -39,11 +39,10 @@ async function getCurrentContext(
  */
 export let renderTemplateInBlock =
     lockOn( ([uuid, ..._]) => uuid ) (
-    lockOn( ([__, templateName, ..._]) => templateName ) (
 async (
     uuid: string,
     templateName: string,
-    pageName: string,
+    pageRef: LogseqReference | null,
 ) => {
     console.debug(p`Render to block`, {uuid})
 
@@ -58,9 +57,9 @@ async (
             {templateName},
         )
 
-    const [ page, block ] = await getCurrentContext(uuid, pageName)
+    const [ page, block ] = await getCurrentContext(uuid, pageRef)
     if (!page || !block) {
-        console.debug(p`logseq issue → rendering unexisted block / slot`)
+        console.debug(p`logseq issue → rendering non-existed block / slot`)
         return
     }
 
@@ -96,4 +95,4 @@ async (
     await logseq.Editor.exitEditingMode(false)
 
     await sleep(3000)
- }))
+ })

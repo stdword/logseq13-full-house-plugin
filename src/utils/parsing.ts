@@ -68,6 +68,18 @@ export function isBoolean(obj: any): boolean {
     return false
  }
 
+export function isInteger(str: string): boolean {
+    const x = Number(str)
+    if (Number.isNaN(x))
+        return false
+
+    // detect float
+    if (str.includes('.') || str.includes('e-'))
+        return false
+
+    return true
+ }
+
 export function isEmpty(obj: any): boolean {
     if (!obj) {
         return true
@@ -125,7 +137,7 @@ export function coerceStringToBool(str: string): boolean | null {
 
 /* Coerce to bool:
  *  - any bool object
- *  - non-empty string with value coercable to bool
+ *  - non-empty string with value coercible to bool
  *  - empty value (including [] and {})
  */
 export function coerceToBool(
@@ -145,17 +157,6 @@ export function coerceToBool(
     return default_
  }
 
-export function cleanReference(ref: string): string {
-    if (isEmptyString(ref))
-        return ''
-
-    if (ref.startsWith('#'))
-        ref = ref.slice(1)
-    if (ref.startsWith('[[') && ref.endsWith(']]'))
-        ref = ref.slice(2, -2)
-    return ref
- }
-
 export function unquote(ref: string, qoutes: string[] = quotesValues): string {
     if (isEmptyString(ref))
         return ''
@@ -165,22 +166,4 @@ export function unquote(ref: string, qoutes: string[] = quotesValues): string {
             ref = unquote(ref.slice(1, -1), qoutes)
 
     return ref
- }
-
-export function cleanMacroArg(arg: string | null | undefined): string {
-    arg ??= ''
-    arg = arg.trim()
-
-    if (arg.includes(',') && arg.startsWith('"') && arg.endsWith('"')) {
-        // «"» was used to escape «,» in logseq, so trim them
-        arg = arg.slice(1, -1)
-    }
-
-    // To deal with XSS: esacape dangerous (for datascript raw queries) chars
-    const escapeMap = {
-        '"': '\\"',
-    }
-
-    const chars = Object.keys(escapeMap).join('')
-    return arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
  }

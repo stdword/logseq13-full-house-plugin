@@ -2,9 +2,11 @@ import '@logseq/libs'
 import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import * as Eta from 'eta'
-import { getPriority } from 'os'
 
-import { ILocalContext, BlockContext, PageContext, PropertiesContext, getGlobalContext } from './context'
+import {
+    ILocalContext, BlockContext, PageContext, PropertiesContext,
+    getGlobalContext,
+} from './context'
 import { RenderError } from './errors'
 import { p, IBlockNode, walkBlockTree, toCamelCase, coerceToBool } from './utils'
 

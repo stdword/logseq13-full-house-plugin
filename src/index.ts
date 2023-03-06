@@ -4,8 +4,8 @@ import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 import { renderTemplateInBlock } from './logic'
 import { RenderError, StateError, StateMessage } from './errors'
 import { indexOfNth, lockOn, p } from './utils/other'
-import { cleanMacroArg, unquote, cleanReference } from './utils/parsing'
-import { insertContent, isCommand } from './utils/logseq'
+import { unquote } from './utils/parsing'
+import { cleanMacroArg, insertContent, isCommand, parseReference } from './utils/logseq'
 
 import { dayjs } from './context'
 import { LogseqDayjsState }  from './utils/dayjs_logseq_plugin'
@@ -55,17 +55,21 @@ async function main() {
     })
 
     logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
-        let [ type, templateName, contextPageName, ...args ] = payload.arguments;
+        let [ type, templateRef, contextPageRef, ...args ] = payload.arguments;
         if (!isCommand(type, commandName))
             return
 
-        templateName = cleanMacroArg(templateName)
-        contextPageName = cleanReference(cleanMacroArg(contextPageName))
+        templateRef = cleanMacroArg(templateRef)
+        const ref = parseReference(cleanMacroArg(contextPageRef))
+        if (ref && ref.type === 'block') {
+            logseq.UI.showMsg('Argument should be a page reference', 'error', {timeout: 5000})
+            return
+        }
 
-        console.debug(p`Rendering macro`, {type, templateName, contextPageName, args});
+        console.debug(p`Rendering macro`, {type, templateRef, ref, args});
 
         try {
-            await renderTemplateInBlock(payload.uuid, templateName, contextPageName)
+            await renderTemplateInBlock(payload.uuid, templateRef, ref)
         } catch (error) {
             if (error instanceof StateError)
                 logseq.UI.showMsg(error.message, 'error', {timeout: 5000})

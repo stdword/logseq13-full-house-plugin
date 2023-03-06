@@ -1,7 +1,7 @@
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import { indexOfNth, p } from './other'
-import { toCamelCase } from './parsing'
+import { isInteger, isUUID, toCamelCase } from './parsing'
 
 
 export type IBlockNode = Required<Pick<IBatchBlock, 'content' | 'children'>>
@@ -15,13 +15,6 @@ export function walkBlockTree(
     }
  }
 
-export function isCommand(name: string, command: string) {
-    if (name.startsWith(':'))
-        name = name.slice(1)
-
-    name = name.toLowerCase().trim()
-    return name === command
- }
 
 export async function insertContent(
     content: string,
@@ -66,6 +59,86 @@ export async function insertContent(
     await logseq.Editor.exitEditingMode()
     await logseq.Editor.updateBlock(block!.uuid, content)
     logseq.Editor.editBlock(block!.uuid, { pos: position })
+ }
+
+export type LogseqReference = {
+    type:
+        'page'   |  // [[text]]
+        'tag'    |  // #text or #[[text]]
+        'block'  |  // ((uuid))
+        'block?' |  // ((text))
+        'uuid'   |  // uuid: page, block or smth else
+        'name'   |  // text
+        'id',       // int
+    value: string | number,
+    original: string,
+ }
+export function parseReference(ref: string): LogseqReference | null {
+    ref = ref.trim()
+    if (ref === '')
+        return null
+
+    let type_  = 'name'
+    let value: string | number = ref
+
+    if (value.startsWith('[[') && value.endsWith(']]')) {
+        type_ = 'page'
+        value = value.slice(2, -2)
+    }
+    else if (value.startsWith('#')) {
+        type_ = 'tag'
+        value = value.slice(1)
+
+        if (value.startsWith('[[') && value.endsWith(']]'))
+            value = value.slice(2, -2)
+    }
+    else if (value.startsWith('((') && value.endsWith('))')) {
+        type_ = 'block'
+        value = value.slice(2, -2)
+        if (!isUUID(value))
+            type_ = 'block?'
+    }
+    else if (isUUID(value))
+        type_ = 'uuid'
+    else if (isInteger(value)) {
+        type_ = 'id'
+        value = Number(value)
+    }
+
+    return { type: type_, value, original: ref } as LogseqReference
+ }
+
+export async function getPage(ref: LogseqReference): Promise<PageEntity | null> {
+    if (ref.type === 'block')
+        return null
+
+    return await logseq.Editor.getPage(ref.value)
+ }
+
+export function cleanMacroArg(arg: string | null | undefined): string {
+    arg ??= ''
+    arg = arg.trim()
+
+    if (arg.includes(',') && arg.startsWith('"') && arg.endsWith('"')) {
+        // «"» was used to escape «,» in logseq, so trim them
+        arg = arg.slice(1, -1)
+    }
+
+    // To deal with XSS: escape dangerous (for datascript raw queries) chars
+    const escapeMap = {
+        '"': '\\"',
+    }
+
+    const chars = Object.keys(escapeMap).join('')
+    return arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
+ }
+
+export function isCommand(name: string, command: string) {
+    if (name.startsWith(':'))
+        name = name.slice(1)
+
+    name = name.toLowerCase().trim()
+    return name === command
  }
 
 export enum LogseqViewType { page, block, journals }
