@@ -1,8 +1,4 @@
-import * as P from "../package.json"
-
-// var PLUGIN_NAME = 'logseq13-full-house-plugin'
-var PLUGIN_NAME = P.name
-
+var PLUGIN_NAME = 'logseq13-full-house-plugin'
 
 module.exports = {
     branches: ['main'],
