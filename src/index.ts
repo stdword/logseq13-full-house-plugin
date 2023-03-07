@@ -59,17 +59,29 @@ async function main() {
         if (!isCommand(type_, commandName))
             return
 
-        const templateRef = parseReference(cleanMacroArg(templateRef_))
-        const contextPageRef = parseReference(cleanMacroArg(contextPageRef_))
+        templateRef_ = cleanMacroArg(templateRef_)
+        contextPageRef_ = cleanMacroArg(contextPageRef_)
+
+        let includingParent: boolean | undefined
+        if ('+-'.includes(templateRef_[0])) {
+            includingParent = templateRef_[0] == '+'
+            templateRef_ = templateRef_.slice(1)
+        }
+
+        const templateRef = parseReference(templateRef_)
+        const contextPageRef = parseReference(contextPageRef_)
         if (contextPageRef && contextPageRef.type === 'block') {
             logseq.UI.showMsg('Argument should be a page reference', 'error', {timeout: 5000})
             return
         }
 
-        console.debug(p`Rendering macro`, {type_, templateRef, contextPageRef, args})
+        console.debug(
+            p`Rendering macro`,
+            {type_, templateRef, includingParent, contextPageRef, args},
+        )
 
         try {
-            await renderTemplateInBlock(payload.uuid, templateRef, contextPageRef)
+            await renderTemplateInBlock(payload.uuid, templateRef, includingParent, contextPageRef)
         } catch (error) {
             if (error instanceof StateError)
                 logseq.UI.showMsg(error.message, 'error', {timeout: 5000})

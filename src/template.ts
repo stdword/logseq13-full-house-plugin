@@ -79,15 +79,19 @@ export class Template implements ITemplate {
     public name: string
     public includingParent: boolean
 
-    constructor(block: BlockEntity) {
+    constructor(block: BlockEntity, args?: {includingParent?: boolean}) {
         this.block = block
         this.name = PropertiesContext.getProperty(this.block, Template.nameProperty).text
 
-        const prop = PropertiesContext.getProperty(this.block, Template.includingParentProperty)
-        this.includingParent = (
-            coerceToBool(prop.text, false) ||
-            (prop.refs.length ? coerceToBool(prop.refs[0], false) : false)
-        )
+        if (args?.includingParent !== undefined)
+            this.includingParent = args!.includingParent
+        else {
+            const prop = PropertiesContext.getProperty(this.block, Template.includingParentProperty)
+            this.includingParent = (
+                coerceToBool(prop.text, false) ||
+                (prop.refs.length ? coerceToBool(prop.refs[0], false) : false)
+            )
+        }
 
         console.info(p`Created ${this}`)
     }

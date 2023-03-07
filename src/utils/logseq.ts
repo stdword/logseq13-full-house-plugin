@@ -184,7 +184,8 @@ export function cleanMacroArg(arg: string | null | undefined): string {
     }
 
     const chars = Object.keys(escapeMap).join('')
-    return arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
+    arg = arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
+    return arg.trim()
  }
 
 export function isCommand(name: string, command: string) {

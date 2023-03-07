@@ -42,6 +42,7 @@ export let renderTemplateInBlock =
 async (
     uuid: string,
     templateRef: LogseqReference,
+    includingParent: boolean | undefined,
     pageRef: LogseqReference | null,
 ) => {
     console.debug(p`Render to block`, {uuid})
@@ -57,7 +58,7 @@ async (
             {templateRef},
         )
 
-    const template = new Template(templateBlock)
+    const template = new Template(templateBlock, {includingParent})
     if (template.isEmpty())
         throw new StateMessage(
             `Template "${template.name || templateRef.original}" is empty.\n` +
