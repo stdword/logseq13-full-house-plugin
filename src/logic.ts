@@ -3,7 +3,7 @@ import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin
 
 import { Template, InlineTemplate } from './template'
 import { PageContext, BlockContext, getConfigContext } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType } from './utils'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
 
@@ -52,26 +52,10 @@ async (
     let name: string | undefined
 
     if (['page', 'tag'].includes(templateRef.type)) {
-        if (includingParent)
-            console.warn(p`includingParent arg ignored due to page template`)
-        includingParent = false
-
+        templateBlock = await getPageFirstBlock(templateRef, {includeChildren: true})
         accessedVia = 'page'
-        name = templateRef.value as string
 
-        const blocks = await logseq.Editor.getPageBlocksTree(templateRef.value as string)
-        if (!blocks)
-            templateBlock = null
-        else {
-            // constructing fake parent block
-            const b = blocks[0]
-            templateBlock = {
-                children: blocks,
-                properties: b.properties, propertiesTextValues: b.propertiesTextValues,
-                id: b.id, uuid: b.uuid, content: b.content, left: b.left,
-                parent: b.page, page: b.page, unordered: b.unordered, format: b.format,
-            } as BlockEntity
-        }
+        name = templateRef.value as string
     }
     else {
         [ templateBlock, accessedVia ] = await getBlock(
@@ -104,7 +88,7 @@ async (
 
     const context = {
         config: await getConfigContext(),
-        page: new PageContext(page),
+        page: PageContext.createFromEntity(page),
         block: new BlockContext(block),
     }
 

@@ -4,8 +4,9 @@ import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 import * as Eta from 'eta'
 
 import {
-    ILocalContext, BlockContext, PageContext, PropertiesContext,
+    ILocalContext, BlockContext, PageContext, PropertiesUtils,
     getGlobalContext,
+    Context,
 } from './context'
 import { RenderError } from './errors'
 import { p, IBlockNode, walkBlockTree, toCamelCase, coerceToBool, LogseqReferenceAccessType } from './utils'
@@ -86,8 +87,8 @@ export class Template implements ITemplate {
         accessedVia?: LogseqReferenceAccessType,
     }) {
         this.block = block
-        this.name = args?.name ?? PropertiesContext.getProperty(
-            this.block, Template.nameProperty).text
+        this.name = PropertiesUtils.getProperty(
+            this.block, Template.nameProperty).text || args?.name || ''
 
         if (args?.includingParent !== undefined)
             this.includingParent = args!.includingParent
@@ -101,7 +102,7 @@ export class Template implements ITemplate {
             //   → defaultIncludingParent = true
 
             const defaultIncludingParent = args?.accessedVia === 'block'
-            const prop = PropertiesContext.getProperty(this.block, Template.includingParentProperty)
+            const prop = PropertiesUtils.getProperty(this.block, Template.includingParentProperty)
             const value = prop.refs.length ? prop.refs[0] : prop.text
             this.includingParent = coerceToBool(
                 value, {
@@ -124,36 +125,34 @@ export class Template implements ITemplate {
     render(context: Partial<ILocalContext>): IBlockNode {
         console.info(p`Rendering ${this}`)
 
-        context.template = {
+        context.template = new Context({
             name: this.name,
             includingParent: this.includingParent,
             block: new BlockContext(this.block),
             props: {},
             propsRefs: {},
-        }
+        }) as unknown as ILocalContext['template']
 
         // shortcuts
         context.template!.props = context.template!.block.props
         context.template!.propsRefs = context.template!.block.propsRefs
 
         if (this.includingParent) {
-            PropertiesContext.deleteProperty(this.block, Template.nameProperty)
-            PropertiesContext.deleteProperty(this.block, Template.includingParentProperty)
+            PropertiesUtils.deleteProperty(this.block, Template.nameProperty)
+            PropertiesUtils.deleteProperty(this.block, Template.includingParentProperty)
         }
         else
             this.block.content = ''  // skip rendering
 
-        const renderContext = getGlobalContext()
+        const renderContext = {
+            ...getGlobalContext(),
+            c: new Context(context),
+        }
 
         return walkBlockTree(this.block as IBlockNode, (b) => {
-            const finalContext = {
-                ...renderContext,
-                c: {
-                    ...context,
-                    self: new BlockContext(b as BlockEntity),
-                }
-            }
-            return Eta.render(b.content, finalContext)
+            // @ts-expect-error
+            renderContext.c.self = new BlockContext(b as BlockEntity)
+            return Eta.render(b.content, renderContext)
         })
     }
 }

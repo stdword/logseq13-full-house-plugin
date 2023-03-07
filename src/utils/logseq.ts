@@ -177,6 +177,42 @@ export async function getBlock(
     ]
  }
 
+export async function getPageFirstBlock(
+    ref: LogseqReference,
+    { includeChildren = false }: { includeChildren?: boolean }
+): Promise<BlockEntity | null> {
+    if (!['page', 'tag', 'name', 'uuid', 'id'].includes(ref.type))
+        return null
+
+    let idField = ':block/name'
+    let idValue = `"${ref.value}"`
+    if (ref.type === 'uuid')
+        idField = ':block/uuid'
+    else if (ref.type === 'id') {
+        idField = ':db/id'
+        idValue = ref.value.toString()
+    }
+
+    const query = `
+        [:find (pull ?b [${includeChildren ? ':db/id' : '*'}])
+         :where
+            [?b :block/page ?p]
+            [?b :block/parent ?p]
+            [?b :block/left ?p]
+            [?p ${idField} ${idValue}]
+        ]
+    `.trim()
+    const ret = await logseq.DB.datascriptQuery(query)
+    if (!ret || ret.length === 0)
+        return null
+
+    const block = ret.flat()[0]
+    if (!includeChildren)
+        return block
+
+    return await logseq.Editor.getBlock(block.id, {includeChildren: true})
+ }
+
 export function cleanMacroArg(arg: string | null | undefined): string {
     arg ??= ''
     arg = arg.trim()

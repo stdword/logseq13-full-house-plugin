@@ -14,6 +14,7 @@ import updateLocale      from 'dayjs/plugin/updateLocale'
 import logseqPlugin      from './utils/dayjs_logseq_plugin'
 
 import { f, isEmptyString, p, toCamelCase } from './utils'
+import { type } from 'os'
 
 export { dayjs }
 dayjs.extend(customParseFormat)
@@ -31,60 +32,80 @@ dayjs.extend(updateLocale)
 dayjs.extend(logseqPlugin)
 
 
-export interface IContext {
-    [index: string]: any
+export class Context {
+    constructor(data: {[index: string]: any} = {}) {
+        Object.assign(this, data)
+    }
+    filterForDisplaying() {
+        const result = {}
+        for (let [ field, value ] of Object.entries(this)) {
+            if (field.startsWith('_'))
+                continue
+
+            if (value instanceof Context)
+                value = value.filterForDisplaying()
+            else if (Array.isArray(value))
+                value = value.map(item => {
+                    if (item instanceof Context)
+                        return item.filterForDisplaying()
+                    return item
+                })
+            result[field] = value
+        }
+        return result
+    }
+    toString() {
+        // pretty print whole context body
+        return (
+            '```json\n' +
+            JSON.stringify(this.filterForDisplaying(), null, 4) +
+            '\n```'
+        )
+    }
 }
 
-
-export class PageContext implements IContext {
-    private _page: PageEntity
+export class PageContext extends Context {
+    private _page?: PageEntity
 
     public id: number
-    public uuid: string
-    public name: string  // original
-    public name_: string  // id: lowercased
-    public isJournal: boolean
-    public day: Dayjs | null
-    public file: any
-    public propsRefs: PropertiesRefs
+    public uuid?: string
+    public name?: string  // original
+    public name_?: string  // id: lowercased
+    public isJournal?: boolean
+    public day?: Dayjs
+    public file?: any
+    public propsRefs?: PropertiesRefs
 
-    static async createByName(pageName: string): Promise<PageContext | null> {
-        const page: PageEntity | null = await logseq.Editor.getPage(pageName)
-        if (!page)
-            return null
+    static createFromEntity(page: PageEntity) {
+        const obj = new PageContext(page.id, page.originalName)
+        obj._page = page
 
-        return new PageContext(page)
-    }
-    static async createByUUID(uuid: string): Promise<PageContext | null> {
-        const page: PageEntity | null = await logseq.Editor.getPage({uuid})
-        if (!page)
-            return null
+        obj.uuid = page.uuid
+        obj.file = page.file   // TODO: construct file
 
-        return new PageContext(page)
-    }
+        const props = PropertiesUtils.getProperties(page)
+        obj.propsRefs = (new Context(props.refs)) as unknown as PageContext['propsRefs']
 
-    constructor(page: PageEntity) {
-        this._page = page;
-
-        ({
-            id: this.id,
-            uuid: this.uuid,
-            originalName: this.name,
-            name: this.name_,
-            file: this.file, // TODO: construct file
-        } = page)
-
-        const props = new PropertiesContext(this._page)
-        this.propsRefs = props.refs
-
-        this.isJournal = page['journal?']
+        obj.isJournal = page['journal?']
 
         const day = page.journalDay?.toString()
-        this.day = day ? dayjs(day, 'YYYYMMDD').startOf('day') : null
+        if (day)
+            obj.day = dayjs(day, 'YYYYMMDD').startOf('day')
+        return obj
+    }
+
+    constructor(id: number, name: string) {
+        super()
+
+        this.id = id
+        if (name) {
+            this.name = name
+            this.name_ = name.toLowerCase()
+        }
     }
 }
 
-export class BlockContext implements IContext {
+export class BlockContext extends Context {
     private _block: BlockEntity
 
     public id: number
@@ -94,7 +115,7 @@ export class BlockContext implements IContext {
     public props: Properties
     public propsRefs: PropertiesRefs
 
-    public page: PageContext | {id: number, name?: string, originalName?: string}
+    public page: PageContext
     public parentBlock: {id: number} | null
     public prevBlock: {id: number} | null
     public level: number
@@ -102,8 +123,12 @@ export class BlockContext implements IContext {
     public children: ({} | BlockContext)[]
     public refs: {id: number}[]
 
-    constructor(block: BlockEntity, page: PageEntity | PageContext | null = null) {
-        this._block = block;
+    constructor(block: BlockEntity, args: {
+        page?: PageEntity | PageContext,
+        level?: number,
+    } = {}) {
+        super()
+        this._block = block ;
 
         ({
             id: this.id,
@@ -112,30 +137,34 @@ export class BlockContext implements IContext {
             refs: this.refs,
         } = block)
 
-        const props = new PropertiesContext(this._block)
-        this.props = props.values
-        this.propsRefs = props.refs
+        const props = PropertiesUtils.getProperties(block)
+        this.props = (new Context(props.values)) as unknown as BlockContext['props']
+        this.propsRefs = (new Context(props.refs)) as unknown as BlockContext['propsRefs']
 
+        const page = args.page
         if (page)
-            this.page = (page instanceof PageContext) ? page : new PageContext(page)
-        else {
-            this.page = {id: this._block.page.id}
-            if (this._block.page.name)
-                this.page.name = this._block.page.name
-            if (this._block.page.originalName)
-                this.page.originalName = this._block.page.originalName
-        }
+            if (page instanceof PageContext)
+                this.page =  page
+            else
+                this.page = PageContext.createFromEntity(page)
+        else
+            this.page = new PageContext(block.page.id, block.page.originalName ?? '')
 
-        this.parentBlock = this._block.page.id !== this._block.parent.id ? {id: this._block.parent.id} : null
-        this.prevBlock = this._block.parent.id !== this._block.left.id ? {id: this._block.left.id} : null
-        this.level = 0
+        this.parentBlock = block.page.id !== block.parent.id ? {id: block.parent.id} : null
+        this.prevBlock = block.parent.id !== block.left.id ? {id: block.left.id} : null
+        this.level = args.level ?? 0
 
-        this.children = this._block.children ?? []
+        this.children = block.children ?? []
         if (this.children.length > 0) {
             if (Array.isArray(this.children[0]))  // non-tree mode: get only children count
                 this.children = Array(this.children.length).fill({})
             else  // tree mode
-                this.children = this.children.map(b => new BlockContext(b as BlockEntity))
+                this.children = this.children.map(
+                    b => new BlockContext(b as BlockEntity, {
+                        level: this.level + 1,
+                        page: this.page,
+                    })
+                )
         }
     }
 }
@@ -143,10 +172,10 @@ export class BlockContext implements IContext {
 
 type LogseqProperty = { name: string, text: string, refs: string[] }
 
-export type Properties = {[index: string]: string}
-export type PropertiesRefs = {[index: string]: string[]}
+type Properties     = {[index: string]: string  }
+type PropertiesRefs = {[index: string]: string[]}
 
-export class PropertiesContext implements IContext {
+export class PropertiesUtils {
     static propertyContentFormat = f`^${'pattern'}::[^\\n]*?\\n?$`
     static propertyRestrictedChars = ':;,^@#~"`/|\\(){}[\\]'
 
@@ -178,40 +207,38 @@ export class PropertiesContext implements IContext {
             delete block.propertiesTextValues[nameCamelCased]
 
         block.content = block.content.replaceAll(
-            new RegExp(PropertiesContext.propertyContentFormat({pattern: name}), 'gim'),
+            new RegExp(PropertiesUtils.propertyContentFormat({pattern: name}), 'gim'),
             '',
         )
     }
     static getPropertyNames(text: string): string[] {
         const propertyNames: string[] = []
-        const propertyLine = new RegExp(PropertiesContext.propertyContentFormat({
-            pattern: `([^${PropertiesContext.propertyRestrictedChars}]+)`
+        const propertyLine = new RegExp(PropertiesUtils.propertyContentFormat({
+            pattern: `([^${PropertiesUtils.propertyRestrictedChars}]+)`
         }), 'gim')
         text.replaceAll(propertyLine, (m, name) => {propertyNames.push(name); return m})
         return propertyNames
     }
+    static getProperties(obj: BlockEntity | PageEntity) {
+        const values: Properties = {}
+        const refs: PropertiesRefs = {}
 
-    public values: Properties
-    public refs: PropertiesRefs
-
-    constructor(obj: BlockEntity | PageEntity) {
-        this.values = {}
-        this.refs = {}
-
-        const names = (obj instanceof BlockContext)
-            ? PropertiesContext.getPropertyNames(obj.content)
+        const names = !!obj.content
+            ? PropertiesUtils.getPropertyNames(obj.content)
             : Object.keys(obj.properties ?? {})
 
         for (const name of names) {
-            const p = PropertiesContext.getProperty(obj, name)
-            this.values[name] = this.values[p.name] = p.text
-            this.refs[name] = this.refs[p.name] = p.refs
+            const p = PropertiesUtils.getProperty(obj, name)
+            values[name] = values[p.name] = p.text
+            refs[name] = refs[p.name] = p.refs
         }
+
+        return {values, refs}
     }
 }
 
 
-export interface ILocalContext extends IContext {
+export interface ILocalContext {
     page: PageContext
     block: BlockContext
     self: BlockContext
@@ -223,7 +250,7 @@ export interface ILocalContext extends IContext {
         propsRefs: PropertiesRefs,
     }
     config: {
-        version: string,
+        pluginVersion: string,
 
         preferredTodo: 'LATER' | 'TODO',
         preferredWorkflow: 'now' | 'todo',
@@ -244,13 +271,15 @@ export interface ILocalContext extends IContext {
     }
 }
 
+
 export async function getConfigContext() {
     // TODO: use full config
     // const fullConfig = await logseq.App.getCurrentGraphConfigs()
 
     const config = await logseq.App.getUserConfigs()
-    const info = await logseq.App.getInfo()
-    return {...config, ...info}
+    delete config.me
+
+    return {...config, pluginVersion: await logseq.baseInfo.version}
 }
 
 
@@ -313,7 +342,7 @@ export function getGlobalContext(): {
         else if (item instanceof BlockContext)
             return _bref(item.uuid)
         else if (item instanceof PageContext)
-            item = item.name
+            item = item.name ?? ''  // TODO: name may be absent: request page by .id then
         else {
             // check for the case `ref(today)`
             const date = _tryAsDateString(item as string)
@@ -328,7 +357,7 @@ export function getGlobalContext(): {
             return _ref(item.toPage())
         }
         else if (item instanceof PageContext)
-            return _ref(item.name)
+            return _ref(item.name ?? '')   // TODO: name may be absent: request page by .id then
         else if (item instanceof BlockContext)
             item = item.uuid
 
@@ -340,7 +369,7 @@ export function getGlobalContext(): {
         if (item instanceof dayjs)
             id = ref(item)
         else if (item instanceof PageContext)
-            id = _ref(item.name)
+            id = _ref(item.name || '')   // TODO: name may be absent: request page by .id then
         else if (item instanceof BlockContext)
             id = _bref(item.uuid)
         else  {
@@ -392,4 +421,4 @@ export function getGlobalContext(): {
         yesterday, today, tomorrow, time,
         date,
     }
-}
+ }
