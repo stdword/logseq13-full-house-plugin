@@ -40,18 +40,20 @@ async function main() {
     const commandContent = `{{renderer :${commandName}, TEMPLATE NAME, (optional) page reference}}`
 
     logseq.App.registerCommandPalette({ key: 'insert-template', label: commandLabel }, async (e) => {
-        const position = await logseq.Editor.getEditingCursorPosition()
-        if (!position) {
-            logseq.UI.showMsg('Start editing block to insert template in it', 'warning', {timeout: 5000})
+        const inserted = await insertContent(commandContent, { positionOnArg: 1 })
+        if (!inserted) {
+            // TODO: ask UI to insert template to the end of current page
+            logseq.UI.showMsg(
+                'Start editing block or select one to insert template in it',
+                'warning',
+                {timeout: 5000},
+            )
             return
         }
-        // else TODO: ask UI to insert template to the end of current page
-
-        insertContent(commandContent, { positionOnArg: 1 })
     })
 
     logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
-        insertContent(commandContent, { positionOnArg: 1 })
+        await insertContent(commandContent, { positionOnArg: 1 })
     })
 
     logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
@@ -71,7 +73,7 @@ async function main() {
         const templateRef = parseReference(templateRef_)
         const contextPageRef = parseReference(contextPageRef_)
         if (contextPageRef && contextPageRef.type === 'block') {
-            logseq.UI.showMsg('Argument should be a page reference', 'error', {timeout: 5000})
+            await logseq.UI.showMsg('Argument should be a page reference', 'error', {timeout: 5000})
             return
         }
 
@@ -84,19 +86,19 @@ async function main() {
             await renderTemplateInBlock(payload.uuid, templateRef, includingParent, contextPageRef)
         } catch (error) {
             if (error instanceof StateError)
-                logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
+                await logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
             else if (error instanceof StateMessage)
-                logseq.UI.showMsg(error.message, 'info', {timeout: 5000})
+                await logseq.UI.showMsg(error.message, 'info', {timeout: 5000})
             else if (error instanceof RenderError)
-                logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
+                await logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
             else
                 console.error(p`${(error as Error).stack}`)
         }
     })
 
-    logseq.onSettingsChanged((old, new_) => {
-        onAppSettingsChanged()
+    logseq.onSettingsChanged(async (old, new_) => {
+        await onAppSettingsChanged()
     })
 }
 
-logseq.ready().then(main).catch(console.error);
+logseq.ready().then(main).catch(console.error)

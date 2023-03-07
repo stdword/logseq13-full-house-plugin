@@ -1,4 +1,4 @@
-import {logseq as packageInfo} from '../../package.json'
+import { logseq as packageInfo } from '../../package.json'
 
 
 try {
@@ -57,7 +57,7 @@ export function lockOn(idFunc: ((args: any) => string)) {
             const key = idFunc(args)
             await locks.request(key, {ifAvailable: true}, async (lock) => {
                 if (!lock) {
-                    console.warn(p`Excess call of "${func.name}" with "${args}"`)
+                    console.warn(p`Excess call of "${func.name}" with`, {func, args})
                     return
                 }
                 await func(...args)

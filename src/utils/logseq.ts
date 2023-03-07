@@ -1,6 +1,6 @@
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
-import { f, indexOfNth, p } from './other'
+import { f, indexOfNth, p, sleep } from './other'
 import { isInteger, isUUID, toCamelCase } from './parsing'
 
 
@@ -19,12 +19,18 @@ export function walkBlockTree(
 export async function insertContent(
     content: string,
     options: { positionOnArg?: number, positionOnText?: string } = {},
-) {
-    const cursor = await logseq.Editor.getEditingCursorPosition()
-    if (!cursor) {
+): boolean {
+    // Bug with Command Palette modal: Logseq exits editing state when modal appears
+    // To handle this: use selected blocks — the editing block turns to selected
+
+    const selected = (await logseq.Editor.getSelectedBlocks()) ?? []
+    const editing = await logseq.Editor.checkEditing()
+    if (!editing && selected.length === 0) {
         console.warn(p`Attempt to insert content while not in editing state`)
-        return
+        return false
     }
+    const uuid = Reflect.get(selected, '0')?.uuid || editing
+
 
     // TODO: logseq needs API to set selection in editing state
     // to implement feature like sublime text snippets: placeholders switched by TAB
@@ -32,8 +38,8 @@ export async function insertContent(
 
     const { positionOnArg, positionOnText } = options
     if (!positionOnArg && !positionOnText) {
-        logseq.Editor.insertAtEditingCursor(content)
-        return
+        await logseq.Editor.insertAtEditingCursor(content)
+        return true
     }
 
     let position = 0
@@ -55,10 +61,11 @@ export async function insertContent(
     else
         position = content.indexOf(positionOnText!)
 
-    const block = await logseq.Editor.getCurrentBlock()
     await logseq.Editor.exitEditingMode()
-    await logseq.Editor.updateBlock(block!.uuid, content)
-    logseq.Editor.editBlock(block!.uuid, { pos: position })
+    await sleep(20)
+    await logseq.Editor.updateBlock(uuid, content)
+    await logseq.Editor.editBlock(uuid, { pos: position })
+    return true
  }
 
 

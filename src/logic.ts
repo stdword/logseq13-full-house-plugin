@@ -94,7 +94,7 @@ async (
 
     let rendered: IBlockNode
     try {
-        rendered = template.render(context as ILogseqContext)
+        rendered = template.render(context as unknown as ILogseqContext)
     }
     catch (error) {
         const message = (error as Error).message
