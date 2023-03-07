@@ -3,13 +3,10 @@ import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import * as Eta from 'eta'
 
-import {
-    ILocalContext, BlockContext, PageContext, PropertiesUtils,
-    getGlobalContext,
-    Context,
-} from './context'
+import { ILogseqContext, BlockContext, PageContext, Context } from './context'
 import { RenderError } from './errors'
-import { p, IBlockNode, walkBlockTree, toCamelCase, coerceToBool, LogseqReferenceAccessType } from './utils'
+import { getTemplateTagsContext } from './tags'
+import { p, IBlockNode, walkBlockTree, toCamelCase, coerceToBool, LogseqReferenceAccessType, PropertiesUtils } from './utils'
 
 
 Eta.configure({
@@ -68,7 +65,7 @@ export class TemplateVariable {
 
 
 interface ITemplate {
-    render(context: Partial<ILocalContext>): IBlockNode
+    render(context: ILogseqContext): IBlockNode
     isEmpty(): boolean
 }
 
@@ -122,7 +119,7 @@ export class Template implements ITemplate {
 
         return !this.block.children || this.block.children.length === 0
     }
-    render(context: Partial<ILocalContext>): IBlockNode {
+    render(context: ILogseqContext): IBlockNode {
         console.info(p`Rendering ${this}`)
 
         context.template = new Context({
@@ -131,7 +128,7 @@ export class Template implements ITemplate {
             block: new BlockContext(this.block),
             props: {},
             propsRefs: {},
-        }) as unknown as ILocalContext['template']
+        }) as unknown as ILogseqContext['template']
 
         // shortcuts
         context.template!.props = context.template!.block.props
@@ -145,7 +142,7 @@ export class Template implements ITemplate {
             this.block.content = ''  // skip rendering
 
         const renderContext = {
-            ...getGlobalContext(),
+            ...getTemplateTagsContext(),
             c: new Context(context),
         }
 
@@ -163,7 +160,7 @@ export class InlineTemplate implements ITemplate {
     constructor(body: string) {
         this.body = body
     }
-    render(context: Partial<ILocalContext>): IBlockNode {
+    render(context: ILogseqContext): IBlockNode {
         return {
             content: Eta.render(this.body, context),
             children: [],

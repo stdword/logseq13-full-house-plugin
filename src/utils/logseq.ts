@@ -1,6 +1,6 @@
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
-import { indexOfNth, p } from './other'
+import { f, indexOfNth, p } from './other'
 import { isInteger, isUUID, toCamelCase } from './parsing'
 
 
@@ -60,6 +60,7 @@ export async function insertContent(
     await logseq.Editor.updateBlock(block!.uuid, content)
     logseq.Editor.editBlock(block!.uuid, { pos: position })
  }
+
 
 export type LogseqReference = {
     type:
@@ -213,6 +214,7 @@ export async function getPageFirstBlock(
     return await logseq.Editor.getBlock(block.id, {includeChildren: true})
  }
 
+
 export function cleanMacroArg(arg: string | null | undefined): string {
     arg ??= ''
     arg = arg.trim()
@@ -240,29 +242,70 @@ export function isCommand(name: string, command: string) {
     return name === command
  }
 
-export enum LogseqViewType { page, block, journals }
-export type LogseqView =
-    { view: LogseqViewType.journals } |
-    { view: LogseqViewType.page,  page: PageEntity } |
-    { view: LogseqViewType.block, page: PageEntity, block: BlockEntity }
 
-export async function getCurrentView(): Promise<LogseqView> {
-    const current: PageEntity | BlockEntity | null = await logseq.Editor.getCurrentPage()
-    if (!current)
-        return {
-            view: LogseqViewType.journals,
+type LogseqProperty = { name: string, text: string, refs: string[] }
+
+export type Properties     = {[index: string]: string  }
+export type PropertiesRefs = {[index: string]: string[]}
+
+export class PropertiesUtils {
+    static propertyContentFormat = f`^${'pattern'}::[^\\n]*?\\n?$`
+    static propertyRestrictedChars = ':;,^@#~"`/|\\(){}[\\]'
+
+    static getProperty(obj: BlockEntity | PageEntity, name: string): LogseqProperty {
+        const nameCamelCased = toCamelCase(name)
+
+        let refs: string[] = []
+        if (obj.properties) {
+            const val = obj.properties[nameCamelCased]
+            refs = Array.isArray(val) ? val : []
         }
 
-    if (current.page) {
+        let text: string = ''
+        if (obj.propertiesTextValues)
+            text = obj.propertiesTextValues[nameCamelCased] ?? ''
+
         return {
-            view: LogseqViewType.block,
-            page: await logseq.Editor.getPage(current.page.id) as PageEntity,
-            block: current as BlockEntity,  // zoomed in block
+            name: nameCamelCased,
+            text,
+            refs,
         }
     }
+    static deleteProperty(block: BlockEntity, name: string): void {
+        const nameCamelCased = toCamelCase(name)
 
-    return {
-        view: LogseqViewType.page,
-        page: current as PageEntity,
+        if (block.properties)
+            delete block.properties[nameCamelCased]
+        if (block.propertiesTextValues)
+            delete block.propertiesTextValues[nameCamelCased]
+
+        block.content = block.content.replaceAll(
+            new RegExp(PropertiesUtils.propertyContentFormat({pattern: name}), 'gim'),
+            '',
+        )
     }
- }
+    static getPropertyNames(text: string): string[] {
+        const propertyNames: string[] = []
+        const propertyLine = new RegExp(PropertiesUtils.propertyContentFormat({
+            pattern: `([^${PropertiesUtils.propertyRestrictedChars}]+)`
+        }), 'gim')
+        text.replaceAll(propertyLine, (m, name) => {propertyNames.push(name); return m})
+        return propertyNames
+    }
+    static getProperties(obj: BlockEntity | PageEntity) {
+        const values: Properties = {}
+        const refs: PropertiesRefs = {}
+
+        const names = !!obj.content
+            ? PropertiesUtils.getPropertyNames(obj.content)
+            : Object.keys(obj.properties ?? {})
+
+        for (const name of names) {
+            const p = PropertiesUtils.getProperty(obj, name)
+            values[name] = values[p.name] = p.text
+            refs[name] = refs[p.name] = p.refs
+        }
+
+        return {values, refs}
+    }
+}
