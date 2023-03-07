@@ -79,22 +79,26 @@ export class Template implements ITemplate {
     public name: string
     public includingParent: boolean
 
-    constructor(block: BlockEntity, args?: {includingParent?: boolean, accessedVia?: LogseqReferenceAccessType}) {
+    constructor(
+        block: BlockEntity, args?: {
+        name?: string,
+        includingParent?: boolean,
+        accessedVia?: LogseqReferenceAccessType,
+    }) {
         this.block = block
-        this.name = PropertiesContext.getProperty(this.block, Template.nameProperty).text
+        this.name = args?.name ?? PropertiesContext.getProperty(
+            this.block, Template.nameProperty).text
 
         if (args?.includingParent !== undefined)
             this.includingParent = args!.includingParent
         else {
-            // if template accessed via property (== 'name')
-            // → it has properties where `template-including-parent` can be placed
-            // → defaultIncludingParent = false
-            //
-            // same rule is for templates accessed via page (== 'page')
-            //
-            // but when template accessed via non-template block (== 'block')
-            // → properties may not exist
-            // → defaultIncludingParent = true
+            // 1) if template accessed via property (== 'name')
+            //   → it has properties where `template-including-parent` can be placed
+            //   → defaultIncludingParent = false
+            // 2) same rule is for templates accessed via page (== 'page')
+            // 3) but when template accessed via non-template block (== 'block')
+            //   → properties may not exist
+            //   → defaultIncludingParent = true
 
             const defaultIncludingParent = args?.accessedVia === 'block'
             const prop = PropertiesContext.getProperty(this.block, Template.includingParentProperty)
@@ -104,7 +108,6 @@ export class Template implements ITemplate {
                 defaultForEmpty: defaultIncludingParent,
                 defaultForUncoercible: defaultIncludingParent,
             }) as boolean
-            console.log(p`QWE`, {value, defaultIncludingParent, r: this.includingParent});
         }
 
         console.info(p`Created ${this}`)

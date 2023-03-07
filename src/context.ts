@@ -271,7 +271,10 @@ export function getGlobalContext(): {
     date: {
         yesterday: Dayjs
         today: Dayjs
+        now: Dayjs,
         tomorrow: Dayjs
+
+        from: Function,
     }
 } {
     const isoDateFromat = 'YYYY-MM-DD'
@@ -290,7 +293,7 @@ export function getGlobalContext(): {
     }
 
     // All these template tags could be used in raw javascript template code
-    // → type desclarations could be violated
+    // → type declarations could be violated
     // → use .toString() where necessary
 
     function _ref(item: string): string {
