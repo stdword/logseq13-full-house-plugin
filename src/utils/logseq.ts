@@ -73,6 +73,8 @@ export type LogseqReference = {
     value: string | number,
     original: string,
  }
+export type LogseqReferenceAccessType = 'page' | 'block' | 'name'
+
 export function parseReference(ref: string): LogseqReference | null {
     ref = ref.trim()
     if (ref === '')
@@ -124,9 +126,9 @@ export async function getBlock(
         byProperty = '',
         includeChildren = false,
     }: { byProperty?: string, includeChildren?: boolean }
-): Promise<BlockEntity | null> {
+): Promise<[BlockEntity | null, LogseqReferenceAccessType]> {
     if (['page', 'tag'].includes(ref.type))
-        return null
+        return [ null, 'page']
 
     if (['name', 'block?'].includes(ref.type)) {
         byProperty = byProperty.trim().toLowerCase()
@@ -134,7 +136,7 @@ export async function getBlock(
             byProperty = byProperty.slice(1)
 
         if (!byProperty)
-            return null
+            return [ null, 'name']
 
         const query = `
             [:find (pull ?b [*])
@@ -151,22 +153,28 @@ export async function getBlock(
             if (results.length !== 0) {
                 if (results.length > 1)
                     console.info(
-                        p`Found multiple results block with property "${byProperty}:: ${ref.value}". Taken first`,
+                        p`Found multiple blocks with property "${byProperty}:: ${ref.value}". Taken first`,
                         {results},
                     )
 
                 if (!includeChildren)
-                    return results[0]
+                    return [ results[0], 'name' ]
 
-                return await logseq.Editor.getBlock(
-                    results[0].id,
-                    {includeChildren: true},
-                ) as BlockEntity
+                return [
+                    await logseq.Editor.getBlock(
+                        results[0].id,
+                        {includeChildren: true},
+                    ) as BlockEntity,
+                    'name',
+                ]
             }
         }
     }
 
-    return await logseq.Editor.getBlock(ref.value, {includeChildren})
+    return [
+        await logseq.Editor.getBlock(ref.value, {includeChildren}),
+        'block',
+    ]
  }
 
 export function cleanMacroArg(arg: string | null | undefined): string {

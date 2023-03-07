@@ -142,19 +142,21 @@ export function coerceStringToBool(str: string): boolean | null {
  */
 export function coerceToBool(
     obj: any,
-    default_: boolean = true,
-    defaultForEmpty: boolean | null = null): boolean {
+    opts?: {
+        defaultForUncoercible?: boolean,
+        defaultForEmpty?: boolean,
+    }): boolean | null {
     if (isBoolean(obj))
         return !!obj
 
     if (isEmpty(obj))
-        return defaultForEmpty ?? default_
+        return opts?.defaultForEmpty ?? null
 
     const bool = coerceStringToBool(obj)
     if (bool !== null)
         return bool
 
-    return default_
+    return opts?.defaultForUncoercible ?? null
  }
 
 export function unquote(ref: string, qoutes: string[] = quotesValues): string {

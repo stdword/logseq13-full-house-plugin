@@ -47,7 +47,7 @@ async (
 ) => {
     console.debug(p`Render to block`, {uuid})
 
-    const templateBlock = await getBlock(
+    const [ templateBlock, accessedVia ] = await getBlock(
         templateRef, {
         byProperty: Template.nameProperty,
         includeChildren: true,
@@ -58,7 +58,7 @@ async (
             {templateRef},
         )
 
-    const template = new Template(templateBlock, {includingParent})
+    const template = new Template(templateBlock, {includingParent, accessedVia})
     if (template.isEmpty())
         throw new StateMessage(
             `Template "${template.name || templateRef.original}" is empty.\n` +
