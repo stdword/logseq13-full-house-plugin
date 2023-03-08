@@ -98,8 +98,13 @@
 
 </td><td>
 
-<details closed><summary>video</summary>
+<details closed><summary>video 1</summary>
   <video src="https://user-images.githubusercontent.com/1984175/223789581-761e8487-4534-4638-b9db-56a9cbb64fba.mp4"/>
+</details>
+
+</td><td>
+
+<details closed><summary>video 2</summary>
   <video src="https://user-images.githubusercontent.com/1984175/223789892-ef247e8a-5b0f-48a8-8548-5a3620e13e40.mp4"/>
 </details>
 
