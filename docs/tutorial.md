@@ -25,7 +25,7 @@
 ```markdown
 - {{renderer :template, simple}}
 ```
-</p></details> 
+</p></details>
 
 </td><td>
 
@@ -55,4 +55,52 @@
 
 </td></tr></table>
 
+## Making references via context variables
 
+- Inside the template you can refer to context variables that represents various meta information:
+  - `c.block`: block you are rendering template in: you can access its uuid, properties, related blocks
+  - `c.page`: page of the block you are rendering template in: to get title, properties and journal day
+  - `c.template`: name, properties & access to template block
+  - `c.self`: template block from which current block is rendering: to get corresponding meta information
+  - *Note*: «c» means «*c*ontext» — don't forget to type it in
+- To use context variable wrap it with triple-char brackets:
+  ```json
+  ``{ c.page.name }``
+  ```
+  - *Note*: This is back-ticks, not single quotes
+<img width="60%" src="https://user-images.githubusercontent.com/1984175/223791469-c345b3e5-ffe0-407a-aed1-03aa46e843cd.gif"/>
+<img width="60%" src="https://user-images.githubusercontent.com/1984175/223793090-4cd317ad-d95c-4a07-9970-35f046b3cfd5.gif"/>
+
+<table><tr><td>
+
+<details><summary>code</summary><p>
+
+```markdown
+- template:: context-vars
+  - This text was rendered from template «`{ c.template.name }`»
+  - Links to the page:
+    - [[``{ c.page.name }``]]
+    - `{ `[[${c.page.name}]]` }`
+    - `{ '[[' + c.page.name + ']]' }`
+    - `{ ref(c.page.name) }`
+    - `{ ref(c.page) }`
+    - `[ c.page ]` or `[[ c.page ]]` — future variants (not supported now)
+  - And links to blocks:
+    - `{ bref(c.block.uuid) }`
+    - `{ bref(c.block) }`
+    - `{ ref(c.block) }`
+  - Embedding the current block:
+    - {{embed `{ bref(c.self.uuid) }`}}
+    - `{ embed(c.self.uuid) }`
+    - `{ embed(c.self) }`
+```
+</p></details>
+
+</td><td>
+
+<details closed><summary>video</summary>
+  <video src="https://user-images.githubusercontent.com/1984175/223789581-761e8487-4534-4638-b9db-56a9cbb64fba.mp4"/>
+  <video src="https://user-images.githubusercontent.com/1984175/223789892-ef247e8a-5b0f-48a8-8548-5a3620e13e40.mp4"/>
+</details>
+
+</td></tr></table>
