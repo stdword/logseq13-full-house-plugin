@@ -71,22 +71,29 @@ interface ITemplate {
 
 export class Template implements ITemplate {
     public static readonly idProperty: string = 'id'
+    public static readonly titleProperty: string = 'title'
+    public static readonly filtersProperty: string = 'filters'
+    public static readonly iconProperty: string = 'icon'
+
     public static readonly nameProperty: string = 'template'
     public static readonly includingParentProperty: string = 'template-including-parent'
 
     public block: BlockEntity
     public name: string
     public includingParent: boolean
+    public accessedVia: LogseqReferenceAccessType
 
     constructor(
-        block: BlockEntity, args?: {
+        block: BlockEntity, args: {
         name?: string,
         includingParent?: boolean,
-        accessedVia?: LogseqReferenceAccessType,
+        accessedVia: LogseqReferenceAccessType,
     }) {
         this.block = block
         this.name = PropertiesUtils.getProperty(
             this.block, Template.nameProperty).text || args?.name || ''
+
+        this.accessedVia = args.accessedVia
 
         if (args?.includingParent !== undefined)
             this.includingParent = args!.includingParent
@@ -99,7 +106,7 @@ export class Template implements ITemplate {
             //   → properties may not exist
             //   → defaultIncludingParent = true
 
-            const defaultIncludingParent = args?.accessedVia === 'block'
+            const defaultIncludingParent = this.accessedVia === 'block'
             const prop = PropertiesUtils.getProperty(this.block, Template.includingParentProperty)
             const value = prop.refs.length ? prop.refs[0] : prop.text
             this.includingParent = coerceToBool(
@@ -139,6 +146,11 @@ export class Template implements ITemplate {
             PropertiesUtils.deleteProperty(this.block, Template.nameProperty)
             PropertiesUtils.deleteProperty(this.block, Template.includingParentProperty)
             PropertiesUtils.deleteProperty(this.block, Template.idProperty)
+            if (this.accessedVia === 'page') {
+                PropertiesUtils.deleteProperty(this.block, Template.titleProperty)
+                PropertiesUtils.deleteProperty(this.block, Template.filtersProperty)
+                PropertiesUtils.deleteProperty(this.block, Template.iconProperty)
+            }
         }
         else
             this.block.content = ''  // skip rendering
