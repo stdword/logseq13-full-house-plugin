@@ -1,3 +1,19 @@
+# [1.1.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.0.3...v1.1.0) (2023-03-08)
+
+
+### Bug Fixes
+
+* inserting renderer command ([1f3f1c9](https://github.com/stdword/logseq13-full-house-plugin/commit/1f3f1c9d331b5e27b92a6e46489357fb33cdc6e6))
+* removing id property to prevent fake parent bug ([008d2e1](https://github.com/stdword/logseq13-full-house-plugin/commit/008d2e1ebae5a6138b6765120d9748806a1427d6))
+
+
+### Features
+
+* added possibility to override `template-including-parent` property when calling render ([ec0a5e1](https://github.com/stdword/logseq13-full-house-plugin/commit/ec0a5e1e25f969e8c43488c33dcf7846735c9f76))
+* render page as a template rework & scan-rendering context variables ([16266dd](https://github.com/stdword/logseq13-full-house-plugin/commit/16266dd0f77204d8b2446fe2de3094ad4a65a9dc))
+* render page as template ([832fc5d](https://github.com/stdword/logseq13-full-house-plugin/commit/832fc5d6fddb1369c23e0611e5b0743d58793b50))
+* rendering non-template block incuding parent by default ([979693e](https://github.com/stdword/logseq13-full-house-plugin/commit/979693ec23387bf419535d95cf1ec0c8f441dc3c))
+
 ## [1.0.3](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.0.2...v1.0.3) (2023-03-06)
 
 
