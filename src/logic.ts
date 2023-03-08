@@ -72,7 +72,6 @@ async (
         )
 
     const template = new Template(templateBlock, {name, includingParent, accessedVia})
-    console.log({template});
     if (template.isEmpty())
         throw new StateMessage(
             `Template "${template.name || templateRef.original}" is empty.\n` +

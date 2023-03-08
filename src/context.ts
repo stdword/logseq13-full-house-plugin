@@ -70,6 +70,7 @@ export class PageContext extends Context {
     public isJournal?: boolean
     public day?: Dayjs
     public file?: any
+    public props?: Properties
     public propsRefs?: PropertiesRefs
 
     static createFromEntity(page: PageEntity) {
@@ -80,6 +81,7 @@ export class PageContext extends Context {
         obj.file = page.file   // TODO: construct file
 
         const props = PropertiesUtils.getProperties(page)
+        obj.props = (new Context(props.values)) as unknown as PageContext['props']
         obj.propsRefs = (new Context(props.refs)) as unknown as PageContext['propsRefs']
 
         obj.isJournal = page['journal?']

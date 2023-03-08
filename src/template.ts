@@ -130,17 +130,14 @@ export class Template implements ITemplate {
     render(context: ILogseqContext): IBlockNode {
         console.info(p`Rendering ${this}`)
 
+        const blockContext = new BlockContext(this.block)
         context.template = new Context({
             name: this.name,
             includingParent: this.includingParent,
-            block: new BlockContext(this.block),
-            props: {},
-            propsRefs: {},
+            block: blockContext,
+            props: blockContext.props,
+            propsRefs: blockContext.propsRefs,
         }) as unknown as ILogseqContext['template']
-
-        // shortcuts
-        context.template!.props = context.template!.block.props
-        context.template!.propsRefs = context.template!.block.propsRefs
 
         if (this.includingParent) {
             PropertiesUtils.deleteProperty(this.block, Template.nameProperty)
