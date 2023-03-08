@@ -70,6 +70,7 @@ interface ITemplate {
 }
 
 export class Template implements ITemplate {
+    public static readonly idProperty: string = 'id'
     public static readonly nameProperty: string = 'template'
     public static readonly includingParentProperty: string = 'template-including-parent'
 
@@ -137,6 +138,7 @@ export class Template implements ITemplate {
         if (this.includingParent) {
             PropertiesUtils.deleteProperty(this.block, Template.nameProperty)
             PropertiesUtils.deleteProperty(this.block, Template.includingParentProperty)
+            PropertiesUtils.deleteProperty(this.block, Template.idProperty)
         }
         else
             this.block.content = ''  // skip rendering

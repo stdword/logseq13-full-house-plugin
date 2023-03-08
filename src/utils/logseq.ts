@@ -19,7 +19,7 @@ export function walkBlockTree(
 export async function insertContent(
     content: string,
     options: { positionOnArg?: number, positionOnText?: string } = {},
-): boolean {
+): Promise<boolean> {
     // Bug with Command Palette modal: Logseq exits editing state when modal appears
     // To handle this: use selected blocks — the editing block turns to selected
 

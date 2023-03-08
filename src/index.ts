@@ -64,6 +64,11 @@ async function main() {
         templateRef_ = cleanMacroArg(templateRef_)
         contextPageRef_ = cleanMacroArg(contextPageRef_)
 
+        if (!templateRef_) {
+            await logseq.UI.showMsg('Template reference is required', 'error', {timeout: 5000})
+            return
+        }
+
         let includingParent: boolean | undefined
         if ('+-'.includes(templateRef_[0])) {
             includingParent = templateRef_[0] == '+'
