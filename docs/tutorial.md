@@ -45,4 +45,14 @@
   - And if you want to exclude it — use minus sign before reference:
     - `{{renderer :template, - ((64004111-...)) }}`
     - `{{renderer :template, + [[page name]] }}` — plus sign works as well
+<img width="60%" src="https://user-images.githubusercontent.com/1984175/223593341-64b2f1f0-0310-49bd-b722-aeb7a97b9035.gif"/>
+
+<table><tr><td>
+
+<details closed><summary>video</summary>
+  <video src="https://user-images.githubusercontent.com/1984175/223593545-fb5bb3a8-bac6-4abf-bbc6-4e7a18dab748.mp4"/>
+</details>
+
+</td></tr></table>
+
 
