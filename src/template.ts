@@ -29,6 +29,7 @@ Eta.configure({
         if (typeof value === 'string')
             return value
 
+        value = value ?? ''
         return value.toString()
     },
  })

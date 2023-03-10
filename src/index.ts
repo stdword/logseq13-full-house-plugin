@@ -3,7 +3,7 @@ import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
 import { renderTemplateInBlock } from './logic'
 import { RenderError, StateError, StateMessage } from './errors'
-import { indexOfNth, lockOn, p } from './utils/other'
+import { indexOfNth, lockOn, p, sleep } from './utils/other'
 import { unquote } from './utils/parsing'
 import { cleanMacroArg, insertContent, isCommand, parseReference } from './utils/logseq'
 
@@ -24,13 +24,17 @@ async function onAppSettingsChanged() {
 }
 
 async function init() {
+    if (import.meta.env.DEV) {
+        // @ts-expect-error
+        logseq.UI.showMsg(`HMR #${top!.hmr_count}`, 'info', {timeout: 3000})
+    }
+
     console.info(p`Loaded`)
 
     // Logseq reads config setting `preferredDateFormat` with some delay
     // So we need to wait some time
     setTimeout(onAppSettingsChanged, 100)
 }
-
 
 async function main() {
     init()
@@ -43,7 +47,7 @@ async function main() {
         const inserted = await insertContent(commandContent, { positionOnArg: 1 })
         if (!inserted) {
             // TODO: ask UI to insert template to the end of current page
-            logseq.UI.showMsg(
+            await logseq.UI.showMsg(
                 'Start editing block or select one to insert template in it',
                 'warning',
                 {timeout: 5000},
@@ -54,6 +58,17 @@ async function main() {
 
     logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
         await insertContent(commandContent, { positionOnArg: 1 })
+    })
+
+    logseq.Editor.registerBlockContextMenuItem(
+        'Code to render block', async (e) => {
+            const textToCopy = `{{renderer :${commandName}, ((${e.uuid})) }}`
+
+            window.focus()  // need to make an interactions with clipboard
+            await navigator.clipboard.writeText(textToCopy)
+
+            await logseq.UI.showMsg('Copied to clipboard',
+                'success', {timeout: 5000})
     })
 
     logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
@@ -106,4 +121,10 @@ async function main() {
     })
 }
 
-logseq.ready().then(main).catch(console.error)
+
+if (import.meta.env.DEV) {
+    // @ts-expect-error
+    top!.hmr_count = (top!.hmr_count + 1) || 1
+}
+
+logseq.ready(main).catch(console.error)
