@@ -109,3 +109,54 @@
 </details>
 
 </td></tr></table>
+
+## Accessing properties
+
+- Access to property values via `props` and `propsRefs` attributes of page or block objects
+- Check if property is empty or missing with `empty` template tag (and fallback to some default value)
+— And context structure could be viewed just by rendering appropriate variable
+<img width="60%" src="https://user-images.githubusercontent.com/1984175/224456470-13c8449f-7f64-4cc6-bcd7-ce9068b6266b.gif"/>
+
+<table><tr><td>
+
+<details><summary>code</summary><p>
+
+```markdown
+- template:: properties
+  description:: An example of how to retrieve properties values
+  - from template itself: ``{ c.template.props.description }``
+  - from current block: ``{ c.self.props.message }``
+    message:: wat!
+  - from the page: ``{ c.page.props.related }``
+  - and from the block to which rendering occurs: ``{ c.block.props.info }``
+```
+
+```markdown
+- {{renderer :template, properties}}
+  info:: Do we really need this?
+```
+
+```markdown
+- template:: property-existence
+  - Some property could be missed. Then its value is empty: ` ``{ c.self.props.missed }`` `
+  - But we can fallback to ` ``{ empty(c.self.props.missed, 'any string') }`` `
+  - ``{ empty(c.self.props.zero) }`` is non-empty!
+    zero:: 0
+  - Single dash or minus values consider empty: ``{ empty(c.self.props.dash) }``
+    dash:: —
+  - But compare to: ``{ c.self.props.dash }``
+    dash:: —
+  - ``{ empty(c.self.props.quotes, 'Empty quotes equals empty values too') }``
+    quotes:: «»
+  - As a final — let's see the whole context structure:
+    - ``{ c }``
+```
+</p></details>
+
+</td><td>
+
+<details closed><summary>video</summary>
+  <video src="https://user-images.githubusercontent.com/1984175/224456476-3a336408-65dd-4c08-98b7-50b9176eebbc.mp4"/>
+</details>
+
+</td></tr></table>
