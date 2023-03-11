@@ -116,6 +116,7 @@
 - Check if property is empty or missing with `empty` template tag (and fallback to some default value)
 — And context structure could be viewed just by rendering appropriate variable
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/224456470-13c8449f-7f64-4cc6-bcd7-ce9068b6266b.gif"/>
+<img width="60%" src="https://user-images.githubusercontent.com/1984175/224459061-3388811e-70fb-4473-9d2b-1d7c4c410bfe.gif"/>
 
 <table><tr><td>
 
@@ -155,8 +156,14 @@
 
 </td><td>
 
-<details closed><summary>video</summary>
+<details closed><summary>video 1</summary>
   <video src="https://user-images.githubusercontent.com/1984175/224456476-3a336408-65dd-4c08-98b7-50b9176eebbc.mp4"/>
+</details>
+
+</td><td>
+
+<details closed><summary>video 2</summary>
+  <video src="https://user-images.githubusercontent.com/1984175/224458614-229f8685-9960-4e60-9f21-7efb68f89627.mp4"/>
 </details>
 
 </td></tr></table>
