@@ -106,11 +106,11 @@ See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/ma
 
 
 ## Credits
-
 - Inspiration:
   - [Obsidian Templater](https://github.com/SilentVoid13/Templater) by SilentVoid13
   - [Logseq SmartBlocks](https://github.com/sawhney17/logseq-smartblocks) by sawhney17
 - Based on lightweight embedded JS templating engine: [Eta](https://github.com/eta-dev/eta)
+- [Day.js](https://day.js.org) a minimalist JavaScript library for dates and times work
 - Icon created by <a href="https://www.flaticon.com/free-icon/web-design_1085802" title="Flaticon">monkik</a>
 
 ## License

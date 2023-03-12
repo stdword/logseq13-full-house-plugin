@@ -3,7 +3,7 @@
 - [Rendering any block or page as a template](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#rendering-any-block-or-page-as-a-template)
 - [Making references via context variables](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#making-references-via-context-variables)
 - [Accessing properties](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#accessing-properties)
-- [Dates & times work]()
+- [Dates & times work](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#dates--times-work)
 - [JavaScript environment]()
 - [Conditional contexts]()
 
@@ -205,6 +205,10 @@
   - ``{ time }``: Reference to current journal page: ``{ ref(c.page.day) }``
   - ``{ time }``: And to specific journal page (date in ISO format): ``{ ref('2023-03-01') }``
 ```
+
+```markdown
+- {{renderer :template, ((640c7183-70fe-474e-86d1-48e1c273ca06)), [[2023-03-01 Wed]]}}
+```
 </p></details>
 
 </td><td>
@@ -212,8 +216,6 @@
 <details closed><summary>video</summary>
   <video src="https://user-images.githubusercontent.com/1984175/224491092-acb230f8-29cf-4c96-8f85-d5e889838f04.mp4"/>
 </details>
-
-</td><td>
 
 </td></tr></table>
 
@@ -269,6 +271,8 @@
   <video src="https://user-images.githubusercontent.com/1984175/224491399-d1fd34e7-6b83-4175-b791-d93fceda79c6.mp4"/>
 </details>
 
-</td><td>
-
 </td></tr></table>
+
+## JavaScript environment
+
+## Conditional contexts
