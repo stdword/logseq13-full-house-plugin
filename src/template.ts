@@ -3,7 +3,7 @@ import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import * as Eta from 'eta'
 
-import { ILogseqContext, BlockContext, PageContext, Context } from './context'
+import { ILogseqContext, BlockContext, PageContext, Context, dayjs } from './context'
 import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'
 import { p, IBlockNode, walkBlockTree, toCamelCase, coerceToBool, LogseqReferenceAccessType, PropertiesUtils } from './utils'
@@ -22,9 +22,10 @@ Eta.configure({
     },
     plugins: [], // TODO: https://github.com/nebrelbug/eta_plugin_mixins
 
-    filter: (value: any): string => {
-        if (typeof value === 'function')
-            value = value()
+    filter: function (value: any): string {
+        if (value instanceof dayjs)
+            // @ts-expect-error
+            return value.toPage()
 
         if (typeof value === 'string')
             return value

@@ -5,16 +5,6 @@ import { isEmptyString, p } from './utils'
 
 const isoDateFromat = 'YYYY-MM-DD'
 
-const todayObj = dayjs()
-const yesterdayObj = todayObj.subtract(1, 'day').startOf('day')
-const tomorrowObj = todayObj.add(1, 'day').startOf('day')
-
-const yesterday = yesterdayObj.format(isoDateFromat)
-const today = todayObj.format(isoDateFromat)
-const tomorrow = tomorrowObj.format(isoDateFromat)
-const time = dayjs().format('HH:mm')
-
-
 type ITemplateTagsContext = {
     ref: Function
     bref: Function
@@ -62,6 +52,8 @@ function _bref(item: string): string {
  }
 
 function ref(item: string | BlockContext | PageContext | Dayjs): string {
+    item = item ?? ''
+
     if (item instanceof dayjs) {
         // @ts-expect-error
         item = item.toPage()
@@ -79,6 +71,8 @@ function ref(item: string | BlockContext | PageContext | Dayjs): string {
     return _ref(item as string)
  }
 function bref(item: string | BlockContext | PageContext | Dayjs): string {
+    item = item ?? ''
+
     if (item instanceof dayjs) {
         // @ts-expect-error
         return _ref(item.toPage())
@@ -124,11 +118,20 @@ function fill(value: string | number, char: string, width: number): string {
     const count = Math.max(0, width - value.length)
     return char.repeat(count) + value
  }
-function zeros(value: string | number, width: number): string {
+function zeros(value: string | number, width: number = 2): string {
     return fill(value, '0', width)
  }
 
 export function getTemplateTagsContext(): ITemplateTagsContext {
+    const todayObj = dayjs()
+    const yesterdayObj = todayObj.subtract(1, 'day').startOf('day')
+    const tomorrowObj = todayObj.add(1, 'day').startOf('day')
+
+    const yesterday = yesterdayObj.format(isoDateFromat)
+    const today = todayObj.format(isoDateFromat)
+    const tomorrow = tomorrowObj.format(isoDateFromat)
+    const time = dayjs().format('HH:mm')
+
     return {
         ref, bref, embed,
         empty, fill, zeros,
