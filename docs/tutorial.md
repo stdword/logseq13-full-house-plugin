@@ -1,3 +1,12 @@
+# Table of Contents
+- [Rendering named template](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#rendering-named-template)
+- [Rendering any block or page as a template](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#rendering-any-block-or-page-as-a-template)
+- [Making references via context variables](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#making-references-via-context-variables)
+- [Accessing properties](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#accessing-properties)
+- [Dates & times work]()
+- [JavaScript environment]()
+- [Conditional contexts]()
+
 # First steps (after installing plugin)
 ## Rendering named template
 - To **create a template** from block add `template` property with its name as a value (just like Logseq standard templates)
@@ -143,7 +152,7 @@
   - But we can fallback to ` ``{ empty(c.self.props.missed, 'any string') }`` `
   - ``{ empty(c.self.props.zero) }`` is non-empty!
     zero:: 0
-  - Single dash or minus values consider empty: ``{ empty(c.self.props.dash) }``
+  - Single dash or minus values are considered empty: ``{ empty(c.self.props.dash) }``
     dash:: —
   - But compare to: ``{ c.self.props.dash }``
     dash:: —
@@ -165,5 +174,101 @@
 <details closed><summary>video 2</summary>
   <video src="https://user-images.githubusercontent.com/1984175/224458614-229f8685-9960-4e60-9f21-7efb68f89627.mp4"/>
 </details>
+
+</td></tr></table>
+
+
+
+## Dates & times work
+### References to journal pages
+- There is a way to get `today` date and `now` time just as text in template
+  - `yesterday` and `tomorrow` works as well
+- To make a reference to appropriate journal page use `ref` template tag
+- Every journal page's `day` field and template tags `date.now`, `date.yesterday` and `date.tomorrow` is a special date objects
+  - You can access them and use full power of [Day.js](https://day.js.org/) API
+<img width="60%" src="https://user-images.githubusercontent.com/1984175/224491262-c5b8c07e-8033-406b-af01-5260aaa5a3bc.gif"/>
+
+<table><tr><td>
+
+<details><summary>code</summary><p>
+
+```markdown
+- template-including-parent:: ✔️
+  rendered-at:: ``{ today }``
+  - ``{ time }``: There is a difference between ``{ today }`` and ``{ date.today }``
+  - ``{ time }``: But reference to a journal page can be made with both of them:
+    - ``{ ref(today) }``
+    - ``{ ref(date.today) }``
+  - ``{ time }``: References to yesterday's and tomorrow's journal pages:
+    - ``{ ref(yesterday) }``
+    - ``{ ref(tomorrow) }``
+  - ``{ time }``: Reference to current journal page: ``{ ref(c.page.day) }``
+  - ``{ time }``: And to specific journal page (date in ISO format): ``{ ref('2023-03-01') }``
+```
+</p></details>
+
+</td><td>
+
+<details closed><summary>video</summary>
+  <video src="https://user-images.githubusercontent.com/1984175/224491092-acb230f8-29cf-4c96-8f85-d5e889838f04.mp4"/>
+</details>
+
+</td><td>
+
+</td></tr></table>
+
+
+### Formatting and constructing date objects
+- You can access different parts of date object and format it as string
+  - Documentation for getting date parts [→](https://day.js.org/docs/en/get-set/get-set)
+  - Documentation for `.format` date pattern: [→](https://day.js.org/docs/en/display/format#list-of-all-available-formats) and [→](https://day.js.org/docs/en/plugin/advanced-format)
+- To construct references to specific journal pages use `date.from` template tag
+  - Documentation for date pattern [→](https://day.js.org/docs/en/parse/string-format#list-of-all-available-parsing-tokens)
+  - Documentation of available units [→](https://day.js.org/docs/en/manipulate/add#list-of-all-available-units)
+<img width="60%" src="https://user-images.githubusercontent.com/1984175/224491397-360aba5e-ee22-4ed3-bf15-aaf00b0ec8b9.gif"/>
+
+<table><tr><td>
+
+<details><summary>code</summary><p>
+
+```markdown
+- template:: formatting
+  - Accessing parts of date object:
+    - Time:
+      - ``{ date.now.hour() }``:``{ date.now.minute() }``
+      - ``{ zeros(date.now.hour()) }``:``{ zeros(date.now.minute()) }``
+    - Week: ``{ date.now.year() }``-W``{ date.now.week() }``
+  - Format to any custom string:
+    - Time: ``{ date.now.format('HH:mm') }``
+    - Week: ``{ date.now.format('YYYY-[W]w') }``
+  - Special formatting form to easily create journal references:
+    - *``{ date.now.format('page') }``*
+    - *``{ date.now.toPage() }``*
+```
+
+```markdown
+- template:: new-dates
+  - Constructing from any string with `date.from` template tag
+    - ISO string: ``{ date.from('2023-03-01') }``
+    - Custom format should be specified explicitly: ``{ date.from('2210', 'YYMM')}``
+    - Or even several formats at a time: ``{ date.from('2210', ['YYMM', 'YYYYMM']) }``
+  - Constructing by shifting date object
+    - Last week: ``{ date.now.subtract(1, 'week').startOf('week') }``
+    - This week: ``{ date.now.startOf('week') }``
+    - Next week: ``{ date.now.add(1, 'w').startOf('w') }``
+    - Last month: ``{ date.now.startOf('month').subtract(1, 'M') }``
+    - Next year: ``{ date.now.endOf('y').add(1, 'ms') }``
+    - This week's friday: ``{ date.now.startOf('day').weekday(5) }``
+    - Next quarter: ``{ date.now.startOf('quarter').add(1, 'Q') }``
+```
+</p></details>
+
+</td><td>
+
+<details closed><summary>video</summary>
+  <video src="https://user-images.githubusercontent.com/1984175/224491399-d1fd34e7-6b83-4175-b791-d93fceda79c6.mp4"/>
+</details>
+
+</td><td>
 
 </td></tr></table>

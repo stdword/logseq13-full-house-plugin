@@ -29,6 +29,8 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 ## Very quick overview
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/222939346-f29ac2e0-5b68-461c-aed3-3853d6c0c6a2.gif" />
 
+See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md) sections for details.
+
 <table><tr><td>
 
 <details><summary>Template</summary><p>
@@ -80,7 +82,7 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 - Click «...» and open the «Plugins» section (or press `t p`)
 - Click on the «Marketplace»
 - On the «Plugins» tab search for «Full House Templates» plugin and click install
-- See the Documentation and Showcases to start using your new superpower :)
+- See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md) to start using your new superpower :)
 
 ### Manual way (in case of any troubles with recommended way)
 - Enable «Developer mode» in «...» → Settings → Advanced
