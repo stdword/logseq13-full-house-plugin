@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.1.0...v1.2.0) (2023-03-13)
+
+
+### Bug Fixes
+
+* added missed props context variable for page ([a0a56de](https://github.com/stdword/logseq13-full-house-plugin/commit/a0a56deeb06bd235810ad148e16c05f815d14b73))
+* clear page properties in case of template rendering from page ([ba27389](https://github.com/stdword/logseq13-full-house-plugin/commit/ba2738910a460a36693628bc493029c71ebe65dc))
+* date template tags refreshing ([7e42d92](https://github.com/stdword/logseq13-full-house-plugin/commit/7e42d925e99488cf4b55175cefb842448aba6af8))
+
+
+### Features
+
+* context command to render block ([b8aa85a](https://github.com/stdword/logseq13-full-house-plugin/commit/b8aa85a6d35c84af604db295239686abfb6b7a8e))
+
 # [1.1.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.0.3...v1.1.0) (2023-03-08)
 
 
