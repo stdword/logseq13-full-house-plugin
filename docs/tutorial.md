@@ -1,6 +1,4 @@
 # Tutorial
-
-# Table of Contents
 - [Rendering named template](#rendering-named-template)
 - [Rendering any block or page as a template](#rendering-any-block-or-page-as-a-template)
 - [Making references via context variables](#making-references-via-context-variables)
