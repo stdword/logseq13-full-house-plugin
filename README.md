@@ -1,4 +1,8 @@
 <p align="center">
+⚠️ <b>Under active development</b> ⚠️
+</p>
+
+<p align="center">
   <img align="center" width="15%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/icon.png?raw=true"/>
 </p>
 
