@@ -1,3 +1,5 @@
+# Tutorial
+
 # Table of Contents
 - [Rendering named template](#rendering-named-template)
 - [Rendering any block or page as a template](#rendering-any-block-or-page-as-a-template)
@@ -7,7 +9,6 @@
 - [JavaScript environment](#javascript-environment)
 - [Conditional contexts](#conditional-contexts)
 
-# First steps (after installing plugin)
 ## Rendering named template
 - To **create a template** from block add `template` property with its name as a value (just like Logseq standard templates)
 - To **render a template**:
@@ -314,5 +315,38 @@
 <img src="https://user-images.githubusercontent.com/1984175/224791554-5e257d29-0441-4f7a-a672-67e8abf882c6.png"/>
 </td></tr></table>
 
-
 ## Conditional contexts
+- As a part of [JavaScript environment](#javascript-environment) — you can write a fully supported JavaSscript code just inside template
+- Use exclamation mark before the code to do it:
+  - ```typescript
+    ``{ ! js code goes here }``
+    ```
+<img width="60%" src="https://user-images.githubusercontent.com/1984175/224825504-713f65cb-b32f-4e15-b08e-2254b85d02fe.gif"/>
+
+<table><tr><td>
+
+<img src="https://user-images.githubusercontent.com/1984175/224812776-e7c40283-9af7-4a26-970a-69325b62ea7f.png"/>
+<details><summary>code</summary><p>
+
+```markdown
+- template:: if-logic
+  - ``{ !
+            if ((c.page.propsRefs.tags || []).includes('book')) {
+                let [ authors, title ] = c.page.name.split(' — ', 2)
+                authors = authors.split(', ').map(ref)
+     }``
+    name:: ``{ title }``
+    authors:: ``{ authors.join('; ') }``
+    ``{ !
+            } else logseq.App.showMsg('The page is not a book', 'info', {timeout: 3000})
+     }``
+```
+</p></details>
+
+</td><td>
+
+<details closed><summary>video</summary>
+  <video src="https://user-images.githubusercontent.com/1984175/224824830-1ae60e38-fe22-48dc-8bc0-72b7d1b294f9.mp4"/>
+</details>
+
+</td></tr></table>
