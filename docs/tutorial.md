@@ -1,11 +1,11 @@
 # Table of Contents
-- [Rendering named template](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#rendering-named-template)
-- [Rendering any block or page as a template](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#rendering-any-block-or-page-as-a-template)
-- [Making references via context variables](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#making-references-via-context-variables)
-- [Accessing properties](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#accessing-properties)
-- [Dates & times work](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md#dates--times-work)
-- [JavaScript environment]()
-- [Conditional contexts]()
+- [Rendering named template](#rendering-named-template)
+- [Rendering any block or page as a template](#rendering-any-block-or-page-as-a-template)
+- [Making references via context variables](#making-references-via-context-variables)
+- [Accessing properties](#accessing-properties)
+- [Dates & times work](#dates--times-work)
+- [JavaScript environment](#javascript-environment)
+- [Conditional contexts](#conditional-contexts)
 
 # First steps (after installing plugin)
 ## Rendering named template
