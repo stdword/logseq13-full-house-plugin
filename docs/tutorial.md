@@ -277,61 +277,42 @@
 - All that templates magic is possible with JavaScript language
 - Template parts is literally JavaScript code, so if you familiar with JavaScript — you can use it extensively
 
-<table>
-  <tr>
-    <td>
-      ```markdown
-      - template:: js-env
-        - Full page name: «``{ c.page.name }``»
-        - Page's namespace: «``{ c.page.name.split('/', 1) }``»
-        - The base name of this page: «``{ c.page.name.split('/').slice(-1) }``»
-        - Plugin's name: «``{ c.page.name.match(/plugins\/(?<name>[^\/]+)/).groups.name }``»
-      ```
-    </td>
-    <td>
-      ```markdown
-      - `{{renderer :template, js-env}}`
-        - Full page name: «logseq/plugins/full-house/tutorial»
-        - Page's namespace: «logseq»
-        - The base name of this page: «tutorial»
-        - Plugin's name: «full-house»
-      ```
-    </td>
-  </tr>
-</table>
+<table><tr><td>
+
+![image](https://user-images.githubusercontent.com/1984175/224792552-39310ca7-e30f-4872-981f-19634f56566a.png)
+
+<details closed><summary>code</summary>
+
+```markdown
+- `template:: js-env`
+  - Full page name: «``{ c.page.name }``»
+  - Page's namespace: «``{ c.page.name.split('/', 1) }``»
+  - The base name of this page: «``{ c.page.name.split('/').slice(-1) }``»
+  - Plugin's name: «``{ c.page.name.match(/plugins\/(?<name>[^\/]+)/).groups.name }``»
+```
+</details>
+</td></tr><tr><td>
+
+![image](https://user-images.githubusercontent.com/1984175/224793360-84dc9927-c7ed-492b-9510-fda656111a96.png)
+</td></tr></table>
 
 
 - And there is a quick way to replace `page` context variable: use third argument to specify another page
 
-<table>
-  <tr>
-    <td>
-      ```markdown
-      - template:: page-overriding
-        - authors:: ``{ c.page.name.split(' — ', 1)[0].split(', ').map(a => `[[${a}]]`).join('; ') }``
-          title:: ``{ c.page.name.split(' — ', 2).slice(-1) }``
-          rating:: ``{ '⭐️'.repeat(1 + Math.floor(Math.random() * 5)) }``
-      ```
-    </td>
-    <td>
-      ```markdown
-      - `{{renderer :template, page-overriding, "Author1, Author2 — Some book name"}}`
-        - authors:: [[Author1]]; [[Author2]]
-          title:: Some book name
-          rating:: ⭐️⭐️
-      ```
-    </td>
-  </tr>
+<table><tr><td>
+<img src="https://user-images.githubusercontent.com/1984175/224791169-3f9482cd-fef4-4594-b619-4c8d900df007.png"/>
+<details closed><summary>code</summary>
 
-  <tr>
-    <td>
-      <img width="60%" src="https://user-images.githubusercontent.com/1984175/224784878-457ebadf-2bf0-45c2-b8a5-0108908295e6.png"/>
-    </td>
-    <td>
-      <img width="60%" src="https://user-images.githubusercontent.com/1984175/224785105-ea442f2c-df38-4532-b8f4-1c0cd24857f4.png"/>
-    </td>
-  </tr>
-</table>
+```markdown
+- `template:: page-overriding`
+  - authors:: ``{ c.page.name.split(' — ', 1)[0].split(', ').map(a => `[[${a}]]`).join('; ') }``
+    title:: ``{ c.page.name.split(' — ', 2).slice(-1) }``
+    rating:: ``{ '⭐️'.repeat(1 + Math.floor(Math.random() * 5)) }``
+```
+</details>
+</td></tr><tr><td>
+<img src="https://user-images.githubusercontent.com/1984175/224791554-5e257d29-0441-4f7a-a672-67e8abf882c6.png"/>
+</td></tr></table>
 
 
 ## Conditional contexts
