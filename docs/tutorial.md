@@ -85,22 +85,21 @@
 
 ```markdown
 - template:: context-vars
-  - This text was rendered from template «`{ c.template.name }`»
+  - This text was rendered from template «``{ c.template.name }``»
   - Links to the page:
     - [[``{ c.page.name }``]]
-    - `{ `[[${c.page.name}]]` }`
-    - `{ '[[' + c.page.name + ']]' }`
-    - `{ ref(c.page.name) }`
-    - `{ ref(c.page) }`
-    - `[ c.page ]` or `[[ c.page ]]` — future variants (not supported now)
+    - ``{ `[[${c.page.name}]]` }``
+    - ``{ '[[' + c.page.name + ']]' }``
+    - ``{ ref(c.page.name) }``
+    - ``{ ref(c.page) }``
+    - ``[ c.page ]`` or ``[[ c.page ]]`` — future variants (not supported now)
   - And links to blocks:
-    - `{ bref(c.block.uuid) }`
-    - `{ bref(c.block) }`
-    - `{ ref(c.block) }`
+    - ``{ ref(c.block.uuid) }``
+    - ``{ ref(c.block) }``
   - Embedding the current block:
-    - {{embed `{ bref(c.self.uuid) }`}}
-    - `{ embed(c.self.uuid) }`
-    - `{ embed(c.self) }`
+    - {{embed ``{ ref(c.self.uuid) }``}}
+    - ``{ embed(c.self.uuid) }``
+    - ``{ embed(c.self) }``
 ```
 </p></details>
 
