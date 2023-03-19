@@ -28,21 +28,15 @@ export async function insertContent(
     const selected = (await logseq.Editor.getSelectedBlocks()) ?? []
     const editing = await logseq.Editor.checkEditing()
     if (!editing && selected.length === 0) {
-        console.warn(p`Attempt to insert content while not in editing state`)
+        console.warn(p`Attempt to insert content while not in editing state and no one block is selected`)
         return false
     }
-    const uuid = Reflect.get(selected, '0')?.uuid || editing
-
 
     // TODO: logseq needs API to set selection in editing state
     // to implement feature like sublime text snippets: placeholders switched by TAB
     // text ${1:arg1} snippet ${2:arg2}
 
     const { positionOnArg, positionOnText } = options
-    if (!positionOnArg && !positionOnText) {
-        await logseq.Editor.insertAtEditingCursor(content)
-        return true
-    }
 
     let position = 0
     if (positionOnArg) {
@@ -60,13 +54,34 @@ export async function insertContent(
 
         position = index
     }
-    else
-        position = content.indexOf(positionOnText!)
+    else if (positionOnText)
+        position = content.indexOf(positionOnText)
 
-    await logseq.Editor.exitEditingMode()
-    await sleep(20)
-    await logseq.Editor.updateBlock(uuid, content)
-    await logseq.Editor.editBlock(uuid, { pos: position })
+    const isSelectedState = selected.length !== 0
+    const uuid = isSelectedState ? selected[0].uuid : editing as string
+
+    if (isSelectedState) {
+        await logseq.Editor.updateBlock(uuid, content)
+        await logseq.Editor.editBlock(uuid, { pos: position })
+    } else {
+        await logseq.Editor.insertAtEditingCursor(content)
+
+        // need delay before getting cursor position
+        await sleep(20)
+        const posInfo = await logseq.Editor.getEditingCursorPosition()
+
+        const relativePosition = posInfo!.pos - content.length + position
+        console.debug(
+            p`Calculating arg position`,
+            posInfo!.pos, '-', content.length, '+', position, '===', relativePosition,
+        )
+
+        // need to exit to perform entering on certain position
+        await logseq.Editor.exitEditingMode()
+        await sleep(20)
+        await logseq.Editor.editBlock(uuid, { pos: relativePosition })
+    }
+
     return true
  }
 
