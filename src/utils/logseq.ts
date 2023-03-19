@@ -7,11 +7,14 @@ import { isInteger, isUUID } from './parsing'
 export type IBlockNode = Required<Pick<IBatchBlock, 'content' | 'children'>>
 export function walkBlockTree(
     root: IBatchBlock,
-    callback: ((b: IBatchBlock) => string | void),
+    callback: ((b: IBatchBlock, lvl: number) => string | void),
+    level: number = 0,
 ): IBlockNode {
     return {
-        content: callback(root) ?? '',
-        children: (root.children || []).map(b => walkBlockTree(b as IBlockNode, callback)),
+        content: callback(root, level) ?? '',
+        children: (root.children || []).map(
+            b => walkBlockTree(b as IBlockNode, callback, level + 1)
+        ),
     }
  }
 
@@ -127,11 +130,9 @@ export async function getPage(ref: LogseqReference): Promise<PageEntity | null> 
  }
 
 export async function getBlock(
-    ref: LogseqReference,
-    {
-        byProperty = '',
-        includeChildren = false,
-    }: { byProperty?: string, includeChildren?: boolean }
+    ref: LogseqReference, {
+    byProperty = '',
+    includeChildren = false }: { byProperty?: string, includeChildren?: boolean }
 ): Promise<[BlockEntity | null, LogseqReferenceAccessType]> {
     if (['page', 'tag'].includes(ref.type))
         return [ null, 'page']
