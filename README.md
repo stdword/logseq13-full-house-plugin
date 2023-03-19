@@ -10,10 +10,10 @@
 
 <p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b>Logseq13</b> family of plugins</i></p>
 <p align="center">
-  <a href="https://github.com/stdword/logseq13-full-house-plugin">Home</a> |
-  <a href="https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md">Tutorial</a> |
+  <a href="https://github.com/stdword/logseq13-full-house-plugin#readme">Home</a> |
+  <a href="docs/tutorial.md">Tutorial</a> |
   <a src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/index.html"> Documentation</a> |
-  <a src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/showcases.md">Showcases</a>
+  <a href="docs/showcases.md">Showcases</a>
 </p>
 
 ## Summary
