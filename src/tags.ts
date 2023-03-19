@@ -62,7 +62,6 @@ function ref(item: string | BlockContext | PageContext | Dayjs): string {
     }
 
     if (item instanceof BlockContext) {
-
         if (item.uuid)
             return _bref(item.uuid)
 

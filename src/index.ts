@@ -1,11 +1,11 @@
 import '@logseq/libs'
-import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
+import { BlockEntity, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
 import { renderTemplateInBlock } from './logic'
 import { RenderError, StateError, StateMessage } from './errors'
 import { indexOfNth, lockOn, p, sleep } from './utils/other'
 import { unquote } from './utils/parsing'
-import { cleanMacroArg, insertContent, isCommand, parseReference } from './utils/logseq'
+import { cleanMacroArg, insertContent, isCommand, parseReference, PropertiesUtils } from './utils/logseq'
 
 import { dayjs } from './context'
 import { LogseqDayjsState }  from './utils/dayjs_logseq_plugin'
@@ -43,17 +43,18 @@ async function main() {
     const commandLabel = 'Full House → Insert template'
     const commandContent = `{{renderer :${commandName}, TEMPLATE NAME, (optional) page reference}}`
 
-    logseq.App.registerCommandPalette({ key: 'insert-template', label: commandLabel }, async (e) => {
-        const inserted = await insertContent(commandContent, { positionOnArg: 1 })
-        if (!inserted) {
-            // TODO: ask UI to insert template to the end of current page
-            await logseq.UI.showMsg(
-                'Start editing block or select one to insert template in it',
-                'warning',
-                {timeout: 5000},
-            )
-            return
-        }
+    logseq.App.registerCommandPalette(
+        { key: 'insert-template', label: commandLabel }, async (e) => {
+            const inserted = await insertContent(commandContent, { positionOnArg: 1 })
+            if (!inserted) {
+                // TODO: ask UI to insert template to the end of current page
+                await logseq.UI.showMsg(
+                    'Start editing block or select one to insert template in it',
+                    'warning',
+                    {timeout: 5000},
+                )
+                return
+            }
     })
 
     logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
@@ -61,13 +62,16 @@ async function main() {
     })
 
     logseq.Editor.registerBlockContextMenuItem(
-        'Code to render block', async (e) => {
-            const textToCopy = `{{renderer :${commandName}, ((${e.uuid})) }}`
+        'Use as the template', async (e) => {
+            const templateName = await logseq.Editor.getBlockProperty(
+                e.uuid, PropertiesUtils.templateProperty)
+            const templateRef = templateName ? templateName : `((${e.uuid}))`
+            const textToCopy = `{{renderer :${commandName}, ${templateRef}}}`
 
             window.focus()  // need to make an interactions with clipboard
             await navigator.clipboard.writeText(textToCopy)
 
-            await logseq.UI.showMsg('Copied to clipboard',
+            await logseq.UI.showMsg('Code copied to clipboard',
                 'success', {timeout: 5000})
     })
 
