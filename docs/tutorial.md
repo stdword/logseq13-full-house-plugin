@@ -71,11 +71,10 @@
   - `c.template`: name, properties & access to template block
   - `c.self`: template block from which current block is rendering: to get corresponding meta information
   - *Note*: «c» means «*c*ontext» — don't forget to type it in
-- To use context variable wrap it with triple-char brackets:
+- To use context variable wrap it with triple-char brackets (two **back-ticks** and curly bracket):
   ```json
   ``{ c.page.name }``
   ```
-  - *Note*: This is back-ticks, not single quotes
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/223791469-c345b3e5-ffe0-407a-aed1-03aa46e843cd.gif"/>
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/223793090-4cd317ad-d95c-4a07-9970-35f046b3cfd5.gif"/>
 
