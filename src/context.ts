@@ -78,7 +78,13 @@ export class PageContext extends Context {
         obj._page = page
 
         obj.uuid = page.uuid
-        obj.file = page.file   // TODO: construct file
+
+        // TODO: construct file
+        //   file: {id: 42234}
+        obj.file = page.file
+
+        // TODO: construct namespace
+        //   namespace: {id: 42234}
 
         const props = PropertiesUtils.getProperties(page)
         obj.props = (new Context(props.values)) as unknown as PageContext['props']
@@ -92,7 +98,7 @@ export class PageContext extends Context {
         return obj
     }
 
-    constructor(id: number, name: string) {
+    constructor(id: number, name?: string) {
         super()
 
         this.id = id
@@ -104,66 +110,80 @@ export class PageContext extends Context {
 }
 
 export class BlockContext extends Context {
-    private _block: BlockEntity
+    private _block?: BlockEntity
 
     public id: number
-    public uuid: string
-    public content: string
+    public uuid?: string
+    public content?: string
 
-    public props: Properties
-    public propsRefs: PropertiesRefs
+    public props?: Properties
+    public propsRefs?: PropertiesRefs
 
-    public page: PageContext
-    public parentBlock: {id: number} | null
-    public prevBlock: {id: number} | null
-    public level: number
+    public page?: PageContext
+    public parentBlock?: BlockContext | null
+    public prevBlock?: BlockContext | null
+    public level?: number
 
-    public children: ({} | BlockContext)[]
-    public refs: {id: number}[]
+    public children?: ({} | BlockContext)[]
+    public refs?: {id: number}[]
 
-    constructor(block: BlockEntity, args: {
+    static createFromEntity(block: BlockEntity, args: {
         page?: PageEntity | PageContext,
         level?: number,
     } = {}) {
-        super()
-        this._block = block ;
+        const obj = new BlockContext(block.id)
+        obj._block = block ;
 
         ({
-            id: this.id,
-            uuid: this.uuid,
-            content: this.content,
-            refs: this.refs,
+            uuid: obj.uuid,
+            content: obj.content,
+            refs: obj.refs,
         } = block)
 
         const props = PropertiesUtils.getProperties(block)
-        this.props = (new Context(props.values)) as unknown as BlockContext['props']
-        this.propsRefs = (new Context(props.refs)) as unknown as BlockContext['propsRefs']
+        obj.props = (new Context(props.values)) as unknown as BlockContext['props']
+        obj.propsRefs = (new Context(props.refs)) as unknown as BlockContext['propsRefs']
 
         const page = args.page
         if (page)
             if (page instanceof PageContext)
-                this.page =  page
+                obj.page = page
             else
-                this.page = PageContext.createFromEntity(page)
+                obj.page = PageContext.createFromEntity(page)
         else
-            this.page = new PageContext(block.page.id, block.page.originalName ?? '')
+            obj.page = new PageContext(block.page.id)
 
-        this.parentBlock = block.page.id !== block.parent.id ? {id: block.parent.id} : null
-        this.prevBlock = block.parent.id !== block.left.id ? {id: block.left.id} : null
-        this.level = args.level ?? 0
+        obj.parentBlock = null
+        if (block.page.id !== block.parent.id)
+            obj.parentBlock = new BlockContext(block.parent.id)
 
-        this.children = block.children ?? []
-        if (this.children.length > 0) {
-            if (Array.isArray(this.children[0]))  // non-tree mode: get only children count
-                this.children = Array(this.children.length).fill({})
+        obj.prevBlock = null
+        if (block.parent.id !== block.left.id)
+            obj.prevBlock = new BlockContext(block.left.id)
+
+        obj.level = args.level ?? 0
+        const rootLevel: number = obj.level
+
+        obj.children = block.children ?? []
+        if (obj.children.length > 0) {
+            if (Array.isArray(obj.children[0]))  // non-tree mode: get only children count
+                obj.children = Array(obj.children.length).fill({})
             else  // tree mode
-                this.children = this.children.map(
-                    b => new BlockContext(b as BlockEntity, {
-                        level: this.level + 1,
-                        page: this.page,
+                obj.children = obj.children.map(
+                    b => BlockContext.createFromEntity(b as BlockEntity, {
+                        level: rootLevel + 1,
+                        page: obj.page,
                     })
                 )
         }
+
+        return obj
+    }
+
+    constructor(id: number) {
+        super()
+
+        this.id = id
     }
 }
 

@@ -3,7 +3,7 @@ import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import * as Eta from 'eta'
 
-import { ILogseqContext, BlockContext, PageContext, Context, dayjs } from './context'
+import { ILogseqContext, BlockContext, Context, dayjs } from './context'
 import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'
 import { p, IBlockNode, walkBlockTree, coerceToBool, LogseqReferenceAccessType, PropertiesUtils } from './utils'
@@ -124,7 +124,7 @@ export class Template implements ITemplate {
     render(context: ILogseqContext): IBlockNode {
         console.info(p`Rendering ${this}`)
 
-        const blockContext = new BlockContext(this.block)
+        const blockContext = BlockContext.createFromEntity(this.block)
         context.template = new Context({
             name: this.name,
             includingParent: this.includingParent,
@@ -156,9 +156,13 @@ export class Template implements ITemplate {
             c: new Context(context),
         }
 
-        return walkBlockTree(this.block as IBlockNode, (b) => {
+        return walkBlockTree(this.block as IBlockNode, (b, lvl) => {
             // @ts-expect-error
-            renderContext.c.self = new BlockContext(b as BlockEntity)
+            renderContext.c.self = BlockContext.createFromEntity(
+                b as BlockEntity, {
+                page: context.block.page,
+                level: lvl,
+            })
             return Eta.render(b.content, renderContext)
         })
     }
