@@ -6,7 +6,7 @@ import * as Eta from 'eta'
 import { ILogseqContext, BlockContext, PageContext, Context, dayjs } from './context'
 import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'
-import { p, IBlockNode, walkBlockTree, toCamelCase, coerceToBool, LogseqReferenceAccessType, PropertiesUtils } from './utils'
+import { p, IBlockNode, walkBlockTree, coerceToBool, LogseqReferenceAccessType, PropertiesUtils } from './utils'
 
 
 Eta.configure({
@@ -72,14 +72,6 @@ interface ITemplate {
 }
 
 export class Template implements ITemplate {
-    public static readonly idProperty: string = 'id'
-    public static readonly titleProperty: string = 'title'
-    public static readonly filtersProperty: string = 'filters'
-    public static readonly iconProperty: string = 'icon'
-
-    public static readonly nameProperty: string = 'template'
-    public static readonly includingParentProperty: string = 'template-including-parent'
-
     public block: BlockEntity
     public name: string
     public includingParent: boolean
@@ -93,7 +85,7 @@ export class Template implements ITemplate {
     }) {
         this.block = block
         this.name = PropertiesUtils.getProperty(
-            this.block, Template.nameProperty).text || args?.name || ''
+            this.block, PropertiesUtils.templateProperty).text || args?.name || ''
 
         this.accessedVia = args.accessedVia
 
@@ -109,7 +101,7 @@ export class Template implements ITemplate {
             //   → defaultIncludingParent = true
 
             const defaultIncludingParent = this.accessedVia === 'block'
-            const prop = PropertiesUtils.getProperty(this.block, Template.includingParentProperty)
+            const prop = PropertiesUtils.getProperty(this.block, PropertiesUtils.includingParentProperty)
             const value = prop.refs.length ? prop.refs[0] : prop.text
             this.includingParent = coerceToBool(
                 value, {
@@ -141,15 +133,20 @@ export class Template implements ITemplate {
             propsRefs: blockContext.propsRefs,
         }) as unknown as ILogseqContext['template']
 
+        // remove id prop from every block
+        walkBlockTree(this.block as IBlockNode, (b) => {
+            PropertiesUtils.deleteProperty(b as BlockEntity, PropertiesUtils.idProperty)
+        })
+
+        // TODO: create user settings to control should standard props be erased during rendering or not
+        //   or build a tools to construct/deconstruct properties of a block to select it manually
+
         if (this.includingParent) {
-            PropertiesUtils.deleteProperty(this.block, Template.nameProperty)
-            PropertiesUtils.deleteProperty(this.block, Template.includingParentProperty)
-            PropertiesUtils.deleteProperty(this.block, Template.idProperty)
-            if (this.accessedVia === 'page') {
-                PropertiesUtils.deleteProperty(this.block, Template.titleProperty)
-                PropertiesUtils.deleteProperty(this.block, Template.filtersProperty)
-                PropertiesUtils.deleteProperty(this.block, Template.iconProperty)
-            }
+            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateProperty)
+            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.includingParentProperty)
+
+            if (this.accessedVia === 'page')
+                PropertiesUtils.deleteProperty(this.block, PropertiesUtils.titleProperty)
         }
         else
             this.block.content = ''  // skip rendering

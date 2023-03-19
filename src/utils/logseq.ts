@@ -1,20 +1,19 @@
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import { f, indexOfNth, p, sleep } from './other'
-import { isInteger, isUUID, toCamelCase } from './parsing'
+import { isInteger, isUUID } from './parsing'
 
 
 export type IBlockNode = Required<Pick<IBatchBlock, 'content' | 'children'>>
 export function walkBlockTree(
-    root: IBlockNode,
-    callback: ((b: IBlockNode) => string),
+    root: IBatchBlock,
+    callback: ((b: IBatchBlock) => string | void),
 ): IBlockNode {
     return {
-        content: callback(root),
+        content: callback(root) ?? '',
         children: (root.children || []).map(b => walkBlockTree(b as IBlockNode, callback)),
     }
  }
-
 
 export async function insertContent(
     content: string,
@@ -67,7 +66,6 @@ export async function insertContent(
     await logseq.Editor.editBlock(uuid, { pos: position })
     return true
  }
-
 
 export type LogseqReference = {
     type:
@@ -256,11 +254,32 @@ export type Properties     = {[index: string]: string  }
 export type PropertiesRefs = {[index: string]: string[]}
 
 export class PropertiesUtils {
-    static propertyContentFormat = f`^${'pattern'}::[^\\n]*?\\n?$`
+    // TODO?: org-mode properties
+    // TODO?: front-matter properties
+
+    // list of built-in properties:
+    //   https://github.com/logseq/logseq/blob/master/deps/graph-parser/src/logseq/graph_parser/property.cljs
+
+    static readonly idProperty = 'id'
+    static readonly titleProperty = 'title'
+    static readonly templateProperty = 'template'
+    static readonly includingParentProperty = 'template-including-parent'
+
+    static propertyContentFormat = f`^${'name'}::[^\\n]*?\\n?$`
     static propertyRestrictedChars = ':;,^@#~"`/|\\(){}[\\]'
 
+    static toCamelCase(text: string): string {
+        text = text.toLowerCase()
+        text = text.replaceAll(/(?<=-)(\w)/g, (m, ch) => ch.toUpperCase())
+        text = text.replaceAll(/(?<=_)(\w)/g, (m, ch) => ch.toUpperCase())
+        text = text.replaceAll('-', '')
+        text = text.replaceAll('_', '')
+        text = text[0].toLowerCase() + text.slice(1)
+        return text
+    }
+
     static getProperty(obj: BlockEntity | PageEntity, name: string): LogseqProperty {
-        const nameCamelCased = toCamelCase(name)
+        const nameCamelCased = PropertiesUtils.toCamelCase(name)
 
         let refs: string[] = []
         if (obj.properties) {
@@ -279,22 +298,30 @@ export class PropertiesUtils {
         }
     }
     static deleteProperty(block: BlockEntity, name: string): void {
-        const nameCamelCased = toCamelCase(name)
+        const nameCamelCased = PropertiesUtils.toCamelCase(name)
 
         if (block.properties)
             delete block.properties[nameCamelCased]
         if (block.propertiesTextValues)
             delete block.propertiesTextValues[nameCamelCased]
 
-        block.content = block.content.replaceAll(
-            new RegExp(PropertiesUtils.propertyContentFormat({pattern: name}), 'gim'),
-            '',
-        )
+        // case when properties in content use different style of naming
+        //   logseq-prop-name
+        //   logseq_prop_name
+        //   logseq_prop-name
+        // all this names is the same for logseq → we should erase all
+        for (const n of [name, name.replaceAll('-', '_'), name.replaceAll('_', '-')]) {
+            const name = n
+            block.content = block.content.replaceAll(
+                new RegExp(PropertiesUtils.propertyContentFormat({name}), 'gim'),
+                '',
+            )
+        }
     }
     static getPropertyNames(text: string): string[] {
         const propertyNames: string[] = []
         const propertyLine = new RegExp(PropertiesUtils.propertyContentFormat({
-            pattern: `([^${PropertiesUtils.propertyRestrictedChars}]+)`
+            name: `([^${PropertiesUtils.propertyRestrictedChars}]+)`
         }), 'gim')
         text.replaceAll(propertyLine, (m, name) => {propertyNames.push(name); return m})
         return propertyNames

@@ -3,7 +3,7 @@ import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin
 
 import { Template, InlineTemplate } from './template'
 import { PageContext, BlockContext, getConfigContext, ILogseqContext } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock } from './utils'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
 
@@ -60,7 +60,7 @@ async (
     else {
         [ templateBlock, accessedVia ] = await getBlock(
             templateRef, {
-            byProperty: Template.nameProperty,
+            byProperty: PropertiesUtils.templateProperty,
             includeChildren: true,
         })
     }

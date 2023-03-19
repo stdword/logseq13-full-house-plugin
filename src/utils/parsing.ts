@@ -48,15 +48,6 @@ export function isUUID(str: string) {
     return !!str.match(regex)
  }
 
-export function toCamelCase(text: string): string {
-    text = text.replaceAll(/(?<=-)(\w)/g, (m, ch) => ch.toUpperCase())
-    text = text.replaceAll(/(?<=_)(\w)/g, (m, ch) => ch.toUpperCase())
-    text = text.replaceAll('-', '')
-    text = text.replaceAll('_', '')
-    text = text[0].toLowerCase() + text.slice(1)
-    return text
- }
-
 export function isBoolean(obj: any): boolean {
     // source: https://stackoverflow.com/a/28814865
     if (typeof obj === typeof true)
