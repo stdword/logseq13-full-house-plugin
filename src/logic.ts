@@ -79,16 +79,19 @@ async (
             {templateRef},
         )
 
-    const [ page, block ] = await getCurrentContext(uuid, pageRef)
-    if (!page || !block) {
+    const [ contextPage, contextBlock ] = await getCurrentContext(uuid, pageRef)
+    if (!contextPage || !contextBlock) {
         console.debug(p`logseq issue → rendering non-existed block / slot`)
         return
     }
 
+    const currentPage = await logseq.Editor.getPage(contextBlock.page.id) as PageEntity
+    const currentPageContext = PageContext.createFromEntity(currentPage)
+
     const context = {
         config: await getConfigContext(),
-        page: PageContext.createFromEntity(page),
-        block: new BlockContext(block),
+        page: PageContext.createFromEntity(contextPage),
+        block: BlockContext.createFromEntity(contextBlock, { page: currentPageContext }),
     }
 
     let rendered: IBlockNode

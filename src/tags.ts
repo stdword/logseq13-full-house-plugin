@@ -1,6 +1,7 @@
+import { log } from 'console'
 import { BlockContext, dayjs, Dayjs, PageContext }  from './context'
 
-import { isEmptyString, p } from './utils'
+import { getPage, isEmptyString, isObject, isUUID, LogseqReference, p } from './utils'
 
 
 const isoDateFromat = 'YYYY-MM-DD'
@@ -42,12 +43,12 @@ function _tryAsDateString(item: string): string | null {
     }
     return null
  }
-function _ref(item: string): string {
-    const name = item.toString()
+function _ref(name: string): string {
+    name = name.toString()
     return `[[${name}]]`
  }
-function _bref(item: string): string {
-    const uuid = item.toString()
+function _bref(uuid: string): string {
+    uuid = uuid.toString()
     return `((${uuid}))`
  }
 
@@ -56,54 +57,53 @@ function ref(item: string | BlockContext | PageContext | Dayjs): string {
 
     if (item instanceof dayjs) {
         // @ts-expect-error
-        item = item.toPage()
-    }
-    else if (item instanceof BlockContext)
-        return _bref(item.uuid)
-    else if (item instanceof PageContext)
-        item = item.name ?? ''  // TODO: name may be absent: request page by .id then
-    else {
-        // check for the case `ref(today)`
-        const date = _tryAsDateString(item as string)
-        item = date ?? item
+        item = item.toPage() as string
+        return _ref(item)
     }
 
-    return _ref(item as string)
+    if (item instanceof BlockContext) {
+
+        if (item.uuid)
+            return _bref(item.uuid)
+
+        // @ts-expect-error
+        const block = top!.logseq.api.get_block(item.id)
+        return _bref(block?.uuid ?? '')
+    }
+
+    if (item instanceof PageContext) {
+        if (item.name)
+            return _ref(item.name)
+
+        // TODO: need async support for filter function in «eta»
+        // const page = await getPage({type: 'id', value: item.id} as LogseqReference)
+
+        // @ts-expect-error
+        const page = top!.logseq.api.get_page(item.id)
+        return _ref(page?.originalName ?? '')
+    }
+
+    const str = item as string
+    if (isUUID(str))
+        return _bref(str)
+
+    // check for the case `ref(today)`
+    const date = _tryAsDateString(str)
+    return _ref(date ?? str)
  }
 function bref(item: string | BlockContext | PageContext | Dayjs): string {
-    item = item ?? ''
+    // @ts-expect-error
+    top!.logseq.api.show_msg(
+        '"bref" is deprecated. Please use "ref" instead',
+        'warning', {timeout: 5000}
+    )
+    console.warn(p`"bref" is deprecated. Please use "ref" instead`)
 
-    if (item instanceof dayjs) {
-        // @ts-expect-error
-        return _ref(item.toPage())
-    }
-    else if (item instanceof PageContext)
-        return _ref(item.name ?? '')   // TODO: name may be absent: request page by .id then
-    else if (item instanceof BlockContext)
-        item = item.uuid
-
-    return _bref(item as string)
+    return ref(item)
  }
 function embed(item: string | BlockContext | PageContext | Dayjs): string {
-    let id: string = ''
-
-    if (item instanceof dayjs)
-        id = ref(item)
-    else if (item instanceof PageContext)
-        id = _ref(item.name || '')   // TODO: name may be absent: request page by .id then
-    else if (item instanceof BlockContext)
-        id = _bref(item.uuid)
-    else  {
-        // check for the case `embed(today)`
-        const date = _tryAsDateString(item as string)
-        if (date)
-            id = _ref(date)
-        else
-            id = _bref(item as string)
-    }
-
-    id = id.toString()
-    return `{{embed ${id}}}`
+    const r = ref(item)
+    return `{{embed ${r}}}`
  }
 function empty(obj: string | undefined, fallback: string = ''): string {
     obj ??= ''
