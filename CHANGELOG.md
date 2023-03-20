@@ -1,3 +1,18 @@
+# [1.3.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.2.0...v1.3.0) (2023-03-20)
+
+
+### Bug Fixes
+
+* properties deletion; review properties erasing ([8764609](https://github.com/stdword/logseq13-full-house-plugin/commit/87646099fbb7ba8eedf74f00ac738dffacf840f1))
+
+
+### Features
+
+* **context:** `level` value & access to current `page` ([161f63e](https://github.com/stdword/logseq13-full-house-plugin/commit/161f63ee62a9802d84d15199937ca908a2e3d0c4))
+* do not override block content on /-command inserting ([bcf8270](https://github.com/stdword/logseq13-full-house-plugin/commit/bcf82701ad38698e4446c361a98145a6d3e7a133))
+* smart copy code context menu for template blocks ([fd45cb1](https://github.com/stdword/logseq13-full-house-plugin/commit/fd45cb15d2281b193cf3fd43690526e69320b745))
+* **template tags:** `parentBlock` & `prevBlock`can be used to create refs; `bref` deprecated ([014ccbf](https://github.com/stdword/logseq13-full-house-plugin/commit/014ccbf9c5ef98e17877953098770b4ca0bbaa53))
+
 # [1.2.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.1.0...v1.2.0) (2023-03-13)
 
 
