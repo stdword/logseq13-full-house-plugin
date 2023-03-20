@@ -1,5 +1,5 @@
 import '@logseq/libs'
-import { BlockEntity, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
+import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
 import { renderTemplateInBlock } from './logic'
 import { RenderError, StateError, StateMessage } from './errors'
