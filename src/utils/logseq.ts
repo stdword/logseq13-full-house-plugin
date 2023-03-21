@@ -276,7 +276,7 @@ export class PropertiesUtils {
     static readonly templateProperty = 'template'
     static readonly includingParentProperty = 'template-including-parent'
 
-    static propertyContentFormat = f`^${'name'}::[^\\n]*?\\n?$`
+    static propertyContentFormat = f`^[^\S\n]*${'name'}::.*$\n?`
     static propertyRestrictedChars = ':;,^@#~"`/|\\(){}[\\]'
 
     static toCamelCase(text: string): string {
@@ -322,11 +322,8 @@ export class PropertiesUtils {
         //   logseq_prop-name
         // all this names is the same for logseq → we should erase all
         for (const n of [name, name.replaceAll('-', '_'), name.replaceAll('_', '-')]) {
-            const name = n
-            block.content = block.content.replaceAll(
-                new RegExp(PropertiesUtils.propertyContentFormat({name}), 'gim'),
-                '',
-            )
+            const propRegexp = PropertiesUtils.propertyContentFormat({name: n})
+            block.content = block.content.replaceAll(new RegExp(propRegexp, 'gim'), '')
         }
     }
     static getPropertyNames(text: string): string[] {
