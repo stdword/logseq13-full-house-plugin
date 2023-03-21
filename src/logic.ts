@@ -129,7 +129,7 @@ async (
     const toInsert = head.content
     let newContent = oldContent.replace(rawCode.toString(), toInsert)
     if (newContent === oldContent) {
-        // if no replacement was done, try another from of macro command
+        // if no replacement was done, try another form of macro command
         const toReplace = rawCode.toString({useColon: false})
         newContent = oldContent.replace(toReplace, toInsert)
         if (newContent === oldContent)
