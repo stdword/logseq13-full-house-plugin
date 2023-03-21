@@ -107,19 +107,42 @@ async (
         )
     }
 
-    await logseq.Editor.exitEditingMode(false)
-    await logseq.Editor.updateBlock(uuid, '')
-
-    if (template.includingParent) {
-        await logseq.Editor.updateBlock(uuid, rendered.content)
-        if (rendered.children.length !== 0)
-            await logseq.Editor.insertBatchBlock(uuid, rendered.children, {sibling: false})
-    }
+    let head: IBatchBlock
+    let children: IBatchBlock[]
+    if (template.includingParent)
+        [ head, children ] = [ rendered, rendered.children ]
     else
-        await logseq.Editor.insertBatchBlock(uuid, rendered.children, {sibling: true})
+        [ head, ...children ] = rendered.children
 
-    await logseq.Editor.exitEditingMode(false)
+    // NOTE: it is important to call `insertBatchBlock` before `updateBlock`
+    // due to @logseq/lib bug on batch inserting to empty block (content == '')
+
+    if (children.length) {
+        await logseq.Editor.insertBatchBlock(
+            uuid,
+            children, {
+            sibling: !template.includingParent,
+        })
+    }
+
+    const oldContent = contextBlock.content
+    const toInsert = head.content
+    let newContent = oldContent.replace(rawCode.toString(), toInsert)
+    if (newContent === oldContent) {
+        // if no replacement was done, try another from of macro command
+        const toReplace = rawCode.toString({useColon: false})
+        newContent = oldContent.replace(toReplace, toInsert)
+        if (newContent === oldContent)
+            console.warn(p`Cannot find renderer macro to replace it`, {
+                uuid: contextBlock.uuid,
+                oldContent,
+                toReplace,
+                toInsert,
+            })
+    }
+
+    await logseq.Editor.updateBlock(uuid, newContent)
 
     // to prevent too often re-renderings
-    await sleep(3000)
+    // await sleep(3000)
  })
