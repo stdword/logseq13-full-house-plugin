@@ -20,6 +20,8 @@ module.exports = {
         ['@semantic-release/github', {
             assets: `${PLUGIN_NAME}-*.zip`,
             fail: false,
+            failComment: false,
+            failTitle: false,
         }],
     ],
 }
