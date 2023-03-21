@@ -276,8 +276,8 @@ export class PropertiesUtils {
     static readonly templateProperty = 'template'
     static readonly includingParentProperty = 'template-including-parent'
 
-    static propertyContentFormat = f`^[^\S\n]*${'name'}::.*$\n?`
-    static propertyRestrictedChars = ':;,^@#~"`/|\\(){}[\\]'
+    static propertyContentFormat = f`\n?^[^\\S]*${'name'}::.*$`
+    static propertyRestrictedChars = '\\s:;,^@#~"`/|\\(){}[\\]'
 
     static toCamelCase(text: string): string {
         text = text.toLowerCase()
