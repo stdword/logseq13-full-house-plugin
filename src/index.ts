@@ -21,7 +21,7 @@ async function onAppSettingsChanged() {
 
     const config = await logseq.App.getUserConfigs()
     LogseqDayjsState.format = config.preferredDateFormat
-}
+ }
 
 async function init() {
     if (import.meta.env.DEV) {

@@ -1,26 +1,34 @@
 import { logseq as packageInfo } from '../../package.json'
 
 
+let locks: LockManager | null = null
 try {
-    navigator.locks
+    locks = navigator.locks
 }
 catch (error) {
     console.error('Cannot use Web Locks API')
 }
-const locks = navigator.locks
 
 
-/* Tagged template printing function
+/**
+ * Tagged template printing function
  * @usage console.log(p`Hello, Logseq!`)
- */
-export function p(strings: any, ...values: any[]) {
-    return `#${packageInfo.id}: ` + String.raw({raw: strings}, ...values)
+ * @usage console.debug(p``, {var})
+ **/
+export function p(strings: any, ...values: any[]): string {
+    const raw = String.raw({raw: strings}, ...values)
+    const space = raw ? ' ' : ''
+    return `#${packageInfo.id}:${space}${raw}`
  }
 
-/* Format-string
+/**
+ * Format-string
  * @usage f`Hello, ${'name'}!`({name: 'Logseq'})
- */
-export function f(strings: any, ...values: any[]) {
+ * @usage
+ *     const format = f`Hello, ${'name'}!`
+ *     format({name: 'Logseq'}) // => 'Hello, Logseq!'
+ **/
+export function f(strings: any, ...values: any[]): Function {
     return (format: {[i: string]: any}) => String.raw({raw: strings}, ...values.map(v => format[v]))
  }
 
@@ -53,9 +61,12 @@ export function indexOfNth(string: string, substring: string, count: number = 1)
 
 export function lockOn(idFunc: ((args: any) => string)) {
     return (func: Function) => {
+        if (!locks)
+            return func
+
         return async (...args: any) => {
             const key = idFunc(args)
-            await locks.request(key, {ifAvailable: true}, async (lock) => {
+            await locks!.request(key, {ifAvailable: true}, async (lock) => {
                 if (!lock) {
                     console.warn(p`Excess call of "${func.name}" with`, {func, args})
                     return

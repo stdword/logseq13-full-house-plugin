@@ -236,7 +236,7 @@ export async function getPageFirstBlock(
  }
 
 
-export function cleanMacroArg(arg: string | null | undefined): string {
+export function cleanMacroArg(arg: string | null | undefined, escape: boolean = true): string {
     arg ??= ''
     arg = arg.trim()
 
@@ -245,6 +245,9 @@ export function cleanMacroArg(arg: string | null | undefined): string {
         arg = arg.slice(1, -1)
     }
 
+    if (!escape)
+        return arg
+
     // To deal with XSS: escape dangerous (for datascript raw queries) chars
     const escapeMap = {
         '"': '\\"',
@@ -252,15 +255,7 @@ export function cleanMacroArg(arg: string | null | undefined): string {
 
     const chars = Object.keys(escapeMap).join('')
     arg = arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
-    return arg.trim()
- }
-
-export function isCommand(name: string, command: string) {
-    if (name.startsWith(':'))
-        name = name.slice(1)
-
-    name = name.toLowerCase().trim()
-    return name === command
+    return arg
  }
 
 
