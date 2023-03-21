@@ -3,7 +3,7 @@ import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin
 
 import { Template, InlineTemplate } from './template'
 import { PageContext, BlockContext, getConfigContext, ILogseqContext } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils } from './utils'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
 
@@ -44,6 +44,7 @@ async (
     templateRef: LogseqReference,
     includingParent: boolean | undefined,
     pageRef: LogseqReference | null,
+    rawCode: RendererMacro,
 ) => {
     console.debug(p`Render to block`, {uuid})
 

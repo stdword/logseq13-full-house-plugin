@@ -351,3 +351,54 @@ export class PropertiesUtils {
         return {values, refs}
     }
 }
+
+
+export class RendererMacro {
+    public name: string
+    public arguments: string[]
+
+    static command(name: string | null) {
+        return new RendererMacro(name)
+    }
+
+    constructor(name: string | null) {
+        name = name ?? ''
+        name = name.trim()
+        if (name.startsWith(':'))
+            name = name.slice(1)
+        name = name.toLowerCase().trim()
+
+        this.name = name
+        this.arguments = []
+    }
+    clone() {
+        return Object.assign(
+            Object.create(Object.getPrototypeOf(this)),
+            structuredClone(this),
+        )
+    }
+    arg(value: string) {
+        value = value ?? ''
+        if (!value)
+            return this
+
+        const obj = this.clone()
+        obj.arguments.push(value)
+        return obj
+    }
+    args(values: string[]) {
+        values = values ?? []
+        if (!values.length)
+            return this
+
+        const obj = this.clone()
+        obj.arguments.push(...values)
+        return obj
+    }
+    toString({useColon = true} = {}) {
+        return '{{renderer ' +
+            (useColon ? ':' : '') +
+            [this.name].concat(this.arguments).map(a => a.toString()).join(', ') +
+        '}}'
+    }
+ }
