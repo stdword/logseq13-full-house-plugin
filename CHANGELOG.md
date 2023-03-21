@@ -1,3 +1,16 @@
+# [1.4.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.3.0...v1.4.0) (2023-03-21)
+
+
+### Bug Fixes
+
+* clearing template from system props ([3873243](https://github.com/stdword/logseq13-full-house-plugin/commit/3873243a4d4a470ae10236753d10f46905ceb83d))
+* order of rendered blocks & bubling up wrong sibling ([94fc7a8](https://github.com/stdword/logseq13-full-house-plugin/commit/94fc7a8aa998b2ee94744da11359d6adf968d2ee)), closes [#1](https://github.com/stdword/logseq13-full-house-plugin/issues/1)
+
+
+### Features
+
+* replace only renderer macro during template rendering ([52b074b](https://github.com/stdword/logseq13-full-house-plugin/commit/52b074b7b285e197b5514aaa0b805fce67f9c549))
+
 # [1.3.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.2.0...v1.3.0) (2023-03-20)
 
 
