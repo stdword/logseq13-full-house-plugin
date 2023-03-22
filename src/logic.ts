@@ -2,7 +2,7 @@ import '@logseq/libs'
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import { Template, InlineTemplate } from './template'
-import { PageContext, BlockContext, getConfigContext, ILogseqContext } from './context'
+import { PageContext, BlockContext, getConfigContext, ILogseqContext, ArgsContext } from './context'
 import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
@@ -12,7 +12,7 @@ import { RenderError, StateError, StateMessage } from './errors'
  */
 async function getCurrentContext(
     forBlockUUID: string,
-    pageRef: LogseqReference | null,
+    pageRef?: LogseqReference,
 ): Promise<[PageEntity | null, BlockEntity | null]> {
     let page: PageEntity | null = null
     if (pageRef) {

@@ -1,5 +1,5 @@
 export class LogseqDayjsState {
-    static #format = null
+    static #format = ''
 
     /**
      * Remap date format pattern
@@ -17,7 +17,7 @@ export class LogseqDayjsState {
         //  'W': Week in month
         //  'D': Day in year
 
-        // order is important to prevernt intersections
+        // order is important to prevent intersections
         const remapRules = {
             // examples for date 2023-02-08
 

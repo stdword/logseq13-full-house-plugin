@@ -1,14 +1,16 @@
 import '@logseq/libs'
 import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
-import { renderTemplateInBlock } from './logic'
-import { RenderError, StateError, StateMessage } from './errors'
-import { indexOfNth, lockOn, p, sleep } from './utils/other'
-import { unquote } from './utils/parsing'
-import { cleanMacroArg, insertContent, parseReference, PropertiesUtils, RendererMacro } from './utils/logseq'
-
 import { dayjs } from './context'
-import { LogseqDayjsState }  from './utils/dayjs_logseq_plugin'
+import { renderTemplateInBlock } from './logic'
+import {
+    indexOfNth, lockOn, p, sleep,
+    cleanMacroArg, parseReference, isEmptyString,
+    insertContent, PropertiesUtils, RendererMacro,
+    LogseqDayjsState,
+} from './utils'
+import { RenderError, StateError, StateMessage } from './errors'
+
 
 
 async function onAppSettingsChanged() {

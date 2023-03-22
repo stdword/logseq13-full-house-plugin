@@ -85,12 +85,12 @@ export class Template implements ITemplate {
     }) {
         this.block = block
         this.name = PropertiesUtils.getProperty(
-            this.block, PropertiesUtils.templateProperty).text || args?.name || ''
+            this.block, PropertiesUtils.templateProperty).text || args.name || ''
 
         this.accessedVia = args.accessedVia
 
-        if (args?.includingParent !== undefined)
-            this.includingParent = args!.includingParent
+        if (args.includingParent !== undefined)
+            this.includingParent = args.includingParent
         else {
             // 1) if template accessed via property (== 'name')
             //   → it has properties where `template-including-parent` can be placed
