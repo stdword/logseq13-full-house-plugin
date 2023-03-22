@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.4.0...v1.5.0) (2023-03-22)
+
+
+### Bug Fixes
+
+* parsing properties ([ccaee78](https://github.com/stdword/logseq13-full-house-plugin/commit/ccaee78673c36ec4613372fae7b8c0e9bbb4d2eb))
+
+
+### Features
+
+* **template arguments:** use arguments inside the templates to customize rendering behaviour ([9ac9247](https://github.com/stdword/logseq13-full-house-plugin/commit/9ac92475f2b27d942794eef99870ae5c0cc9030c))
+
 # [1.4.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.3.0...v1.4.0) (2023-03-21)
 
 
