@@ -89,8 +89,6 @@ async function main() {
         console.debug(p``, raw.toString())
 
         templateRef_ = cleanMacroArg(templateRef_)
-        contextPageRef_ = cleanMacroArg(contextPageRef_)
-
         if (!templateRef_) {
             await logseq.UI.showMsg('Template reference is required', 'error', {timeout: 5000})
             return
@@ -98,16 +96,23 @@ async function main() {
 
         let includingParent: boolean | undefined
         if ('+-'.includes(templateRef_[0])) {
-            includingParent = templateRef_[0] == '+'
+            includingParent = templateRef_[0] === '+'
             templateRef_ = templateRef_.slice(1)
         }
 
         const templateRef = parseReference(templateRef_)
+
+        contextPageRef_ = cleanMacroArg(contextPageRef_, {escape: false, unquote: false})
+        if (isEmptyString(contextPageRef_))
+            contextPageRef_ = ''
+
         const contextPageRef = parseReference(contextPageRef_)
         if (contextPageRef && contextPageRef.type === 'block') {
             await logseq.UI.showMsg('Argument should be a page reference', 'error', {timeout: 5000})
             return
         }
+
+        args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
 
         console.debug(
             p`Rendering macro`,
@@ -115,7 +120,10 @@ async function main() {
         )
 
         try {
-            await renderTemplateInBlock(payload.uuid, templateRef, includingParent, contextPageRef, raw)
+            await renderTemplateInBlock(
+                payload.uuid, templateRef, raw, {
+                includingParent, pageRef: contextPageRef, args,
+            })
         } catch (error) {
             if (error instanceof StateError)
                 await logseq.UI.showMsg(error.message, 'error', {timeout: 5000})

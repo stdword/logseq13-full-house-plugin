@@ -42,11 +42,14 @@ export let renderTemplateInBlock =
 async (
     uuid: string,
     templateRef: LogseqReference,
-    includingParent: boolean | undefined,
-    pageRef: LogseqReference | null,
-    rawCode: RendererMacro,
-) => {
+    rawCode: RendererMacro, opts: {
+    includingParent?: boolean,
+    pageRef?: LogseqReference,
+    args: string[],
+} = {args: []}) => {
     console.debug(p`Render to block`, {uuid})
+
+    const { includingParent, pageRef, args } = opts
 
     let templateBlock: BlockEntity | null
     let accessedVia: LogseqReferenceAccessType
@@ -93,6 +96,7 @@ async (
         config: await getConfigContext(),
         page: PageContext.createFromEntity(contextPage),
         block: BlockContext.createFromEntity(contextBlock, { page: currentPageContext }),
+        args: new ArgsContext(args),
     }
 
     let rendered: IBlockNode

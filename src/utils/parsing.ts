@@ -153,13 +153,23 @@ export function coerceToBool(
     return opts?.defaultForUncoercible ?? null
  }
 
-export function unquote(ref: string, qoutes: string[] = quotesValues): string {
+export function unquote(
+    ref: string,
+    qoutes: string | string[] = quotesValues,
+    once = true,
+): string {
     if (isEmptyString(ref))
         return ''
 
+    if (!Array.isArray(qoutes))
+        qoutes = [qoutes]
+
     for (const [open, close] of qoutes)
-        if (ref.startsWith(open) && ref.endsWith(close))
-            ref = unquote(ref.slice(1, -1), qoutes)
+        if (ref.startsWith(open) && ref.endsWith(close)) {
+            ref = ref.slice(1, -1)
+            if (!once)
+                ref = unquote(ref, qoutes)
+        }
 
     return ref
  }

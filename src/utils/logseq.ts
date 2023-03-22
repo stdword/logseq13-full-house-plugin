@@ -1,7 +1,7 @@
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import { f, indexOfNth, p, sleep } from './other'
-import { isInteger, isUUID } from './parsing'
+import { isEmptyString, isInteger, isUUID, unquote } from './parsing'
 
 
 export type IBlockNode = Required<Pick<IBatchBlock, 'content' | 'children'>>
@@ -236,16 +236,21 @@ export async function getPageFirstBlock(
  }
 
 
-export function cleanMacroArg(arg: string | null | undefined, escape: boolean = true): string {
+export function cleanMacroArg(
+    arg: string | null | undefined, opts = {
+    escape: true,
+    unquote: false,
+}): string {
     arg ??= ''
     arg = arg.trim()
 
     if (arg.includes(',') && arg.startsWith('"') && arg.endsWith('"')) {
         // «"» was used to escape «,» in logseq, so trim them
         arg = arg.slice(1, -1)
-    }
+    } else if (opts.unquote)
+        arg = unquote(arg, '""')
 
-    if (!escape)
+    if (!opts.escape)
         return arg
 
     // To deal with XSS: escape dangerous (for datascript raw queries) chars

@@ -13,7 +13,7 @@ import UTC               from 'dayjs/plugin/utc'
 import updateLocale      from 'dayjs/plugin/updateLocale'
 import logseqPlugin      from './utils/dayjs_logseq_plugin'
 
-import { p, Properties, PropertiesRefs, PropertiesUtils } from './utils'
+import { cleanMacroArg, p, Properties, PropertiesRefs, PropertiesUtils } from './utils'
 
 export { dayjs, Dayjs }
 dayjs.extend(customParseFormat)
@@ -187,10 +187,62 @@ export class BlockContext extends Context {
     }
 }
 
+export class ArgsContext extends Context {
+    constructor(args: string[]) {
+        const entries: [string, string][] = []
+        for (let [ index, value ] of Object.entries(args)) {
+            // Check whether it is named arg
+
+            // # Strict rules for name of the arg
+            // Idea: allow to access to arg with `c.args.<name>`
+            // Represented by a mix of javascript variable naming rules and .edn keywords:
+            //  - name must be preceded with `:`
+            //  - followed with non-numeric Unicode character
+            //  - other characters can contain alphanumeric Unicode characters, `$` and `_`
+            //  - must not be zero-length
+            //  - followed by one or more whitespace characters
+
+            // # Easy rules for name of the arg
+            // Idea: be as non-restrictive as possible, but access to arg with `c.args.['<name>']`
+            //  - name must be preceded with `:`
+            //  - can contain any non-whitespace characters
+            //  - must not be zero-length
+            //  - followed by one or more whitespace characters
+
+            // # Rules for value of the arg
+            //  - value can contain any characters (or no one)
+            //  - value can be quoted with `"` to preserve whitespaces before it
+            //  - double `"` allows to include `"` to value
+
+            // TODO: create a setting to control strictness
+
+            if (value.startsWith('::')) {
+                // special case: user has disabled named-arg parsing
+                value = value.slice(1)
+            } else {
+                const strictrRgexp = /^:([\p{Letter}][$_\p{Letter}\p{Number}]*)\s+/ui
+                const easyRgexp= /^:(\S+)\s+/ui
+                const match = value.match(easyRgexp)
+                if (match) {
+                    const [ consumed, name ] = match
+                    value = value.slice(consumed.length)
+                    value = cleanMacroArg(value, {escape: false, unquote: true})
+
+                    entries.push([ name, value ])
+                }
+            }
+
+            entries.push([ index.toString(), value ])
+            entries.push([ `$${+index + 1}`, value ])
+        }
+        super(Object.fromEntries(entries))
+    }
+}
 
 export interface ILogseqContext {
     page: PageContext
     block: BlockContext
+    args: string[]
     self?: BlockContext
     template?: {
         name: string,
