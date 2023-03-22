@@ -62,7 +62,7 @@ Videos with these steps:
      ["wiki" "{{renderer :template, wiki, —, :lang en}}"],
   ]
   ```
-3) Type-in `<wiki``↩︎` while editing any block:
+3) Type-in `<wiki` `↩︎` while editing any block:
   <img width="740px" src="https://user-images.githubusercontent.com/1984175/227035547-53e9580e-9843-49a4-bbb9-0f738c908c99.gif"/>
 
 <table><tr><td>
