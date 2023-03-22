@@ -110,7 +110,7 @@ See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/ma
 
 ## If you love what I'm doing — consider to support my work
 <p align="left">
-<a href="https://www.buymeacoffee.com/stdword" target="_blank"><img src="https://user-images.githubusercontent.com/1984175/226382495-6e09cb9f-9fc8-425b-87cd-e3b12a4da4a3.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://www.buymeacoffee.com/stdword" target="_blank"><img src="https://user-images.githubusercontent.com/1984175/226772431-fed7061d-b826-4432-b0f4-2ed5a7fb7f56.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 </p>
 
 ## Credits
