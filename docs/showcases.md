@@ -47,6 +47,10 @@ Videos with these steps:
 
 
 ## Fast links to Wikipedia.org
+<img width="740px" src="https://user-images.githubusercontent.com/1984175/227035547-53e9580e-9843-49a4-bbb9-0f738c908c99.gif"/>
+
+
+<details closed><summary>Steps</summary><p>
 
 1) Create `wiki` 🏛template:
   ```markdown
@@ -56,19 +60,16 @@ Videos with these steps:
   ```
   <img width="740px" src="https://user-images.githubusercontent.com/1984175/227020818-c245efbf-1ce0-4fa9-b07e-82b2e49d7d88.png"/>
 
-2) Add new `:commnd` to Logseq `config.edn`:
+2) Add new `:command` to Logseq `config.edn`:
   ```clojure
   :commands [
      ["wiki" "{{renderer :template, wiki, —, :lang en}}"],
   ]
   ```
-3) Type-in `<wiki` `↩︎` while editing any block:
-  <img width="740px" src="https://user-images.githubusercontent.com/1984175/227035547-53e9580e-9843-49a4-bbb9-0f738c908c99.gif"/>
+3) Type-in `<` or `/` → `wiki` → `↩︎` while editing any block to render 🏛template
 
-<table><tr><td>
+</p></details>
 
-<details closed><summary>Video with these steps</summary>
+<details closed><summary>Demo</summary>
   <video width="40%" src="https://user-images.githubusercontent.com/1984175/227012394-99e1819e-9a67-4ed9-975e-5af6db76776d.mp4"/>
 </details>
-  
-</td></tr></table>
