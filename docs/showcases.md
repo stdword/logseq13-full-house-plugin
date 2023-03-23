@@ -1,29 +1,27 @@
-`🏛template` means enhanced template from `Full House Templates` [plugin](https://github.com/stdword/logseq13-full-house-plugin#readme) ❤️
-
----
-
 # Showcases
 
-An interesting ways of how to use 🏛templates to color your life in Logseq
+An interesting ways of how to use `🏛templates` to color your life in <a href="https://logseq.com"><img align="center" width="18px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/> Logseq</a>.
+
+`🏛templates` means _enhanced templates_ from `Full House Templates` [plugin](https://github.com/stdword/logseq13-full-house-plugin#readme) ❤️
 
 # Table of Contents
-- [Daily Journal 🏛template](#daily-journal-template)
+- [Daily Journal `🏛template`](#daily-journal-template)
 - [Fast links to Wikipedia.org](#fast-links-to-wikipediaorg)
 
 
-## Daily Journal 🏛template
+## Daily Journal `🏛template`
 
 1) Setup standrad logseq template (with name "journals" for example)
 2) Configure Logseq to use it in `config.edn`:
   ```clojure
   :default-templates {:journals "journal"}
   ```
-3) Create 🏛template with everything you need. Let's get this one:
+3) Create `🏛template` with everything you need. Let's get this one:
   ```markdown
   template:: journal-embed
   - ← [Yesterday](``{ ref(c.page.day.subtract(1, 'day')) }``) | [Tomorrow](``{ ref(c.page.day.add(1, 'day')) }``) →
   ```
-4) Add macro for rendring 🏛template to "journals" template: `{{renderer :template, journal-embed, }}`
+4) Add macro for rendring `🏛template` to "journals" template: `{{renderer :template, journal-embed, }}`
 5) Note a special hanging comma after template name: this is hack to prevent macro from being rendered
 
 > **Restriction 1**: You need to manually remove that comma every time you open a new day. But `Full House Templates` WILL have appropriate feature to do it for you — keep an eye on updates 👽
@@ -52,7 +50,7 @@ Videos with these steps:
 
 <details closed><summary>Steps</summary><p>
 
-1) Create `wiki` 🏛template:
+1) Create `wiki` `🏛template`:
   ```markdown
   template:: wiki
   - ``{ ! var lang = c.args.lang ?? c.args.$1 ?? 'en' _}``
@@ -66,7 +64,7 @@ Videos with these steps:
      ["wiki" "{{renderer :template, wiki, —, :lang en}}"],
   ]
   ```
-3) Type-in `<` or `/` → `wiki` → `↩︎` while editing any block to render 🏛template
+3) Type-in `<` or `/` → `wiki` → `↩︎` while editing any block to render `🏛template`
 
 </p></details>
 
