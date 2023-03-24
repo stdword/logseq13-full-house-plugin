@@ -12,7 +12,6 @@ import {
 import { RenderError, StateError, StateMessage } from './errors'
 
 
-
 async function onAppSettingsChanged() {
     // TODO work with locales
     // preferredLanguage
@@ -40,6 +39,10 @@ async function init() {
 
 async function main() {
     init()
+
+    logseq.onSettingsChanged(async (old, new_) => {
+        await onAppSettingsChanged()
+    })
 
     const commandLabel = 'Insert 🏛template'
     const command = RendererMacro.command('template')
@@ -81,14 +84,20 @@ async function main() {
                 'success', {timeout: 5000})
     })
 
-    logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
+    handleTemplateCommand(command)
+}
+
+
+function handleTemplateCommand(command) {
+    let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
+        const uuid = payload.uuid
         let [ type_, templateRef_, contextPageRef_, ...args ] = payload.arguments
         const rawCommand = RendererMacro.command(type_)
         if (rawCommand.name !== command.name)
             return
 
         const raw = rawCommand.arg(templateRef_).arg(contextPageRef_).args(args)
-        console.debug(p``, raw.toString())
+        console.debug(p`Parsing:`, {macro: raw.toString()})
 
         templateRef_ = cleanMacroArg(templateRef_)
         if (!templateRef_) {
@@ -118,12 +127,12 @@ async function main() {
 
         console.debug(
             p`Rendering macro`,
-            {type_, templateRef, includingParent, contextPageRef, args},
+            {uuid, templateRef, includingParent, contextPageRef, args},
         )
 
         try {
             await renderTemplateInBlock(
-                payload.uuid, templateRef, raw, {
+                uuid, templateRef, raw, {
                 includingParent, pageRef: contextPageRef, args,
             })
         } catch (error) {
@@ -137,11 +146,8 @@ async function main() {
                 console.error(p`${(error as Error).stack}`)
         }
     })
-
-    logseq.onSettingsChanged(async (old, new_) => {
-        await onAppSettingsChanged()
-    })
-}
+    logseq.beforeunload(unload as unknown as () => Promise<void>)
+ }
 
 
 if (import.meta.env.DEV) {
