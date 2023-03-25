@@ -2,12 +2,13 @@ import '@logseq/libs'
 import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
 import { dayjs } from './context'
-import { renderTemplateInBlock } from './logic'
+import { renderTemplateInBlock, renderTemplateView } from './logic'
 import {
     indexOfNth, lockOn, p, sleep,
     cleanMacroArg, parseReference, isEmptyString,
     insertContent, PropertiesUtils, RendererMacro,
     LogseqDayjsState,
+    LogseqReference,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
@@ -45,8 +46,8 @@ async function main() {
     })
 
     const commandLabel = 'Insert 🏛template'
-    const command = RendererMacro.command('template')
-    const commandGuide = command
+    const commandTemplate = RendererMacro.command('template')
+    const commandGuide = commandTemplate
         .arg('TEMPLATE NAME')
         .arg('(optional) page reference')
         .toString()
@@ -75,7 +76,7 @@ async function main() {
             const templateName = await logseq.Editor.getBlockProperty(
                 e.uuid, PropertiesUtils.templateProperty)
             const templateRef = templateName ? templateName : `((${e.uuid}))`
-            const textToCopy = command.arg(templateRef).toString()
+            const textToCopy = commandTemplate.arg(templateRef).toString()
 
             window.focus()  // need to make an interactions with clipboard
             await navigator.clipboard.writeText(textToCopy)
@@ -84,12 +85,38 @@ async function main() {
                 'success', {timeout: 5000})
     })
 
-    handleTemplateCommand(command)
+    handleTemplateCommand(commandTemplate)
+    handleTemplateViewCommand(RendererMacro.command('template-view'))
 }
 
+async function handleRequiredRef(ref: string, refUserName: string) {
+    ref = cleanMacroArg(ref)
+    if (!ref) {
+        await logseq.UI.showMsg(`${refUserName} reference is required`, 'error', {timeout: 5000})
+        return null
+    }
+
+    return parseReference(ref)!
+ }
+
+async function handleLogicErrors(func: Function) {
+    try {
+        await func()
+    } catch (error) {
+        if (error instanceof StateError)
+            await logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
+        else if (error instanceof StateMessage)
+            await logseq.UI.showMsg(error.message, 'info', {timeout: 5000})
+        else if (error instanceof RenderError)
+            await logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
+        else
+            console.error(p`${(error as Error).stack}`)
+    }
+ }
 
 function handleTemplateCommand(command) {
     let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
+        console.log({slot, payload});
         const uuid = payload.uuid
         let [ type_, templateRef_, contextPageRef_, ...args ] = payload.arguments
         const rawCommand = RendererMacro.command(type_)
@@ -99,19 +126,13 @@ function handleTemplateCommand(command) {
         const raw = rawCommand.arg(templateRef_).arg(contextPageRef_).args(args)
         console.debug(p`Parsing:`, {macro: raw.toString()})
 
-        templateRef_ = cleanMacroArg(templateRef_)
-        if (!templateRef_) {
-            await logseq.UI.showMsg('Template reference is required', 'error', {timeout: 5000})
+        const templateRef = await handleRequiredRef(templateRef_, 'Template')
+        if (!templateRef)
             return
-        }
 
         let includingParent: boolean | undefined
-        if ('+-'.includes(templateRef_[0])) {
-            includingParent = templateRef_[0] === '+'
-            templateRef_ = templateRef_.slice(1)
-        }
-
-        const templateRef = parseReference(templateRef_)
+        if (templateRef.option)
+            includingParent = templateRef.option === '+'  // or '-'
 
         contextPageRef_ = cleanMacroArg(contextPageRef_, {escape: false, unquote: false})
         if (isEmptyString(contextPageRef_))
@@ -125,34 +146,50 @@ function handleTemplateCommand(command) {
 
         args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
 
-        console.debug(
-            p`Rendering macro`,
-            {uuid, templateRef, includingParent, contextPageRef, args},
-        )
-
-        try {
+        console.debug(p`Rendering template`,
+            {uuid, templateRef, includingParent, contextPageRef, args})
+        await handleLogicErrors(async () => {
             await renderTemplateInBlock(
                 uuid, templateRef, raw, {
                 includingParent, pageRef: contextPageRef, args,
             })
-        } catch (error) {
-            if (error instanceof StateError)
-                await logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
-            else if (error instanceof StateMessage)
-                await logseq.UI.showMsg(error.message, 'info', {timeout: 5000})
-            else if (error instanceof RenderError)
-                await logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
-            else
-                console.error(p`${(error as Error).stack}`)
-        }
+        })
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
  }
 
+function handleTemplateViewCommand(command) {
+    const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
+        const uuid = payload.uuid
+        let [ type_, templateRef_, ...args ] = payload.arguments
+        const rawCommand = RendererMacro.command(type_)
+        if (rawCommand.name !== command.name)
+            return
+
+        const raw = rawCommand.arg(templateRef_).args(args)
+        console.debug(p`Parsing:`, {macro: raw.toString()})
+
+        const templateRef = await handleRequiredRef(templateRef_, 'Template')
+        if (!templateRef)
+            return
+
+        if (templateRef.option === '+')
+            await logseq.UI.showMsg(
+                '"+" option has no effect: Template view always renders without parent',
+                'info', {timeout: 5000})
+
+        args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
+
+        console.debug(p`Rendering template view`, {slot, uuid, templateRef, args})
+        await handleLogicErrors(async () => {
+            await renderTemplateView(slot, uuid, templateRef!, raw, args)
+        })
+    })
+    logseq.beforeunload(unload as unknown as () => Promise<void>)
+ }
 
 if (import.meta.env.DEV) {
     // @ts-expect-error
     top!.hmr_count = (top!.hmr_count + 1) || 1
-}
-
+ }
 logseq.ready(main).catch(console.error)

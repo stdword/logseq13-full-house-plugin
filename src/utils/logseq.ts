@@ -96,6 +96,7 @@ export type LogseqReference = {
         'id',       // int
     value: string | number,
     original: string,
+    option: string,
  }
 export type LogseqReferenceAccessType = 'page' | 'block' | 'name'
 
@@ -106,6 +107,12 @@ export function parseReference(ref: string): LogseqReference | null {
 
     let type_  = 'name'
     let value: string | number = ref
+    let option = ''
+
+    if (value.match(/^[^#[(\w\s]/)) {
+        option = value[0]
+        value = value.slice(1)
+    }
 
     if (value.startsWith('[[') && value.endsWith(']]')) {
         type_ = 'page'
@@ -134,7 +141,7 @@ export function parseReference(ref: string): LogseqReference | null {
     if (type_ != 'id')
         value = (value as string).trim()
 
-    return { type: type_, value, original: ref } as LogseqReference
+    return { type: type_, value, option, original: ref } as LogseqReference
  }
 
 export async function getPage(ref: LogseqReference): Promise<PageEntity | null> {
