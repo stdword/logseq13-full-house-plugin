@@ -71,15 +71,21 @@ async (
 
     if (!templateBlock)
         throw new StateError(
-            `There's no such template: "${templateRef.original}"`,
+            `[:p "There's no such template: "
+                [:i "${templateRef.original}"]]`,
             {templateRef},
         )
 
     const template = new Template(templateBlock, {name, includingParent, accessedVia})
     if (template.isEmpty())
         throw new StateMessage(
-            `Template "${template.name || templateRef.original}" is empty.\n` +
-            `Add child blocks or set "template-including-parent:: yes"`,
+            `[:p "Template "
+                [:i "${template.name || templateRef.original}"]
+                " is empty. "
+                "Add child blocks or set "
+                [:br]
+                [:code "template-including-parent:: yes"]
+            ]`,
             {templateRef},
         )
 
@@ -106,7 +112,11 @@ async (
     catch (error) {
         const message = (error as Error).message
         throw new RenderError(
-            `Cannot render template "${template.name || templateRef.original}": ${message}`,
+            `[:p "Cannot render template "
+                [:i "${template.name || templateRef.original}"]
+                ": "
+                [:pre "${message}"]
+            ]`,
             {template, error},
         )
     }
