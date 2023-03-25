@@ -150,7 +150,7 @@ export async function getBlock(
     includeChildren = false }: { byProperty?: string, includeChildren?: boolean }
 ): Promise<[BlockEntity | null, LogseqReferenceAccessType]> {
     if (['page', 'tag'].includes(ref.type))
-        return [ null, 'page']
+        return [ null, 'page' ]
 
     if (['name', 'block?'].includes(ref.type)) {
         byProperty = byProperty.trim().toLowerCase()
@@ -158,7 +158,7 @@ export async function getBlock(
             byProperty = byProperty.slice(1)
 
         if (!byProperty)
-            return [ null, 'name']
+            return [ null, 'name' ]
 
         const query = `
             [:find (pull ?b [*])
@@ -170,27 +170,26 @@ export async function getBlock(
         `.trim()
 
         const ret = await logseq.DB.datascriptQuery(query)
-        if (ret) {
-            const results = ret.flat()
-            if (results.length !== 0) {
-                if (results.length > 1)
-                    console.info(
-                        p`Found multiple blocks with property "${byProperty}:: ${ref.value}". Taken first`,
-                        {results},
-                    )
+        if (!ret || ret.length === 0)
+            return [ null, 'name' ]
 
-                if (!includeChildren)
-                    return [ results[0], 'name' ]
+        const results = ret.flat()
+        if (results.length > 1)
+            console.info(
+                p`Found multiple blocks with property "${byProperty}:: ${ref.value}". Taken first`,
+                {results},
+            )
 
-                return [
-                    await logseq.Editor.getBlock(
-                        results[0].id,
-                        {includeChildren: true},
-                    ) as BlockEntity,
-                    'name',
-                ]
-            }
-        }
+        if (!includeChildren)
+            return [ results[0], 'name' ]
+
+        return [
+            await logseq.Editor.getBlock(
+                results[0].id,
+                {includeChildren: true},
+            ) as BlockEntity,
+            'name',
+        ]
     }
 
     return [
