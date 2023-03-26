@@ -7,50 +7,47 @@ import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, Logse
 import { RenderError, StateError, StateMessage } from './errors'
 
 
-/*
- * @raises StateError: `pageRef` doesn't exist
+/**
+ * @raises StateError: `contextPageRef` doesn't exist
  */
 async function getCurrentContext(
-    forBlockUUID: string,
-    pageRef?: LogseqReference,
-): Promise<[PageEntity | null, BlockEntity | null]> {
-    let page: PageEntity | null = null
-    if (pageRef) {
+    templateRef: LogseqReference,
+    blockUUID: string,
+    args: ArgsContext | string[],
+    contextPageRef?: LogseqReference,
+): Promise<ILogseqContext | null> {
+    let contextPage: PageEntity | undefined
+    if (contextPageRef) {
         // TODO: use query for page instead of ref
-        const pageExists = await getPage(pageRef)
+        const pageExists = await getPage(contextPageRef)
         if (!pageExists)
-            throw new StateError(`Page doesn't exist: "${pageRef.original}"`, {pageRef})
-        page = pageExists
+            throw new StateError(`Page doesn't exist: "${contextPageRef.original}"`, {contextPageRef})
+        contextPage = pageExists
     }
 
-    const block = await logseq.Editor.getBlock(forBlockUUID)
-    if (!block)
-        return [page, null]  // could be [null, null]
+    const currentBlock = await logseq.Editor.getBlock(blockUUID)
+    if (!currentBlock) {
+        console.debug(p`logseq issue → rendering non-existed block / slot`)
+        return null
+    }
 
-    if (!page)
-        page = await logseq.Editor.getPage(block.page.id) as PageEntity
-    return [page, block]
+    const currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
+    const currentPageContext = PageContext.createFromEntity(currentPage)
+
+    return {
+        config: await ConfigContext.get(),
+        page: contextPage ? PageContext.createFromEntity(contextPage) : currentPageContext,
+        block: BlockContext.createFromEntity(currentBlock, { page: currentPageContext }),
+        args: (args instanceof ArgsContext) ? args : new ArgsContext(templateRef, args),
+    }
  }
 
-/*
+/**
  * @raises StateError: template doesn't exist
- * @raises StateMessage: template doesn't have any content (empty)
- * @raises RenderError: template rendering error
  */
-export let renderTemplateInBlock =
-    lockOn( ([uuid, ..._]) => uuid ) (
-async (
-    uuid: string,
-    templateRef: LogseqReference,
-    rawCode: RendererMacro, opts: {
-    includingParent?: boolean,
-    pageRef?: LogseqReference,
-    args: string[],
-} = {args: []}) => {
-    console.debug(p`Render to block`, {uuid})
-
-    const { includingParent, pageRef, args } = opts
-
+async function getTemplateBlock(
+    templateRef: LogseqReference
+): Promise<[BlockEntity, string | undefined, LogseqReferenceAccessType]> {
     let templateBlock: BlockEntity | null
     let accessedVia: LogseqReferenceAccessType
     let name: string | undefined
@@ -75,6 +72,9 @@ async (
                 [:i "${templateRef.original}"]]`,
             {templateRef},
         )
+
+    return [ templateBlock, name, accessedVia ]
+ }
 
 /**
  * @ui may show message to user
@@ -126,6 +126,25 @@ async function isInsideMacro(blockUUID) {
     //   if it is not accessing `c.page` & `c.block` variables
     return true
  }
+
+/**
+ * @raises StateError: template doesn't exist
+ * @raises StateMessage: template doesn't have any content (empty)
+ * @raises RenderError: template rendering error
+ */
+export const renderTemplateInBlock =
+    lockOn( ([uuid, ..._]) => uuid ) (
+async (
+    uuid: string,
+    templateRef: LogseqReference,
+    rawCode: RendererMacro, opts: {
+    includingParent?: boolean,
+    pageRef?: LogseqReference,
+    args: string[],
+} = {args: []}) => {
+    const { includingParent, pageRef, args } = opts
+    const [ templateBlock, name, accessedVia ] = await getTemplateBlock(templateRef)
+
     const template = new Template(templateBlock, {name, includingParent, accessedVia})
     if (template.isEmpty())
         throw new StateMessage(
@@ -139,25 +158,16 @@ async function isInsideMacro(blockUUID) {
             {templateRef},
         )
 
-    const [ contextPage, contextBlock ] = await getCurrentContext(uuid, pageRef)
-    if (!contextPage || !contextBlock) {
-        console.debug(p`logseq issue → rendering non-existed block / slot`)
+    if (await isInsideMacro(uuid))
         return
-    }
 
-    const currentPage = await logseq.Editor.getPage(contextBlock.page.id) as PageEntity
-    const currentPageContext = PageContext.createFromEntity(currentPage)
-
-    const context = {
-        config: await getConfigContext(),
-        page: PageContext.createFromEntity(contextPage),
-        block: BlockContext.createFromEntity(contextBlock, { page: currentPageContext }),
-        args: new ArgsContext(args),
-    }
+    const context = await getCurrentContext(templateRef, uuid, args, pageRef ?? undefined)
+    if (!context)
+        return
 
     let rendered: IBlockNode
     try {
-        rendered = template.render(context as unknown as ILogseqContext)
+        rendered = template.render(context)
     }
     catch (error) {
         const message = (error as Error).message
@@ -184,6 +194,96 @@ async function isInsideMacro(blockUUID) {
     if (children.length) {
         await logseq.Editor.insertBatchBlock(
             uuid,
+            children, {
+            sibling: !template.includingParent,
+        })
+    }
+
+    const oldContent = context.block!.content!
+    const toInsert = head.content
+    let newContent = oldContent.replace(rawCode.toString(), toInsert)
+    if (newContent === oldContent) {
+        // if no replacement was done, try another form of macro command
+        const toReplace = rawCode.toString({useColon: false})
+        newContent = oldContent.replace(toReplace, toInsert)
+        if (newContent === oldContent)
+            console.warn(p`Cannot find renderer macro to replace it`, {
+                uuid,
+                oldContent,
+                toReplace,
+                toInsert,
+            })
+    }
+
+    await logseq.Editor.updateBlock(uuid, newContent)
+ })
+
+/**
+ * @raises StateError: template doesn't exist
+ * @raises StateMessage: template doesn't have any content (empty)
+ * @raises RenderError: template rendering error
+ */
+export async function renderTemplateView(
+    slot: string,
+    blockUUID: string,
+    templateRef: LogseqReference,
+    rawCode: RendererMacro,
+    args: string[] = [],
+) {
+    const [ templateBlock, name, accessedVia ] = await getTemplateBlock(templateRef)
+    const argsContext = new ArgsContext(templateRef, args)
+
+    const template = new Template(templateBlock, {name, includingParent: false, accessedVia})
+    if (template.isEmpty())
+        throw new StateMessage(
+            `[:p "Template "
+                [:i "${template.name || templateRef.original}"]
+                " is empty. "
+                "Add child blocks to use it as view"
+            ]`,
+            {templateRef},
+        )
+
+    if (await isInsideMacro(blockUUID))
+        return
+
+    // @ts-expect-error
+    const pageRef_ = argsContext.page as string
+    const pageRef = parseReference(pageRef_)
+
+    const context = await getCurrentContext(templateRef, blockUUID, args, pageRef ?? undefined)
+    if (!context)
+        return
+
+    let rendered: IBlockNode
+    try {
+        rendered = template.render(context)
+    }
+    catch (error) {
+        const message = (error as Error).message
+        throw new RenderError(
+            `[:p "Cannot render template "
+                [:i "${template.name || templateRef.original}"]
+                ": "
+                [:pre "${message}"]
+            ]`,
+            {template, error},
+        )
+    }
+
+    let head: IBatchBlock
+    let children: IBatchBlock[]
+    if (template.includingParent)
+        [ head, children ] = [ rendered, rendered.children ]
+    else
+        [ head, ...children ] = rendered.children
+
+    // NOTE: it is important to call `insertBatchBlock` before `updateBlock`
+    // due to @logseq/lib bug on batch inserting to empty block (content == '')
+
+    if (children.length) {
+        await logseq.Editor.insertBatchBlock(
+            blockUUID,
             children, {
             sibling: !template.includingParent,
         })
