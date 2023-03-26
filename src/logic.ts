@@ -76,6 +76,56 @@ async (
             {templateRef},
         )
 
+/**
+ * @ui may show message to user
+ */
+async function isInsideMacro(blockUUID) {
+    if (blockUUID)
+        return false
+
+    // Where is uuid? It definitely should be here, but this is a bug:
+    //   https://github.com/logseq/logseq/issues/8904
+
+    // We are inside the :macros from config.edn
+    // And can't auto fulfill `c.block` & `c.page` context variables
+
+    // Workarounds:
+    //   1) ✖️ fill these vars manually with :page and :block args
+    //     - requires user to make some manual work
+    //     - this work is not trivial: "How to specify block as macro arg?"
+    //   2) ✔️ offer user to use this command without macros
+    //     - instead of: `{{wiki}}`
+    //     - offer to use: `{{renderer :template-view, wiki}}`
+    //     - it is a bit longer, but can be inserted with :command
+    //       - `"view" "{{renderer :template-view, NAME}}"`
+    //   3) ✖️ offer user to construct special macro
+    //     - `"view" "{{renderer :template-view, $1, :_current_page_dynamic_var <% current page %>}}"`
+    //     - this way we can fulfill `c.page`
+    //       - but note another bug: https://github.com/logseq/logseq/issues/8903
+    //     - `c.block` remains undetected
+    //     - approach is very ugly
+    //   4) ✔️ wait until bug will be fixed
+
+    await logseq.UI.showMsg(
+        `[:div
+            [:p "It seems like you are using the " [:code ":macros"] " with"
+                [:code "🏛Full House Templates"]
+                "." ]
+            [:p "Unfortunately there is an issue in Logseq which causes"
+                " some plugin features to work incorrectly with macros." ]
+            [:p "Please use the " [:code ":template-view"] "command instead,"
+                " specially designed for this case." ]
+            [:p [:b "See details "
+                [:a {:href "https://github.com/logseq/logseq/issues/8904"} "here"]]]
+        ]`,
+        'error', {timeout: 15000})
+
+    console.debug(p`logseq issue: https://github.com/logseq/logseq/issues/8904`)
+
+    // TODO: continue to render template view
+    //   if it is not accessing `c.page` & `c.block` variables
+    return true
+ }
     const template = new Template(templateBlock, {name, includingParent, accessedVia})
     if (template.isEmpty())
         throw new StateMessage(
