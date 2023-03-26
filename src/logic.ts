@@ -2,8 +2,8 @@ import '@logseq/libs'
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import { Template, InlineTemplate } from './template'
-import { PageContext, BlockContext, getConfigContext, ILogseqContext, ArgsContext } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro } from './utils'
+import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext } from './context'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
 

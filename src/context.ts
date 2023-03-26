@@ -188,8 +188,8 @@ export class BlockContext extends Context {
 }
 
 export class ArgsContext extends Context {
-    constructor(args: string[]) {
-        const entries: [string, string][] = []
+    constructor(templateRef: LogseqReference, args: string[]) {
+        const entries: [string, string][] = [['0', templateRef.original]]
         for (let [ index, value ] of Object.entries(args)) {
             // Check whether it is named arg
 
@@ -232,7 +232,7 @@ export class ArgsContext extends Context {
                 }
             }
 
-            entries.push([ index.toString(), value ])
+            entries.push([ (index + 1).toString(), value ])
             entries.push([ `$${+index + 1}`, value ])
         }
         super(Object.fromEntries(entries))
