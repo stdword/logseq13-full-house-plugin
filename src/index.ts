@@ -98,7 +98,6 @@ async function handleRequiredRef(ref: string, refUserName: string) {
 
     return parseReference(ref)!
  }
-
 async function handleLogicErrors(func: Function) {
     try {
         await func()
@@ -116,7 +115,6 @@ async function handleLogicErrors(func: Function) {
 
 function handleTemplateCommand(command) {
     let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
-        console.log({slot, payload});
         const uuid = payload.uuid
         let [ type_, templateRef_, contextPageRef_, ...args ] = payload.arguments
         const rawCommand = RendererMacro.command(type_)
@@ -157,7 +155,6 @@ function handleTemplateCommand(command) {
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
  }
-
 function handleTemplateViewCommand(command) {
     const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid

@@ -13,7 +13,7 @@ import UTC               from 'dayjs/plugin/utc'
 import updateLocale      from 'dayjs/plugin/updateLocale'
 import logseqPlugin      from './utils/dayjs_logseq_plugin'
 
-import { cleanMacroArg, p, Properties, PropertiesRefs, PropertiesUtils } from './utils'
+import { cleanMacroArg, LogseqReference, p, Properties, PropertiesRefs, PropertiesUtils } from './utils'
 
 export { dayjs, Dayjs }
 dayjs.extend(customParseFormat)
@@ -194,7 +194,7 @@ export class ArgsContext extends Context {
             // Check whether it is named arg
 
             // # Strict rules for name of the arg
-            // Idea: allow to access to arg with `c.args.<name>`
+            // Idea: allow to access the arg with `c.args.<name>`
             // Represented by a mix of javascript variable naming rules and .edn keywords:
             //  - name must be preceded with `:`
             //  - followed with non-numeric Unicode character
@@ -203,7 +203,7 @@ export class ArgsContext extends Context {
             //  - followed by one or more whitespace characters
 
             // # Easy rules for name of the arg
-            // Idea: be as non-restrictive as possible, but access to arg with `c.args.['<name>']`
+            // Idea: be as non-restrictive as possible, but access the arg with `c.args.['<name>']`
             //  - name must be preceded with `:`
             //  - can contain any non-whitespace characters
             //  - must not be zero-length
