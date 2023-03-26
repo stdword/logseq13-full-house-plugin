@@ -240,9 +240,10 @@ export class ArgsContext extends Context {
 }
 
 export interface ILogseqContext {
+    config: ConfigContext
     page: PageContext
-    block: BlockContext
-    args: string[]
+    block: BlockContext | null
+    args: ArgsContext
     self?: BlockContext
     template?: {
         name: string,
@@ -251,35 +252,57 @@ export interface ILogseqContext {
         props: Properties,
         propsRefs: PropertiesRefs,
     }
-    config: {
-        pluginVersion: string,
-
-        currentGraph: string,
-
-        preferredWorkflow: 'now' | 'todo',
-        preferredThemeMode: 'light' | 'dark',
-        preferredFormat: 'markdown' | 'org',
-
-        preferredLanguage: string,
-        preferredDateFormat: string,
-        preferredStartOfWeek: string,  // TODO: error in types definitions: number type
-
-        enabledFlashcards: boolean,
-        enabledJournals: boolean,
-        showBracket: boolean,  // TODO: error in types definitions: no "s" at the end
-    }
 }
 
+export class ConfigContext extends Context {
+    public pluginVersion: string
 
-export async function getConfigContext() {
-    // TODO: use full config
-    // const fullConfig = await logseq.App.getCurrentGraphConfigs()
+    public currentGraph: string
 
-    const config = await logseq.App.getUserConfigs()
-    delete config.me
+    public preferredWorkflow: 'now' | 'todo'
+    public preferredThemeMode: 'light' | 'dark'
+    public preferredFormat: 'markdown' | 'org'
 
-    return new Context({
-        ...config,
-        pluginVersion: await logseq.baseInfo.version,
-    })
+    public preferredLanguage: string
+    public preferredDateFormat: string
+    public preferredStartOfWeek: number
+
+    public enabledFlashcards: boolean
+    public enabledJournals: boolean
+    public showBrackets: boolean
+
+    static async get() {
+        // TODO: use full config
+        // const fullConfig = await logseq.App.getCurrentGraphConfigs()
+
+        // TODO: error in @logseq/lib types definitions:
+        //   - `showBracket`: no "s" at the end
+        //   - `preferredStartOfWeek`: number type instead of string
+
+        const config = await logseq.App.getUserConfigs()
+        delete config.me
+
+        return new ConfigContext({
+            ...config,
+            pluginVersion: await logseq.baseInfo.version,
+        })
+    }
+
+    constructor(data: {[index: string]: any}) {
+        super();
+
+        ({
+            pluginVersion: this.pluginVersion,
+            currentGraph: this.currentGraph,
+            preferredWorkflow: this.preferredWorkflow,
+            preferredThemeMode: this.preferredThemeMode,
+            preferredFormat: this.preferredFormat,
+            preferredLanguage: this.preferredLanguage,
+            preferredDateFormat: this.preferredDateFormat,
+            preferredStartOfWeek: this.preferredStartOfWeek,
+            enabledFlashcards: this.enabledFlashcards,
+            enabledJournals: this.enabledJournals,
+            showBracket: this.showBrackets,
+        } = data)
+    }
  }
