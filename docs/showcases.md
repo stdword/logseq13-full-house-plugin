@@ -43,6 +43,8 @@ Videos with these steps:
   
 </td></tr></table>
 
+## Auto reference to current page
+TODO
 
 ## Fast links to Wikipedia.org
 <img width="740px" src="https://user-images.githubusercontent.com/1984175/227035547-53e9580e-9843-49a4-bbb9-0f738c908c99.gif"/>
