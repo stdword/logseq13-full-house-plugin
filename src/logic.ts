@@ -2,8 +2,8 @@ import '@logseq/libs'
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import { Template, InlineTemplate } from './template'
-import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference } from './utils'
+import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext, Context } from './context'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
 
@@ -11,11 +11,16 @@ import { RenderError, StateError, StateMessage } from './errors'
  * @raises StateError: `contextPageRef` doesn't exist
  */
 async function getCurrentContext(
-    templateRef: LogseqReference,
+    template: Template,
     blockUUID: string,
-    args: ArgsContext | string[],
+    argsContext: ArgsContext,
     contextPageRef?: LogseqReference,
 ): Promise<ILogseqContext | null> {
+    // @ts-expect-error
+    const contextPageRef_ = argsContext.page as string
+    if (contextPageRef_)
+        contextPageRef = parseReference(contextPageRef_) ?? undefined
+
     let contextPage: PageEntity | undefined
     if (contextPageRef) {
         // TODO: use query for page instead of ref
@@ -25,20 +30,46 @@ async function getCurrentContext(
         contextPage = pageExists
     }
 
-    const currentBlock = await logseq.Editor.getBlock(blockUUID)
-    if (!currentBlock) {
-        console.debug(p`logseq issue → rendering non-existed block / slot`)
-        return null
+    let currentBlock: BlockEntity | null = null
+    if (blockUUID) {
+        currentBlock = await logseq.Editor.getBlock(blockUUID)
+        if (!currentBlock) {
+            console.debug(p`logseq issue → rendering non-existed block / slot`)
+            return null
+        }
     }
 
-    const currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
-    const currentPageContext = PageContext.createFromEntity(currentPage)
+    let currentPage: PageEntity | null = null
+    if (currentBlock)
+        currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
+    else {
+        // fighting with bug: https://github.com/logseq/logseq/issues/8904
+        // user should provide special arg `:__page <% current page %>`
+        // @ts-expect-error
+        const macroCurrentPage_ = argsContext.__page as string
+        if (macroCurrentPage_) {
+            const macroCurrentPage = parseReference(macroCurrentPage_)
+            if (macroCurrentPage) {
+                // fighting with bug: https://github.com/logseq/logseq/issues/8903
+                if (macroCurrentPage.type === 'page' && isUUID(macroCurrentPage.value as string)) {
+                    const blockUUID = macroCurrentPage.value
+                    const zoomedBlock = await logseq.Editor.getBlock(blockUUID)
+                    if (zoomedBlock)
+                        currentPage = await logseq.Editor.getPage(zoomedBlock.page.id)
+                } else {
+                    currentPage = await getPage(macroCurrentPage)
+                }
+            }
+        }
+    }
+
+    const currentPageContext = currentPage ? PageContext.createFromEntity(currentPage) : PageContext.empty()
 
     return {
         config: await ConfigContext.get(),
         page: contextPage ? PageContext.createFromEntity(contextPage) : currentPageContext,
-        block: BlockContext.createFromEntity(currentBlock, { page: currentPageContext }),
-        args: (args instanceof ArgsContext) ? args : new ArgsContext(templateRef, args),
+        block: currentBlock ? BlockContext.createFromEntity(currentBlock, { page: currentPageContext }) : BlockContext.empty(),
+        args: argsContext,
     }
  }
 
@@ -87,24 +118,24 @@ async function isInsideMacro(blockUUID: string) {
     //   https://github.com/logseq/logseq/issues/8904
 
     // We are inside the :macros from config.edn
-    // And can't auto fulfill `c.block` & `c.page` context variables
+    // And can't auto fill `c.block` & `c.page` context variables
 
     // Workarounds:
-    //   1) ✖️ fill these vars manually with :page and :block args
+    //   1) fill these vars manually with :page and :block args
     //     - requires user to make some manual work
     //     - this work is not trivial: "How to specify block as macro arg?"
-    //   2) ✔️ offer user to use this command without macros
+    //   2) offer user to use :template-view command instead of macros
     //     - instead of: `{{wiki}}`
-    //     - offer to use: `{{renderer :template-view, wiki}}`
+    //     - use: `{{renderer :template-view, wiki}}`
     //     - it is a bit longer, but can be inserted with :command
     //       - `"view" "{{renderer :template-view, NAME}}"`
-    //   3) ✖️ offer user to construct special macro
-    //     - `"view" "{{renderer :template-view, $1, :_current_page_dynamic_var <% current page %>}}"`
+    //   3) offer user to construct special macro
+    //     - `"view" "{{renderer :template-view, $1, :__page <% current page %>}}"`
     //     - this way we can fulfill `c.page`
     //       - but note another bug: https://github.com/logseq/logseq/issues/8903
     //     - `c.block` remains undetected
     //     - approach is very ugly
-    //   4) ✔️ wait until bug will be fixed
+    //   4) wait until bug will be fixed
 
     await logseq.UI.showMsg(
         `[:div
@@ -144,6 +175,7 @@ async (
 } = {args: []}) => {
     const { includingParent, pageRef, args } = opts
     const [ templateBlock, name, accessedVia ] = await getTemplateBlock(templateRef)
+    const argsContext = new ArgsContext(templateRef, args)
 
     const template = new Template(templateBlock, {name, includingParent, accessedVia})
     if (template.isEmpty())
@@ -161,7 +193,7 @@ async (
     if (await isInsideMacro(uuid))
         return
 
-    const context = await getCurrentContext(templateRef, uuid, args, pageRef ?? undefined)
+    const context = await getCurrentContext(template, uuid, argsContext, pageRef ?? undefined)
     if (!context)
         return
 
@@ -244,14 +276,9 @@ export async function renderTemplateView(
             {templateRef},
         )
 
-    if (await isInsideMacro(blockUUID))
-        return
+    await isInsideMacro(blockUUID)
 
-    // @ts-expect-error
-    const pageRef_ = argsContext.page as string
-    const pageRef = parseReference(pageRef_)
-
-    const context = await getCurrentContext(templateRef, blockUUID, args, pageRef ?? undefined)
+    const context = await getCurrentContext(template, blockUUID, argsContext)
     if (!context)
         return
 
@@ -271,42 +298,3 @@ export async function renderTemplateView(
         )
     }
 
-    let head: IBatchBlock
-    let children: IBatchBlock[]
-    if (template.includingParent)
-        [ head, children ] = [ rendered, rendered.children ]
-    else
-        [ head, ...children ] = rendered.children
-
-    // NOTE: it is important to call `insertBatchBlock` before `updateBlock`
-    // due to @logseq/lib bug on batch inserting to empty block (content == '')
-
-    if (children.length) {
-        await logseq.Editor.insertBatchBlock(
-            blockUUID,
-            children, {
-            sibling: !template.includingParent,
-        })
-    }
-
-    const oldContent = contextBlock.content
-    const toInsert = head.content
-    let newContent = oldContent.replace(rawCode.toString(), toInsert)
-    if (newContent === oldContent) {
-        // if no replacement was done, try another form of macro command
-        const toReplace = rawCode.toString({useColon: false})
-        newContent = oldContent.replace(toReplace, toInsert)
-        if (newContent === oldContent)
-            console.warn(p`Cannot find renderer macro to replace it`, {
-                uuid: contextBlock.uuid,
-                oldContent,
-                toReplace,
-                toInsert,
-            })
-    }
-
-    await logseq.Editor.updateBlock(uuid, newContent)
-
-    // to prevent too often re-renderings
-    // await sleep(3000)
- })

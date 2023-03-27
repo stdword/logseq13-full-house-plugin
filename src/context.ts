@@ -29,6 +29,10 @@ dayjs.extend(logseqPlugin)
 
 
 export class Context {
+    static empty() {
+        return new Context()
+    }
+
     constructor(data: {[index: string]: any} = {}) {
         Object.assign(this, data)
     }
@@ -61,6 +65,8 @@ export class Context {
 }
 
 export class PageContext extends Context {
+    static emptyID = -1
+
     private _page?: PageEntity
 
     public id: number
@@ -97,6 +103,9 @@ export class PageContext extends Context {
             obj.day = dayjs(day, 'YYYYMMDD').startOf('day')
         return obj
     }
+    static empty() {
+        return new PageContext(PageContext.emptyID)
+    }
 
     constructor(id: number, name?: string) {
         super()
@@ -110,6 +119,8 @@ export class PageContext extends Context {
 }
 
 export class BlockContext extends Context {
+    static emptyID = -1
+
     private _block?: BlockEntity
 
     public id: number
@@ -179,6 +190,9 @@ export class BlockContext extends Context {
 
         return obj
     }
+    static empty() {
+        return new BlockContext(BlockContext.emptyID)
+    }
 
     constructor(id: number) {
         super()
@@ -232,7 +246,7 @@ export class ArgsContext extends Context {
                 }
             }
 
-            entries.push([ (index + 1).toString(), value ])
+            entries.push([ (+index + 1).toString(), value ])
             entries.push([ `$${+index + 1}`, value ])
         }
         super(Object.fromEntries(entries))
