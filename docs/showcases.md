@@ -45,6 +45,8 @@ Videos with these steps:
 
 ## Auto reference to current page
 TODO
+- https://github.com/logseq/logseq/issues/7196
+- https://github.com/logseq/logseq/issues/8903
 
 ## Fast links to Wikipedia.org
 <img width="740px" src="https://user-images.githubusercontent.com/1984175/227035547-53e9580e-9843-49a4-bbb9-0f738c908c99.gif"/>
