@@ -156,6 +156,26 @@ function handleTemplateCommand(command: RendererMacro) {
     logseq.beforeunload(unload as unknown as () => Promise<void>)
  }
 function handleTemplateViewCommand(command: RendererMacro) {
+    logseq.provideModel({
+        async editBlock(e: any) {
+            const { uuid } = e.dataset
+            await logseq.Editor.editBlock(uuid)
+        },
+    })
+
+    logseq.provideStyle(`
+        .fh_template-view {
+           display: flex;
+           color: red;
+        }
+    `)
+
+    // fighting with bug: https://github.com/logseq/logseq/issues/8623
+    logseq.provideStyle(`
+        div.macro { display: inline-block; }
+    `)
+
+
     const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, ...args ] = payload.arguments

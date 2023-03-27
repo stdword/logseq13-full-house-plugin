@@ -298,3 +298,29 @@ export async function renderTemplateView(
         )
     }
 
+    let content = ''
+    walkBlockTree(rendered, (b, lvl) => {
+        if (lvl === 0)
+            return
+
+        if (lvl === 1)
+            content += b.content
+        else
+            content += '\n' + ' '.repeat(lvl) + '- ' + b.content
+    })
+
+    content = `
+        <span class="fh_template-view"
+              data-uuid="${blockUUID}"
+              data-on-click="editBlock"
+            >${content}</span>
+    `.trim()
+
+    const identity = slot.slice(1 + slot.split('_', 1).length).trim()
+    logseq.provideUI({
+        key: `template-view_${identity}`,
+        slot: slot,
+        reset: true,
+        template: content,
+    })
+ }
