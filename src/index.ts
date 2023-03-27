@@ -113,7 +113,7 @@ async function handleLogicErrors(func: Function) {
     }
  }
 
-function handleTemplateCommand(command) {
+function handleTemplateCommand(command: RendererMacro) {
     let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, contextPageRef_, ...args ] = payload.arguments
@@ -155,7 +155,7 @@ function handleTemplateCommand(command) {
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
  }
-function handleTemplateViewCommand(command) {
+function handleTemplateViewCommand(command: RendererMacro) {
     const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, ...args ] = payload.arguments

@@ -242,7 +242,7 @@ export class ArgsContext extends Context {
 export interface ILogseqContext {
     config: ConfigContext
     page: PageContext
-    block: BlockContext | null
+    block: BlockContext
     args: ArgsContext
     self?: BlockContext
     template?: {

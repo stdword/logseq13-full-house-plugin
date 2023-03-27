@@ -79,7 +79,7 @@ async function getTemplateBlock(
 /**
  * @ui may show message to user
  */
-async function isInsideMacro(blockUUID) {
+async function isInsideMacro(blockUUID: string) {
     if (blockUUID)
         return false
 

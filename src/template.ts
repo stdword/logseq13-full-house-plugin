@@ -138,8 +138,8 @@ export class Template implements ITemplate {
             PropertiesUtils.deleteProperty(b as BlockEntity, PropertiesUtils.idProperty)
         })
 
-        // TODO: create user settings to control should standard props be erased during rendering or not
-        //   or build a tools to construct/deconstruct properties of a block to select it manually
+        // TODO: allow user to control erasing standard props during rendering
+        //   manually or via settings
 
         if (this.includingParent) {
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateProperty)
