@@ -120,34 +120,18 @@ async function isInsideMacro(blockUUID: string) {
     // We are inside the :macros from config.edn
     // And can't auto fill `c.block` & `c.page` context variables
 
-    // Workarounds:
-    //   1) fill these vars manually with :page and :block args
-    //     - requires user to make some manual work
-    //     - this work is not trivial: "How to specify block as macro arg?"
-    //   2) offer user to use :template-view command instead of macros
-    //     - instead of: `{{wiki}}`
-    //     - use: `{{renderer :template-view, wiki}}`
-    //     - it is a bit longer, but can be inserted with :command
-    //       - `"view" "{{renderer :template-view, NAME}}"`
-    //   3) offer user to construct special macro
-    //     - `"view" "{{renderer :template-view, $1, :__page <% current page %>}}"`
-    //     - this way we can fulfill `c.page`
-    //       - but note another bug: https://github.com/logseq/logseq/issues/8903
-    //     - `c.block` remains undetected
-    //     - approach is very ugly
-    //   4) wait until bug will be fixed
-
     await logseq.UI.showMsg(
         `[:div
             [:p "It seems like you are using the " [:code ":macros"] " with"
                 [:code "🏛Full House Templates"]
                 "." ]
-            [:p "Unfortunately there is an issue in Logseq which causes"
-                " some plugin features to work incorrectly with macros." ]
+            [:p "Unfortunately there is an issue in Logseq which restricts"
+                " usage of some plugin features with macros." ]
             [:p "Please use the " [:code ":template-view"] "command instead,"
                 " specially designed for this case." ]
-            [:p [:b "See details "
-                [:a {:href "https://github.com/logseq/logseq/issues/8904"} "here"]]]
+            [:p [:b "See details " [:a
+                {:href "https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/using-with-macros.md"}
+                "here"]]]
         ]`,
         'error', {timeout: 15000})
 
@@ -276,7 +260,8 @@ export async function renderTemplateView(
             {templateRef},
         )
 
-    await isInsideMacro(blockUUID)
+    if (await isInsideMacro(blockUUID))
+        return
 
     const context = await getCurrentContext(template, blockUUID, argsContext)
     if (!context)
