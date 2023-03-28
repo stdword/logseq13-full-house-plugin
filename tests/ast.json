@@ -1,0 +1,644 @@
+[
+    ["Plain", "- plain текст"],
+    ["Break_Line"],
+    ["Plain", "- "],
+    ["Link", {
+            "url": ["Page_ref", "logseq/plugins/Full House Templates"],
+            "label": [ ["Plain", ""] ],
+            "full_text": "[[logseq/plugins/Full House Templates]]",
+            "metadata": ""}],
+    ["Break_Line"],
+    ["Plain", "- "],
+    ["Link", {
+            "url": ["Page_ref", "logseq/plugins/Full House Templates"],
+            "label": [ ["Plain", "ref-алиас1"] ],
+            "full_text": "[ref-алиас1]([[logseq/plugins/Full House Templates]])",
+            "metadata": ""}],
+    ["Break_Line"],
+    ["Plain", "- "],
+    ["Link", {
+            "url": ["Block_ref", "64220174-baae-46be-8a7f-452fe220b741"],
+            "label": [ ["Plain", "ref-alias2"] ],
+            "full_text": "[ref-alias2](((64220174-baae-46be-8a7f-452fe220b741)))",
+            "metadata": ""}],
+    ["Break_Line"],
+    ["Plain", "- "],
+    ["Link", {
+            "url": ["Block_ref", "64220174-baae-46be-8a7f-452fe220b741"],
+            "label": [],
+            "full_text": "((64220174-baae-46be-8a7f-452fe220b741))",
+            "metadata": ""}],
+    ["Break_Line"],
+    ["Plain", "- "],
+    ["Inline_Hiccup", "[:b \"LOGSEQ!\"]"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "---"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "# h1 Heading"],
+    ["Break_Line"],
+    ["Plain", "## h2 Heading"],
+    ["Break_Line"],
+    ["Plain", "### h3 Heading"],
+    ["Break_Line"],
+    ["Plain", "#### h4 Heading"],
+    ["Break_Line"],
+    ["Plain", "##### h5 Heading"],
+    ["Break_Line"],
+    ["Plain", "###### h6 Heading"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Horizontal Rules"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "___"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "---"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Typographic replacements"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Enable typographer option to see result."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "(c) (C) (r) (R) (tm) (TM) (p) (P) +-"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "test.. test... test..... test?..... test!...."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "!!!!!! ???? ,,  -- ---"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "\"Smartypants, double quotes\" and 'single quotes'"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Emphasis"],
+    ["Break_Line"],
+    ["Break_Line"],
+    [
+        "Emphasis",
+        [
+            ["Bold"],
+            [
+                ["Plain", "This is bold text"]
+            ]
+        ]
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "_"],
+    [
+        "Emphasis",
+        [
+            ["Italic"],
+            [
+                ["Plain", "This is bold text"]
+            ]
+        ]
+    ],
+    ["Plain", "_"],
+    ["Break_Line"],
+    ["Break_Line"],
+    [
+        "Emphasis",
+        [
+            ["Italic"],
+            [
+                ["Plain", "This is italic text"]
+            ]
+        ]
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    [
+        "Emphasis",
+        [
+            ["Italic"],
+            [
+                ["Plain", "This is italic text"]
+            ]
+        ]
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    [
+        "Emphasis",
+        [
+            ["Strike_through"],
+            [
+                ["Plain", "Strikethrough"]
+            ]
+        ]
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Blockquotes"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "> Blockquotes can also be nested..."],
+    ["Break_Line"],
+    ["Plain", ">> ...by using additional greater-than signs right next to each other..."],
+    ["Break_Line"],
+    ["Plain", "> > > ...or with spaces between arrows."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Lists"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Unordered"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "+ Create a list by starting a line with "],
+    ["Code", "+"],
+    ["Plain", ", "],
+    ["Code", "-"],
+    ["Plain", ", or "],
+    ["Code", "*"],
+    ["Break_Line"],
+    ["Plain", "+ Sub-lists are made by indenting 2 spaces:"],
+    ["Break_Line"],
+    ["Plain", "  - Marker character change forces new list start:"],
+    ["Break_Line"],
+    ["Plain", "    * Ac tristique libero volutpat at"],
+    ["Break_Line"],
+    ["Plain", "    + Facilisis in pretium nisl aliquet"],
+    ["Break_Line"],
+    ["Plain", "    - Nulla volutpat aliquam velit"],
+    ["Break_Line"],
+    ["Plain", "+ Very easy!"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Ordered"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "1. Lorem ipsum dolor sit amet"],
+    ["Break_Line"],
+    ["Plain", "2. Consectetur adipiscing elit"],
+    ["Break_Line"],
+    ["Plain", "3. Integer molestie lorem at massa"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "1. You can use sequential numbers..."],
+    ["Break_Line"],
+    ["Plain", "1. ...or keep all the numbers as "],
+    ["Code", "1."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Start numbering with offset:"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "57. foo"],
+    ["Break_Line"],
+    ["Plain", "1. bar"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Code"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Inline "],
+    ["Code", "code"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Indented code"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "    // Some comments"],
+    ["Break_Line"],
+    ["Plain", "    line 1 of code"],
+    ["Break_Line"],
+    ["Plain", "    line 2 of code"],
+    ["Break_Line"],
+    ["Plain", "    line 3 of code"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Block code \"fences\""],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Code", "`\nSample text here...\n"],
+    ["Plain", "`"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Syntax highlighting"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Code", "` js\nvar foo = function (bar) {\n  return bar++;\n};\n\nconsole.log(foo(5));\n"],
+    ["Plain", "`"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Tables"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "| Option | Description |"],
+    ["Break_Line"],
+    ["Plain", "| ------ | ----------- |"],
+    ["Break_Line"],
+    ["Plain", "| data   | path to data files to supply the data that will be passed into templates. |"],
+    ["Break_Line"],
+    ["Plain", "| engine | engine to be used for processing templates. Handlebars is the default. |"],
+    ["Break_Line"],
+    ["Plain", "| ext    | extension to be used for dest files. |"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Right aligned columns"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "| Option | Description |"],
+    ["Break_Line"],
+    ["Plain", "| ------:| -----------:|"],
+    ["Break_Line"],
+    ["Plain", "| data   | path to data files to supply the data that will be passed into templates. |"],
+    ["Break_Line"],
+    ["Plain", "| engine | engine to be used for processing templates. Handlebars is the default. |"],
+    ["Break_Line"],
+    ["Plain", "| ext    | extension to be used for dest files. |"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Links"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Link", {
+            "url": ["Complex",{"protocol": "http", "link": "dev.nodeca.com"}],
+            "label": [ ["Plain", "link text"] ],
+            "full_text": "[link text](http://dev.nodeca.com)",
+            "metadata": ""}],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Link", {
+            "url": ["Complex",{"protocol": "http", "link": "nodeca.github.io/pica/demo/"}],
+            "label": [ ["Plain", "link with title"] ],
+            "title": "title text!",
+            "full_text": "[link with title](http://nodeca.github.io/pica/demo/ \"title text!\")",
+            "metadata": ""}],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Autoconverted link "],
+    ["Link", {
+            "url": ["Complex",{"protocol": "https", "link": "github.com/nodeca/pica"}],
+            "label": [ ["Plain", "https://github.com/nodeca/pica"] ],
+            "full_text": "https://github.com/nodeca/pica",
+            "metadata": ""}],
+    ["Plain", " (enable linkify to see)"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Images"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Link", {
+            "url": ["Complex",{"protocol": "https", "link": "octodex.github.com/images/minion.png"}],
+            "label": [ ["Plain", "Minion"] ],
+            "full_text": "![Minion](https://octodex.github.com/images/minion.png)",
+            "metadata": ""}],
+    ["Break_Line"],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "octodex.github.com/images/stormtroopocat.jpg"}],
+            "label": [ ["Plain", "Stormtroopocat"] ],
+            "title": "The Stormtroopocat",
+            "full_text": "![Stormtroopocat](https://octodex.github.com/images/stormtroopocat.jpg \"The Stormtroopocat\")",
+            "metadata": ""
+        }
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Like links, Images also have a footnote style syntax"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "![Alt text][id]"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "With a reference later in the document defining the URL location:"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "[id]: "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "octodex.github.com/images/dojocat.jpg"}],
+            "label": [ ["Plain", "https://octodex.github.com/images/dojocat.jpg"] ],
+            "full_text": "https://octodex.github.com/images/dojocat.jpg",
+            "metadata": ""
+        }
+    ],
+    ["Plain", "  \"The Dojocat\""],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "## Plugins"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "The killer feature of "],
+    ["Code", "markdown-it"],
+    ["Plain", " is very effective support of"],
+    ["Break_Line"],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "www.npmjs.org/browse/keyword/markdown-it-plugin"}],
+            "label": [ ["Plain", "syntax plugins"] ],
+            "full_text": "[syntax plugins](https://www.npmjs.org/browse/keyword/markdown-it-plugin)",
+            "metadata": ""
+        }
+    ],
+    ["Plain", "."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "### "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "github.com/markdown-it/markdown-it-emoji"}],
+            "label": [ ["Plain", "Emojies"] ],
+            "full_text": "[Emojies](https://github.com/markdown-it/markdown-it-emoji)",
+            "metadata": ""
+        }
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "> Classic markup: :wink: :crush: :cry: :tear: :laughing: :yum:"],
+    ["Break_Line"],
+    ["Plain", ">"],
+    ["Break_Line"],
+    ["Plain", "> Shortcuts (emoticons): :-) :-( 8-) ;)"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "see "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "github.com/markdown-it/markdown-it-emoji#change-output"}],
+            "label": [ ["Plain", "how to change output"] ],
+            "full_text": "[how to change output](https://github.com/markdown-it/markdown-it-emoji#change-output)",
+            "metadata": ""
+        }
+    ],
+    ["Plain", " with twemoji."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "### "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "github.com/markdown-it/markdown-it-sub"}],
+            "label": [ ["Plain", "Subscript"] ],
+            "full_text": "[Subscript](https://github.com/markdown-it/markdown-it-sub)",
+            "metadata": ""
+        }
+    ],
+    ["Plain", " / "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "github.com/markdown-it/markdown-it-sup"}],
+            "label": [ ["Plain", "Superscript"] ],
+            "full_text": "[Superscript](https://github.com/markdown-it/markdown-it-sup)",
+            "metadata": ""
+        }
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "- 19^th^"],
+    ["Break_Line"],
+    ["Plain", "- H~2~O"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "### "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "github.com/markdown-it/markdown-it-ins"}],
+            "label": [ ["Plain", "\\<ins>"] ],
+            "full_text": "[\\<ins>](https://github.com/markdown-it/markdown-it-ins)",
+            "metadata": ""
+        }
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "++Inserted text++"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "### "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "github.com/markdown-it/markdown-it-mark"}],
+            "label": [ ["Plain", "\\<mark>"] ],
+            "full_text": "[\\<mark>](https://github.com/markdown-it/markdown-it-mark)",
+            "metadata": ""
+        }
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    [
+        "Emphasis",
+        [
+            ["Highlight"],
+            [
+                ["Plain", "Marked text"]
+            ]
+        ]
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "### "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "github.com/markdown-it/markdown-it-footnote"}],
+            "label": [ ["Plain", "Footnotes"] ],
+            "full_text": "[Footnotes](https://github.com/markdown-it/markdown-it-footnote)",
+            "metadata": ""
+        }
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Footnote 1 link"],
+    ["Footnote_Reference",{"id": 1,"name": "first"}],
+    ["Plain", "."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Footnote 2 link"],
+    ["Footnote_Reference",{"id": 2,"name": "second"}],
+    ["Plain", "."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Inline footnote^[Text of inline footnote] definition."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Duplicated footnote reference"],
+    ["Footnote_Reference",{"id": 3,"name": "second"}],
+    ["Plain", "."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Footnote_Reference",{"id": 4,"name": "first"}],
+    ["Plain", ": Footnote "],
+    [
+        "Emphasis",
+        [
+            ["Bold"],
+            [
+                ["Plain", "can have markup"]
+            ]
+        ]
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "    and multiple paragraphs."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Footnote_Reference",{"id": 5,"name": "second"}],
+    ["Plain", ": Footnote text."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "### "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "github.com/markdown-it/markdown-it-deflist"}],
+            "label": [ ["Plain", "Definition lists"] ],
+            "full_text": "[Definition lists](https://github.com/markdown-it/markdown-it-deflist)",
+            "metadata": ""
+        }
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Term 1"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", ":   Definition 1"],
+    ["Break_Line"],
+    ["Plain", "with lazy continuation."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Term 2 with "],
+    [
+        "Emphasis",
+        [
+            ["Italic"],
+            [
+                ["Plain", "inline markup"]
+            ]
+        ]
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", ":   Definition 2"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "        { some code, part of Definition 2 }"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "    Third paragraph of definition 2."],
+    ["Break_Line"],
+    ["Break_Line"],
+    [
+        "Emphasis",
+        [
+            ["Italic"],
+            [
+                ["Plain", "Compact style:"]
+            ]
+        ]
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Term 1"],
+    ["Break_Line"],
+    ["Plain", "  ~ Definition 1"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "Term 2"],
+    ["Break_Line"],
+    ["Plain", "  ~ Definition 2a"],
+    ["Break_Line"],
+    ["Plain", "  ~ Definition 2b"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "### "],
+    ["Link", {
+            "url": [
+                "Complex",
+                {
+                    "protocol": "https",
+                    "link": "github.com/markdown-it/markdown-it-abbr"}],
+            "label": [ ["Plain", "Abbreviations"] ],
+            "full_text": "[Abbreviations](https://github.com/markdown-it/markdown-it-abbr)",
+            "metadata": ""
+        }
+    ],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "This is HTML abbreviation example."],
+    ["Break_Line"],
+    ["Break_Line"],
+    ["Plain", "It converts \"HTML\", but keep intact partial entries like \"xxxHTMLyyy\" and so on."],
+    ["Break_Line"],
+    ["Break_Line"],
+    [
+        "Emphasis",
+        [
+            ["Italic"],
+            [
+                ["Plain", "[HTML]: Hyper Text Markup Language\n\n### "],
+                ["Link", {
+                        "url": [
+                            "Complex",
+                            {
+                                "protocol": "https",
+                                "link": "github.com/markdown-it/markdown-it-container"}],
+                        "label": [ ["Plain", "Custom containers"] ],
+                        "full_text": "[Custom containers](https://github.com/markdown-it/markdown-it-container)",
+                        "metadata": ""
+                    }
+                ],
+                ["Plain", "\n\n::: warning\n*here be dragons"]
+            ]
+        ]
+    ],
+    ["Break_Line"],
+    ["Plain", ":::"],
+    ["Break_Line"]
+]

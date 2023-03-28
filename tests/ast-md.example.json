@@ -1,0 +1,77 @@
+["Plain", "  - plain текст"],
+["Break_Line"],
+
+["Link", {
+    "full_text": "[[page name]]",
+    "url": ["Page_ref", "page name"],
+    "label": [ ["Plain", ""] ],
+    "metadata": ""}],
+["Link", {
+    "full_text": "[ref-алиас1]([[page name]])",
+    "url": ["Page_ref", "page name"],
+    "label": [ ["Plain", "ref-алиас1"] ],
+    "metadata": ""}],
+
+["Link", {
+    "full_text": "((64220174-baae-46be-8a7f-452fe220b741))",
+    "url": ["Block_ref", "64220174-baae-46be-8a7f-452fe220b741"],
+    "label": [],
+    "metadata": ""}],
+["Link", {
+    "full_text": "[ref-alias2](((64220174-baae-46be-8a7f-452fe220b741)))",
+    "url": ["Block_ref", "64220174-baae-46be-8a7f-452fe220b741"],
+    "label": [ ["Plain", "ref-alias2"] ],
+    "metadata": ""}],
+
+["Link", {
+    "full_text": "[link text](http://dev.nodeca.com)",
+    "url": ["Complex", {"protocol": "http", "link": "dev.nodeca.com"}],
+    "label": [ ["Plain", "link text"] ],
+    "metadata": ""}],
+["Link", {
+    "full_text": "[link with title](http://nodeca.github.io/pica/demo/ \"title text!\")",
+    "url": ["Complex", {"protocol": "http", "link": "nodeca.github.io/pica/demo/"}],
+    "label": [ ["Plain", "link with title"] ],
+    "title": "title text!",
+    "metadata": ""}],
+
+["Link", {
+    "full_text": "[*text*](identifier)",
+    "url": ["Search", "identifier"],
+    "label": [["Emphasis", [["Italic"], [["Plain", "text"]]]]],
+    "metadata": ""}],
+
+["Inline_Hiccup", "[:b \"LOGSEQ!\"]"]
+["Inline_Html", "<b>text</b>"],
+
+// @@html: </br>@@
+["Export_Snippet", "html", "</br>"],
+
+// **This is bold text**
+["Emphasis", [ ["Bold"], [["Plain", "This is bold text"]] ]]
+
+// __This is bold text__
+// _This is italic text_
+// *This is italic text*
+["Emphasis", [ ["Italic"], [["Plain", "This is bold text"]] ]]
+
+// ~~Strike-through~~
+["Emphasis", [ ["Strike_through"], [["Plain", "Strike-through"]] ]]
+
+// ==Marked text==
+["Emphasis", [ ["Highlight"], [["Plain", "Marked text"]] ]]
+
+// ~~***text***~~
+["Emphasis", [ ["Strike_through"], [
+    ["Emphasis", [ ["Italic"], [
+        ["Emphasis", [ ["Bold"], [
+            ["Plain", "text"]]]]]]]]]]
+
+// `var js = null`
+["Code", "var js = null"]
+
+// Footnote 1 link[^first]
+// [^first]: description
+["Plain", "Footnote 1 link"],
+["Footnote_Reference", {"id": 1, "name": "first"}],
+["Footnote_Reference", {"id": 2, "name": "first"}],
