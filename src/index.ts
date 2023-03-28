@@ -165,8 +165,7 @@ function handleTemplateViewCommand(command: RendererMacro) {
 
     logseq.provideStyle(`
         .fh_template-view {
-           display: flex;
-           color: red;
+           display: block;
         }
     `)
 

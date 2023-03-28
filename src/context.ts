@@ -289,12 +289,14 @@ export class ConfigContext extends Context {
         // TODO: use full config
         // const fullConfig = await logseq.App.getCurrentGraphConfigs()
 
-        // TODO: error in @logseq/lib types definitions:
-        //   - `showBracket`: no "s" at the end
-        //   - `preferredStartOfWeek`: number type instead of string
-
         const config = await logseq.App.getUserConfigs()
+
         delete config.me
+        // {"repos": [
+        //     { "url": "logseq_local_/Users/me/graph1", "nfs?": true },
+        //     { "url": "logseq_local_/Users/me/graph2", "nfs?": true },
+        //     { "url": "logseq_local_/Users/me/graph3", "nfs?": true },
+        // ]}
 
         return new ConfigContext({
             ...config,
@@ -316,7 +318,7 @@ export class ConfigContext extends Context {
             preferredStartOfWeek: this.preferredStartOfWeek,
             enabledFlashcards: this.enabledFlashcards,
             enabledJournals: this.enabledJournals,
-            showBracket: this.showBrackets,
+            showBrackets: this.showBrackets,
         } = data)
     }
  }
