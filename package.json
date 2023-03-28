@@ -22,7 +22,8 @@
     "dependencies": {
         "@logseq/libs": "^0.0.14",
         "dayjs": "^1.11.7",
-        "eta": "^2.0.1"
+        "eta": "^2.0.1",
+        "mldoc": "^1.5.3"
     },
     "devDependencies": {
         "@semantic-release/changelog": "^6.0.2",

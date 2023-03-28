@@ -5,6 +5,7 @@ import { Template, InlineTemplate } from './template'
 import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext, Context } from './context'
 import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
+import { LogseqMarkup } from './utils/mldoc_ast'
 
 
 /**
@@ -293,6 +294,8 @@ export async function renderTemplateView(
         else
             content += '\n' + ' '.repeat(lvl) + '- ' + b.content
     })
+
+    content = new LogseqMarkup(context).toHTML(content)
 
     content = `
         <span class="fh_template-view"
