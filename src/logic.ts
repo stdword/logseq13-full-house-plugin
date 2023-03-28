@@ -295,7 +295,7 @@ export async function renderTemplateView(
             content += '\n' + ' '.repeat(lvl) + '- ' + b.content
     })
 
-    content = new LogseqMarkup(context).toHTML(content)
+    content = await new LogseqMarkup(context).toHTML(content)
 
     content = `
         <span class="fh_template-view"

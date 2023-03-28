@@ -57,22 +57,24 @@ function transformTextRelatedToNode(
         .concat(new TextDecoder().decode(text_utf8.subarray(end_pos!)))
  }
 
-function walkNodes<T>(
+async function walkNodes<T>(
     nodes: MLDOC_Node[],
     callback: (
         type: MLDOC_Node['0'],
         data: MLDOC_Node['1'],
         node: MLDOC_Node,
-        process: (n: MLDOC_Node) => (T | null),
-    ) => T | null
-): T[] {
-    function processNode(node: MLDOC_Node): T | null {
+        process: (n: MLDOC_Node) => (Promise<T | null>),
+    ) => Promise<T | null>
+): Promise<T[]> {
+    async function processNode(node: MLDOC_Node): Promise<T | null> {
         const [ type, data ] = node
         if (type === null)
             return null
-        return callback(type, data, node, processNode)
+        return await callback(type, data, node, processNode)
     }
-    return nodes.map(processNode).filter((item) => item !== null) as T[]
+    return (
+        await Promise.all(nodes.map(processNode))
+    ).filter((item) => item !== null) as T[]
  }
 
 
@@ -83,7 +85,7 @@ export class LogseqMarkup {
         this.context = context
     }
 
-    toHTML(text: string): string {
+    async toHTML(text: string): Promise<string> {
         const unparsedNodes: string = Mldoc.parseInlineJson(
             text,
             JSON.stringify(MLDOC_OPTIONS),
@@ -98,13 +100,13 @@ export class LogseqMarkup {
 
         console.debug(p`Building AST for text:`, {text, nodes})
 
-        walkNodes(nodes, (type, data, node, processNode) => {
-            if (type === 'Plain')
-                node[1] = LogseqMarkup._transformUnorderedListsToAsteriskNotation(
-                    data as string)
-        })
+        // walkNodes(nodes, (type, data, node, processNode) => {
+        //     if (type === 'Plain')
+        //         node[1] = LogseqMarkup._transformUnorderedListsToAsteriskNotation(
+        //             data as string)
+        // })
 
-        return new MldocASTtoHTMLCompiler(this.context).compile(nodes)
+        return await new MldocASTtoHTMLCompiler(this.context).compile(nodes)
     }
 
     static _transformUnorderedListsToAsteriskNotation(text: string) {
@@ -120,14 +122,14 @@ class MldocASTtoHTMLCompiler {
         this.context = context
     }
 
-    compile(ast: MLDOC_Node[]) {
-        return walkNodes(ast, (type, data, node, process): string => {
+    async compile(ast: MLDOC_Node[]) {
+        return (await walkNodes(ast, async (type, data, node, process): Promise<string> => {
             switch (type) {
                 case 'Break_Line': return '<br/>'
                 case 'Plain':      return data as string
                 case 'Emphasis': {
                     const [ [emphasis], [subNode] ] = data
-                    const compiledValue = process(subNode) as (string | null)
+                    const compiledValue = await process(subNode) as (string | null)
                     switch (emphasis) {
                         case 'Strike_through': return `<s>${compiledValue}</s>`
                         case 'Italic':         return `<i>${compiledValue}</i>`
@@ -145,7 +147,7 @@ class MldocASTtoHTMLCompiler {
                         if (node && node.length && node[0] === 'Plain')
                             label = node.at(1) ?? ''
                         else
-                            label = process(node) as string
+                            label = await process(node) as string
                     }
 
                     let url = ''
@@ -157,7 +159,7 @@ class MldocASTtoHTMLCompiler {
                                 return this.createPageRef(name, label)
                             case 'Block_ref':
                                 const uuid = data.url.at(1) ?? ''
-                                return this.createBlockRef(uuid, label)
+                                return await this.createBlockRef(uuid, label)
                         }
                     }
                 }
@@ -165,19 +167,25 @@ class MldocASTtoHTMLCompiler {
                     console.warn(p`Unknown node type:`, {type, node})
             }
             return JSON.stringify(data ?? '')
-        }).join('')
+        })).join('')
     }
 
-    createBlockRef(uuid: string, label: string) {
+    async createBlockRef(uuid: string, label: string): Promise<string> {
         label = label.trim()
         if (!label) {
             if (this.context.block.uuid === uuid)
                 label = `((...))`  // self reference
             else {
-                //
-                const block = top!.logseq.api.get_block(uuid)
-                label = block.content.split('\n', 1)[0]
-                // new MldocASTtoHTMLCompiler(this.context)
+                const block = await logseq.Editor.getBlock(uuid)
+                if (block) {
+                    label = block.content.split('\n', 1)[0]
+                    // NOTE: recursion
+                    // TODO: catch cycle
+                    label = await new LogseqMarkup(this.context).toHTML(label)
+                } else {
+                    // TODO: non-existed uuid — make it look like in logseq
+                    label = `((${uuid}))`
+                }
             }
         }
 
@@ -215,13 +223,15 @@ class MldocASTtoHTMLCompiler {
         // `
     }
 
-    createPageRef(name: string, label: string) {
+    createPageRef(name: string, label: string): string {
         label = label.trim()
         const nameID = name.toLowerCase()
 
         const { showBrackets } = this.context.config
-        const wrapBrackets = (text: string) =>
-            (showBrackets ? `<span class="text-gray-500 bracket">${text}</span>` : '')
+        const wrapBrackets = (text: string) => (
+                showBrackets
+                ? `<span class="text-gray-500 bracket">${text}</span>`
+                : '')
 
         return html`
             <span data-ref="${name}" class="page-reference">
