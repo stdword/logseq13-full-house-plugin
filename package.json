@@ -2,6 +2,17 @@
     "name": "logseq13-full-house-plugin",
     "version": "1.5.0",
     "description": "Templates you will really love ❤️",
+    "keywords": [
+        "templates",
+        "schemas",
+        "forms",
+        "fill-data",
+        "views",
+        "javascript",
+        "meta-data",
+        "meta-info",
+        "logic"
+    ],
     "author": "stdword",
     "repository": "https://github.com/stdword/logseq13-full-house-plugin.git",
     "license": "MIT",
