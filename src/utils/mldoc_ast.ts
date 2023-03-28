@@ -155,6 +155,9 @@ class MldocASTtoHTMLCompiler {
                             case 'Page_ref':
                                 const name = data.url.at(1) ?? ''
                                 return this.createPageRef(name, label)
+                            case 'Block_ref':
+                                const uuid = data.url.at(1) ?? ''
+                                return this.createBlockRef(uuid, label)
                         }
                     }
                 }
@@ -165,11 +168,56 @@ class MldocASTtoHTMLCompiler {
         }).join('')
     }
 
+    createBlockRef(uuid: string, label: string) {
+        label = label.trim()
+        if (!label) {
+            if (this.context.block.uuid === uuid)
+                label = `((...))`  // self reference
+            else {
+                //
+                const block = top!.logseq.api.get_block(uuid)
+                label = block.content.split('\n', 1)[0]
+                // new MldocASTtoHTMLCompiler(this.context)
+            }
+        }
+
+        return html`
+            <div class="block-ref-wrap inline"
+                 data-type="default"
+                >
+                <div style="display: inline;">
+                    <span class="block-ref"
+                          data-uuid="${uuid}"
+                          data-on-click="clickBlockRef"
+                        >${label}</span>
+                </div>
+            </div>
+        `
+
+        // inline block (without label)
+        // return html`
+        //     <div data-type="default" class="block-ref-wrap inline">
+        //         <div style="display: inline;">
+        //             <span class="block-ref">
+        //                 <div id="block-content-${uuid}"
+        //                      blockid="${uuid}"
+        //                      data-type="default"
+        //                      class="block-content inline"
+        //                      style="width: 100%;"
+        //                     >
+        //                     <div class="flex flex-row justify-between block-content-inner">
+        //                         <div class="flex-1 w-full">${ref}</div>
+        //                     </div>
+        //                 </div>
+        //             </span>
+        //         </div>
+        //     </div>
+        // `
+    }
+
     createPageRef(name: string, label: string) {
         label = label.trim()
         const nameID = name.toLowerCase()
-
-        console.log(this.context);
 
         const { showBrackets } = this.context.config
         const wrapBrackets = (text: string) =>

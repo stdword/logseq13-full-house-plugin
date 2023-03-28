@@ -179,6 +179,23 @@ function handleTemplateViewCommand(command: RendererMacro) {
 
             logseq.App.pushState('page', { name: ref })
         },
+        async clickBlockRef(e: any) {
+            const { uuid } = e.dataset
+
+            const { activeKeystroke } = top!.document.body!.dataset
+            if (activeKeystroke && activeKeystroke.indexOf('Shift') >= 0) {
+                logseq.Editor.openInRightSidebar(uuid)
+                return
+            }
+
+            const current = await logseq.Editor.getCurrentPage()
+            // current can be page or zoomed block:
+            //   page has `name`, block doesn't
+            if (current && !current.name && current.uuid === uuid)
+                return
+
+            logseq.App.pushState('page', { name: uuid })
+        },
     })
 
     logseq.provideStyle(`
