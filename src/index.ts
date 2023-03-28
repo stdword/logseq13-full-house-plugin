@@ -161,6 +161,24 @@ function handleTemplateViewCommand(command: RendererMacro) {
             const { uuid } = e.dataset
             await logseq.Editor.editBlock(uuid)
         },
+
+        async clickRef(e: any) {
+            const { ref } = e.dataset
+
+            const { activeKeystroke } = top!.document.body!.dataset
+            if (activeKeystroke && activeKeystroke.indexOf('Shift') >= 0) {
+                const page = await logseq.Editor.getPage(ref)
+                if (page)
+                    logseq.Editor.openInRightSidebar(page.uuid)
+                return
+            }
+
+            const current = await logseq.Editor.getCurrentPage()
+            if (current && current.name === ref)
+                return
+
+            logseq.App.pushState('page', { name: ref })
+        },
     })
 
     logseq.provideStyle(`
