@@ -33,6 +33,20 @@ export function f(strings: any, ...values: any[]): Function {
  }
 
 /**
+ * Clear spaces from HTML-string
+ * @usage
+ *     html`
+ *          <div>
+ *              <p>Text</p>
+ *          </div>
+ *     ` // => '<div>\n<p>Text</p>\n</div>'
+ **/
+export function html(strings: any, ...values: any[]): string {
+    const raw = String.raw({raw: strings}, ...values)
+    return raw.trim().replaceAll(/^\s+/gm, '').replaceAll(/>\n</g, '><')
+ }
+
+/**
  * ```typescript doctest
  * countOf('aaa, bbb, ccc', ',') // => 3
  * countOf('aaa, bbb, ccc', ', ') // => 3
