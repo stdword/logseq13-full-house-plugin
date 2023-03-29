@@ -18,7 +18,7 @@ const MLDOC_OPTIONS = {
 }
 
 
-type MLDOC_Node = [ type: string | null, data?: any ]
+type MLDOC_Node = [ type: string | null, data?: any, additional?: any ]
 type MLDOC_Node_withPositions = [
     MLDOC_Node,
     { start_pos: number | null, end_pos: number | null },
@@ -129,8 +129,21 @@ class MldocASTtoHTMLCompiler {
     async compile(ast: MLDOC_Node[]) {
         return (await walkNodes(ast, async (type, data, node, process): Promise<string> => {
             switch (type) {
-                case 'Break_Line': return '<br/>'
-                case 'Plain':      return data as string
+                case 'Break_Line':  return '<br/>'
+                case 'Plain':       return data as string
+                case 'Inline_Html': return data as string
+                // TODO: case 'Inline_Hiccup': return
+                // TODO: case 'Footnote_Reference': return
+                case 'Code':        return `<code>${data}</code>`
+                case 'Export_Snippet': {
+                    const [ _, snippet, code ] = node
+                    switch (snippet) {
+                        case 'html': return code as string
+                        default:
+                            console.warn(p`Unknown export snippet type:`, {snippet, code})
+                    }
+                    return (code ?? '') as string
+                }
                 case 'Emphasis': {
                     const [ [emphasis], [subNode] ] = data
                     const compiledValue = await process(subNode) as (string | null)
@@ -172,6 +185,7 @@ class MldocASTtoHTMLCompiler {
                                 return this.createExternalLink(protocol, link, label)
                             }
                             default:
+                                console.warn(p`Unknown link type:`, {type, url})
                         }
                     }
                 }
