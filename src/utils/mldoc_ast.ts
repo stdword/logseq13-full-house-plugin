@@ -85,7 +85,7 @@ export class LogseqMarkup {
         this.context = context
     }
 
-    async toHTML(text: string): Promise<string> {
+    async toHTML(text: string, nestingLevel: number = 0): Promise<string> {
         const unparsedNodes: string = Mldoc.parseInlineJson(
             text,
             JSON.stringify(MLDOC_OPTIONS),
@@ -106,7 +106,7 @@ export class LogseqMarkup {
         //             data as string)
         // })
 
-        return await new MldocASTtoHTMLCompiler(this.context).compile(nodes)
+        return await new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile(nodes)
     }
 
     static _transformUnorderedListsToAsteriskNotation(text: string) {
@@ -116,10 +116,14 @@ export class LogseqMarkup {
 
 
 class MldocASTtoHTMLCompiler {
-    context: ILogseqContext
+    static maxNestingLevelForInlineBlockRefs = 6  // value from Logseq
 
-    constructor(context: ILogseqContext) {
+    context: ILogseqContext
+    nestingLevel: number
+
+    constructor(context: ILogseqContext, nestingLevel: number = 0) {
         this.context = context
+        this.nestingLevel = nestingLevel
     }
 
     async compile(ast: MLDOC_Node[]) {
@@ -186,9 +190,13 @@ class MldocASTtoHTMLCompiler {
                 label = `((...))`  // self reference
             else {
                 label = block.content.split('\n', 1)[0]
-                // NOTE: recursion
-                // TODO: catch cycle
-                label = await new LogseqMarkup(this.context).toHTML(label)
+                if (this.nestingLevel <= MldocASTtoHTMLCompiler.maxNestingLevelForInlineBlockRefs)
+                    // NOTE: recursion
+                    label = await new LogseqMarkup(this.context).toHTML(label, this.nestingLevel + 1)
+                else
+                    label = html`
+                        <span class="warning text-sm">Block reference nesting is too deep</span>
+                    `
             }
         }
 
