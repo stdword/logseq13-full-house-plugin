@@ -171,21 +171,24 @@ class MldocASTtoHTMLCompiler {
     }
 
     async createBlockRef(uuid: string, label: string): Promise<string> {
+        const uuidLabel = `((${uuid}))`
+        const block = await logseq.Editor.getBlock(uuid)
+        if (!block)
+            return html`
+                <span title="Reference to non-existent block"
+                      class="warning mr-1"
+                    >${uuidLabel}</span>
+            `
+
         label = label.trim()
         if (!label) {
             if (this.context.block.uuid === uuid)
                 label = `((...))`  // self reference
             else {
-                const block = await logseq.Editor.getBlock(uuid)
-                if (block) {
-                    label = block.content.split('\n', 1)[0]
-                    // NOTE: recursion
-                    // TODO: catch cycle
-                    label = await new LogseqMarkup(this.context).toHTML(label)
-                } else {
-                    // TODO: non-existed uuid — make it look like in logseq
-                    label = `((${uuid}))`
-                }
+                label = block.content.split('\n', 1)[0]
+                // NOTE: recursion
+                // TODO: catch cycle
+                label = await new LogseqMarkup(this.context).toHTML(label)
             }
         }
 
