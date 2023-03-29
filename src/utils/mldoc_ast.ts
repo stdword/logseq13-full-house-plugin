@@ -157,13 +157,21 @@ class MldocASTtoHTMLCompiler {
                     let url = ''
                     if (data.url && data.url.length) {
                         const [ type, url ] = data.url
-                        switch (type) {
-                            case 'Page_ref':
-                                const name = data.url.at(1) ?? ''
+                        switch (type)
+                            { case 'Search': {
+                                const term = url ?? ''
+                                return this.createPageRef(term, label)
+                            } case 'Page_ref': {
+                                const name = url ?? ''
                                 return this.createPageRef(name, label)
-                            case 'Block_ref':
-                                const uuid = data.url.at(1) ?? ''
+                            } case 'Block_ref': {
+                                const uuid = url ?? ''
                                 return await this.createBlockRef(uuid, label)
+                            } case 'Complex': {
+                                const { protocol, link } = url ?? {}
+                                return this.createExternalLink(protocol, link, label)
+                            }
+                            default:
                         }
                     }
                 }
@@ -212,28 +220,7 @@ class MldocASTtoHTMLCompiler {
                 </div>
             </div>
         `
-
-        // inline block (without label)
-        // return html`
-        //     <div data-type="default" class="block-ref-wrap inline">
-        //         <div style="display: inline;">
-        //             <span class="block-ref">
-        //                 <div id="block-content-${uuid}"
-        //                      blockid="${uuid}"
-        //                      data-type="default"
-        //                      class="block-content inline"
-        //                      style="width: 100%;"
-        //                     >
-        //                     <div class="flex flex-row justify-between block-content-inner">
-        //                         <div class="flex-1 w-full">${ref}</div>
-        //                     </div>
-        //                 </div>
-        //             </span>
-        //         </div>
-        //     </div>
-        // `
     }
-
     createPageRef(name: string, label: string): string {
         label = label.trim()
         const nameID = name.toLowerCase()
@@ -255,6 +242,20 @@ class MldocASTtoHTMLCompiler {
                 </div>
                 ${wrapBrackets(']]')}
             </span>
+        `
+    }
+    createExternalLink(protocol: string, link: string, label: string): string {
+        label = label.trim()
+        if (protocol)
+            link = `${protocol}://${link}`
+
+        // data-on-click is empty to prevent click event bubbling
+        return html`
+            <a href="${link}"
+               target="_blank"
+               class="external-link"
+               data-on-click=""
+                >${label}</a>
         `
     }
 }
