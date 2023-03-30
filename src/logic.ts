@@ -308,7 +308,7 @@ export async function renderTemplateView(
                 return children()
 
         if (level === 1) {
-            const content = `<p>${node.content}</p>`
+            const content = node.content ? `<div>${node.content}</div>` : ''
             if (!node.children.length)
                 return content
 
