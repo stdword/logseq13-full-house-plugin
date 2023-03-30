@@ -148,8 +148,6 @@ export class Template implements ITemplate {
             if (this.accessedVia === 'page')
                 PropertiesUtils.deleteProperty(this.block, PropertiesUtils.titleProperty)
         }
-        else
-            this.block.content = ''  // skip rendering
 
         const renderContext = {
             ...getTemplateTagsContext(),
@@ -157,6 +155,9 @@ export class Template implements ITemplate {
         }
 
         return await walkBlockTree(this.block as IBlockNode, async (b, lvl) => {
+            if (lvl === 0 && !this.includingParent)
+                return ''
+
             // @ts-expect-error
             renderContext.c.self = BlockContext.createFromEntity(
                 b as BlockEntity, {

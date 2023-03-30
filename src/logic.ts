@@ -271,6 +271,7 @@ export async function renderTemplateView(
     let rendered: IBlockNode
     try {
         rendered = await template.render(context)
+        console.debug(p`View:`, {rendered})
     }
     catch (error) {
         const message = (error as Error).message
@@ -285,8 +286,15 @@ export async function renderTemplateView(
     }
 
     const compiled = await walkBlockTree(rendered, async (b, lvl) => {
+        if (lvl === 0)
+            return ''
+
+        if (!b.content.trim())
+            return ''
+
         return await new LogseqMarkup(context).toHTML(b.content)
     })
+    console.debug(p`View:`, {compiled})
 
     const htmlFold = (node: IBlockNode, level = 0): string => {
         const children = () => node.children.map(
@@ -294,7 +302,10 @@ export async function renderTemplateView(
         ).join('')
 
         if (level === 0)
-            return children()
+            if (node.children.length === 1)
+                return htmlFold(node.children[0] as IBlockNode, level + 1)
+            else
+                return children()
 
         if (level === 1) {
             const content = `<p>${node.content}</p>`
@@ -312,11 +323,18 @@ export async function renderTemplateView(
         return content
     }
 
+    let view: string
+    if (compiled.children.length === 1)
+        view = compiled.children[0].content
+    else
+        view = htmlFold(compiled)
+    console.debug(p`View:`, {html: view})
+
     const content = html`
         <span class="fh_template-view"
               data-uuid="${blockUUID}"
               data-on-click="editBlock"
-            >${htmlFold(compiled)}</span>
+            >${view}</span>
     `
 
     const identity = slot.slice(1 + slot.split('_', 1).length).trim()
