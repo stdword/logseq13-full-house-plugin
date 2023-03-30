@@ -3,7 +3,7 @@ import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin
 
 import { Template, InlineTemplate } from './template'
 import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext, Context } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID } from './utils'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID, html } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import { LogseqMarkup } from './utils/mldoc_ast'
 
@@ -184,7 +184,7 @@ async (
 
     let rendered: IBlockNode
     try {
-        rendered = template.render(context)
+        rendered = await template.render(context)
     }
     catch (error) {
         const message = (error as Error).message
@@ -270,7 +270,7 @@ export async function renderTemplateView(
 
     let rendered: IBlockNode
     try {
-        rendered = template.render(context)
+        rendered = await template.render(context)
     }
     catch (error) {
         const message = (error as Error).message
@@ -284,25 +284,40 @@ export async function renderTemplateView(
         )
     }
 
-    let content = ''
-    walkBlockTree(rendered, (b, lvl) => {
-        if (lvl === 0)
-            return
-
-        if (lvl === 1)
-            content += b.content
-        else
-            content += '\n' + ' '.repeat(lvl) + '- ' + b.content
+    const compiled = await walkBlockTree(rendered, async (b, lvl) => {
+        return await new LogseqMarkup(context).toHTML(b.content)
     })
 
-    content = await new LogseqMarkup(context).toHTML(content)
+    const htmlFold = (node: IBlockNode, level = 0): string => {
+        const children = () => node.children.map(
+            (n) => htmlFold(n as IBlockNode, level + 1)
+        ).join('')
 
-    content = `
+        if (level === 0)
+            return children()
+
+        if (level === 1) {
+            const content = `<p>${node.content}</p>`
+            if (!node.children.length)
+                return content
+
+            return content + `<ul>${children()}</ul>`
+        }
+
+        const content =
+            `<li>${node.content}` +
+                (node.children.length ? `<ul>${children()}</ul>` : '') +
+            '</li>'
+
+        return content
+    }
+
+    const content = html`
         <span class="fh_template-view"
               data-uuid="${blockUUID}"
               data-on-click="editBlock"
-            >${content}</span>
-    `.trim()
+            >${htmlFold(compiled)}</span>
+    `
 
     const identity = slot.slice(1 + slot.split('_', 1).length).trim()
     logseq.provideUI({

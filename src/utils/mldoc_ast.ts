@@ -129,12 +129,12 @@ class MldocASTtoHTMLCompiler {
     async compile(ast: MLDOC_Node[]) {
         return (await walkNodes(ast, async (type, data, node, process): Promise<string> => {
             switch (type) {
-                case 'Break_Line':  return '<br/>'
-                case 'Plain':       return data as string
-                case 'Inline_Html': return data as string
-                // TODO: case 'Inline_Hiccup': return
-                // TODO: case 'Footnote_Reference': return
-                case 'Code':        return `<code>${data}</code>`
+                case 'Break_Line':         return '<br/>'
+                case 'Plain':              return data as string
+                case 'Inline_Html':        return data as string
+                case 'Inline_Hiccup':      return data as string  // TODO?: support hiccup
+                case 'Footnote_Reference': return `<sup>${data.name || data.id}</sup>`
+                case 'Code':               return `<code>${data}</code>`
                 case 'Export_Snippet': {
                     const [ _, snippet, code ] = node
                     switch (snippet) {

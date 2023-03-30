@@ -4,17 +4,19 @@ import { f, indexOfNth, p, sleep } from './other'
 import { isEmptyString, isInteger, isUUID, unquote } from './parsing'
 
 
-export type IBlockNode = Required<Pick<IBatchBlock, 'content' | 'children'>>
-export function walkBlockTree(
+export type IBlockNode = { content: string, children: IBlockNode[] }
+
+export async function walkBlockTree(
     root: IBatchBlock,
-    callback: ((b: IBatchBlock, lvl: number) => string | void),
+    callback: (b: IBatchBlock, lvl: number) => Promise<string | void>,
     level: number = 0,
-): IBlockNode {
+): Promise<IBlockNode> {
     return {
-        content: callback(root, level) ?? '',
-        children: (root.children || []).map(
-            b => walkBlockTree(b as IBlockNode, callback, level + 1)
-        ),
+        content: (await callback(root, level)) ?? '',
+        children: await Promise.all(
+            (root.children || []).map(
+                async (b) => await walkBlockTree(b as IBlockNode, callback, level + 1)
+        ))
     }
  }
 

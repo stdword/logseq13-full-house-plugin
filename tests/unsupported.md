@@ -10,15 +10,15 @@
 ["Plain", "- Lorem ipsum dolor sit amet"],
 
 // bug
-``` js
+```js
 var foo = function (bar) {
   return bar++;
 };
 console.log(foo(5));
 ```
-
 ["Code", "` js\nvar foo = function (bar) {\n  return bar++;\n};\n\nconsole.log(foo(5));\n"],
 ["Plain", "`"],
+
 
 | Option | Description |
 | ------ | ----------- |

@@ -67,7 +67,7 @@ export class TemplateVariable {
 
 
 interface ITemplate {
-    render(context: ILogseqContext): IBlockNode
+    render(context: ILogseqContext): Promise<IBlockNode>
     isEmpty(): boolean
 }
 
@@ -121,7 +121,7 @@ export class Template implements ITemplate {
 
         return !this.block.children || this.block.children.length === 0
     }
-    render(context: ILogseqContext): IBlockNode {
+    async render(context: ILogseqContext): Promise<IBlockNode> {
         console.info(p`Rendering ${this}`)
 
         const blockContext = BlockContext.createFromEntity(this.block)
@@ -134,7 +134,7 @@ export class Template implements ITemplate {
         }) as unknown as ILogseqContext['template']
 
         // remove id prop from every block
-        walkBlockTree(this.block as IBlockNode, (b) => {
+        await walkBlockTree(this.block as IBlockNode, async (b) => {
             PropertiesUtils.deleteProperty(b as BlockEntity, PropertiesUtils.idProperty)
         })
 
@@ -156,7 +156,7 @@ export class Template implements ITemplate {
             c: new Context(context),
         }
 
-        return walkBlockTree(this.block as IBlockNode, (b, lvl) => {
+        return await walkBlockTree(this.block as IBlockNode, async (b, lvl) => {
             // @ts-expect-error
             renderContext.c.self = BlockContext.createFromEntity(
                 b as BlockEntity, {
@@ -174,7 +174,7 @@ export class InlineTemplate implements ITemplate {
     constructor(body: string) {
         this.body = body
     }
-    render(context: ILogseqContext): IBlockNode {
+    async render(context: ILogseqContext): Promise<IBlockNode> {
         return {
             content: Eta.render(this.body, context),
             children: [],
