@@ -326,6 +326,20 @@ export class PropertiesUtils {
             refs,
         }
     }
+    static hasProperty(blockContent: string, name: string): boolean {
+        // case when properties in content use different style of naming
+        //   logseq-prop-name
+        //   logseq_prop_name
+        //   logseq_prop-name
+        // all this names is the same for logseq
+        for (const n of [name, name.replaceAll('-', '_'), name.replaceAll('_', '-')]) {
+            const propRegexp = PropertiesUtils.propertyContentFormat({name: n})
+            const exists = new RegExp(propRegexp, 'gim').test(blockContent)
+            if (exists)
+                return true
+        }
+        return false
+    }
     static deleteProperty(block: BlockEntity, name: string): void {
         const nameCamelCased = PropertiesUtils.toCamelCase(name)
 

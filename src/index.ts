@@ -73,9 +73,22 @@ async function main() {
 
     logseq.Editor.registerBlockContextMenuItem(
         'Copy as 🏛template', async (e) => {
-            const templateName = await logseq.Editor.getBlockProperty(
-                e.uuid, PropertiesUtils.templateProperty)
-            const templateRef = templateName ? templateName : `((${e.uuid}))`
+            const block = await logseq.Editor.getBlock(e.uuid)
+            if (!block) {
+                console.debug(p`Assertion error: block should exists`, e.uuid)
+                return
+            }
+
+            const templateName = PropertiesUtils.getProperty(
+                block, PropertiesUtils.templateProperty
+            ).text
+            let templateRef = templateName
+            if (!templateRef) {
+                const uuidExisted = PropertiesUtils.hasProperty(block.content, PropertiesUtils.idProperty)
+                if (!uuidExisted)
+                    logseq.Editor.upsertBlockProperty(e.uuid, PropertiesUtils.idProperty, e.uuid)
+                templateRef = `((${e.uuid}))`
+            }
             const textToCopy = commandTemplate.arg(templateRef).toString()
 
             window.focus()  // need to make an interactions with clipboard
