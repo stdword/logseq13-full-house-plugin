@@ -45,34 +45,68 @@ async function main() {
         await onAppSettingsChanged()
     })
 
-    const commandLabel = 'Insert 🏛template'
     const commandTemplate = RendererMacro.command('template')
-    const commandGuide = commandTemplate
-        .arg('TEMPLATE NAME')
-        .arg('(optional) page reference')
-        .toString()
+    {
+        const commandLabel = 'Insert 🏛template'
+        const commandGuide = commandTemplate
+            .arg('TEMPLATE NAME')
+            .arg('(optional) page reference')
+            .toString()
 
-    logseq.App.registerCommandPalette(
-        { key: 'insert-template', label: commandLabel }, async (e) => {
-            const inserted = await insertContent(commandGuide, { positionOnArg: 1 })
-            if (!inserted) {
-                // TODO?: ask UI to insert template to the end of current page
-                await logseq.UI.showMsg(
-                    'Start editing block or select one to insert template in it',
-                    'warning',
-                    {timeout: 5000},
-                )
-                return
-            }
-    })
+        logseq.App.registerCommandPalette(
+            { key: 'insert-template', label: commandLabel }, async (e) => {
+                const inserted = await insertContent(commandGuide, { positionOnArg: 1 })
+                if (!inserted) {
+                    await logseq.UI.showMsg(
+                        'Start editing block or select one to insert template',
+                        'warning',
+                        {timeout: 5000},
+                    )
+                    return
+                }
+        })
 
-    logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
-        // here user always in editing mode, so no need to check insertion
-        await insertContent(commandGuide, { positionOnArg: 1 })
-    })
+        logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
+            // here user always in editing mode, so no need to check insertion
+            await insertContent(commandGuide, { positionOnArg: 1 })
+        })
 
+        registerBlockContextCopyCommand('Copy as 🏛template', commandTemplate)
+        handleTemplateCommand(commandTemplate)
+    }
+
+
+    const commandTemplateView = RendererMacro.command('template-view')
+    {
+        const commandLabel = 'Insert 🏛view'
+        const commandGuide = commandTemplateView.arg('TEMPLATE NAME').toString()
+
+        logseq.App.registerCommandPalette(
+            { key: 'insert-template-view', label: commandLabel }, async (e) => {
+                const inserted = await insertContent(commandGuide, { positionOnArg: 1 })
+                if (!inserted) {
+                    await logseq.UI.showMsg(
+                        'Start editing block or select one to insert template-view',
+                        'warning',
+                        {timeout: 5000},
+                    )
+                    return
+                }
+        })
+
+        logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
+            // here user always in editing mode, so no need to check insertion
+            await insertContent(commandGuide, { positionOnArg: 1 })
+        })
+
+        registerBlockContextCopyCommand('Copy as 🏛view', commandTemplateView)
+        handleTemplateViewCommand(commandTemplateView)
+    }
+}
+
+function registerBlockContextCopyCommand(label: string, command: RendererMacro) {
     logseq.Editor.registerBlockContextMenuItem(
-        'Copy as 🏛template', async (e) => {
+        label, async (e) => {
             const block = await logseq.Editor.getBlock(e.uuid)
             if (!block) {
                 console.debug(p`Assertion error: block should exists`, e.uuid)
@@ -89,7 +123,7 @@ async function main() {
                     logseq.Editor.upsertBlockProperty(e.uuid, PropertiesUtils.idProperty, e.uuid)
                 templateRef = `((${e.uuid}))`
             }
-            const textToCopy = commandTemplate.arg(templateRef).toString()
+            const textToCopy = command.arg(templateRef).toString()
 
             window.focus()  // need to make an interactions with clipboard
             await navigator.clipboard.writeText(textToCopy)
@@ -97,10 +131,7 @@ async function main() {
             await logseq.UI.showMsg('Copied to clipboard',
                 'success', {timeout: 5000})
     })
-
-    handleTemplateCommand(commandTemplate)
-    handleTemplateViewCommand(RendererMacro.command('template-view'))
-}
+ }
 
 async function handleRequiredRef(ref: string, refUserName: string) {
     ref = cleanMacroArg(ref)
