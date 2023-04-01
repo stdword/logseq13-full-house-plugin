@@ -12,9 +12,9 @@
 - To **render a template**:
   - Type-in `/`-command «Full House → Insert template» or select it from `Command Palette` (Ctrl+Shift+P or ⌘⇧P)
   - To the current editing block will be inserted special command that will render template
-  - Specify your template name and remove third optional argument (will return to it later)
+  - Specify your template name
   - Press Enter or Esc to start rendering
-- Template **root (parent) block** will be skipped during rendering (by default)
+- Template block will be skipped during rendering (by default)
   - But you can change this behavior with `template-including-parent` property
   - Use any value that can be interpreted as «Yes»
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/222982171-b4813611-5b1b-463a-8cab-6a6d40e1d213.gif"/>
@@ -294,7 +294,7 @@
 </td></tr></table>
 
 
-- And there is a quick way to replace `page` context variable: use third argument to specify another page
+- And there is a quick way to replace `page` context variable: use `:page` named argument to specify another page
 
 <table><tr><td>
 <img src="https://user-images.githubusercontent.com/1984175/224791169-3f9482cd-fef4-4594-b619-4c8d900df007.png"/>
