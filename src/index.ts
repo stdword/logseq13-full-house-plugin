@@ -33,10 +33,32 @@ async function init() {
 
     console.info(p`Loaded`)
 
+    notifyUser()
+
     // Logseq reads config setting `preferredDateFormat` with some delay
     // So we need to wait some time
     setTimeout(onAppSettingsChanged, 100)
  }
+
+function notifyUser() {
+    if (!logseq.settings!.notifications)
+        logseq.settings!.notifications = {}
+
+    if (!logseq.settings!.notifications.namedContextPageArg) {
+        logseq.UI.showMsg(
+            `[:div
+                [:p [:code "🏛 Full House Templates"]]
+                [:p [:b "Breaking Change"]
+                    ": Positional page context argument was replaced by named one."]
+                [:p "Use " [:code ":page"] " to specify page different than current."]
+                [:p [:i "Usage"] [:br]
+                    "🚫 " [:code ":template, <name>, Logseq"] [:br]
+                    "✅ " [:code ":template, <name>, :page Logseq"]]
+            ]`,
+            'info', {timeout: 60000})
+        logseq.updateSettings({notifications: {namedContextPageArg: true}})
+    }
+}
 
 async function main() {
     init()
@@ -57,8 +79,9 @@ async function main() {
             { key: 'insert-template', label: commandLabel }, async (e) => {
                 const inserted = await insertContent(commandGuide, { positionOnArg: 1 })
                 if (!inserted) {
-                    await logseq.UI.showMsg(
-                        'Start editing block or select one to insert template',
+                    logseq.UI.showMsg(
+                        `[:p "Start editing block or select one to insert "
+                             [:code ":template"]]`,
                         'warning',
                         {timeout: 5000},
                     )
@@ -84,8 +107,9 @@ async function main() {
             { key: 'insert-template-view', label: commandLabel }, async (e) => {
                 const inserted = await insertContent(commandGuide, { positionOnArg: 1 })
                 if (!inserted) {
-                    await logseq.UI.showMsg(
-                        'Start editing block or select one to insert template-view',
+                    logseq.UI.showMsg(
+                        `[:p "Start editing block or select one to insert "
+                             [:code ":template-view"]]`,
                         'warning',
                         {timeout: 5000},
                     )
