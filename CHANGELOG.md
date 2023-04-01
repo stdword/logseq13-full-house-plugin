@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.0.0...v2.1.0) (2023-04-01)
+
+
+### Features
+
+* **args:** simple notation of named arg (to set bool) ([ce33431](https://github.com/stdword/logseq13-full-house-plugin/commit/ce3343165bf12eec7671f82f67fd1ec697f9a91a))
+
 # [2.0.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.5.0...v2.0.0) (2023-04-01)
 
 
