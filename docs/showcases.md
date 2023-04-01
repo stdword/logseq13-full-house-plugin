@@ -7,7 +7,7 @@ An interesting ways of how to use `🏛templates` and `🏛views` to color your 
 `🏛views` means a special way to render `🏛templates` (very similar to Logseq's `:macros`)
 
 # Table of Contents
-- [Daily Journal `🏛template`](#daily-journal-template)
+- [Daily Journal Template](#daily-journal-template)
 - [Folding page reference](#folding-page-references)
 - [Fast links to Wikipedia.org](#fast-links-to-wikipediaorg)
 
