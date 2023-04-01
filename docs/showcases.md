@@ -1,13 +1,15 @@
 # Showcases
 
-An interesting ways of how to use `🏛templates` to color your life in <a href="https://logseq.com"><img align="center" width="18px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/> Logseq</a>.
+An interesting ways of how to use `🏛templates` and `🏛views` to color your life in <a href="https://logseq.com"><img align="center" width="18px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/> Logseq</a>.
 
 `🏛templates` means _enhanced templates_ from `Full House Templates` [plugin](https://github.com/stdword/logseq13-full-house-plugin#readme) ❤️
 
+`🏛views` means a special way to render `🏛templates` (very similar to Logseq's `:macros`)
+
 # Table of Contents
 - [Daily Journal `🏛template`](#daily-journal-template)
+- [Folding page reference](#folding-page-references)
 - [Fast links to Wikipedia.org](#fast-links-to-wikipediaorg)
-
 
 ## Daily Journal `🏛template`
 
@@ -43,10 +45,36 @@ Videos with these steps:
   
 </td></tr></table>
 
-## Auto reference to current page
-TODO
-- https://github.com/logseq/logseq/issues/7196
-- https://github.com/logseq/logseq/issues/8903
+## Folding page references
+<img width="700" src="https://user-images.githubusercontent.com/1984175/229265122-a56493da-bab4-4f60-aa49-8e214dcbfde0.gif"/>
+
+
+<details closed><summary>Steps</summary><p>
+
+1) Create *page* `🏛view`:
+  ```markdown
+  template:: page
+  - ``{ ! var baseName = c.page.name.split('/').slice(-1)[0] _}``
+    ``{ ! var prefix = c.page.name.indexOf('/') >= 0 ? '../' : '' _}``
+    [``{ c.args.fold ? prefix + baseName : c.page.name }``](``{ ref(c.page) }``)
+  ```
+2) Use command `:template-view` to reference pages:
+  ```clojure
+  {{renderer :template-view, page}}
+  {{renderer :template-view, page, :page Logseq}}
+  ```
+3) Or to fold references:
+  ```clojure
+  {{renderer :template-view, page, :fold}}
+  ```
+
+</p></details>
+
+<details closed><summary>Demo</summary>
+  <video width="40%" src="https://user-images.githubusercontent.com/1984175/229265422-ed83851b-0329-47a2-99a3-f35b91d0b5dd.mp4"/>
+</details>
+
+
 
 ## Fast links to Wikipedia.org
 <img width="740px" src="https://user-images.githubusercontent.com/1984175/227035547-53e9580e-9843-49a4-bbb9-0f738c908c99.gif"/>
@@ -54,7 +82,7 @@ TODO
 
 <details closed><summary>Steps</summary><p>
 
-1) Create `wiki` `🏛template`:
+1) Create *wiki* `🏛template`:
   ```markdown
   template:: wiki
   - ``{ ! var lang = c.args.lang ?? c.args.$1 ?? 'en' _}``
@@ -65,10 +93,10 @@ TODO
 2) Add new `:command` to Logseq `config.edn`:
   ```clojure
   :commands [
-     ["wiki" "{{renderer :template, wiki, —, :lang en}}"],
+     ["wiki" "{{renderer :template, wiki, :lang en}}"],
   ]
   ```
-3) Type-in `<` or `/` → `wiki` → `↩︎` while editing any block to render `🏛template`
+3) Type-in <kbd><</kbd> or <kbd>/</kbd> → `wiki` → <kbd>↩︎</kbd> while editing any block to render `🏛template`
 
 </p></details>
 
