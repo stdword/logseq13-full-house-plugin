@@ -24,6 +24,7 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 - 💪 Rendering templates :)
 - 🤘 Accessing to any meta information: pages titles, blocks properties & content, your graph, etc.
 - 📅 Full support of dates-work: parsing, formatting, shifting
+- 👁‍🗨 Use views (or dynamic templates) to get freshly updated data of your graph
 - ☘️ Focusing on UX and simplicity: no more headache on where to add a space to make it work
 - 🔗 Easily make a reference to any journal page: relative to now moment, the current page, specific date or whatever you want
 - 👻 Custom logic with JS vars, conditions, loops and environment (if you know what I mean 😈)
@@ -44,7 +45,7 @@ See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/ma
   - ``{ ! var [ authors, name ] = c.page.name.split(' — ') _}``
     alias:: ``{ ref(name) }``
 		author:: ``{ authors.split(', ').map(ref).join(', ') }``
-		category:: [[📖/art]]
+		category:: [[📖/productivity]]
 		tags:: book,
   - # Book overview
   - ...
@@ -59,7 +60,7 @@ See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/ma
 ```markdown
 - alias:: [[Building a Second Brain]]
   author:: [[Tiago Forte]]
-  category:: [[📖/art]]
+  category:: [[📖/productivity]]
   tags:: book,
 - # Book overview
 - ...
@@ -96,9 +97,8 @@ See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/ma
 
 
 ## Roadmap
-- Dynamic rendering
 - Inline templates
-- Variables
+- User variables
 - UI & buttons
 - Extended contexts
 - Template selectors
