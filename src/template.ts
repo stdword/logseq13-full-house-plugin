@@ -119,7 +119,7 @@ export class Template implements ITemplate {
         if (this.includingParent)
             return false
 
-        return !this.block.children || this.block.children.length === 0
+        return !(this.block.children && this.block.children.length !== 0)
     }
     async render(context: ILogseqContext): Promise<IBlockNode> {
         console.info(p`Rendering ${this}`)

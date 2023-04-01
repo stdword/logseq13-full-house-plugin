@@ -58,7 +58,7 @@ function notifyUser() {
             'info', {timeout: 60000})
         logseq.updateSettings({notifications: {namedContextPageArg: true}})
     }
-}
+ }
 
 async function main() {
     init()
@@ -282,7 +282,7 @@ function handleTemplateViewCommand(command: RendererMacro) {
             return
 
         if (templateRef.option === '+')
-            await logseq.UI.showMsg(
+            logseq.UI.showMsg(
                 '"+" option has no effect: Template view always renders without parent',
                 'info', {timeout: 5000})
 
