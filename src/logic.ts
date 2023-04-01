@@ -269,7 +269,7 @@ export async function renderTemplateView(
     catch (error) {
         const message = (error as Error).message
         throw new RenderError(
-            `[:p "Cannot render template "
+            `[:p "Cannot render template view "
                 [:i "${template.name || templateRef.original}"]
                 ": "
                 [:pre "${message}"]

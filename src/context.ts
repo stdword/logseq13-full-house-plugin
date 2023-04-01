@@ -203,7 +203,7 @@ export class BlockContext extends Context {
 
 export class ArgsContext extends Context {
     constructor(templateRef: LogseqReference, args: string[]) {
-        const entries: [string, string][] = [['0', templateRef.original]]
+        const entries: [string, string | boolean][] = [['0', templateRef.original]]
         for (let [ index, value ] of Object.entries(args)) {
             // Check whether it is named arg
 
@@ -235,14 +235,17 @@ export class ArgsContext extends Context {
                 value = value.slice(1)
             } else {
                 const strictrRgexp = /^:([\p{Letter}][$_\p{Letter}\p{Number}]*)\s+/ui
-                const easyRgexp= /^:(\S+)\s+/ui
+                const easyRgexp= /^:(\S+)\s*/ui
                 const match = value.match(easyRgexp)
                 if (match) {
                     const [ consumed, name ] = match
-                    value = value.slice(consumed.length)
-                    value = cleanMacroArg(value, {escape: false, unquote: true})
+                    let namedValue: string | boolean = value.slice(consumed.length)
+                    if (!namedValue)
+                        namedValue = true
+                    else
+                        namedValue = cleanMacroArg(namedValue, {escape: false, unquote: true})
 
-                    entries.push([ name, value ])
+                    entries.push([ name, namedValue ])
                 }
             }
 
