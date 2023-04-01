@@ -9,67 +9,52 @@ import { LogseqMarkup } from './utils/mldoc_ast'
 
 
 /**
- * @raises StateError: `contextPageRef` doesn't exist
+ * @raises StateError: Arg `:page` doesn't exist or improperly specified
  */
 async function getCurrentContext(
     template: Template,
     blockUUID: string,
     argsContext: ArgsContext,
-    contextPageRef?: LogseqReference,
 ): Promise<ILogseqContext | null> {
-    // @ts-expect-error
-    const contextPageRef_ = argsContext.page as string
-    if (contextPageRef_)
-        contextPageRef = parseReference(contextPageRef_) ?? undefined
+    if (!blockUUID) {
+        // Where is uuid? It definitely should be here, but this is a bug:
+        //   https://github.com/logseq/logseq/issues/8904
+        console.debug(p`Assertion error: this case should be filtered out in "isInsideMacro"`)
+        return null
+    }
 
-    let contextPage: PageEntity | undefined
+    // @ts-expect-error
+    const contextPageRef = parseReference(argsContext.page as string ?? '')
+    let contextPage: PageEntity | null = null
     if (contextPageRef) {
-        // TODO: use query for page instead of ref
+        if (contextPageRef.type === 'block')
+            throw new StateError(
+                `[:p "Argument " [:code ":page"] " should be a page reference"]`
+            )
+
+        // TODO: use query instead of ref
         const pageExists = await getPage(contextPageRef)
         if (!pageExists)
-            throw new StateError(`Page doesn't exist: "${contextPageRef.original}"`, {contextPageRef})
+            throw new StateError(
+                `[:p "Page " [:i "${contextPageRef.original}"]" doesn't exist"]`,
+                {contextPageRef})
+
         contextPage = pageExists
     }
 
-    let currentBlock: BlockEntity | null = null
-    if (blockUUID) {
-        currentBlock = await logseq.Editor.getBlock(blockUUID)
-        if (!currentBlock) {
-            console.debug(p`logseq issue → rendering non-existed block / slot`)
-            return null
-        }
+    const currentBlock = await logseq.Editor.getBlock(blockUUID)
+    if (!currentBlock) {
+        console.debug(p`logseq issue → rendering non-existed block / slot`)
+        return null
     }
 
-    let currentPage: PageEntity | null = null
-    if (currentBlock)
-        currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
-    else {
-        // fighting with bug: https://github.com/logseq/logseq/issues/8904
-        // user should provide special arg `:__page <% current page %>`
-        // @ts-expect-error
-        const macroCurrentPage_ = argsContext.__page as string
-        if (macroCurrentPage_) {
-            const macroCurrentPage = parseReference(macroCurrentPage_)
-            if (macroCurrentPage) {
-                // fighting with bug: https://github.com/logseq/logseq/issues/8903
-                if (macroCurrentPage.type === 'page' && isUUID(macroCurrentPage.value as string)) {
-                    const blockUUID = macroCurrentPage.value
-                    const zoomedBlock = await logseq.Editor.getBlock(blockUUID)
-                    if (zoomedBlock)
-                        currentPage = await logseq.Editor.getPage(zoomedBlock.page.id)
-                } else {
-                    currentPage = await getPage(macroCurrentPage)
-                }
-            }
-        }
-    }
-
-    const currentPageContext = currentPage ? PageContext.createFromEntity(currentPage) : PageContext.empty()
+    const currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
+    const currentPageContext = PageContext.createFromEntity(currentPage)
 
     return {
         config: await ConfigContext.get(),
         page: contextPage ? PageContext.createFromEntity(contextPage) : currentPageContext,
-        block: currentBlock ? BlockContext.createFromEntity(currentBlock, { page: currentPageContext }) : BlockContext.empty(),
+        block: BlockContext.createFromEntity(currentBlock, { page: currentPageContext }),
         args: argsContext,
     }
  }
@@ -121,7 +106,7 @@ async function isInsideMacro(blockUUID: string) {
     // We are inside the :macros from config.edn
     // And can't auto fill `c.block` & `c.page` context variables
 
-    await logseq.UI.showMsg(
+    logseq.UI.showMsg(
         `[:div
             [:p "It seems like you are using the " [:code ":macros"] " with"
                 [:code "🏛Full House Templates"]
@@ -155,11 +140,19 @@ async (
     templateRef: LogseqReference,
     rawCode: RendererMacro, opts: {
     includingParent?: boolean,
-    pageRef?: LogseqReference,
     args: string[],
 } = {args: []}) => {
-    const { includingParent, pageRef, args } = opts
+    const { includingParent, args } = opts
     const [ templateBlock, name, accessedVia ] = await getTemplateBlock(templateRef)
+
+    // backwards compatibility
+    //   obsolete: first arg is a context page ref
+    //   now: :page arg is a context page ref
+    // → treat {{renderer :template, wiki, —, ru}}
+    //   as {{renderer :template, wiki, ru}}
+    if (args[0] === '')
+        args.shift()
+
     const argsContext = new ArgsContext(templateRef, args)
 
     const template = new Template(templateBlock, {name, includingParent, accessedVia})
@@ -178,7 +171,7 @@ async (
     if (await isInsideMacro(uuid))
         return
 
-    const context = await getCurrentContext(template, uuid, argsContext, pageRef ?? undefined)
+    const context = await getCurrentContext(template, uuid, argsContext)
     if (!context)
         return
 

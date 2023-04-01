@@ -75,7 +75,6 @@ async function main() {
         handleTemplateCommand(commandTemplate)
     }
 
-
     const commandTemplateView = RendererMacro.command('template-view')
     {
         const commandLabel = 'Insert 🏛view'
@@ -160,12 +159,12 @@ async function handleLogicErrors(func: Function) {
 function handleTemplateCommand(command: RendererMacro) {
     let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
-        let [ type_, templateRef_, contextPageRef_, ...args ] = payload.arguments
+        let [ type_, templateRef_, ...args ] = payload.arguments
         const rawCommand = RendererMacro.command(type_)
         if (rawCommand.name !== command.name)
             return
 
-        const raw = rawCommand.arg(templateRef_).arg(contextPageRef_).args(args)
+        const raw = rawCommand.arg(templateRef_).args(args)
         console.debug(p`Parsing:`, {macro: raw.toString()})
 
         const templateRef = await handleRequiredRef(templateRef_, 'Template')
@@ -176,24 +175,14 @@ function handleTemplateCommand(command: RendererMacro) {
         if (templateRef.option)
             includingParent = templateRef.option === '+'  // or '-'
 
-        contextPageRef_ = cleanMacroArg(contextPageRef_, {escape: false, unquote: false})
-        if (isEmptyString(contextPageRef_))
-            contextPageRef_ = ''
-
-        const contextPageRef = parseReference(contextPageRef_)
-        if (contextPageRef && contextPageRef.type === 'block') {
-            await logseq.UI.showMsg('Argument should be a page reference', 'error', {timeout: 5000})
-            return
-        }
-
         args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
 
         console.debug(p`Rendering template`,
-            {uuid, templateRef, includingParent, contextPageRef, args})
+            {uuid, templateRef, includingParent, args})
         await handleLogicErrors(async () => {
             await renderTemplateInBlock(
                 uuid, templateRef, raw, {
-                includingParent, pageRef: contextPageRef, args,
+                includingParent, args,
             })
         })
     })
