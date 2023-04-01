@@ -1,3 +1,44 @@
+# [2.0.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.5.0...v2.0.0) (2023-04-01)
+
+
+### Bug Fixes
+
+* check is rendering occurs from inside the macro ([320f059](https://github.com/stdword/logseq13-full-house-plugin/commit/320f0596bdb09144d69459e2bba0bb5fa7ff3b3f))
+* error message not showing when template name is wrong ([58d8168](https://github.com/stdword/logseq13-full-house-plugin/commit/58d81689cac07f6645199ab012e473d9de6cae12))
+* handle in-macro with missed block uuid ([be08ff1](https://github.com/stdword/logseq13-full-house-plugin/commit/be08ff1d089893036bbbd01dc10dc127df4455a7))
+* multi block rendering view problem with paragraphs ([b5b7947](https://github.com/stdword/logseq13-full-house-plugin/commit/b5b7947ece2ab89d57cbc9fe8a48c757522ff6ca))
+* preserve block uuid on copy command ([8f2af89](https://github.com/stdword/logseq13-full-house-plugin/commit/8f2af8990b5d97ed0069c21cf51621c045428d45))
+* restrict plugin work inside the macro ([cfe9438](https://github.com/stdword/logseq13-full-house-plugin/commit/cfe94382c62108472a9fb3520ac87cf447c63abe))
+* send single-char pages to context ([6668df9](https://github.com/stdword/logseq13-full-house-plugin/commit/6668df9fee918a0eb41482aae5afb1392911f8ed))
+
+
+### Features
+
+* **args:** removed positional page context argument ([fb79c1c](https://github.com/stdword/logseq13-full-house-plugin/commit/fb79c1cd0b6e5b3cbc37af5e4b171ba69c477ec9))
+* beutify error messages for user ([a554ea9](https://github.com/stdword/logseq13-full-house-plugin/commit/a554ea98db8ff3c7c68c34921f1c1552a8bbe442))
+* **notify:** breaking changes user notification ([c8cd377](https://github.com/stdword/logseq13-full-house-plugin/commit/c8cd377c33d09eb3957acbff7095f92ccffec043))
+* **template-view:** :template-view command& replaces the macros system ([7023e5a](https://github.com/stdword/logseq13-full-house-plugin/commit/7023e5a83127d44de9188f39ed5be1143e7b2d46))
+* **views:** add insert template view command ([6bdf913](https://github.com/stdword/logseq13-full-house-plugin/commit/6bdf9131f3b8af7d20019fae8ef6502b94fbf3d7))
+* **views:** block ref displaying ([1435e24](https://github.com/stdword/logseq13-full-house-plugin/commit/1435e247b6af13d16d4d40e106f9d4853e1b3ba8))
+* **views:** compile block references labels to html & make all compilation async ([07552d2](https://github.com/stdword/logseq13-full-house-plugin/commit/07552d280170fc5a73694bf9af5cdb429a507481))
+* **views:** compiling block tree to html view ([bdff1c5](https://github.com/stdword/logseq13-full-house-plugin/commit/bdff1c543ced2d8e407ca79e5343e4e4e23e84f9))
+* **views:** compiling external links ([d4e4c1c](https://github.com/stdword/logseq13-full-house-plugin/commit/d4e4c1c0013d4f7e4c951f21f27a8334f6b563fe))
+* **views:** make refs clickable ([ada2e27](https://github.com/stdword/logseq13-full-house-plugin/commit/ada2e27a45d6b2b8d2a46d25df445ff48e3ad304))
+* **views:** parsing mldoc ast to compile rendered view to html ([65fe95d](https://github.com/stdword/logseq13-full-house-plugin/commit/65fe95d85a258f0fa954b1555bffc0226a4f7936))
+* **views:** restrict compiling by nesting levels ([bfd5992](https://github.com/stdword/logseq13-full-house-plugin/commit/bfd5992063f5ce279b61c8514aeb4ce573319975))
+* **views:** show or hide ref brackets based on logseq config ([f98818c](https://github.com/stdword/logseq13-full-house-plugin/commit/f98818c666541593d0214de2d2c0c2a1b307d00a))
+* **views:** special case for non-existent block ([d5ba14b](https://github.com/stdword/logseq13-full-house-plugin/commit/d5ba14b8c0619a00c16a06751cad6a3355543a60))
+* **views:** support additional logseq markup syntax ([caa21cf](https://github.com/stdword/logseq13-full-house-plugin/commit/caa21cf958e6e789b68744cd5c954e00f14bb032))
+
+
+### BREAKING CHANGES
+
+* **args:** Args auto-shifts for the empty first arg case: {{renderer :template, wiki, —, ru}}
+→ {{renderer :template, wiki, ru}}. But for non-empty — template behavior would be broken:
+{{renderer :template, wiki, [[Logseq]], ru}} fills `c.page` with _current page_ instead of [[Logseq]].
+And first positional argument would be [[Logseq]], not "ru". Manual change required: {{renderer
+:template, wiki, :page [[Logseq]], ru}}
+
 # [1.5.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v1.4.0...v1.5.0) (2023-03-22)
 
 
