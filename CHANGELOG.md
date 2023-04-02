@@ -1,3 +1,18 @@
+# [2.2.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.1.0...v2.2.0) (2023-04-02)
+
+
+### Bug Fixes
+
+* **args:** args are space sensitive in :template command ([30600eb](https://github.com/stdword/logseq13-full-house-plugin/commit/30600eb67a57dd0d3d9833526fbf1cd973e92415)), closes [#3](https://github.com/stdword/logseq13-full-house-plugin/issues/3)
+* logseq reference with provided options bad parsing ([d88d37f](https://github.com/stdword/logseq13-full-house-plugin/commit/d88d37f76b5402b3c001a63fb052bb348eb351f5))
+* template name is uuid whem there is no `template` property in block ([982d984](https://github.com/stdword/logseq13-full-house-plugin/commit/982d984f588cdf3fade0378fb0f0b17300f5b11e))
+* **views:** single block view doesn't display ([2839d2f](https://github.com/stdword/logseq13-full-house-plugin/commit/2839d2f48a1cf8ee2683cb8e0826177b0633ba76))
+
+
+### Features
+
+* **args:** mask undefined named args with empty string ([7614029](https://github.com/stdword/logseq13-full-house-plugin/commit/761402949c5d10fefa0531731fab99451278e90c))
+
 # [2.1.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.0.0...v2.1.0) (2023-04-01)
 
 
