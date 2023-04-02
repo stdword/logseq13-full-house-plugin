@@ -14,6 +14,7 @@ import updateLocale      from 'dayjs/plugin/updateLocale'
 import logseqPlugin      from './utils/dayjs_logseq_plugin'
 
 import { cleanMacroArg, LogseqReference, p, Properties, PropertiesRefs, PropertiesUtils } from './utils'
+import { receiveMessageOnPort } from 'worker_threads'
 
 export { dayjs, Dayjs }
 dayjs.extend(customParseFormat)
@@ -27,6 +28,21 @@ dayjs.extend(UTC)
 dayjs.extend(updateLocale)
 dayjs.extend(logseqPlugin)
 
+
+export interface ILogseqContext {
+    config: ConfigContext
+    page: PageContext
+    block: BlockContext
+    args: ArgsContext
+    self?: BlockContext
+    template?: {
+        name: string,
+        includingParent: boolean,
+        block: BlockContext,
+        props: Properties,
+        propsRefs: PropertiesRefs,
+    }
+}
 
 export class Context {
     static empty() {
@@ -202,7 +218,10 @@ export class BlockContext extends Context {
 }
 
 export class ArgsContext extends Context {
-    constructor(templateRef: LogseqReference, args: string[]) {
+    public _args: string[]
+    public _hideUndefinedMode = false
+
+    static create(templateRef: LogseqReference, args: string[]) {
         const entries: [string, string | boolean][] = [['0', templateRef.original]]
         for (let [ index, value ] of Object.entries(args)) {
             // Check whether it is named arg
@@ -252,22 +271,21 @@ export class ArgsContext extends Context {
             entries.push([ (+index + 1).toString(), value ])
             entries.push([ `$${+index + 1}`, value ])
         }
-        super(Object.fromEntries(entries))
-    }
-}
 
-export interface ILogseqContext {
-    config: ConfigContext
-    page: PageContext
-    block: BlockContext
-    args: ArgsContext
-    self?: BlockContext
-    template?: {
-        name: string,
-        includingParent: boolean,
-        block: BlockContext,
-        props: Properties,
-        propsRefs: PropertiesRefs,
+        const instance = new ArgsContext(Object.fromEntries(entries), args)
+        const hideUndefinedInstance = new Proxy(instance, {
+            get(target, name, receiver) {
+                const value: any = target[name]
+                if (target._hideUndefinedMode && value === undefined)
+                    return ''
+                return value
+            }
+        })
+        return hideUndefinedInstance
+    }
+    constructor(data: {[index: string]: any}, args: string[]) {
+        super(data)
+        this._args = args
     }
 }
 

@@ -51,6 +51,7 @@ async function getCurrentContext(
     const currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
     const currentPageContext = PageContext.createFromEntity(currentPage)
 
+    argsContext._hideUndefinedMode = true
     return {
         config: await ConfigContext.get(),
         page: contextPage ? PageContext.createFromEntity(contextPage) : currentPageContext,
@@ -112,7 +113,7 @@ async function getTemplate(ref: LogseqReference): Promise<Template> {
         )
 
     return template
-}
+ }
 
 /**
  * @ui may show message to user
@@ -170,7 +171,7 @@ async (
     if (args[0] === '')
         args.shift()
 
-    const argsContext = new ArgsContext(templateRef, args)
+    const argsContext = ArgsContext.create(templateRef, args)
 
     if (await isInsideMacro(uuid))
         return
@@ -188,8 +189,7 @@ async (
         const message = (error as Error).message
         throw new RenderError(
             `[:p "Cannot render template "
-                [:i "${template.name || templateRef.original}"]
-                ": "
+                [:i "${template.name || templateRef.original}"] ": "
                 [:pre "${message}"]
             ]`,
             {template, error},
@@ -245,7 +245,7 @@ export async function renderTemplateView(
     rawCode: RendererMacro,
     args: string[] = [],
 ) {
-    const argsContext = new ArgsContext(templateRef, args)
+    const argsContext = ArgsContext.create(templateRef, args)
 
     if (await isInsideMacro(blockUUID))
         return
