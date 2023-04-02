@@ -214,20 +214,18 @@ async (
         })
     }
 
-    const oldContent = context.block!.content!
+    const oldContent = context.block.content!
     const toInsert = head.content
-    let newContent = oldContent.replace(rawCode.toString(), toInsert)
+    const toReplace = rawCode.toPattern()
+    const newContent = oldContent.replace(toReplace, toInsert)
     if (newContent === oldContent) {
-        // if no replacement was done, try another form of macro command
-        const toReplace = rawCode.toString({useColon: false})
-        newContent = oldContent.replace(toReplace, toInsert)
-        if (newContent === oldContent)
-            console.warn(p`Cannot find renderer macro to replace it`, {
-                uuid,
-                oldContent,
-                toReplace,
-                toInsert,
-            })
+        console.warn(p`Cannot find renderer macro to replace it`, {
+            uuid,
+            oldContent,
+            toReplace,
+            toInsert,
+        })
+        return
     }
 
     await logseq.Editor.updateBlock(uuid, newContent)

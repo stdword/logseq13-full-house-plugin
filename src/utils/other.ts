@@ -94,3 +94,13 @@ export function lockOn(idFunc: ((args: any) => string)) {
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))
  }
+
+export function escapeForRegExp(str: string) {
+    const specials = [
+        '/', '.', '*', '+', '?', '|',
+        '(', ')', '[', ']', '{', '}', '\\',
+    ]
+
+    const replacer = new RegExp('(\\' + specials.join('|\\') + ')', 'g')
+    return str.replaceAll(replacer, '\\$1')
+ }

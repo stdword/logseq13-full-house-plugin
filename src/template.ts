@@ -145,7 +145,6 @@ export class Template implements ITemplate {
         if (!this.includingParent)
             return !hasChildren
 
-        console.log({content: this.block.content});
         return !hasChildren && !this.block.content.trim()
     }
     async render(context: ILogseqContext): Promise<IBlockNode> {

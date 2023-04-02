@@ -1,6 +1,6 @@
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
-import { f, indexOfNth, p, sleep } from './other'
+import { escapeForRegExp, f, indexOfNth, p, sleep } from './other'
 import { isEmptyString, isInteger, isUUID, unquote } from './parsing'
 
 
@@ -431,5 +431,9 @@ export class RendererMacro {
             (useColon ? ':' : '') +
             [this.name].concat(this.arguments).map(a => a.toString()).join(', ') +
         '}}'
+    }
+    toPattern() {
+        const args = [this.name].concat(this.arguments).map(a => escapeForRegExp(a.toString()))
+        return new RegExp('\\{\\{renderer\\s+:?' + args.join(',\\s*') + '\\s*\\}\\}', 'u')
     }
  }
