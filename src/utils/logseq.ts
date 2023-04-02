@@ -111,13 +111,12 @@ export function parseReference(ref: string): LogseqReference | null {
     let value: string | number = ref
     let option = ''
 
-    if (value.length > 1 && '+-'.indexOf(value[0]) >= 0) {
-        const first = value[0]
-
-        // escaping to reference pages started with + or -
-        if (!value.startsWith(option.repeat(2))) {
+    const first = value[0]
+    if (value.length > 1 && ['+', '-'].includes(first)) {
+        // escaping to handle case: reference pages started with + or -
+        if (!value.startsWith(first.repeat(2))) {
             option = first
-            value = value.slice(1)
+            value = value.slice(1).trim()
         }
     }
 
