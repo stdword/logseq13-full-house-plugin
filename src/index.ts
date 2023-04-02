@@ -195,19 +195,11 @@ function handleTemplateCommand(command: RendererMacro) {
         if (!templateRef)
             return
 
-        let includingParent: boolean | undefined
-        if (templateRef.option)
-            includingParent = templateRef.option === '+'  // or '-'
-
         args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
 
-        console.debug(p`Rendering template`,
-            {uuid, templateRef, includingParent, args})
+        console.debug(p`Rendering template`, {uuid, templateRef, args})
         await handleLogicErrors(async () => {
-            await renderTemplateInBlock(
-                uuid, templateRef, raw, {
-                includingParent, args,
-            })
+            await renderTemplateInBlock(uuid, templateRef, raw, args)
         })
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
@@ -266,7 +258,6 @@ function handleTemplateViewCommand(command: RendererMacro) {
         div.macro { display: inline-block; }
     `)
 
-
     const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, ...args ] = payload.arguments
@@ -281,16 +272,11 @@ function handleTemplateViewCommand(command: RendererMacro) {
         if (!templateRef)
             return
 
-        if (templateRef.option === '+')
-            logseq.UI.showMsg(
-                '"+" option has no effect: Template view always renders without parent',
-                'info', {timeout: 5000})
-
         args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
 
         console.debug(p`Rendering template view`, {slot, uuid, templateRef, args})
         await handleLogicErrors(async () => {
-            await renderTemplateView(slot, uuid, templateRef!, raw, args)
+            await renderTemplateView(slot, uuid, templateRef, raw, args)
         })
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)

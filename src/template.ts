@@ -36,34 +36,34 @@ Eta.configure({
  })
 
 
-export enum VariableType {
-    string,
-    choices,
-    queryChoices,
-    queryPages,
-    queryBlocks,
-    queryProperties,
- }
+// export enum VariableType {
+//     string,
+//     choices,
+//     queryChoices,
+//     queryPages,
+//     queryBlocks,
+//     queryProperties,
+//  }
 
-export class TemplateVariable {
-    name: string
-    type: VariableType
-    options: {[index: string]: string}
-    value: string
+// export class TemplateVariable {
+//     name: string
+//     type: VariableType
+//     options: {[index: string]: string}
+//     value: string
 
-    // @ts-nocheck
-    constructor(
-        name: string,
-        type = VariableType.string,
-        options = {},
-        value = "",
-    ) {
-        this.name = name
-        this.type = type
-        this.options = options
-        this.value = value
-    }
- }
+//     // @ts-nocheck
+//     constructor(
+//         name: string,
+//         type = VariableType.string,
+//         options = {},
+//         value = "",
+//     ) {
+//         this.name = name
+//         this.type = type
+//         this.options = options
+//         this.value = value
+//     }
+//  }
 
 
 interface ITemplate {
@@ -77,12 +77,15 @@ export class Template implements ITemplate {
     public includingParent: boolean
     public accessedVia: LogseqReferenceAccessType
 
+    private _initialized: boolean
+
     constructor(
         block: BlockEntity, args: {
         name?: string,
         includingParent?: boolean,
         accessedVia: LogseqReferenceAccessType,
     }) {
+        this._initialized = false
         this.block = block
         this.name = PropertiesUtils.getProperty(
             this.block, PropertiesUtils.templateProperty).text || args.name || ''
@@ -92,7 +95,7 @@ export class Template implements ITemplate {
         if (args.includingParent !== undefined)
             this.includingParent = args.includingParent
         else {
-            // 1) if template accessed via property (== 'name')
+            // 1) template accessed via property (== 'name')
             //   → it has properties where `template-including-parent` can be placed
             //   → defaultIncludingParent = false
             // 2) same rule is for templates accessed via page (== 'page')
@@ -109,19 +112,44 @@ export class Template implements ITemplate {
                 defaultForUncoercible: defaultIncludingParent,
             }) as boolean
         }
+    }
+    async init() {
+        if (this._initialized)
+            return
 
+        // remove id prop from every block
+        await walkBlockTree(this.block as IBlockNode, async (b) => {
+            PropertiesUtils.deleteProperty(b as BlockEntity, PropertiesUtils.idProperty)
+        })
+
+        // TODO: allow user to control erasing standard props
+        PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateProperty)
+        PropertiesUtils.deleteProperty(this.block, PropertiesUtils.includingParentProperty)
+        if (this.accessedVia === 'page')
+            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.titleProperty)
+
+        this._initialized = true
         console.info(p`Created ${this}`)
+    }
+    checkInit() {
+        if (!this._initialized)
+            throw Error('Assertion Error: Template instance should be initialized before any use')
     }
     toString() {
         return `Template("${this.name}"${this.includingParent ? " with parent" : ""})`
     }
     isEmpty(): boolean {
-        if (this.includingParent)
-            return false
+        this.checkInit()
 
-        return !(this.block.children && this.block.children.length !== 0)
+        const hasChildren = this.block.children && this.block.children.length !== 0
+        if (!this.includingParent)
+            return !hasChildren
+
+        console.log({content: this.block.content});
+        return !hasChildren && !this.block.content.trim()
     }
     async render(context: ILogseqContext): Promise<IBlockNode> {
+        this.checkInit()
         console.info(p`Rendering ${this}`)
 
         const blockContext = BlockContext.createFromEntity(this.block)
@@ -132,22 +160,6 @@ export class Template implements ITemplate {
             props: blockContext.props,
             propsRefs: blockContext.propsRefs,
         }) as unknown as ILogseqContext['template']
-
-        // remove id prop from every block
-        await walkBlockTree(this.block as IBlockNode, async (b) => {
-            PropertiesUtils.deleteProperty(b as BlockEntity, PropertiesUtils.idProperty)
-        })
-
-        // TODO: allow user to control erasing standard props during rendering
-        //   manually or via settings
-
-        if (this.includingParent) {
-            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateProperty)
-            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.includingParentProperty)
-
-            if (this.accessedVia === 'page')
-                PropertiesUtils.deleteProperty(this.block, PropertiesUtils.titleProperty)
-        }
 
         const renderContext = {
             ...getTemplateTagsContext(),
@@ -169,19 +181,19 @@ export class Template implements ITemplate {
     }
 }
 
-export class InlineTemplate implements ITemplate {
-    public body: string
+// export class InlineTemplate implements ITemplate {
+//     public body: string
 
-    constructor(body: string) {
-        this.body = body
-    }
-    async render(context: ILogseqContext): Promise<IBlockNode> {
-        return {
-            content: Eta.render(this.body, context),
-            children: [],
-        }
-    }
-    isEmpty(): boolean {
-        return !!this.body
-    }
-}
+//     constructor(body: string) {
+//         this.body = body
+//     }
+//     async render(context: ILogseqContext): Promise<IBlockNode> {
+//         return {
+//             content: Eta.render(this.body, context),
+//             children: [],
+//         }
+//     }
+//     isEmpty(): boolean {
+//         return !!this.body
+//     }
+// }

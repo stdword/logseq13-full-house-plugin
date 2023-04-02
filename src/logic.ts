@@ -1,7 +1,7 @@
 import '@logseq/libs'
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
-import { Template, InlineTemplate } from './template'
+import { Template } from './template'
 import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext, Context } from './context'
 import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID, html } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
@@ -93,6 +93,27 @@ async function getTemplateBlock(
     return [ templateBlock, name, accessedVia ]
  }
 
+async function getTemplate(ref: LogseqReference): Promise<Template> {
+    const [ templateBlock, name, accessedVia ] = await getTemplateBlock(ref)
+
+    let includingParent: boolean | undefined
+    if (ref.option)
+        includingParent = ref.option === '+'  // or '-'
+
+    const template = new Template(templateBlock, {name, includingParent, accessedVia})
+    await template.init()
+    if (template.isEmpty())
+        throw new StateMessage(
+            `[:p "Template " [:i "${template.name || ref.original}"] " is empty. "
+                 "Add content / child blocks or set " [:br]
+                 [:code "template-including-parent:: yes"]
+            ]`,
+            {ref},
+        )
+
+    return template
+}
+
 /**
  * @ui may show message to user
  */
@@ -138,13 +159,9 @@ export const renderTemplateInBlock =
 async (
     uuid: string,
     templateRef: LogseqReference,
-    rawCode: RendererMacro, opts: {
-    includingParent?: boolean,
+    rawCode: RendererMacro,
     args: string[],
-} = {args: []}) => {
-    const { includingParent, args } = opts
-    const [ templateBlock, name, accessedVia ] = await getTemplateBlock(templateRef)
-
+) => {
     // backwards compatibility
     //   obsolete: first arg is a context page ref
     //   now: :page arg is a context page ref
@@ -155,22 +172,10 @@ async (
 
     const argsContext = new ArgsContext(templateRef, args)
 
-    const template = new Template(templateBlock, {name, includingParent, accessedVia})
-    if (template.isEmpty())
-        throw new StateMessage(
-            `[:p "Template "
-                [:i "${template.name || templateRef.original}"]
-                " is empty. "
-                "Add child blocks or set "
-                [:br]
-                [:code "template-including-parent:: yes"]
-            ]`,
-            {templateRef},
-        )
-
     if (await isInsideMacro(uuid))
         return
 
+    const template = await getTemplate(templateRef)
     const context = await getCurrentContext(template, uuid, argsContext)
     if (!context)
         return
@@ -240,23 +245,12 @@ export async function renderTemplateView(
     rawCode: RendererMacro,
     args: string[] = [],
 ) {
-    const [ templateBlock, name, accessedVia ] = await getTemplateBlock(templateRef)
     const argsContext = new ArgsContext(templateRef, args)
-
-    const template = new Template(templateBlock, {name, includingParent: false, accessedVia})
-    if (template.isEmpty())
-        throw new StateMessage(
-            `[:p "Template "
-                [:i "${template.name || templateRef.original}"]
-                " is empty. "
-                "Add child blocks to use it as view"
-            ]`,
-            {templateRef},
-        )
 
     if (await isInsideMacro(blockUUID))
         return
 
+    const template = await getTemplate(templateRef)
     const context = await getCurrentContext(template, blockUUID, argsContext)
     if (!context)
         return
@@ -264,14 +258,13 @@ export async function renderTemplateView(
     let rendered: IBlockNode
     try {
         rendered = await template.render(context)
-        console.debug(p`View:`, {rendered})
+        console.debug(p`Template rendered:`, {data: rendered})
     }
     catch (error) {
         const message = (error as Error).message
         throw new RenderError(
             `[:p "Cannot render template view "
-                [:i "${template.name || templateRef.original}"]
-                ": "
+                [:i "${template.name || templateRef.original}"] ": "
                 [:pre "${message}"]
             ]`,
             {template, error},
@@ -279,26 +272,31 @@ export async function renderTemplateView(
     }
 
     const compiled = await walkBlockTree(rendered, async (b, lvl) => {
-        if (lvl === 0)
-            return ''
-
         if (!b.content.trim())
             return ''
 
         return await new LogseqMarkup(context).toHTML(b.content)
     })
-    console.debug(p`View:`, {compiled})
+    console.debug(p`Markup compiled:`, {data: compiled})
 
     const htmlFold = (node: IBlockNode, level = 0): string => {
         const children = () => node.children.map(
             (n) => htmlFold(n as IBlockNode, level + 1)
         ).join('')
 
-        if (level === 0)
-            if (node.children.length === 1)
-                return htmlFold(node.children[0] as IBlockNode, level + 1)
-            else
-                return children()
+        if (level === 0) {
+            if (node.children.length === 0)
+                return node.content
+
+            const body = `<div class="body">${children()}</div>`
+            if (node.content)
+                return html`
+                    <div class="header">${node.content}</div>
+                    ${body}
+                `
+
+            return body
+        }
 
         if (level === 1) {
             const content = node.content ? `<div>${node.content}</div>` : ''
@@ -316,12 +314,8 @@ export async function renderTemplateView(
         return content
     }
 
-    let view: string
-    if (compiled.children.length === 1)
-        view = compiled.children[0].content
-    else
-        view = htmlFold(compiled)
-    console.debug(p`View:`, {html: view})
+    const view = htmlFold(compiled)
+    console.debug(p`View folded:`, {data: view})
 
     const content = html`
         <span class="fh_template-view"

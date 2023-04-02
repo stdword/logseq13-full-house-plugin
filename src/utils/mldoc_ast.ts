@@ -86,6 +86,9 @@ export class LogseqMarkup {
     }
 
     async toHTML(text: string, nestingLevel: number = 0): Promise<string> {
+        if (!text.trim())
+            return ''
+
         const unparsedNodes: string = Mldoc.parseInlineJson(
             text,
             JSON.stringify(MLDOC_OPTIONS),
@@ -100,11 +103,11 @@ export class LogseqMarkup {
 
         console.debug(p`Building AST for text:`, {text, nodes})
 
-        // walkNodes(nodes, (type, data, node, processNode) => {
-        //     if (type === 'Plain')
-        //         node[1] = LogseqMarkup._transformUnorderedListsToAsteriskNotation(
-        //             data as string)
-        // })
+        walkNodes(nodes, async (type, data, node, processNode) => {
+            if (type === 'Plain')
+                node[1] = LogseqMarkup._transformUnorderedListsToAsteriskNotation(
+                    data as string)
+        })
 
         return await new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile(nodes)
     }
