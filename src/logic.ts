@@ -75,8 +75,7 @@ async function getTemplateBlock(
         accessedVia = 'page'
 
         name = templateRef.value as string
-    }
-    else {
+    } else {
         [ templateBlock, accessedVia ] = await getBlock(
             templateRef, {
             byProperty: PropertiesUtils.templateProperty,
@@ -90,6 +89,9 @@ async function getTemplateBlock(
                 [:i "${templateRef.original}"]]`,
             {templateRef},
         )
+
+    if (!name)
+        name = templateBlock.uuid
 
     return [ templateBlock, name, accessedVia ]
  }
