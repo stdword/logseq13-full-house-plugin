@@ -28,7 +28,7 @@ An interesting ways of how to use `🏛templates` and `🏛views` to color your 
    - ``{ ! if (!c.page.day) return '[not in a journal page]' _}``
      ← [Yesterday](``{ ref(c.page.day.subtract(1, 'day')) }``) | [Tomorrow](``{ ref(c.page.day.add(1, 'day')) }``) →
    ```
-4) Add code to render `🏛view` to "journals" template: `{{renderer :template-view, journal-embed}}`
+4) Add rendering `🏛view` code to "journals" template: `{{renderer :template-view, journal-embed}}`
 
 </p></details>
 
@@ -42,7 +42,7 @@ An interesting ways of how to use `🏛templates` and `🏛views` to color your 
 
 <details closed><summary>Steps</summary><p>
 
-1) Create *page* `🏛view`:
+1) Create `🏛template` *page*:
    ```markdown
    template:: page
    - ``{ ! var baseName = c.page.name.split('/').slice(-1)[0] _}``
@@ -58,7 +58,7 @@ An interesting ways of how to use `🏛templates` and `🏛views` to color your 
    ```clojure
    {{renderer :template-view, page, :fold}}
    ```
-4) ⚠️ *Note*: these references wouldn't display in `Linked References` section
+4) ⚠️ *Note*: these references wouldn't display in `Linked References` section, but will be auto-updated when page name changes. If you want the opposite effect, then use command `:template` instead of `:template-view`: thus rendered template content will be directly inserted to block, but page name changes will not reflect in reference's label.
 
 </p></details>
 
@@ -73,7 +73,7 @@ An interesting ways of how to use `🏛templates` and `🏛views` to color your 
 
 <details closed><summary>Steps</summary><p>
 
-1) Create *wiki* `🏛template`:
+1) Create `🏛template` *wiki*:
    ```markdown
    template:: wiki
    - ``{ ! var lang = c.args.lang ?? 'en' _}``
