@@ -1,7 +1,7 @@
 import { log } from 'console'
-import { BlockContext, dayjs, Dayjs, PageContext }  from './context'
+import { BlockContext, Context, dayjs, Dayjs, ILogseqContext, PageContext }  from './context'
 
-import { getPage, isEmptyString, isObject, isUUID, LogseqReference, p } from './utils'
+import { getPage, isEmptyString, isObject, isUUID, LogseqMarkup, LogseqReference, MLDOC_Node, p, resolveAssetsLink } from './utils'
 
 
 const isoDateFromat = 'YYYY-MM-DD'
@@ -12,6 +12,7 @@ type ITemplateTagsContext = {
     embed: Function
 
     empty: Function
+    when: Function
     fill: Function
     zeros: Function
 
@@ -19,6 +20,12 @@ type ITemplateTagsContext = {
     today: string
     tomorrow: string
     time: string
+
+    dev: {
+        parseMarkup: (text: string) => MLDOC_Node[]
+        toHTML: (text: string) => string
+        asset: (name: string) => string
+    }
 
     date: {
         yesterday: Dayjs
@@ -82,13 +89,19 @@ function ref(item: string | BlockContext | PageContext | Dayjs): string {
         return _ref(page?.originalName ?? '')
     }
 
-    const str = item as string
+    let str = item as string
     if (isUUID(str))
         return _bref(str)
 
     // check for the case `ref(today)`
     const date = _tryAsDateString(str)
-    return _ref(date ?? str)
+    if (date)
+        return _ref(date)
+
+    if (str.startsWith('[[') && str.endsWith(']]'))
+        str = str.slice(2, -2)
+
+    return _ref(str)
  }
 function bref(item: string | BlockContext | PageContext | Dayjs): string {
     // @ts-expect-error
@@ -104,13 +117,23 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
     const r = ref(item)
     return `{{embed ${r}}}`
  }
-function empty(obj: string | undefined, fallback: string = ''): string {
+function empty(obj: string | any, fallback: string = ''): string {
     obj ??= ''
     obj = obj.toString()
 
     if (isEmptyString(obj))
         return fallback
     return obj
+ }
+function when(condition: boolean | any, obj: string | any): string {
+    condition = !!condition
+    obj ??= ''
+    obj = obj.toString()
+
+    if (condition)
+        return obj
+
+    return ''
  }
 function fill(value: string | number, char: string, width: number): string {
     value = value.toString()
@@ -121,7 +144,8 @@ function zeros(value: string | number, width: number = 2): string {
     return fill(value, '0', width)
  }
 
-export function getTemplateTagsContext(): ITemplateTagsContext {
+
+export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsContext {
     const todayObj = dayjs()
     const yesterdayObj = todayObj.subtract(1, 'day').startOf('day')
     const tomorrowObj = todayObj.add(1, 'day').startOf('day')
@@ -131,10 +155,29 @@ export function getTemplateTagsContext(): ITemplateTagsContext {
     const tomorrow = tomorrowObj.format(isoDateFromat)
     const time = dayjs().format('HH:mm')
 
+    function parseMarkup(text: string): MLDOC_Node[] {
+        text = text.toString()
+        return new LogseqMarkup(context).parse(text)
+    }
+    function toHTML(text: string): string {
+        text = text.toString()
+        return new LogseqMarkup(context).toHTML(text)
+    }
+    function asset(name: string) {
+        name = name.toString()
+        const [ protocol, link ] = resolveAssetsLink(context, 'assets', name)
+        return `${protocol}://${link}`
+    }
+
     return {
         ref, bref, embed,
-        empty, fill, zeros,
+        empty, when, fill, zeros,
         yesterday, today, tomorrow, time,
+        dev: new Context({
+            parseMarkup,
+            toHTML,
+            asset,
+        }) as unknown as ITemplateTagsContext['dev'],
         date: {
             yesterday: yesterdayObj,
             today: todayObj.startOf('day'),

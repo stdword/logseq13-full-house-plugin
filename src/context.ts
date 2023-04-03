@@ -348,7 +348,7 @@ export class ConfigContext extends Context {
         )
     }
 
-    constructor(settings, currentGraph, config, other) {
+    constructor(settings: any, currentGraph: any, config: any, other: any) {
         super()
 
         this.graph = {

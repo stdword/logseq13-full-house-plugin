@@ -160,9 +160,10 @@ export class Template implements ITemplate {
             propsRefs: blockContext.propsRefs,
         }) as unknown as ILogseqContext['template']
 
+        const contextObj = new Context(context)
         const renderContext = {
-            ...getTemplateTagsContext(),
-            c: new Context(context),
+            ...getTemplateTagsContext(contextObj as unknown as ILogseqContext),
+            c: contextObj,
         }
 
         return await walkBlockTree(this.block as IBlockNode, async (b, lvl) => {
