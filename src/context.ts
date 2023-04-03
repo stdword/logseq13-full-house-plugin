@@ -290,9 +290,16 @@ export class ArgsContext extends Context {
 }
 
 export class ConfigContext extends Context {
+    public appVersion: string
     public pluginVersion: string
 
-    public currentGraph: string
+    public graph: {
+        name: string,
+        path: string,
+        data: any,
+        display: any,
+        settings: any,
+    }
 
     public preferredWorkflow: 'now' | 'todo'
     public preferredThemeMode: 'light' | 'dark'
@@ -304,42 +311,84 @@ export class ConfigContext extends Context {
 
     public enabledFlashcards: boolean
     public enabledJournals: boolean
+    public enabledWhiteboards: boolean
+    public enabledPropertyPages: boolean
+
+    public enabledTooltip: boolean
+    public enabledTimetracking: boolean
+    public enabledLogicalOutdenting: boolean
+
+    public perferredPastingFile: boolean
     public showBrackets: boolean
 
     static async get() {
-        // TODO: use full config
-        // const fullConfig = await logseq.App.getCurrentGraphConfigs()
-
+        const settings = await logseq.App.getCurrentGraphConfigs()
+        const currentGraph = await logseq.App.getCurrentGraph()
         const config = await logseq.App.getUserConfigs()
 
-        delete config.me
-        // {"repos": [
-        //     { "url": "logseq_local_/Users/me/graph1", "nfs?": true },
-        //     { "url": "logseq_local_/Users/me/graph2", "nfs?": true },
-        //     { "url": "logseq_local_/Users/me/graph3", "nfs?": true },
-        // ]}
-
-        return new ConfigContext({
-            ...config,
-            pluginVersion: await logseq.baseInfo.version,
-        })
+        return new ConfigContext(
+            settings,
+            currentGraph,
+            config,
+            // @ts-expect-error
+            top!.logseq.api.get_app_info(),
+        )
     }
 
-    constructor(data: {[index: string]: any}) {
-        super();
+    constructor(settings, currentGraph, config, logseq) {
+        super()
 
-        ({
-            pluginVersion: this.pluginVersion,
-            currentGraph: this.currentGraph,
-            preferredWorkflow: this.preferredWorkflow,
-            preferredThemeMode: this.preferredThemeMode,
-            preferredFormat: this.preferredFormat,
-            preferredLanguage: this.preferredLanguage,
-            preferredDateFormat: this.preferredDateFormat,
-            preferredStartOfWeek: this.preferredStartOfWeek,
-            enabledFlashcards: this.enabledFlashcards,
-            enabledJournals: this.enabledJournals,
-            showBrackets: this.showBrackets,
-        } = data)
+        this.graph = {
+            name: currentGraph!.name,
+            path: currentGraph!.path,
+            data: {
+                favorites: settings.favorites,
+                macros: settings.macros,
+                commands: settings.commands,
+                shortcuts: settings.shortcuts,
+                defaultTemplates: settings.defaultTemplates,
+                defaultHome: settings.defaultHome,
+                hiddenProperties: settings.blockHiddenProperties,
+            },
+            display: settings.settings,
+            settings: {
+                linkedReferencesCollapsedThreshold: settings['linkedReferencesCollapsedThreshold'],
+                defaultOpenBlocksLevel: settings['defaultOpenBlocksLevel'],
+                autoExpandBlockRefs: settings['autoExpandBlockRefs?'],
+
+                showEmptyBullets: settings['showEmptyBullets?'],
+                blockTitleCollapseEnabled: settings['blockTitleCollapseEnabled?'],
+
+                enableSearchRemoveAccents: settings['enableSearchRemoveAccents?'],
+                enableBlockTimestamps: settings['enableBlockTimestamps?'],
+
+                docModeEnterForNewBlock: settings['docModeEnterForNewBlock?'],
+                richPropertyValues: settings['richPropertyValues?'],
+                showCommandDoc: settings['showCommandDoc?'],
+
+                hidden: settings['hidden'],
+            },
+        }
+        this.appVersion = logseq.version
+        this.pluginVersion = logseq.baseInfo.version
+
+        this.preferredWorkflow = config.preferredWorkflow as 'now' | 'todo'
+        this.preferredThemeMode = config.preferredThemeMode
+        this.preferredFormat = config.preferredFormat
+        this.preferredLanguage = config.preferredLanguage
+        this.preferredDateFormat = config.preferredDateFormat
+        this.preferredStartOfWeek = config.preferredStartOfWeek as unknown as number
+
+        this.enabledTooltip = settings.enabledTooltip
+        this.enabledTimetracking = settings.enabledTimetracking
+        this.enabledLogicalOutdenting = settings.logicalOutdenting
+
+        this.enabledFlashcards = config.enabledFlashcards
+        this.enabledJournals = config.enabledJournals
+        this.enabledWhiteboards = settings['enableWhiteboards?']
+        this.enabledPropertyPages = settings['enabled?']
+
+        this.perferredPastingFile = settings.perferredPastingFile
+        this.showBrackets = config.showBrackets
     }
  }
