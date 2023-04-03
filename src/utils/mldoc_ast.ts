@@ -1,6 +1,6 @@
 import { Mldoc } from 'mldoc'
 import { ArgsContext, ILogseqContext } from '../context'
-import { cleanMacroArg, resolveAssetsURLProtocol } from './logseq'
+import { cleanMacroArg } from './logseq'
 
 import { html, p } from './other'
 
@@ -19,7 +19,7 @@ const MLDOC_OPTIONS = {
 }
 
 
-type MLDOC_Node = [ type: string | null, data?: any, additional?: any ]
+export type MLDOC_Node = [ type: string | null, data?: any, additional?: any ]
 type MLDOC_Node_withPositions = [
     MLDOC_Node,
     { start_pos: number | null, end_pos: number | null },
@@ -58,7 +58,7 @@ function transformTextRelatedToNode(
         .concat(new TextDecoder().decode(text_utf8.subarray(end_pos!)))
  }
 
-async function walkNodes<T>(
+async function walkNodes_async<T>(
     nodes: MLDOC_Node[],
     callback: (
         type: MLDOC_Node['0'],
@@ -78,6 +78,24 @@ async function walkNodes<T>(
     ).filter((item) => item !== null) as T[]
  }
 
+function walkNodes<T>(
+    nodes: MLDOC_Node[],
+    callback: (
+        type: MLDOC_Node['0'],
+        data: MLDOC_Node['1'],
+        node: MLDOC_Node,
+        process: (n: MLDOC_Node) => T | null,
+    ) => T | null
+): T[] {
+    function processNode(node: MLDOC_Node): T | null {
+        const [ type, data ] = node
+        if (type === null)
+            return null
+        return callback(type, data, node, processNode)
+    }
+    return nodes.map(processNode).filter((item) => item !== null) as T[]
+ }
+
 
 export class LogseqMarkup {
     context: ILogseqContext
@@ -85,15 +103,12 @@ export class LogseqMarkup {
     constructor(context: ILogseqContext) {
         this.context = context
     }
-
-    async toHTML(text: string, nestingLevel: number = 0): Promise<string> {
+    parse(text: string): MLDOC_Node[] {
         if (!text.trim())
-            return ''
+            return []
 
-        const unparsedNodes: string = Mldoc.parseInlineJson(
-            text,
-            JSON.stringify(MLDOC_OPTIONS),
-        )
+        const unparsedNodes: string = Mldoc.parseInlineJson(text,
+            JSON.stringify(MLDOC_OPTIONS))
 
         let nodes: MLDOC_Node[] = []
         try {
@@ -102,19 +117,17 @@ export class LogseqMarkup {
             console.debug(p`Failed to parse:`, {ast: unparsedNodes})
         }
 
-        console.debug(p`Building AST for text:`, {text, nodes})
-
-        walkNodes(nodes, async (type, data, node, processNode) => {
-            if (type === 'Plain')
-                node[1] = LogseqMarkup._transformUnorderedListsToAsteriskNotation(
-                    data as string)
-        })
-
-        return await new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile(nodes)
+        return nodes
     }
-
-    static _transformUnorderedListsToAsteriskNotation(text: string) {
-        return text.replaceAll(/^(\s*)-(\s*)/gum, '$1*$2')
+    async toHTML_async(text: string, nestingLevel: number = 0): Promise<string> {
+        const nodes: MLDOC_Node[] = this.parse(text)
+        console.debug(p`AST for text:`, {text, nodes})
+        return await new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile_async(nodes)
+    }
+    toHTML(text: string, nestingLevel: number = 0): string {
+        const nodes: MLDOC_Node[] = this.parse(text)
+        console.debug(p`AST for text:`, {text, nodes})
+        return new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile(nodes)
     }
 }
 
@@ -130,8 +143,8 @@ class MldocASTtoHTMLCompiler {
         this.nestingLevel = nestingLevel
     }
 
-    async compile(ast: MLDOC_Node[]) {
-        return (await walkNodes(ast, async (type, data, node, process): Promise<string> => {
+    async compile_async(ast: MLDOC_Node[]) {
+        return (await walkNodes_async(ast, async (type, data, node, process): Promise<string> => {
             switch (type) {
                 case 'Break_Line':         return '<br/>'
                 case 'Plain':              return data as string
@@ -179,7 +192,7 @@ class MldocASTtoHTMLCompiler {
                         switch (type)
                             { case 'Search': {
                                 const term = url ?? ''
-                                const [ protocol, link ] = this.resolveAssetsLink('', term)
+                                const [ protocol, link ] = resolveAssetsLink(this.context, '', term)
                                 if (protocol)
                                     return this.createImageLink(protocol, link, label, meta)
                                 return this.createPageRef(term, label)
@@ -188,12 +201,92 @@ class MldocASTtoHTMLCompiler {
                                 return this.createPageRef(name, label)
                             } case 'Block_ref': {
                                 const uuid = url ?? ''
-                                return await this.createBlockRef(uuid, label)
+                                return await this.createBlockRef_async(uuid, label)
                             } case 'Complex': {
                                 console.log({data});
                                 let protocol = (url ?? {}).protocol ?? ''
                                 let link = (url ?? {}).link ?? '';
-                                [ protocol, link ] = this.resolveAssetsLink(protocol, link)
+                                [ protocol, link ] = resolveAssetsLink(this.context, protocol, link)
+                                const inclusion = data.full_text.startsWith('!')
+                                if (inclusion)
+                                    return this.createImageLink(protocol, link, label, meta)
+                                return this.createLink(protocol, link, label)
+                            }
+                            default:
+                                console.warn(p`Unknown link type:`, {type, url})
+                        }
+                    }
+                }
+                default:
+                    console.warn(p`Unknown node type:`, {type, node})
+            }
+            return JSON.stringify(data ?? '')
+        })).join('')
+    }
+    compile(ast: MLDOC_Node[]) {
+        return (walkNodes(ast, (type, data, node, process): string => {
+            switch (type) {
+                case 'Break_Line':         return '<br/>'
+                case 'Plain':              return data as string
+                case 'Inline_Html':        return data as string
+                case 'Inline_Hiccup':      return data as string  // TODO?: support hiccup
+                case 'Footnote_Reference': return `<sup>${data.name || data.id}</sup>`
+                case 'Code':               return `<code>${data}</code>`
+                case 'Export_Snippet': {
+                    const [ _, snippet, code ] = node
+                    switch (snippet) {
+                        case 'html': return code as string
+                        default:
+                            console.warn(p`Unknown export snippet type:`, {snippet, code})
+                    }
+                    return (code ?? '') as string
+                }
+                case 'Emphasis': {
+                    const [ [emphasis], [subNode] ] = data
+                    const compiledValue = process(subNode) as (string | null)
+                    switch (emphasis) {
+                        case 'Strike_through': return `<s>${compiledValue}</s>`
+                        case 'Italic':         return `<i>${compiledValue}</i>`
+                        case 'Bold':           return `<b>${compiledValue}</b>`
+                        default:
+                            console.warn(p`Unknown emphasis type:`, {emphasis, subNode, compiledValue, data})
+                    }
+                    return compiledValue ?? ''
+                }
+                case 'Link': {
+                    const meta: string = data.metadata ?? ''
+
+                    let label = ''
+                    if (data.label && data.label.length) {
+                        const node = data.label[0]
+                        // handle case when label is plain text: to reduce `process`` call
+                        if (node && node.length && node[0] === 'Plain')
+                            label = node.at(1) ?? ''
+                        else
+                            label = process(node) as string
+                    }
+
+                    let url = ''
+                    if (data.url && data.url.length) {
+                        const [ type, url ] = data.url
+                        switch (type)
+                            { case 'Search': {
+                                const term = url ?? ''
+                                const [ protocol, link ] = resolveAssetsLink(this.context, '', term)
+                                if (protocol)
+                                    return this.createImageLink(protocol, link, label, meta)
+                                return this.createPageRef(term, label)
+                            } case 'Page_ref': {
+                                const name = url ?? ''
+                                return this.createPageRef(name, label)
+                            } case 'Block_ref': {
+                                const uuid = url ?? ''
+                                return this.createBlockRef(uuid, label)
+                            } case 'Complex': {
+                                console.log({data});
+                                let protocol = (url ?? {}).protocol ?? ''
+                                let link = (url ?? {}).link ?? '';
+                                [ protocol, link ] = resolveAssetsLink(this.context, protocol, link)
                                 const inclusion = data.full_text.startsWith('!')
                                 if (inclusion)
                                     return this.createImageLink(protocol, link, label, meta)
@@ -211,31 +304,7 @@ class MldocASTtoHTMLCompiler {
         })).join('')
     }
 
-    resolveAssetsLink(protocol: string, link: string) {
-        let needExpand = true
-        if (link.startsWith('/')) {
-            protocol = 'assets'
-            needExpand = false
-        }
-
-        const prefix = '../assets'
-        if (link.startsWith(prefix)) {
-            link = link.slice(prefix.length)
-            protocol = 'assets'
-        }
-
-        if (protocol === 'assets') {
-            protocol = 'file'
-            if (needExpand)
-                // @ts-expect-error
-                link = top!.LSPlugin.pluginHelpers.path.join(
-                    this.context.config.graph.path, 'assets', link)
-        }
-
-        return [protocol, link]
-    }
-
-    async createBlockRef(uuid: string, label: string): Promise<string> {
+    async createBlockRef_async(uuid: string, label: string): Promise<string> {
         const uuidLabel = `((${uuid}))`
         const block = await logseq.Editor.getBlock(uuid)
         if (!block)
@@ -253,7 +322,47 @@ class MldocASTtoHTMLCompiler {
                 label = block.content.split('\n', 1)[0]
                 if (this.nestingLevel <= MldocASTtoHTMLCompiler.maxNestingLevelForInlineBlockRefs)
                     // NOTE: recursion
-                    label = await new LogseqMarkup(this.context).toHTML(label, this.nestingLevel + 1)
+                    label = await new LogseqMarkup(this.context).toHTML_async(label, this.nestingLevel + 1)
+                else
+                    label = html`
+                        <span class="warning text-sm">Block reference nesting is too deep</span>
+                    `
+            }
+        }
+
+        return html`
+            <div class="block-ref-wrap inline"
+                 data-type="default"
+                >
+                <div style="display: inline;">
+                    <span class="block-ref"
+                          data-uuid="${uuid}"
+                          data-on-click="clickBlockRef"
+                        >${label}</span>
+                </div>
+            </div>
+        `
+    }
+    createBlockRef(uuid: string, label: string): string {
+        const uuidLabel = `((${uuid}))`
+        // @ts-expect-error
+        const block = top!.logseq.api.get_block(uuid)
+        if (!block)
+            return html`
+                <span title="Reference to non-existent block"
+                      class="warning mr-1"
+                    >${uuidLabel}</span>
+            `
+
+        label = label.trim()
+        if (!label) {
+            if (this.context.block.uuid === uuid)
+                label = `((...))`  // self reference
+            else {
+                label = block.content.split('\n', 1)[0]
+                if (this.nestingLevel <= MldocASTtoHTMLCompiler.maxNestingLevelForInlineBlockRefs)
+                    // NOTE: recursion
+                    label = new LogseqMarkup(this.context).toHTML(label, this.nestingLevel + 1)
                 else
                     label = html`
                         <span class="warning text-sm">Block reference nesting is too deep</span>
@@ -346,3 +455,28 @@ class MldocASTtoHTMLCompiler {
         `
     }
 }
+
+
+export function resolveAssetsLink(context: ILogseqContext, protocol: string, link: string) {
+    let needExpand = true
+    if (link.startsWith('/')) {
+        protocol = 'assets'
+        needExpand = false
+    }
+
+    const prefix = '../assets'
+    if (link.startsWith(prefix)) {
+        link = link.slice(prefix.length)
+        protocol = 'assets'
+    }
+
+    if (protocol === 'assets') {
+        protocol = 'file'
+        if (needExpand)
+            // @ts-expect-error
+            link = top!.LSPlugin.pluginHelpers.path.join(
+                context.config.graph.path, 'assets', link)
+    }
+
+    return [protocol, link]
+ }
