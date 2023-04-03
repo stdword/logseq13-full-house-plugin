@@ -1,5 +1,6 @@
 import { Mldoc } from 'mldoc'
-import { ILogseqContext } from '../context'
+import { ArgsContext, ILogseqContext } from '../context'
+import { cleanMacroArg, resolveAssetsURLProtocol } from './logseq'
 
 import { html, p } from './other'
 
@@ -160,6 +161,8 @@ class MldocASTtoHTMLCompiler {
                     return compiledValue ?? ''
                 }
                 case 'Link': {
+                    const meta: string = data.metadata ?? ''
+
                     let label = ''
                     if (data.label && data.label.length) {
                         const node = data.label[0]
@@ -176,6 +179,9 @@ class MldocASTtoHTMLCompiler {
                         switch (type)
                             { case 'Search': {
                                 const term = url ?? ''
+                                const [ protocol, link ] = this.resolveAssetsLink('', term)
+                                if (protocol)
+                                    return this.createImageLink(protocol, link, label, meta)
                                 return this.createPageRef(term, label)
                             } case 'Page_ref': {
                                 const name = url ?? ''
@@ -184,8 +190,14 @@ class MldocASTtoHTMLCompiler {
                                 const uuid = url ?? ''
                                 return await this.createBlockRef(uuid, label)
                             } case 'Complex': {
-                                const { protocol, link } = url ?? {}
-                                return this.createExternalLink(protocol, link, label)
+                                console.log({data});
+                                let protocol = (url ?? {}).protocol ?? ''
+                                let link = (url ?? {}).link ?? '';
+                                [ protocol, link ] = this.resolveAssetsLink(protocol, link)
+                                const inclusion = data.full_text.startsWith('!')
+                                if (inclusion)
+                                    return this.createImageLink(protocol, link, label, meta)
+                                return this.createLink(protocol, link, label)
                             }
                             default:
                                 console.warn(p`Unknown link type:`, {type, url})
@@ -197,6 +209,30 @@ class MldocASTtoHTMLCompiler {
             }
             return JSON.stringify(data ?? '')
         })).join('')
+    }
+
+    resolveAssetsLink(protocol: string, link: string) {
+        let needExpand = true
+        if (link.startsWith('/')) {
+            protocol = 'assets'
+            needExpand = false
+        }
+
+        const prefix = '../assets'
+        if (link.startsWith(prefix)) {
+            link = link.slice(prefix.length)
+            protocol = 'assets'
+        }
+
+        if (protocol === 'assets') {
+            protocol = 'file'
+            if (needExpand)
+                // @ts-expect-error
+                link = top!.LSPlugin.pluginHelpers.path.join(
+                    this.context.config.graph.path, 'assets', link)
+        }
+
+        return [protocol, link]
     }
 
     async createBlockRef(uuid: string, label: string): Promise<string> {
@@ -261,7 +297,7 @@ class MldocASTtoHTMLCompiler {
             </span>
         `
     }
-    createExternalLink(protocol: string, link: string, label: string): string {
+    createLink(protocol: string, link: string, label: string): string {
         label = label.trim()
         if (protocol)
             link = `${protocol}://${link}`
@@ -273,6 +309,40 @@ class MldocASTtoHTMLCompiler {
                class="external-link"
                data-on-click=""
                 >${label}</a>
+        `
+    }
+    createImageLink(protocol: string, link: string, label: string, meta: string): string {
+        if (meta.startsWith('{'))
+            meta = meta.slice(1)
+        if (meta.endsWith('}'))
+            meta = meta.slice(0, -1)
+
+        const argsMeta_ = meta.split(',').map(a => cleanMacroArg(a, {escape: false, unquote: true}))
+        const argsMeta = ArgsContext.parse(argsMeta_)
+        const { width, height } = Object.fromEntries(argsMeta)
+
+        label = label.trim()
+        const link_ = link
+        if (protocol)
+            link = `${protocol}://${link}`
+
+        return html`
+                <div class="asset-container">
+                    <img class="rounded-sm relative" loading="lazy" src="${link}" ${label ? `title="${label}"` : ''} ${height ? `height="${height}"` : ''} ${width ? `width="${width}"` : ''} />
+                    <div class="asset-overlay"></div>
+                    <div class="asset-action-bar" aria-hidden="true">
+                        <div class="flex"></div>
+                        <a class="asset-action-btn" href="${link}" title="${link}" data-on-click="" tabindex="-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-external-link" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                               <path d="M11 7h-5a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-5"></path>
+                               <path d="M10 14l10 -10"></path>
+                               <path d="M15 4l5 0l0 5"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    </div>
+                </div>
         `
     }
 }

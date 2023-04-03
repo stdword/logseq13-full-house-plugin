@@ -221,9 +221,9 @@ export class ArgsContext extends Context {
     public _args: string[]
     public _hideUndefinedMode = false
 
-    static create(templateRef: LogseqReference, args: string[]) {
-        const entries: [string, string | boolean][] = [['0', templateRef.original]]
-        for (let [ index, value ] of Object.entries(args)) {
+    static parse(args: string[]): [string, string][] {
+        const entries: [string, string][] = []
+        for (let [ _, value ] of Object.entries(args)) {
             // Check whether it is named arg
 
             // # Strict rules for name of the arg
@@ -249,6 +249,7 @@ export class ArgsContext extends Context {
 
             // TODO: create a setting to control strictness
 
+            let name = ''
             if (value.startsWith('::')) {
                 // special case: user has disabled named-arg parsing
                 value = value.slice(1)
@@ -257,17 +258,29 @@ export class ArgsContext extends Context {
                 const easyRgexp= /^:(\S+)\s*/ui
                 const match = value.match(easyRgexp)
                 if (match) {
-                    const [ consumed, name ] = match
-                    let namedValue: string | boolean = value.slice(consumed.length)
-                    if (!namedValue)
-                        namedValue = true
-                    else
-                        namedValue = cleanMacroArg(namedValue, {escape: false, unquote: true})
-
-                    entries.push([ name, namedValue ])
+                    let consumed: string
+                    [ consumed, name ] = match
+                    value = value.slice(consumed.length)
+                    if (value)
+                        value = cleanMacroArg(value, {escape: false, unquote: true})
                 }
             }
 
+            entries.push([ name, value ])
+        }
+
+        return entries
+    }
+    static create(templateRef: LogseqReference, args: string[]) {
+        const entries: [string, string | boolean][] = [['0', templateRef.original]]
+
+        for (let [ index, [name, value_] ] of Object.entries(ArgsContext.parse(args))) {
+            let value: string | boolean = value_
+            if (name && !value)
+                value = true
+
+            if (name)
+                entries.push([ name, value ])
             entries.push([ (+index + 1).toString(), value ])
             entries.push([ `$${+index + 1}`, value ])
         }
@@ -335,7 +348,7 @@ export class ConfigContext extends Context {
         )
     }
 
-    constructor(settings, currentGraph, config, logseq) {
+    constructor(settings, currentGraph, config, other) {
         super()
 
         this.graph = {
@@ -369,7 +382,7 @@ export class ConfigContext extends Context {
                 hidden: settings['hidden'],
             },
         }
-        this.appVersion = logseq.version
+        this.appVersion = other.version
         this.pluginVersion = logseq.baseInfo.version
 
         this.preferredWorkflow = config.preferredWorkflow as 'now' | 'todo'
