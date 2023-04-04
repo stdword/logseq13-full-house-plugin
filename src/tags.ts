@@ -1,7 +1,7 @@
 import { log } from 'console'
 import { BlockContext, Context, dayjs, Dayjs, ILogseqContext, PageContext }  from './context'
 
-import { getPage, isEmptyString, isObject, isUUID, LogseqMarkup, LogseqReference, MLDOC_Node, p, resolveAssetsLink } from './utils'
+import { getPage, isEmptyString, isObject, isUUID, LogseqMarkup, LogseqReference, MLDOC_Node, p, resolveAssetsLink, unquote } from './utils'
 
 
 const isoDateFromat = 'YYYY-MM-DD'
@@ -25,6 +25,7 @@ type ITemplateTagsContext = {
         parseMarkup: (text: string) => MLDOC_Node[]
         toHTML: (text: string) => string
         asset: (name: string) => string
+        color: (value: string) => string
     }
 
     date: {
@@ -148,6 +149,14 @@ function zeros(value: string | number, width: number = 2): string {
     return fill(value, '0', width)
  }
 
+function color(value) {
+    // TODO: rgb(r, g, b) & others support
+    value = _arg(value)
+    value = unquote(value)
+    if (!value.startsWith('#'))
+        value = `#${value}`
+    return value
+ }
 
 export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsContext {
     const todayObj = dayjs()
@@ -181,6 +190,7 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
             parseMarkup,
             toHTML,
             asset,
+            color,
         }) as unknown as ITemplateTagsContext['dev'],
         date: {
             yesterday: yesterdayObj,
