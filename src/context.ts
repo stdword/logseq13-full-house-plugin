@@ -30,6 +30,10 @@ dayjs.extend(logseqPlugin)
 
 
 export interface ILogseqContext {
+    identity: {
+        slot: string,
+        key: string,
+    }
     config: ConfigContext
     page: PageContext
     block: BlockContext

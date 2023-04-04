@@ -12,6 +12,7 @@ import { LogseqMarkup } from './utils/mldoc_ast'
  * @raises StateError: Arg `:page` doesn't exist or improperly specified
  */
 async function getCurrentContext(
+    slot: string,
     template: Template,
     blockUUID: string,
     argsContext: ArgsContext,
@@ -53,6 +54,7 @@ async function getCurrentContext(
 
     argsContext._hideUndefinedMode = true
     return {
+        identity: { slot, key: slot.split('__', 2)[1].trim() },
         config: await ConfigContext.get(),
         page: contextPage ? PageContext.createFromEntity(contextPage) : currentPageContext,
         block: BlockContext.createFromEntity(currentBlock, { page: currentPageContext }),
@@ -160,6 +162,7 @@ async function isInsideMacro(blockUUID: string) {
 export const renderTemplateInBlock =
     lockOn( ([uuid, ..._]) => uuid ) (
 async (
+    slot: string,
     uuid: string,
     templateRef: LogseqReference,
     rawCode: RendererMacro,
@@ -179,7 +182,7 @@ async (
         return
 
     const template = await getTemplate(templateRef)
-    const context = await getCurrentContext(template, uuid, argsContext)
+    const context = await getCurrentContext(slot, template, uuid, argsContext)
     if (!context)
         return
 
@@ -251,7 +254,7 @@ export async function renderTemplateView(
         return
 
     const template = await getTemplate(templateRef)
-    const context = await getCurrentContext(template, blockUUID, argsContext)
+    const context = await getCurrentContext(slot, template, blockUUID, argsContext)
     if (!context)
         return
 
@@ -324,9 +327,8 @@ export async function renderTemplateView(
             >${view}</span>
     `
 
-    const identity = slot.slice(1 + slot.split('_', 1).length).trim()
     logseq.provideUI({
-        key: `template-view_${identity}`,
+        key: `template-view_${context.identity.key}`,
         slot: slot,
         reset: true,
         template: content,

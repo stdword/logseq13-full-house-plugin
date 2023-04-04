@@ -199,7 +199,7 @@ function handleTemplateCommand(command: RendererMacro) {
 
         console.debug(p`Rendering template`, {uuid, templateRef, args})
         await handleLogicErrors(async () => {
-            await renderTemplateInBlock(uuid, templateRef, raw, args)
+            await renderTemplateInBlock(slot, uuid, templateRef, raw, args)
         })
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
