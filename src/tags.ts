@@ -128,13 +128,16 @@ function empty(obj: string | any, fallback: string = ''): string {
         return fallback
     return obj
  }
-function when(condition: boolean | any, obj: string | any): string {
-    condition = !!condition
-    obj ??= ''
-    obj = obj.toString()
+function when(obj: boolean | any, result: string | any): string {
+    const condition = !!obj
 
-    if (condition)
-        return obj
+    if (condition) {
+        obj = _arg(obj)
+        return _arg(result)
+            .replaceAll('${_}', obj)
+            .replaceAll('${}', obj)
+            .replaceAll('$1', obj)
+    }
 
     return ''
  }
