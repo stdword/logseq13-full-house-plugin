@@ -72,7 +72,6 @@ async function main() {
         const commandLabel = 'Insert 🏛template'
         const commandGuide = commandTemplate
             .arg('TEMPLATE NAME')
-            .arg('(optional) page reference')
             .toString()
 
         logseq.App.registerCommandPalette(

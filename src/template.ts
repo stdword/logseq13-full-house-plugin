@@ -136,7 +136,6 @@ export class Template implements ITemplate {
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.titleProperty)
 
         this._initialized = true
-        console.info(p`Created ${this}`)
     }
     checkInit() {
         if (!this._initialized)
