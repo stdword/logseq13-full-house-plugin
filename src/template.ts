@@ -117,9 +117,16 @@ export class Template implements ITemplate {
         if (this._initialized)
             return
 
-        // remove id prop from every block
         await walkBlockTree(this.block as IBlockNode, async (b) => {
+            // remove id prop from every block
             PropertiesUtils.deleteProperty(b as BlockEntity, PropertiesUtils.idProperty)
+
+            // unwrap triple back-ticks block: special case for long templates
+            const [ start, end ] = [ /^```.*?\n/u, /\n```$/u ]
+            const matchStart = b.content.match(start)
+            const matchEnd = b.content.match(end)
+            if (matchStart && matchEnd)
+                b.content = b.content.slice(matchStart[0].length, -matchEnd[0].length)
         })
 
         // TODO: allow user to control erasing standard props
