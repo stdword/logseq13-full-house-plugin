@@ -40,7 +40,11 @@ type ITemplateTagsContext = {
 
 // These template tags could be used in raw javascript template code
 // → type declarations could be violated
-// → use .toString() where necessary
+// → use this protection where necessary
+function _arg(v: any): string {
+    v ??= ''
+    return v.toString()
+ }
 
 function _tryAsDateString(item: string): string | null {
     const day = dayjs(item, isoDateFromat, true)  // strict mode
@@ -51,11 +55,11 @@ function _tryAsDateString(item: string): string | null {
     return null
  }
 function _ref(name: string): string {
-    name = name.toString()
+    name = _arg(name)
     return `[[${name}]]`
  }
 function _bref(uuid: string): string {
-    uuid = uuid.toString()
+    uuid = _arg(uuid)
     return `((${uuid}))`
  }
 
@@ -118,9 +122,7 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
     return `{{embed ${r}}}`
  }
 function empty(obj: string | any, fallback: string = ''): string {
-    obj ??= ''
-    obj = obj.toString()
-
+    obj = _arg(obj)
     if (isEmptyString(obj))
         return fallback
     return obj
@@ -136,7 +138,9 @@ function when(condition: boolean | any, obj: string | any): string {
     return ''
  }
 function fill(value: string | number, char: string, width: number): string {
-    value = value.toString()
+    value = _arg(value)
+    char = _arg(char)
+    width = Number(_arg(width))
     const count = Math.max(0, width - value.length)
     return char.repeat(count) + value
  }
