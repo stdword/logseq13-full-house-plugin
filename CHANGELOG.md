@@ -1,3 +1,16 @@
+# [2.3.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.2.0...v2.3.0) (2023-04-05)
+
+
+### Features
+
+* **context:** add extended graph info to `c.config` context var ([d15c817](https://github.com/stdword/logseq13-full-house-plugin/commit/d15c8178cd3437d241f0a505c0455cbed2f0b2fe))
+* **context:** added c.identity.slot & c.identity.key to use with css inside the view ([56fad04](https://github.com/stdword/logseq13-full-house-plugin/commit/56fad04f119014e0f5aa45edd5dea5450966d90a))
+* **template tags:** `when` now could reference its condition obj ([2df9944](https://github.com/stdword/logseq13-full-house-plugin/commit/2df99448dc1820ec77270540ca4129b7ae37f1ee))
+* **template tags:** added dev.color ([7564a77](https://github.com/stdword/logseq13-full-house-plugin/commit/7564a77f10052ab5c4ea0e0b1e336412e15ea1c2))
+* **template tags:** added when, dev.parseMarkup, dev.toHTML, dev.asset & update ref ([03f5f86](https://github.com/stdword/logseq13-full-house-plugin/commit/03f5f86e80e63687e52b0b6560f0c6022a0accc7))
+* unwrap «```» before rendering any block ([0e7d1cd](https://github.com/stdword/logseq13-full-house-plugin/commit/0e7d1cd5e0f57b95aa62a78ab5c5a0ad0f351e20))
+* **views:** support special assets url schema & links to images ([f51b31b](https://github.com/stdword/logseq13-full-house-plugin/commit/f51b31bea12c119384fcb1677db5155c10f63be8))
+
 # [2.2.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.1.0...v2.2.0) (2023-04-02)
 
 
