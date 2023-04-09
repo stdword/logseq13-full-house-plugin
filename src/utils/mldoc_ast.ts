@@ -259,7 +259,7 @@ class MldocASTtoHTMLCompiler {
                     let label = ''
                     if (data.label && data.label.length) {
                         const node = data.label[0]
-                        // handle case when label is plain text: to reduce `process`` call
+                        // handle case when label is plain text: to reduce `process` call
                         if (node && node.length && node[0] === 'Plain')
                             label = node.at(1) ?? ''
                         else
@@ -273,7 +273,8 @@ class MldocASTtoHTMLCompiler {
                             { case 'Search': {
                                 const term = url ?? ''
                                 const [ protocol, link ] = resolveAssetsLink(this.context, '', term)
-                                if (protocol)
+                                const inclusion = data.full_text.startsWith('!')
+                                if (inclusion && protocol)
                                     return this.createImageLink(protocol, link, label, meta)
                                 return this.createPageRef(term, label)
                             } case 'Page_ref': {
