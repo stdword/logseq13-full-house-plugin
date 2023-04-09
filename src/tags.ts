@@ -1,7 +1,9 @@
-import { log } from 'console'
+import '@logseq/libs'
+import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
+
 import { BlockContext, Context, dayjs, Dayjs, ILogseqContext, PageContext }  from './context'
 
-import { getPage, isEmptyString, isObject, isUUID, LogseqMarkup, LogseqReference, MLDOC_Node, p, resolveAssetsLink, unquote } from './utils'
+import { getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID, LogseqMarkup, LogseqReference, MLDOC_Node, p, parseReference, resolveAssetsLink, unquote, walkBlockTree } from './utils'
 
 
 const isoDateFromat = 'YYYY-MM-DD'
@@ -26,6 +28,10 @@ type ITemplateTagsContext = {
         toHTML: (text: string) => string
         asset: (name: string) => string
         color: (value: string) => string
+    }
+
+    query: {
+        links: Function
     }
 
     date: {
@@ -152,6 +158,20 @@ function zeros(value: string | number, width: number = 2): string {
     return fill(value, '0', width)
  }
 
+/* dev */
+function parseMarkup(context: ILogseqContext,text: string): MLDOC_Node[] {
+    text = text.toString()
+    return new LogseqMarkup(context).parse(text)
+ }
+function toHTML(context: ILogseqContext,text: string): string {
+    text = text.toString()
+    return new LogseqMarkup(context).toHTML(text)
+ }
+function asset(context: ILogseqContext,name: string) {
+    name = name.toString()
+    const [ protocol, link ] = resolveAssetsLink(context, 'assets', name)
+    return `${protocol}://${link}`
+ }
 function color(value) {
     // TODO: rgb(r, g, b) & others support
     value = _arg(value)
@@ -160,6 +180,59 @@ function color(value) {
         value = `#${value}`
     return value
  }
+
+/* search */
+//   where: source
+//   how: tree-path-spec, by prop, by ancestor?
+//   what:
+//     links (external, local, assets, images) — how: labeled, with-meta, inclusion
+//     pages, tag-pages, ref-pages
+//     blocks
+
+async function* links(
+    context: ILogseqContext,
+    source: string | PageContext | BlockContext,
+    criteria?: (protocol: string, link: string) => boolean,
+    path: string = '',
+) {
+    if (source instanceof PageContext)
+        source = source.name_!
+
+    if (source instanceof BlockContext)
+        source = source.uuid!
+
+    source = source.toString()
+    const sourceRef = parseReference(source)
+    if (!sourceRef)
+        return
+
+    let blocks: BlockEntity[] = []
+    if (['uuid', 'block'].includes(sourceRef.type)) {
+        const [ block ] = await getBlock(sourceRef, { includeChildren: true })
+        if (block)
+            blocks = [ block ]
+    } else
+        blocks = await logseq.Editor.getPageBlocksTree(sourceRef.value as string) ?? []
+
+    for (const block of blocks) {
+        const linksInBlock: string[] = []
+        await walkBlockTree(block as IBlockNode, async (b, lvl) => {
+            const ast = new LogseqMarkup(context).parse(b.content)
+            for (const node of ast) {
+                if (node[0] === 'Link') {
+                    const url = (node[1] ?? {}).url
+                    if (url[0] === 'Complex') {
+                        const { protocol, link } = url[1]
+                        linksInBlock.push(`${protocol}://${link}`)
+                    }
+                }
+            }
+        })
+
+        yield* linksInBlock
+    }
+}
+
 
 export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsContext {
     const todayObj = dayjs()
@@ -171,28 +244,17 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
     const tomorrow = tomorrowObj.format(isoDateFromat)
     const time = dayjs().format('HH:mm')
 
-    function parseMarkup(text: string): MLDOC_Node[] {
-        text = text.toString()
-        return new LogseqMarkup(context).parse(text)
-    }
-    function toHTML(text: string): string {
-        text = text.toString()
-        return new LogseqMarkup(context).toHTML(text)
-    }
-    function asset(name: string) {
-        name = name.toString()
-        const [ protocol, link ] = resolveAssetsLink(context, 'assets', name)
-        return `${protocol}://${link}`
-    }
-
     return {
         ref, bref, embed,
         empty, when, fill, zeros,
         yesterday, today, tomorrow, time,
+        query: {
+            links: links.bind(null, context),
+        },
         dev: new Context({
-            parseMarkup,
-            toHTML,
-            asset,
+            parseMarkup: parseMarkup.bind(null, context),
+            toHTML: toHTML.bind(null, context),
+            asset: asset.bind(null, context),
             color,
         }) as unknown as ITemplateTagsContext['dev'],
         date: {
