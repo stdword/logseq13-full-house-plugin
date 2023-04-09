@@ -43,6 +43,25 @@ async function getCurrentContext(
         contextPage = pageExists
     }
 
+    // @ts-expect-error
+    const contextBlockRef = parseReference(argsContext.block as string ?? '')
+    let contextBlock: BlockEntity | null = null
+    if (contextBlockRef) {
+        if (!['block', 'uuid'].includes(contextBlockRef.type))
+            throw new StateError(
+                `[:p "Argument " [:code ":block"] " should be a block reference"]`
+            )
+
+        // TODO: use query instead of ref
+        const [ blockExists, _] = await getBlock(contextBlockRef, { includeChildren: false })
+        if (!blockExists)
+            throw new StateError(
+                `[:p "Block " [:i "${contextBlockRef.original}"]" doesn't exist"]`,
+                {contextBlockRef})
+
+        contextBlock = blockExists
+    }
+
     const currentBlock = await logseq.Editor.getBlock(blockUUID)
     if (!currentBlock) {
         console.debug(p`logseq issue → rendering non-existed block / slot`)
@@ -51,13 +70,14 @@ async function getCurrentContext(
 
     const currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
     const currentPageContext = PageContext.createFromEntity(currentPage)
+    const currentBlockContext = BlockContext.createFromEntity(currentBlock, { page: currentPageContext })
 
     argsContext._hideUndefinedMode = true
     return {
         identity: { slot, key: slot.split('__', 2)[1].trim() },
         config: await ConfigContext.get(),
         page: contextPage ? PageContext.createFromEntity(contextPage) : currentPageContext,
-        block: BlockContext.createFromEntity(currentBlock, { page: currentPageContext }),
+        block: contextBlock ? BlockContext.createFromEntity(contextBlock) : currentBlockContext,
         args: argsContext,
     }
  }
