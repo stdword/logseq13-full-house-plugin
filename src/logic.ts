@@ -24,6 +24,14 @@ async function getCurrentContext(
         return null
     }
 
+    const argsProps = PropertiesUtils.getProperties(template.block, ArgsContext.propertyPrefix).values
+    for (const [ key, value ] of Object.entries(argsProps))
+        if (key.startsWith(ArgsContext.propertyPrefix)) {
+            const name = key.slice(ArgsContext.propertyPrefix.length)
+            if (argsContext[name] === undefined)
+                argsContext[name] = value
+        }
+
     // @ts-expect-error
     const contextPageRef = parseReference(argsContext.page as string ?? '')
     let contextPage: PageEntity | null = null

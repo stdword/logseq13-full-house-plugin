@@ -365,7 +365,13 @@ export class PropertiesUtils {
         text.replaceAll(propertyLine, (m, name) => {propertyNames.push(name); return m})
         return propertyNames
     }
-    static getProperties(obj: BlockEntity | PageEntity) {
+    static getProperties(obj: BlockEntity | PageEntity, prefixedWith: string = '') {
+        if (prefixedWith) {
+            if (!prefixedWith.endsWith('-'))
+                throw new Error('Dash at the end is required to be a property prefix')
+        }
+        const [ prefixReal, prefixCamel ] = [ prefixedWith, prefixedWith.slice(0, -1).toLowerCase() ]
+
         const values: Properties = {}
         const refs: PropertiesRefs = {}
 
@@ -375,8 +381,21 @@ export class PropertiesUtils {
 
         for (const name of names) {
             const p = PropertiesUtils.getProperty(obj, name)
-            values[name] = values[p.name] = p.text
-            refs[name] = refs[p.name] = p.refs
+            let prefixed = false
+            if (prefixedWith) {
+                if (name.startsWith(prefixReal))
+                    prefixed = true
+                else if (p.name.startsWith(prefixCamel)) {
+                    const nextLetter: string = p.name[prefixCamel.length]
+                    if (nextLetter.toUpperCase() === nextLetter)
+                        prefixed = true
+                }
+            }
+
+            if (!prefixedWith || prefixed) {
+                values[name] = values[p.name] = p.text
+                refs[name] = refs[p.name] = p.refs
+            }
         }
 
         return {values, refs}

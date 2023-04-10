@@ -222,6 +222,8 @@ export class BlockContext extends Context {
 }
 
 export class ArgsContext extends Context {
+    static propertyPrefix = 'arg-'
+
     public _args: string[]
     public _hideUndefinedMode = false
 
