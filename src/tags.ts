@@ -191,6 +191,8 @@ function get(context: ILogseqContext, path: string): string {
 
     path = _arg(path)
 
+    path = path.replaceAll('@', '.props.')
+
     const parts = path.split('.')
     if (parts[0] === 'c')
         parts.shift()
@@ -198,7 +200,7 @@ function get(context: ILogseqContext, path: string): string {
     return getByPath(context, parts) ?? ''
  }
 
-/* search */
+/* query */
 //   where: source
 //   how: tree-path-spec, by prop, by ancestor?
 //   what:
