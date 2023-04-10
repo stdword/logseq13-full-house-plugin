@@ -159,26 +159,43 @@ function zeros(value: string | number, width: number = 2): string {
  }
 
 /* dev */
-function parseMarkup(context: ILogseqContext,text: string): MLDOC_Node[] {
+function parseMarkup(context: ILogseqContext, text: string): MLDOC_Node[] {
     text = text.toString()
     return new LogseqMarkup(context).parse(text)
  }
-function toHTML(context: ILogseqContext,text: string): string {
+function toHTML(context: ILogseqContext, text: string): string {
     text = text.toString()
     return new LogseqMarkup(context).toHTML(text)
  }
-function asset(context: ILogseqContext,name: string) {
+function asset(context: ILogseqContext, name: string): string {
     name = name.toString()
     const [ protocol, link ] = resolveAssetsLink(context, 'assets', name)
     return `${protocol}://${link}`
  }
-function color(value) {
+function color(value: string): string {
     // TODO: rgb(r, g, b) & others support
     value = _arg(value)
     value = unquote(value)
     if (!value.startsWith('#'))
         value = `#${value}`
     return value
+ }
+function get(context: ILogseqContext, path: string): string {
+    function getByPath(obj: any, parts: string[]) {
+        while (parts.length)
+            if (typeof obj == 'object')
+                obj = obj[parts.shift() as string]
+            else return undefined
+        return obj
+    }
+
+    path = _arg(path)
+
+    const parts = path.split('.')
+    if (parts[0] === 'c')
+        parts.shift()
+
+    return getByPath(context, parts) ?? ''
  }
 
 /* search */
@@ -231,7 +248,7 @@ async function* links(
 
         yield* linksInBlock
     }
-}
+ }
 
 
 export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsContext {
@@ -248,6 +265,7 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
         ref, bref, embed,
         empty, when, fill, zeros,
         yesterday, today, tomorrow, time,
+
         query: {
             links: links.bind(null, context),
         },
@@ -256,6 +274,7 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
             toHTML: toHTML.bind(null, context),
             asset: asset.bind(null, context),
             color,
+            get: get.bind(null, context),
         }) as unknown as ITemplateTagsContext['dev'],
         date: {
             yesterday: yesterdayObj,
