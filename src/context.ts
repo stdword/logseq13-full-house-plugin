@@ -227,9 +227,9 @@ export class ArgsContext extends Context {
     public _args: string[]
     public _hideUndefinedMode = false
 
-    static parse(args: string[]): [string, string][] {
-        const entries: [string, string][] = []
-        for (let [ _, value ] of Object.entries(args)) {
+    static parse(args: string[]): [string, string | boolean][] {
+        const entries: [string, string | boolean][] = []
+        for (let value_ of args) {
             // Check whether it is named arg
 
             // # Strict rules for name of the arg
@@ -256,6 +256,8 @@ export class ArgsContext extends Context {
             // TODO: create a setting to control strictness
 
             let name = ''
+            let value: string | boolean = value_
+
             if (value.startsWith('::')) {
                 // special case: user has disabled named-arg parsing
                 value = value.slice(1)
@@ -264,11 +266,18 @@ export class ArgsContext extends Context {
                 const easyRgexp= /^:(\S+)\s*/ui
                 const match = value.match(easyRgexp)
                 if (match) {
-                    let consumed: string
-                    [ consumed, name ] = match
+                    name = match[1]
+
+                    const consumed = match[0]
                     value = value.slice(consumed.length)
-                    if (value)
+
+                    if (!value)
+                        value = true
+                    else {
                         value = cleanMacroArg(value, {escape: false, unquote: true})
+                        if (!value)
+                            value = false
+                    }
                 }
             }
 
@@ -280,11 +289,7 @@ export class ArgsContext extends Context {
     static create(templateRef: LogseqReference, args: string[]) {
         const entries: [string, string | boolean][] = [['0', templateRef.original]]
 
-        for (let [ index, [name, value_] ] of Object.entries(ArgsContext.parse(args))) {
-            let value: string | boolean = value_
-            if (name && !value)
-                value = true
-
+        for (let [ index, [name, value] ] of Object.entries(ArgsContext.parse(args))) {
             if (name)
                 entries.push([ name, value ])
             entries.push([ (+index + 1).toString(), value ])
