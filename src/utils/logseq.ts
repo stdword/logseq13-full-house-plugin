@@ -302,7 +302,8 @@ export class PropertiesUtils {
         text = text.replaceAll(/(?<=_)(\w)/g, (m, ch) => ch.toUpperCase())
         text = text.replaceAll('-', '')
         text = text.replaceAll('_', '')
-        text = text[0].toLowerCase() + text.slice(1)
+        if (text)
+            text = text[0].toLowerCase() + text.slice(1)
         return text
     }
 
@@ -370,7 +371,8 @@ export class PropertiesUtils {
             if (!prefixedWith.endsWith('-'))
                 throw new Error('Dash at the end is required to be a property prefix')
         }
-        const [ prefixReal, prefixCamel ] = [ prefixedWith, prefixedWith.slice(0, -1).toLowerCase() ]
+        const prefixReal = prefixedWith
+        const prefixCamel = PropertiesUtils.toCamelCase(prefixedWith)
 
         const values: Properties = {}
         const refs: PropertiesRefs = {}
@@ -381,8 +383,9 @@ export class PropertiesUtils {
 
         for (const name of names) {
             const p = PropertiesUtils.getProperty(obj, name)
-            let prefixed = false
-            if (prefixedWith) {
+
+            let prefixed = !prefixedWith
+            if (!prefixed) {
                 if (name.startsWith(prefixReal))
                     prefixed = true
                 else if (p.name.startsWith(prefixCamel)) {
@@ -392,7 +395,7 @@ export class PropertiesUtils {
                 }
             }
 
-            if (!prefixedWith || prefixed) {
+            if (prefixed) {
                 values[name] = values[p.name] = p.text
                 refs[name] = refs[p.name] = p.refs
             }
