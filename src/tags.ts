@@ -28,9 +28,6 @@ type ITemplateTagsContext = {
         toHTML: (text: string) => string
         asset: (name: string) => string
         color: (value: string) => string
-    }
-
-    query: {
         links: Function
     }
 
@@ -222,48 +219,57 @@ function get(context: ILogseqContext, path: string): string {
 //     pages, tag-pages, ref-pages
 //     blocks
 
-async function* links(
+function parseLinks(context: ILogseqContext, text: string): string[] {
+    const links: string[] = []
+
+    const ast = new LogseqMarkup(context).parse(text)
+    for (const [ type, node ] of ast)
+        if (type === 'Link') {
+            const [ type, url ] = node.url
+            if (type === 'Complex') {
+                const { protocol, link } = url
+                links.push(`${protocol}://${link}`)
+            }
+        }
+
+    return links
+ }
+
+async function links(
     context: ILogseqContext,
     source: string | PageContext | BlockContext,
-    criteria?: (protocol: string, link: string) => boolean,
-    path: string = '',
-) {
+    includeChildren: boolean = false,
+): Promise<string[]> {
+    if (typeof source === 'string')
+        return parseLinks(context, source)
+
     if (source instanceof PageContext)
         source = source.name_!
 
     if (source instanceof BlockContext)
         source = source.uuid!
 
-    source = source.toString()
+    source = _arg(source)
     const sourceRef = parseReference(source)
     if (!sourceRef)
-        return
+        return []
 
     let blocks: BlockEntity[] = []
     if (['uuid', 'block'].includes(sourceRef.type)) {
-        const [ block ] = await getBlock(sourceRef, { includeChildren: true })
+        const [ block ] = await getBlock(sourceRef, { includeChildren })
         if (block)
             blocks = [ block ]
     } else
         blocks = await logseq.Editor.getPageBlocksTree(sourceRef.value as string) ?? []
 
-    for (const block of blocks) {
-        const linksInBlock: string[] = []
+    const linksInBlock: string[] = []
+    for (const block of blocks)
         await walkBlockTree(block as IBlockNode, async (b, lvl) => {
-            const ast = new LogseqMarkup(context).parse(b.content)
-            for (const node of ast) {
-                if (node[0] === 'Link') {
-                    const url = (node[1] ?? {}).url
-                    if (url[0] === 'Complex') {
-                        const { protocol, link } = url[1]
-                        linksInBlock.push(`${protocol}://${link}`)
-                    }
-                }
-            }
+            for (const link of parseLinks(context, b.content))
+                linksInBlock.push(link)
         })
 
-        yield* linksInBlock
-    }
+    return linksInBlock
  }
 
 
@@ -282,15 +288,13 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
         empty, when, fill, zeros,
         yesterday, today, tomorrow, time,
 
-        query: {
-            links: links.bind(null, context),
-        },
         dev: new Context({
             parseMarkup: parseMarkup.bind(null, context),
             toHTML: toHTML.bind(null, context),
             asset: asset.bind(null, context),
             color,
             get: get.bind(null, context),
+            links: parseLinks.bind(null, context),
         }) as unknown as ITemplateTagsContext['dev'],
         date: {
             yesterday: yesterdayObj,
