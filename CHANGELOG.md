@@ -1,3 +1,24 @@
+# [2.4.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.3.0...v2.4.0) (2023-04-11)
+
+
+### Bug Fixes
+
+* **args:** proper properties overriding with args ([98db356](https://github.com/stdword/logseq13-full-house-plugin/commit/98db35678468c0cce2bfa0df1904b948d406a513))
+* html escape rendering error messages ([ad6665a](https://github.com/stdword/logseq13-full-house-plugin/commit/ad6665a94d3d5edce2a715c7e29823baf9dd4a1f))
+* **template tags:** improve assets detection & fix dev.get ([479e388](https://github.com/stdword/logseq13-full-house-plugin/commit/479e388d80929adacc9733d7ab9aec5b79cc6d11))
+* **views:** render image link only when "!" specified ([2f53eb2](https://github.com/stdword/logseq13-full-house-plugin/commit/2f53eb263359643f376841c3babd5be67ee0c708))
+
+
+### Features
+
+* **args:** default values for args via template block properties ([7161e1d](https://github.com/stdword/logseq13-full-house-plugin/commit/7161e1d13fedc5f5811892401536560b5ce674bb))
+* **args:** specify false value for argument ([2937074](https://github.com/stdword/logseq13-full-house-plugin/commit/2937074f2c7513fd4b4833e6241cffde510b0fbd))
+* code block parsing & assets protocol supporting for template tags ([b75ff38](https://github.com/stdword/logseq13-full-house-plugin/commit/b75ff38bde5a6da1ec732ec7972c07bfa3a0a3de))
+* **context:** special `:block` arg to replace `c.block` context variable (behaves like a `:page`) ([d96640f](https://github.com/stdword/logseq13-full-house-plugin/commit/d96640f9cd9438a08e2d7557f3f7d8bbefbf71b1))
+* support @-syntax for getting properties with dev.get ([3b0d95a](https://github.com/stdword/logseq13-full-house-plugin/commit/3b0d95ab87dbddaa7e529a8dd57612b23409ad92))
+* **template tags:** added `dev.get` to access specified path for object ([3b5c680](https://github.com/stdword/logseq13-full-house-plugin/commit/3b5c680f70b0ac37f7c997008297eb1264543ded))
+* **template tags:** added parseLinks ([c83bb22](https://github.com/stdword/logseq13-full-house-plugin/commit/c83bb22bbf4c4e8d1a0e5ea70aab97800c19101c))
+
 # [2.3.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.2.0...v2.3.0) (2023-04-05)
 
 
