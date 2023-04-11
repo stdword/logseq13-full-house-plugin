@@ -19,44 +19,11 @@ const MLDOC_OPTIONS = {
 }
 
 
-export type MLDOC_Node = [ type: string | null, data?: any, additional?: any ]
-type MLDOC_Node_withPositions = [
-    MLDOC_Node,
-    { start_pos: number | null, end_pos: number | null },
+export type MLDOC_Node = [
+    type: string | null,
+    data?: any,
+    additional?: any,
 ]
-
-function parseNode(node: MLDOC_Node_withPositions) {
-    const [ [ type, data ], { start_pos, end_pos } ] = node
-    return { type, data, start_pos, end_pos }
- }
-
-function transformTextRelatedToNode(
-    text: string,
-    node: MLDOC_Node_withPositions,
-    transforms: ((t: string) => string)[],
-) {
-    const text_utf8 = new TextEncoder().encode(text)
-
-    const { start_pos, end_pos } = parseNode(node)
-    let nodeText = new TextDecoder().decode(text_utf8.slice(start_pos!, end_pos!))
-
-    for (const transform of transforms)
-        nodeText = transform(nodeText)
-
-    // Conversion forwards & backwards: performance issue?
-    // return new TextDecoder().decode(
-    //     new Uint8Array([
-    //         ...text_utf8.subarray(0, start_pos!),
-    //         ...new TextEncoder().encode(nodeText),
-    //         ...text_utf8.subarray(end_pos!)
-    //     ])
-    // )
-
-    return ''
-        .concat(new TextDecoder().decode(text_utf8.subarray(0, start_pos!)))
-        .concat(nodeText)
-        .concat(new TextDecoder().decode(text_utf8.subarray(end_pos!)))
- }
 
 async function walkNodes_async<T>(
     nodes: MLDOC_Node[],
@@ -120,10 +87,6 @@ export class LogseqMarkup {
 
         return this._prepareAST(nodes)
     }
-    async toHTML_async(text: string, nestingLevel: number = 0): Promise<string> {
-        const nodes: MLDOC_Node[] = this.parse(text)
-        console.debug(p`AST for text:`, {text, nodes})
-        return await new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile_async(nodes)
     _prepareAST(nodes: MLDOC_Node[]): MLDOC_Node[] {
         let skip: MLDOC_Node | null = null
         return walkNodes(nodes, (type, data, node, process) => {
@@ -186,7 +149,6 @@ export class LogseqMarkup {
     }
     toHTML(text: string, nestingLevel: number = 0): string {
         const nodes: MLDOC_Node[] = this.parse(text)
-        console.debug(p`AST for text:`, {text, nodes})
         return new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile(nodes)
     }
 }
@@ -201,87 +163,6 @@ class MldocASTtoHTMLCompiler {
     constructor(context: ILogseqContext, nestingLevel: number = 0) {
         this.context = context
         this.nestingLevel = nestingLevel
-    }
-
-    async compile_async(ast: MLDOC_Node[]) {
-        return (await walkNodes_async(ast, async (type, data, node, process): Promise<string> => {
-            switch (type) {
-                case 'Break_Line':         return '<br/>'
-                case 'Plain':              return data as string
-                case 'Inline_Html':        return data as string
-                case 'Inline_Hiccup':      return data as string  // TODO?: support hiccup
-                case 'Footnote_Reference': return `<sup>${data.name || data.id}</sup>`
-                case 'Code':               return `<code>${data}</code>`
-                case 'Export_Snippet': {
-                    const [ _, snippet, code ] = node
-                    switch (snippet) {
-                        case 'html': return code as string
-                        default:
-                            console.warn(p`Unknown export snippet type:`, {snippet, code})
-                    }
-                    return (code ?? '') as string
-                }
-                case 'Emphasis': {
-                    const [ [emphasis], [subNode] ] = data
-                    const compiledValue = await process(subNode) as (string | null)
-                    switch (emphasis) {
-                        case 'Strike_through': return `<s>${compiledValue}</s>`
-                        case 'Italic':         return `<i>${compiledValue}</i>`
-                        case 'Bold':           return `<b>${compiledValue}</b>`
-                        default:
-                            console.warn(p`Unknown emphasis type:`, {emphasis, subNode, compiledValue, data})
-                    }
-                    return compiledValue ?? ''
-                }
-                case 'Link': {
-                    const meta: string = data.metadata ?? ''
-
-                    let label = ''
-                    if (data.label && data.label.length) {
-                        const node = data.label[0]
-                        // handle case when label is plain text: to reduce `process`` call
-                        if (node && node.length && node[0] === 'Plain')
-                            label = node.at(1) ?? ''
-                        else
-                            label = await process(node) as string
-                    }
-
-                    let url = ''
-                    if (data.url && data.url.length) {
-                        const [ type, url ] = data.url
-                        switch (type)
-                            { case 'Search': {
-                                const term = url ?? ''
-                                const [ protocol, link ] = resolveAssetsLink(this.context, '', term)
-                                if (protocol)
-                                    return this.createImageLink(protocol, link, label, meta)
-                                return this.createPageRef(term, label)
-                            } case 'Page_ref': {
-                                const name = url ?? ''
-                                return this.createPageRef(name, label)
-                            } case 'Block_ref': {
-                                const uuid = url ?? ''
-                                return await this.createBlockRef_async(uuid, label)
-                            } case 'Complex': {
-                                console.log({data});
-                                let protocol = (url ?? {}).protocol ?? ''
-                                let link = (url ?? {}).link ?? '';
-                                [ protocol, link ] = resolveAssetsLink(this.context, protocol, link)
-                                const inclusion = data.full_text.startsWith('!')
-                                if (inclusion)
-                                    return this.createImageLink(protocol, link, label, meta)
-                                return this.createLink(protocol, link, label)
-                            }
-                            default:
-                                console.warn(p`Unknown link type:`, {type, url})
-                        }
-                    }
-                }
-                default:
-                    console.warn(p`Unknown node type:`, {type, node})
-            }
-            return JSON.stringify(data ?? '')
-        })).join('')
     }
     compile(ast: MLDOC_Node[]) {
         return (walkNodes(ast, (type, data, node, process): string => {
@@ -359,45 +240,6 @@ class MldocASTtoHTMLCompiler {
         })).join('')
     }
 
-    async createBlockRef_async(uuid: string, label: string): Promise<string> {
-        const uuidLabel = `((${uuid}))`
-        const block = await logseq.Editor.getBlock(uuid)
-        if (!block)
-            return html`
-                <span title="Reference to non-existent block"
-                      class="warning mr-1"
-                    >${uuidLabel}</span>
-            `
-
-        label = label.trim()
-        if (!label) {
-            if (this.context.block.uuid === uuid)
-                label = `((...))`  // self reference
-            else {
-                label = block.content.split('\n', 1)[0]
-                if (this.nestingLevel <= MldocASTtoHTMLCompiler.maxNestingLevelForInlineBlockRefs)
-                    // NOTE: recursion
-                    label = await new LogseqMarkup(this.context).toHTML_async(label, this.nestingLevel + 1)
-                else
-                    label = html`
-                        <span class="warning text-sm">Block reference nesting is too deep</span>
-                    `
-            }
-        }
-
-        return html`
-            <div class="block-ref-wrap inline"
-                 data-type="default"
-                >
-                <div style="display: inline;">
-                    <span class="block-ref"
-                          data-uuid="${uuid}"
-                          data-on-click="clickBlockRef"
-                        >${label}</span>
-                </div>
-            </div>
-        `
-    }
     createBlockRef(uuid: string, label: string): string {
         const uuidLabel = `((${uuid}))`
         // @ts-expect-error

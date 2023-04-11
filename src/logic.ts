@@ -306,7 +306,7 @@ export async function renderTemplateView(
         if (!b.content.trim())
             return ''
 
-        return await new LogseqMarkup(context).toHTML_async(b.content)
+        return new LogseqMarkup(context).toHTML(b.content)
     })
     console.debug(p`Markup compiled:`, {data: compiled})
 
