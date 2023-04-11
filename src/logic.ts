@@ -3,7 +3,7 @@ import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin
 
 import { Template } from './template'
 import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext, Context } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID, html } from './utils'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID, html, escapeForHTML } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import { LogseqMarkup } from './utils/mldoc_ast'
 
@@ -223,7 +223,7 @@ async (
         throw new RenderError(
             `[:p "Cannot render template "
                 [:i "${template.name || templateRef.original}"] ": "
-                [:pre "${message}"]
+                [:pre "${escapeForHTML(message)}"]
             ]`,
             {template, error},
         )
@@ -296,7 +296,7 @@ export async function renderTemplateView(
         throw new RenderError(
             `[:p "Cannot render template view "
                 [:i "${template.name || templateRef.original}"] ": "
-                [:pre "${message}"]
+                [:pre "${escapeForHTML(message)}"]
             ]`,
             {template, error},
         )

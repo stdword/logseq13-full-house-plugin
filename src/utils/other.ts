@@ -104,3 +104,12 @@ export function escapeForRegExp(str: string) {
     const replacer = new RegExp('(\\' + specials.join('|\\') + ')', 'g')
     return str.replaceAll(replacer, '\\$1')
  }
+
+export function escapeForHTML(unsafe: string) {
+    return unsafe
+        // .replaceAll('&', '&amp;')
+        // .replaceAll('<', '&lt;')
+        // .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        // .replaceAll("'", '&#039;')
+ }
