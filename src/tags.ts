@@ -160,16 +160,27 @@ function zeros(value: string | number, width: number = 2): string {
 
 /* dev */
 function parseMarkup(context: ILogseqContext, text: string): MLDOC_Node[] {
-    text = text.toString()
+    text = _arg(text)
     return new LogseqMarkup(context).parse(text)
  }
 function toHTML(context: ILogseqContext, text: string): string {
-    text = text.toString()
+    text = _arg(text)
     return new LogseqMarkup(context).toHTML(text)
  }
 function asset(context: ILogseqContext, name: string): string {
-    name = name.toString()
-    const [ protocol, link ] = resolveAssetsLink(context, 'assets', name)
+    // TODO: expand '/test.png'
+    name = _arg(name)
+    let originalProtocol: string
+    try {
+        const url = new URL(name)
+        originalProtocol = url.protocol.replace(/:$/, '')
+        name = name.slice((originalProtocol + '://').length)
+    }
+    catch (error) {
+        originalProtocol = ''
+    }
+
+    const [ protocol, link ] = resolveAssetsLink(context, originalProtocol || 'assets', name)
     return `${protocol}://${link}`
  }
 function color(value: string): string {
@@ -181,6 +192,8 @@ function color(value: string): string {
     return value
  }
 function get(context: ILogseqContext, path: string): string {
+    path = _arg(path)
+
     function getByPath(obj: any, parts: string[]) {
         while (parts.length)
             if (typeof obj == 'object')
@@ -189,13 +202,14 @@ function get(context: ILogseqContext, path: string): string {
         return obj
     }
 
-    path = _arg(path)
-
     path = path.replaceAll('@', '.props.')
-
     const parts = path.split('.')
+
     if (parts[0] === 'c')
         parts.shift()
+
+    if (!parts.length)
+        return ''
 
     return getByPath(context, parts) ?? ''
  }
