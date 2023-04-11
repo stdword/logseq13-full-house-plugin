@@ -115,14 +115,74 @@ export class LogseqMarkup {
             nodes = JSON.parse(unparsedNodes)
         } catch {
             console.debug(p`Failed to parse:`, {ast: unparsedNodes})
+            return []
         }
 
-        return nodes
+        return this._prepareAST(nodes)
     }
     async toHTML_async(text: string, nestingLevel: number = 0): Promise<string> {
         const nodes: MLDOC_Node[] = this.parse(text)
         console.debug(p`AST for text:`, {text, nodes})
         return await new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile_async(nodes)
+    _prepareAST(nodes: MLDOC_Node[]): MLDOC_Node[] {
+        let skip: MLDOC_Node | null = null
+        return walkNodes(nodes, (type, data, node, process) => {
+            if (skip && skip[0] === type && skip[1] === data) {
+                skip = null
+                return null
+            }
+
+            switch (type) {
+                case 'Code': {
+                    if (data.startsWith('`')) {
+                        const m = data.match(/^`(?<header>.*)\n(?<body>(?:.|\n)*?)\n/u)
+                        if (m) {
+                            const header = m.groups.header.trim()
+                            const body = m.groups.body
+
+                            const m2 = header.match(/(?<schema>[^:]*):?(?<header>.*)/)
+
+                            node[0] = 'Code_Block'
+                            node[1] = {
+                                schema: m2.groups.schema.trim(),
+                                header: m2.groups.header.trim(),
+                                body,
+                            }
+                        } else
+                            node[1] = data.slice(1)
+
+                        skip = ['Plain', '`']
+                    }
+                    break
+                }
+                case 'Link': {
+                    data.interpolation = data.full_text.startsWith('!') ? '!' : ''
+
+                    if ( !(data.url && data.url.length) )
+                        break
+
+                    const [ url_type, url ] = data.url
+                    switch (url_type) {
+                        case 'Search': {
+                            const [ protocol, link ] = resolveAssetsLink(this.context, '', url)
+                            if (protocol)
+                                data.url = [ 'Complex', { protocol, link } ]
+                            break
+                        }
+                        case 'Complex': {
+                            let protocol = url.protocol
+                            let link = url.link
+                            ;[ protocol, link ] = resolveAssetsLink(this.context, protocol, link)
+                            data.url[1] = { protocol, link }
+                            break
+                        }
+                    }
+                    break
+                }
+            }
+
+            return node
+        })
     }
     toHTML(text: string, nestingLevel: number = 0): string {
         const nodes: MLDOC_Node[] = this.parse(text)
@@ -232,6 +292,7 @@ class MldocASTtoHTMLCompiler {
                 case 'Inline_Hiccup':      return data as string  // TODO?: support hiccup
                 case 'Footnote_Reference': return `<sup>${data.name || data.id}</sup>`
                 case 'Code':               return `<code>${data}</code>`
+                case 'Code_Block':         return `<pre>${data.body}</pre>`
                 case 'Export_Snippet': {
                     const [ _, snippet, code ] = node
                     switch (snippet) {
@@ -266,16 +327,12 @@ class MldocASTtoHTMLCompiler {
                             label = process(node) as string
                     }
 
-                    let url = ''
                     if (data.url && data.url.length) {
                         const [ type, url ] = data.url
                         switch (type)
                             { case 'Search': {
                                 const term = url ?? ''
                                 const [ protocol, link ] = resolveAssetsLink(this.context, '', term)
-                                const inclusion = data.full_text.startsWith('!')
-                                if (inclusion && protocol)
-                                    return this.createImageLink(protocol, link, label, meta)
                                 return this.createPageRef(term, label)
                             } case 'Page_ref': {
                                 const name = url ?? ''
@@ -284,12 +341,9 @@ class MldocASTtoHTMLCompiler {
                                 const uuid = url ?? ''
                                 return this.createBlockRef(uuid, label)
                             } case 'Complex': {
-                                console.log({data});
-                                let protocol = (url ?? {}).protocol ?? ''
-                                let link = (url ?? {}).link ?? '';
-                                [ protocol, link ] = resolveAssetsLink(this.context, protocol, link)
-                                const inclusion = data.full_text.startsWith('!')
-                                if (inclusion)
+                                const protocol = (url ?? {}).protocol ?? ''
+                                const link = (url ?? {}).link ?? ''
+                                if (data.interpolation === '!')
                                     return this.createImageLink(protocol, link, label, meta)
                                 return this.createLink(protocol, link, label)
                             }

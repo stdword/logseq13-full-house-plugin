@@ -1,0 +1,57 @@
+// recognize inline Code Block
+```var foo = 123```
+["Code", "`var foo = 123"],
+["Plain", "`"],
+
+["Code", "var foo = 123"]
+
+
+// recognize full Code Block
+```javascript: main.js
+var foo = 123;
+```
+["Code", "`javascript: main.js\nvar foo = 123;\n"],
+["Plain", "`"],
+
+["Code_Block", {
+    "schema": "javascript",
+    "header": "main.js",
+    "body": "var foo = 123;",
+}]
+
+
+// added interpolation to every Link: "" or "!"
+["Link", {
+    "full_text": "![label](https://site.com/path/image.png)",
+    "..."}]
+["Link", {
+    "full_text": "![label](https://site.com/path/image.png)",
+    "interpolation": "!",
+    "..."}]
+
+
+// expanded assets:// protocol for Link → Complex
+["Link", {
+    "url": ["Complex", {"protocol": "assets", "link": "image.png"}],
+    "..."}]
+["Link", {
+    "url": ["Complex", {"protocol": "file", "link": "/path/to/assets/image.png"}],
+    "..."}]
+
+
+// transform Link → Search to Complex: handle ../assets/
+["Link", {
+    "url": ["Search", "../assets/image.png"],
+    "..."}]
+["Link", {
+    "url": ["Complex", {"protocol": "file", "link": "/path/to/assets/image.png"}],
+    "..."}]
+
+
+// transform Link → Search Complex and file:// protocol
+["Link", {
+    "url": ["Search", "/path/to/assets/image.png"],
+    "..."}]
+["Link", {
+    "url": ["Complex", {"protocol": "file", "link": "/path/to/assets/image.png"}],
+    "..."}]
