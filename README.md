@@ -13,7 +13,7 @@
   <a href="https://github.com/stdword/logseq13-full-house-plugin#readme">Home</a> |
   <a href="docs/tutorial.md">Tutorial</a> |
   <a src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/index.html"> Documentation</a> |
-  <a href="docs/showcases.md">Showcases</a>
+  <a href="https://github.com/stdword/logseq13-full-house-plugin/discussions/categories/showroom?discussions_q=is%3Aopen+label%3Aoriginal+category%3AShowroom">Showcases</a>
 </p>
 
 ## Summary
