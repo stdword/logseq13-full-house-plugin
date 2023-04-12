@@ -75,3 +75,8 @@
 ["Plain", "Footnote 1 link"],
 ["Footnote_Reference", {"id": 1, "name": "first"}],
 ["Footnote_Reference", {"id": 2, "name": "first"}],
+
+// {{test macro, arg}}
+[ "Macro", {
+    "name": "test",
+    "arguments": [ "macro", "arg" ]}]

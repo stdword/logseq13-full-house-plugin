@@ -1,33 +1,45 @@
+/** horizontal line
+ * mldoc: x
+ * fh: x
+ */
 ["Plain", "___"],
 ["Plain", "---"],
+["Plain", "***"],
 
-// bug
-***
 
+/** simple cases
+ * mldoc: x
+ * fh: x
+ */
 ["Plain", "### h3 Heading"],
 ["Plain", "> Blockquotes can also be nested..."],
 ["Plain", "1. Lorem ipsum dolor sit amet"],
 ["Plain", "- Lorem ipsum dolor sit amet"],
 
-// bug
+
+/** code block
+ * mldoc: x
+ * fh: v
+ */
 ```js
-var foo = function (bar) {
-  return bar++;
-};
-console.log(foo(5));
+var foo = bar()
 ```
-["Code", "` js\nvar foo = function (bar) {\n  return bar++;\n};\n\nconsole.log(foo(5));\n"],
+["Code", "` js\nvar foo = bar()\n"],
 ["Plain", "`"],
 
 
-| Option | Description |
-| ------ | ----------- |
-| data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default. |
-| ext    | extension to be used for dest files. |
+/** tables
+ * mldoc: x
+ * fh: x
+ */
+| A | B |
+| 1 | 2 |
 
 
-// bug: no meta info about "!"
+/** bug: no meta info about "!"
+ * mldoc: x
+ * fh: v
+ */
 ["Link", {
     "full_text": "![Minion](https://octodex.github.com/images/minion.png)",
     "url": ["Complex",{"protocol": "https", "link": "octodex.github.com/images/minion.png"}],
@@ -35,25 +47,28 @@ console.log(foo(5));
     "metadata": ""}],
 
 
+/** reference by id
+ * mldoc: x
+ * fh: x
+ */
 ![Alt text][id]
 With a reference later in the document defining the URL location:
 [id]: https://octodex.github.com/images/dojocat.jpg  "The Dojocat"
 
 
-Emojies
-["Plain", "> Classic markup: :wink: :crush: :cry: :tear: :laughing: :yum:"],
-["Plain", "> Shortcuts (emoticons): :-) :-( 8-) ;)"],
-
+/** inline footnote
+ * mldoc: x
+ * fh: x
+ */
 ["Plain", "Inline footnote^[Text of inline footnote] definition."],
 
-// bug
+
+/** footnotes
+ * mldoc: x
+ * fh: x
+ */
 Footnote link[^first]
 [^first]: Footnote
 
 ["Footnote_Reference",{"id": 1,"name": "first"}],
 ["Footnote_Reference",{"id": 2,"name": "first"}],
-
-
-Definition lists
-Abbreviations
-Custom containers
