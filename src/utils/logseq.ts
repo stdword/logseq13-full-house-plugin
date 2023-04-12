@@ -284,6 +284,7 @@ export type PropertiesRefs = {[index: string]: string[]}
 export class PropertiesUtils {
     // TODO?: org-mode properties
     // TODO?: front-matter properties
+    // TODO?: :PROPERTIES: properties
 
     // list of built-in properties:
     //   https://github.com/logseq/logseq/blob/master/deps/graph-parser/src/logseq/graph_parser/property.cljs
@@ -406,22 +407,12 @@ export class PropertiesUtils {
 }
 
 
-export class RendererMacro {
-    public name: string
+export class Macro {
+    public type: string
     public arguments: string[]
 
-    static command(name: string | null) {
-        return new RendererMacro(name)
-    }
-
-    constructor(name: string | null) {
-        name = name ?? ''
-        name = name.trim()
-        if (name.startsWith(':'))
-            name = name.slice(1)
-        name = name.toLowerCase().trim()
-
-        this.name = name
+    constructor(type: string) {
+        this.type = type
         this.arguments = []
     }
     clone() {
@@ -448,14 +439,39 @@ export class RendererMacro {
         obj.arguments.push(...values)
         return obj
     }
-    toString({useColon = true} = {}) {
-        return '{{renderer ' +
-            (useColon ? ':' : '') +
-            [this.name].concat(this.arguments).map(a => a.toString()).join(', ') +
-        '}}'
+    toString(): string {
+        const fill = this.arguments.length ? ' ' : ''
+        return `{{${this.type}${fill}` + this.arguments.map(a => a.toString()).join(', ') + '}}'
     }
-    toPattern() {
-        const args = [this.name].concat(this.arguments).map(a => escapeForRegExp(a.toString()))
-        return new RegExp('\\{\\{renderer\\s+:?' + args.join(',\\s*') + '\\s*\\}\\}', 'u')
+    _prepareArgumentsPattern(): string {
+        return this.arguments.map(a => escapeForRegExp(a.toString())).join(',\\s*')
+    }
+    toPattern(): RegExp {
+        const argsPattern = this._prepareArgumentsPattern()
+        return new RegExp(`\\{\\{${this.type}\\s*` + argsPattern + '\\s*\\}\\}', 'u')
+    }
+ }
+
+export class RendererMacro extends Macro {
+    static command(name: string) {
+        return new RendererMacro(name)
+    }
+
+    constructor(name: string) {
+        super('renderer')
+
+        name = name.trim()
+        if (name.startsWith(':'))
+            name = name.slice(1)
+        name = name.toLowerCase().trim()
+
+        this.arguments.push(name)
+    }
+    _prepareArgumentsPattern(): string {
+        const pattern = super._prepareArgumentsPattern()
+        return ':?' + pattern
+    }
+    get name(): string {
+        return this.arguments[0]
     }
  }

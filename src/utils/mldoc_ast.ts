@@ -1,6 +1,6 @@
 import { Mldoc } from 'mldoc'
 import { ArgsContext, ILogseqContext } from '../context'
-import { cleanMacroArg } from './logseq'
+import { cleanMacroArg, Macro, RendererMacro } from './logseq'
 
 import { html, p } from './other'
 
@@ -174,6 +174,11 @@ class MldocASTtoHTMLCompiler {
                 case 'Footnote_Reference': return `<sup>${data.name || data.id}</sup>`
                 case 'Code':               return `<code>${data}</code>`
                 case 'Code_Block':         return `<pre>${data.body}</pre>`
+                case 'Macro': {
+                    const { name, arguments: args } = data
+                    const macro = new Macro(name).args(args).toString()
+                    return `<code>${macro}</code>`
+                }
                 case 'Export_Snippet': {
                     const [ _, snippet, code ] = node
                     switch (snippet) {

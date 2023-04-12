@@ -183,7 +183,7 @@ function handleTemplateCommand(command: RendererMacro) {
     let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, ...args ] = payload.arguments
-        const rawCommand = RendererMacro.command(type_)
+        const rawCommand = RendererMacro.command(type_ ?? '')
         if (rawCommand.name !== command.name)
             return
 
@@ -260,7 +260,7 @@ function handleTemplateViewCommand(command: RendererMacro) {
     const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, ...args ] = payload.arguments
-        const rawCommand = RendererMacro.command(type_)
+        const rawCommand = RendererMacro.command(type_ ?? '')
         if (rawCommand.name !== command.name)
             return
 
