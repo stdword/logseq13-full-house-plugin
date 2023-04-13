@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.5.0...v2.5.1) (2023-04-13)
+
+
+### Bug Fixes
+
+* **views:** code block compiling ([7e62d8c](https://github.com/stdword/logseq13-full-house-plugin/commit/7e62d8c4ca32cc8233030db3a722e1c81626b61b))
+
 # [2.5.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.4.0...v2.5.0) (2023-04-13)
 
 
