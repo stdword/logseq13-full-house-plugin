@@ -1,7 +1,7 @@
 import '@logseq/libs'
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
-import { Template } from './template'
+import { InlineTemplate, ITemplate, Template } from './template'
 import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext, Context } from './context'
 import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID, html, escapeForHTML } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
@@ -13,7 +13,7 @@ import { LogseqMarkup } from './utils/mldoc_ast'
  */
 async function getCurrentContext(
     slot: string,
-    template: Template,
+    template: ITemplate,
     blockUUID: string,
     argsContext: ArgsContext,
 ): Promise<ILogseqContext | null> {
@@ -24,7 +24,8 @@ async function getCurrentContext(
         return null
     }
 
-    const argsProps = PropertiesUtils.getProperties(template.block, ArgsContext.propertyPrefix).values
+    // fulfill args with template arg-props
+    const argsProps = template.getArgProperties()
     for (const [ key, value ] of Object.entries(argsProps))
         if (key.startsWith(ArgsContext.propertyPrefix)) {
             const name = key.slice(ArgsContext.propertyPrefix.length)
@@ -147,6 +148,15 @@ async function getTemplate(ref: LogseqReference): Promise<Template> {
     return template
  }
 
+function getView(body: string): InlineTemplate {
+    const template = new InlineTemplate(body)
+
+    if (template.isEmpty())
+        throw new StateMessage(`[:p "Inline Template body is empty."]`, {body})
+
+    return template
+ }
+
 /**
  * @ui may show message to user
  */
@@ -196,6 +206,9 @@ async (
     rawCode: RendererMacro,
     args: string[],
 ) => {
+    if (await isInsideMacro(uuid))
+        return
+
     // backwards compatibility
     //   obsolete: first arg is a context page ref
     //   now: :page arg is a context page ref
@@ -204,10 +217,7 @@ async (
     if (args[0] === '')
         args.shift()
 
-    const argsContext = ArgsContext.create(templateRef, args)
-
-    if (await isInsideMacro(uuid))
-        return
+    const argsContext = ArgsContext.create(templateRef.original, args)
 
     const template = await getTemplate(templateRef)
     const context = await getCurrentContext(slot, template, uuid, argsContext)
@@ -269,19 +279,17 @@ async (
  * @raises StateMessage: template doesn't have any content (empty)
  * @raises RenderError: template rendering error
  */
-export async function renderTemplateView(
+async function _renderTemplateView(
     slot: string,
     blockUUID: string,
-    templateRef: LogseqReference,
+    template: ITemplate,
     rawCode: RendererMacro,
     args: string[] = [],
 ) {
-    const argsContext = ArgsContext.create(templateRef, args)
-
     if (await isInsideMacro(blockUUID))
         return
 
-    const template = await getTemplate(templateRef)
+    const argsContext = ArgsContext.create(template.name, args)
     const context = await getCurrentContext(slot, template, blockUUID, argsContext)
     if (!context)
         return
@@ -295,7 +303,7 @@ export async function renderTemplateView(
         const message = (error as Error).message
         throw new RenderError(
             `[:p "Cannot render template view "
-                [:i "${template.name || templateRef.original}"] ": "
+                [:i "${template.name}"] ": "
                 [:pre "${escapeForHTML(message)}"]
             ]`,
             {template, error},
@@ -361,4 +369,27 @@ export async function renderTemplateView(
         reset: true,
         template: content,
     })
+ }
+
+
+export async function renderTemplateView(
+    slot: string,
+    blockUUID: string,
+    templateRef: LogseqReference,
+    rawCode: RendererMacro,
+    args: string[] = [],
+) {
+    const template = await getTemplate(templateRef)
+    await _renderTemplateView(slot, blockUUID, template, rawCode, args)
+ }
+
+export async function renderView(
+    slot: string,
+    blockUUID: string,
+    viewBody: string,
+    rawCode: RendererMacro,
+    args: string[] = [],
+) {
+    const template = getView(viewBody)
+    await _renderTemplateView(slot, blockUUID, template, rawCode, args)
  }

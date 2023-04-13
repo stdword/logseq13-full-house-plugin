@@ -439,9 +439,13 @@ export class Macro {
         obj.arguments.push(...values)
         return obj
     }
-    toString(): string {
+    _prepareArguments(): string {
         const fill = this.arguments.length ? ' ' : ''
-        return `{{${this.type}${fill}` + this.arguments.map(a => a.toString()).join(', ') + '}}'
+        return fill + this.arguments.map(a => a.toString()).join(', ')
+    }
+    toString(): string {
+        const args = this._prepareArguments()
+        return `{{${this.type}${args}}}`
     }
     _prepareArgumentsPattern(): string {
         return this.arguments.map(a => escapeForRegExp(a.toString())).join(',\\s*')
@@ -466,6 +470,11 @@ export class RendererMacro extends Macro {
         name = name.toLowerCase().trim()
 
         this.arguments.push(name)
+    }
+    _prepareArguments(): string {
+        const args = super._prepareArguments().trimStart()
+        const fill = this.arguments.length ? ' :' : ''
+        return fill + args
     }
     _prepareArgumentsPattern(): string {
         const pattern = super._prepareArgumentsPattern()

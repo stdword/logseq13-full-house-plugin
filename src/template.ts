@@ -3,10 +3,10 @@ import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import * as Eta from 'eta'
 
-import { ILogseqContext, BlockContext, Context, dayjs } from './context'
+import { ILogseqContext, BlockContext, Context, dayjs, ArgsContext } from './context'
 import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'
-import { p, IBlockNode, walkBlockTree, coerceToBool, LogseqReferenceAccessType, PropertiesUtils } from './utils'
+import { p, IBlockNode, walkBlockTree, coerceToBool, LogseqReferenceAccessType, PropertiesUtils, Properties } from './utils'
 
 
 Eta.configure({
@@ -66,9 +66,13 @@ Eta.configure({
 //  }
 
 
-interface ITemplate {
+export interface ITemplate {
+    name: string
+
+    getArgProperties(): Properties
     render(context: ILogseqContext): Promise<IBlockNode>
     isEmpty(): boolean
+    toString(): string
 }
 
 export class Template implements ITemplate {
@@ -185,21 +189,51 @@ export class Template implements ITemplate {
             return Eta.render(b.content, renderContext)
         })
     }
+    getArgProperties() {
+        return PropertiesUtils.getProperties(this.block, ArgsContext.propertyPrefix).values
+    }
 }
 
-// export class InlineTemplate implements ITemplate {
-//     public body: string
+export class InlineTemplate implements ITemplate {
+    public name: string = '__inline__'
+    public body: string
 
-//     constructor(body: string) {
-//         this.body = body
-//     }
-//     async render(context: ILogseqContext): Promise<IBlockNode> {
-//         return {
-//             content: Eta.render(this.body, context),
-//             children: [],
-//         }
-//     }
-//     isEmpty(): boolean {
-//         return !!this.body
-//     }
-// }
+    constructor(body: string) {
+        this.body = body
+    }
+    isEmpty(): boolean {
+        return !this.body
+    }
+    toString() {
+        return `InlineTemplate("${this.body}")`
+    }
+    async render(context: ILogseqContext): Promise<IBlockNode> {
+        console.info(p`Rendering ${this}`)
+
+        context.template = new Context({
+            name: this.name,
+            includingParent: true,
+            block: BlockContext.empty(),
+            props: Context.empty(),
+            propsRefs: Context.empty(),
+        }) as unknown as ILogseqContext['template']
+
+        const contextObj = new Context({
+            ...context,
+            self: BlockContext.empty(),
+        })
+        const renderContext = {
+            ...getTemplateTagsContext(contextObj as unknown as ILogseqContext),
+            c: contextObj,
+        }
+
+        const body = `${'``{'} ${this.body} ${'}``'}`
+        return {
+            content: Eta.render(body, renderContext),
+            children: [],
+        }
+    }
+    getArgProperties() {
+        return {}
+    }
+}

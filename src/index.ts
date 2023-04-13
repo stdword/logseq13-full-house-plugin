@@ -2,7 +2,7 @@ import '@logseq/libs'
 import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
 import { dayjs } from './context'
-import { renderTemplateInBlock, renderTemplateView } from './logic'
+import { renderTemplateInBlock, renderTemplateView, renderView } from './logic'
 import {
     indexOfNth, lockOn, p, sleep,
     cleanMacroArg, parseReference, isEmptyString,
@@ -124,6 +124,33 @@ async function main() {
         registerBlockContextCopyCommand('Copy as 🏛view', commandTemplateView)
         handleTemplateViewCommand(commandTemplateView)
     }
+
+    const commandView = RendererMacro.command('view')
+    {
+        const commandLabel = 'Insert inline 🏛view'
+        const commandGuide = commandView.arg('"c.page.name"').toString()
+
+        logseq.App.registerCommandPalette(
+            { key: 'insert-view', label: commandLabel }, async (e) => {
+                const inserted = await insertContent(commandGuide, { positionOnArg: 1 })
+                if (!inserted) {
+                    logseq.UI.showMsg(
+                        `[:p "Start editing block or select one to insert "
+                             [:code ":view"]]`,
+                        'warning',
+                        {timeout: 5000},
+                    )
+                    return
+                }
+        })
+
+        logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
+            // here user always in editing mode, so no need to check insertion
+            await insertContent(commandGuide, { positionOnArg: 1 })
+        })
+
+        handleViewCommand(commandView)
+    }
 }
 
 function registerBlockContextCopyCommand(label: string, command: RendererMacro) {
@@ -183,6 +210,7 @@ function handleTemplateCommand(command: RendererMacro) {
     let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, ...args ] = payload.arguments
+
         const rawCommand = RendererMacro.command(type_ ?? '')
         if (rawCommand.name !== command.name)
             return
@@ -260,6 +288,7 @@ function handleTemplateViewCommand(command: RendererMacro) {
     const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, ...args ] = payload.arguments
+
         const rawCommand = RendererMacro.command(type_ ?? '')
         if (rawCommand.name !== command.name)
             return
@@ -276,6 +305,33 @@ function handleTemplateViewCommand(command: RendererMacro) {
         console.debug(p`Rendering template view`, {slot, uuid, templateRef, args})
         await handleLogicErrors(async () => {
             await renderTemplateView(slot, uuid, templateRef, raw, args)
+        })
+    })
+    logseq.beforeunload(unload as unknown as () => Promise<void>)
+ }
+function handleViewCommand(command: RendererMacro) {
+    const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
+        const uuid = payload.uuid
+        let [ type_, viewBody_, ...args ] = payload.arguments
+
+        const rawCommand = RendererMacro.command(type_ ?? '')
+        if (rawCommand.name !== command.name)
+            return
+
+        const raw = rawCommand.arg(viewBody_).args(args)
+        console.debug(p`Parsing:`, {macro: raw.toString()})
+
+        const viewBody = cleanMacroArg(viewBody_, { escape: false, unquote: true })
+        if (!viewBody) {
+            await logseq.UI.showMsg(`View body is required`, 'error', {timeout: 5000})
+            return
+        }
+
+        args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
+
+        console.debug(p`Rendering view`, {slot, uuid, viewBody, args})
+        await handleLogicErrors(async () => {
+            await renderView(slot, uuid, viewBody, raw, args)
         })
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)

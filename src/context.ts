@@ -286,8 +286,8 @@ export class ArgsContext extends Context {
 
         return entries
     }
-    static create(templateRef: LogseqReference, args: string[]) {
-        const entries: [string, string | boolean][] = [['0', templateRef.original]]
+    static create(callSignature: string, args: string[]) {
+        const entries: [string, string | boolean][] = [['0', callSignature]]
 
         for (let [ index, [name, value] ] of Object.entries(ArgsContext.parse(args))) {
             if (name)
