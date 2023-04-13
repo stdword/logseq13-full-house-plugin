@@ -1,3 +1,11 @@
+# [2.5.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.4.0...v2.5.0) (2023-04-13)
+
+
+### Features
+
+* **inline views:** quickly create inline views in one edit ([592a1f1](https://github.com/stdword/logseq13-full-house-plugin/commit/592a1f1087b6b207dc48076d0ad3274f6be6b12e))
+* **views:** support macros compiling to html ([a6a99e1](https://github.com/stdword/logseq13-full-house-plugin/commit/a6a99e1e7b055cdd7bd494e79fe3f9523d4ef719))
+
 # [2.4.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.3.0...v2.4.0) (2023-04-11)
 
 
