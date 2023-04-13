@@ -107,10 +107,10 @@ See all plugin features in the [Tutorial](https://github.com/stdword/logseq13-fu
 
 ## Alternatives
 |Plugin|`🏛 Full House` support|Details|
-|:-:|:-:|:-:|
-|[Dynamic Lookup](https://github.com/peanball/logseq-dynamic-lookup)| ✅ full | ([→](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/alternatives.md#dynamic-lookup)) |
-| [Smart Blocks](https://github.com/sawhney17/logseq-smartblocks) | ⚠️ partial | except of NLP-dates & UI (buttons, template selection, variables) |
-| [Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin) | ⚠️ partial | except of NLP-dates & UI (buttons, template selection, variables) |
+|:-:|:-:|:--|
+|[Dynamic Lookup](https://github.com/peanball/logseq-dynamic-lookup)| ✅ full | [→](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/alternatives.md#dynamic-lookup) |
+| [Smart Blocks](https://github.com/sawhney17/logseq-smartblocks) | ⚠️ partial | 🚫 NLP-dates <br/> 🚫 UI (buttons, template selection, variables) |
+| [Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin) | ⚠️ partial | 🚫 NLP-dates <br/> 🚫 UI (buttons, template selection, variables) |
 
 
 ## Roadmap
