@@ -16,9 +16,11 @@
   <a href="https://github.com/stdword/logseq13-full-house-plugin/discussions/categories/showroom?discussions_q=is%3Aopen+label%3Aoriginal+category%3AShowroom">Showcases</a>
 </p>
 
+
 ## Summary
 
 Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused on UX and simplicity. This is the missing power in your Logseq knowledge base.
+
 
 ## ⚜️ Features
 - 💪 Rendering templates :)
@@ -31,10 +33,11 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 - 🛠 A set of handy template tags to work with
 - ✨ The long list of valuable ideas to implement ⤵️
 
+
 ## Very quick overview
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/222939346-f29ac2e0-5b68-461c-aed3-3853d6c0c6a2.gif" />
 
-See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md) sections for details.
+See all plugin features in the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md).
 
 <table><tr><td>
 
@@ -80,6 +83,12 @@ See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/ma
 </td></tr></table>
 
 
+## If you ❤️ what I'm doing — consider to support my work
+<p align="left">
+<a href="https://www.buymeacoffee.com/stdword" target="_blank"><img src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+</p>
+
+
 ## Installation
 ### From Logseq Marketplace (recommended way):
 <span>    </span><img width="40%" src="https://user-images.githubusercontent.com/1984175/223046274-e1b6a192-b7b5-4973-98f4-d9d2ff5ee048.png" />
@@ -96,10 +105,18 @@ See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/ma
 - ⚠️ The important point here is: every new plugin release should be updated manually
 
 
+## Alternatives
+|Plugin|`🏛 Full House` support|Details|
+|:-:|:-:|:-:|
+|[Dynamic Lookup](https://github.com/peanball/logseq-dynamic-lookup)| ✅ full | ([→](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/alternatives.md#dynamic-lookup)) |
+| [Smart Blocks](https://github.com/sawhney17/logseq-smartblocks) | ⚠️ partial | except of NLP-dates & UI (buttons, template selection, variables) |
+| [Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin) | ⚠️ partial | except of NLP-dates & UI (buttons, template selection, variables) |
+
+
 ## Roadmap
-- Inline templates
-- User variables
-- UI & buttons
+- UI: views & templates selection
+- UI: user input & variables
+- UI: buttons
 - Extended contexts
 - Template selectors
 - Meta templates & automation
@@ -108,10 +125,6 @@ See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/ma
 - Logseq query language
 - ...
 
-## If you love what I'm doing — consider to support my work
-<p align="left">
-<a href="https://www.buymeacoffee.com/stdword" target="_blank"><img src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-</p>
 
 ## Credits
 - Inspiration:
@@ -120,6 +133,7 @@ See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/ma
 - Based on lightweight embedded JS templating engine: [Eta](https://github.com/eta-dev/eta)
 - [Day.js](https://day.js.org) a minimalist JavaScript library for dates and times work
 - Icon created by <a href="https://www.flaticon.com/free-icon/web-design_1085802" title="Flaticon">monkik</a>
+
 
 ## License
 [MIT License](https://github.com/stdword/logseq13-full-house-plugin/blob/main/LICENSE)
