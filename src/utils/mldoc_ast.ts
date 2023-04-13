@@ -98,12 +98,12 @@ export class LogseqMarkup {
             switch (type) {
                 case 'Code': {
                     if (data.startsWith('`')) {
-                        const m = data.match(/^`(?<header>.*)\n(?<body>(?:.|\n)*?)\n/u)
+                        const m = data.match(/^`(?<header>[^\n]*)\n(?<body>.*?)\n$/su)
                         if (m) {
                             const header = m.groups.header.trim()
                             const body = m.groups.body
 
-                            const m2 = header.match(/(?<schema>[^:]*):?(?<header>.*)/)
+                            const m2 = header.match(/(?<schema>[^:]*):?(?<header>.*)/u)
 
                             node[0] = 'Code_Block'
                             node[1] = {
@@ -149,6 +149,7 @@ export class LogseqMarkup {
     }
     toHTML(text: string, nestingLevel: number = 0): string {
         const nodes: MLDOC_Node[] = this.parse(text)
+        console.debug(p`Markup parsed`, {nodes})
         return new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile(nodes)
     }
 }
@@ -173,7 +174,7 @@ class MldocASTtoHTMLCompiler {
                 case 'Inline_Hiccup':      return data as string  // TODO?: support hiccup
                 case 'Footnote_Reference': return `<sup>${data.name || data.id}</sup>`
                 case 'Code':               return `<code>${data}</code>`
-                case 'Code_Block':         return `<pre>${data.body}</pre>`
+                case 'Code_Block':         return `<pre><code>${data.body.replaceAll('\n', '<br/>')}</code></pre>`
                 case 'Macro': {
                     const { name, arguments: args } = data
                     const macro = new Macro(name).args(args).toString()

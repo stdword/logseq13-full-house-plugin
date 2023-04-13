@@ -354,7 +354,7 @@ async function _renderTemplateView(
     }
 
     const view = htmlFold(compiled)
-    console.debug(p`View folded:`, {data: view})
+    console.debug(p`View folded:`, {view})
 
     const content = html`
         <span class="fh_template-view"
