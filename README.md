@@ -1,6 +1,8 @@
 <h1 align="center">
-<span align="left" height="30" style="float: left; display: block-inline">                 </span>
-Full House Templates<a align="right" href="https://www.buymeacoffee.com/stdword"><img align="right" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png?raw=true" height="30"/>
+<span align="left" height="30">                  </span>
+Full House Templates
+<a href="https://www.buymeacoffee.com/stdword">
+  <img align="right" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png?raw=true" height="30px"/>
 </a>
 </h1>
 
@@ -97,7 +99,9 @@ See all plugin features in the [Tutorial](https://github.com/stdword/logseq13-fu
 
 ## If you ❤️ what I'm doing — consider to support my work
 <p align="left">
-<a href="https://www.buymeacoffee.com/stdword" target="_blank"><img src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+  <a href="https://www.buymeacoffee.com/stdword" target="_blank">
+    <img src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png" alt="Buy Me A Coffee" height="60px" />
+  </a>
 </p>
 
 
