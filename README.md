@@ -100,7 +100,7 @@ See all plugin features in the [Tutorial](https://github.com/stdword/logseq13-fu
 ## If you ❤️ what I'm doing — consider to support my work
 <p align="left">
   <a href="https://www.buymeacoffee.com/stdword" target="_blank">
-    <img src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png" alt="Buy Me A Coffee" height="60px" />
+    <img src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png?raw=true" alt="Buy Me A Coffee" height="60px" />
   </a>
 </p>
 
