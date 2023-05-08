@@ -1,3 +1,5 @@
+[<img align="right" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png" height="30"/>](https://www.buymeacoffee.com/stdword)
+<br/>
 <p align="center">
 ⚠️ <b>Under active development</b> ⚠️
 </p>
@@ -8,7 +10,15 @@
 
 <h1 align="center" style="text-align: center; width: fit-content; margin-left: auto; margin-right: auto;">Full House Templates</h1>
 
-<p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b>Logseq13</b> family of plugins</i></p>
+<div align="center">
+
+[![Version](https://img.shields.io/github/v/release/stdword/logseq13-full-house-plugin?color=5895C9)](https://github.com/stdword/logseq13-full-house-plugin/releases)
+[![Downloads](https://img.shields.io/github/downloads/stdword/logseq13-full-house-plugin/total.svg?color=D25584)](https://github.com/stdword/logseq13-full-house-plugin#from-logseq-marketplace-recommended-way)
+
+</div>
+
+<!-- <p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b>Logseq13</b> family of plugins</i></p> -->
+
 <p align="center">
   <a href="https://github.com/stdword/logseq13-full-house-plugin#readme">Home</a> |
   <a href="docs/tutorial.md">Tutorial</a> |
