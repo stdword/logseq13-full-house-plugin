@@ -1,21 +1,12 @@
-[<img align="right" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png?raw=true" height="30"/>](https://www.buymeacoffee.com/stdword)
-<br/>
-<p align="center">
-⚠️ <b>Under active development</b> ⚠️
-</p>
+<h1 align="center">
+<span align="left" height="30" style="float: left; display: block-inline">                 </span>
+Full House Templates<a align="right" href="https://www.buymeacoffee.com/stdword"><img align="right" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png?raw=true" height="30"/>
+</a>
+</h1>
 
 <p align="center">
   <img align="center" width="15%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/icon.png?raw=true"/>
 </p>
-
-<h1 align="center" style="text-align: center; width: fit-content; margin-left: auto; margin-right: auto;">Full House Templates</h1>
-
-<div align="center">
-
-[![Version](https://img.shields.io/github/v/release/stdword/logseq13-full-house-plugin?color=5895C9)](https://github.com/stdword/logseq13-full-house-plugin/releases)
-[![Downloads](https://img.shields.io/github/downloads/stdword/logseq13-full-house-plugin/total.svg?color=D25584)](https://github.com/stdword/logseq13-full-house-plugin#from-logseq-marketplace-recommended-way)
-
-</div>
 
 <!-- <p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b>Logseq13</b> family of plugins</i></p> -->
 
@@ -24,6 +15,17 @@
   <a href="docs/tutorial.md">Tutorial</a> |
   <a src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/index.html"> Documentation</a> |
   <a href="https://github.com/stdword/logseq13-full-house-plugin/discussions/categories/showroom?discussions_q=is%3Aopen+label%3Aoriginal+category%3AShowroom">Showcases</a>
+</p>
+
+<div align="center">
+
+[![Version](https://img.shields.io/github/v/release/stdword/logseq13-full-house-plugin?color=5895C9)](https://github.com/stdword/logseq13-full-house-plugin/releases)
+[![Downloads](https://img.shields.io/github/downloads/stdword/logseq13-full-house-plugin/total.svg?color=D25584)](https://github.com/stdword/logseq13-full-house-plugin#from-logseq-marketplace-recommended-way)
+
+</div>
+
+<p align="center">
+⚠️ <b>Under active development</b> ⚠️
 </p>
 
 
