@@ -1,3 +1,11 @@
+# [2.6.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.5.1...v2.6.0) (2023-05-08)
+
+
+### Features
+
+* add option to delay rendering of `:template` command `:delay-until-rendered` ([51e902d](https://github.com/stdword/logseq13-full-house-plugin/commit/51e902d6c349733d45872d687412f01a23a32305))
+* **context:** add `c.currentPage` & `c.currentBlock` ([5444b7a](https://github.com/stdword/logseq13-full-house-plugin/commit/5444b7a8b0088af64e359360ab1eb753d6128172))
+
 ## [2.5.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.5.0...v2.5.1) (2023-04-13)
 
 
