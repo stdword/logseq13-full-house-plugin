@@ -177,6 +177,7 @@ export async function getBlock(
             [:find (pull ?b [*])
              :where
                 [?b :block/properties ?props]
+                [?b :block/page]
                 [(get ?props :${byProperty}) ?name]
                 [(= ?name "${ref.value}")]
             ]
