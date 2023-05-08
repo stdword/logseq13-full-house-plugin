@@ -3,7 +3,7 @@ import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin
 
 import { InlineTemplate, ITemplate, Template } from './template'
 import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext, Context } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID, html, escapeForHTML } from './utils'
+import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID, html, escapeForHTML, isInsideTemplate } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import { LogseqMarkup } from './utils/mldoc_ast'
 
@@ -221,6 +221,28 @@ async (
         args.shift()
 
     const argsContext = ArgsContext.create(templateRef.original, args)
+
+    // prevent rendering if we are inside another template block
+    // reference: https://github.com/stdword/logseq13-full-house-plugin/discussions/18
+    // case: template rendering occurs via standard Logseq way
+    //       https://github.com/stdword/logseq13-full-house-plugin/discussions/6
+    if (argsContext['delay-until-rendered'] && await isInsideTemplate(uuid)) {
+        const message = rawCode.toString()
+        const content = html`
+            <span class="fh_template-view"
+                  data-uuid="${uuid}"
+                  data-on-click="editBlock"
+                ><i>${message}</i></span>
+        `
+
+        logseq.provideUI({
+            // key: `template_${context.identity.key}`,
+            slot: slot,
+            reset: true,
+            template: content,
+        })
+        return
+    }
 
     const template = await getTemplate(templateRef)
     const context = await getCurrentContext(slot, template, uuid, argsContext)

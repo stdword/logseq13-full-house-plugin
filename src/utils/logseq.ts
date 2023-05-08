@@ -1,4 +1,4 @@
-import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
+import { IBatchBlock, BlockEntity, PageEntity, BlockIdentity, EntityID } from '@logseq/libs/dist/LSPlugin.user'
 
 import { escapeForRegExp, f, indexOfNth, p, sleep } from './other'
 import { isEmptyString, isInteger, isUUID, unquote } from './parsing'
@@ -483,4 +483,21 @@ export class RendererMacro extends Macro {
     get name(): string {
         return this.arguments[0]
     }
+ }
+
+export async function isInsideTemplate(blockID: BlockIdentity | EntityID): Promise<boolean> {
+    if (!blockID)
+        return false
+
+    const block = await logseq.Editor.getBlock(blockID)
+    if (!block)
+        return false
+
+    if (block.properties && block.properties.template !== undefined)
+        return true
+
+    if (block.parent.id == block.page.id)
+        return false
+
+    return await isInsideTemplate(block.parent.id)
  }
