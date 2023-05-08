@@ -42,7 +42,6 @@ async function getCurrentContext(
                 `[:p "Argument " [:code ":page"] " should be a page reference"]`
             )
 
-        // TODO: use query instead of ref
         const pageExists = await getPage(contextPageRef)
         if (!pageExists)
             throw new StateError(
@@ -61,7 +60,6 @@ async function getCurrentContext(
                 `[:p "Argument " [:code ":block"] " should be a block reference"]`
             )
 
-        // TODO: use query instead of ref
         const [ blockExists, _] = await getBlock(contextBlockRef, { includeChildren: false })
         if (!blockExists)
             throw new StateError(
@@ -85,8 +83,13 @@ async function getCurrentContext(
     return {
         identity: { slot, key: slot.split('__', 2)[1].trim() },
         config: await ConfigContext.get(),
+
         page: contextPage ? PageContext.createFromEntity(contextPage) : currentPageContext,
+        currentPage: currentPageContext,
+
         block: contextBlock ? BlockContext.createFromEntity(contextBlock) : currentBlockContext,
+        currentBlock: currentBlockContext,
+
         args: argsContext,
     }
  }

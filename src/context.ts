@@ -36,7 +36,9 @@ export interface ILogseqContext {
     }
     config: ConfigContext
     page: PageContext
+    currentPage: PageContext
     block: BlockContext
+    currentBlock: PageContext
     args: ArgsContext
     self?: BlockContext
     template?: {
