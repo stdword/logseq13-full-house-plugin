@@ -232,7 +232,7 @@ async (
             <span class="fh_template-view"
                   data-uuid="${uuid}"
                   data-on-click="editBlock"
-                ><i>${message}</i></span>
+                ><i title="Rendering of this template was delayed">${message}</i></span>
         `
 
         logseq.provideUI({
