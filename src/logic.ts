@@ -195,6 +195,31 @@ async function isInsideMacro(blockUUID: string) {
     return true
  }
 
+async function delayUntilRendered(argsContext: ArgsContext, uuid: string, slot: string, rawCode: RendererMacro) {
+    // prevent rendering if we are inside another template block
+    // reference: https://github.com/stdword/logseq13-full-house-plugin/discussions/18
+    // case: template rendering occurs via standard Logseq way
+    //       https://github.com/stdword/logseq13-full-house-plugin/discussions/6
+    if (argsContext['delay-until-rendered'] && await isInsideTemplate(uuid)) {
+        const message = rawCode.toString()
+        const content = html`
+            <span class="fh_template-view"
+                  data-uuid="${uuid}"
+                  data-on-click="editBlock"
+                ><i title="Rendering of this ${rawCode.name} was delayed">${message}</i></span>
+        `
+
+        logseq.provideUI({
+            slot: slot,
+            reset: true,
+            template: content,
+        })
+        return true
+    }
+
+    return false
+ }
+
 /**
  * @raises StateError: template doesn't exist
  * @raises StateMessage: template doesn't have any content (empty)
@@ -222,27 +247,8 @@ async (
 
     const argsContext = ArgsContext.create(templateRef.original, args)
 
-    // prevent rendering if we are inside another template block
-    // reference: https://github.com/stdword/logseq13-full-house-plugin/discussions/18
-    // case: template rendering occurs via standard Logseq way
-    //       https://github.com/stdword/logseq13-full-house-plugin/discussions/6
-    if (argsContext['delay-until-rendered'] && await isInsideTemplate(uuid)) {
-        const message = rawCode.toString()
-        const content = html`
-            <span class="fh_template-view"
-                  data-uuid="${uuid}"
-                  data-on-click="editBlock"
-                ><i title="Rendering of this template was delayed">${message}</i></span>
-        `
-
-        logseq.provideUI({
-            // key: `template_${context.identity.key}`,
-            slot: slot,
-            reset: true,
-            template: content,
-        })
+    if (await delayUntilRendered(argsContext, uuid, slot, rawCode))
         return
-    }
 
     const template = await getTemplate(templateRef)
     const context = await getCurrentContext(slot, template, uuid, argsContext)
@@ -315,6 +321,9 @@ async function _renderTemplateView(
         return
 
     const argsContext = ArgsContext.create(template.name, args)
+    if (await delayUntilRendered(argsContext, blockUUID, slot, rawCode))
+        return
+
     const context = await getCurrentContext(slot, template, blockUUID, argsContext)
     if (!context)
         return
