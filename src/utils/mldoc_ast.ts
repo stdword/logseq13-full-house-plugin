@@ -166,6 +166,8 @@ class MldocASTtoHTMLCompiler {
         this.nestingLevel = nestingLevel
     }
     compile(ast: MLDOC_Node[]) {
+        // Logseq Markup parsing: https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs#L3102
+        // Mldoc AST schema: https://github.com/logseq/logseq/pull/8829/files
         return (walkNodes(ast, (type, data, node, process): string => {
             switch (type) {
                 case 'Break_Line':         return '<br/>'
