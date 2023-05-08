@@ -1,4 +1,4 @@
-[<img align="right" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png" height="30"/>](https://www.buymeacoffee.com/stdword)
+[<img align="right" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png?raw=true" height="30"/>](https://www.buymeacoffee.com/stdword)
 <br/>
 <p align="center">
 ⚠️ <b>Under active development</b> ⚠️
