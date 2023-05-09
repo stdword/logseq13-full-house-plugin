@@ -280,11 +280,6 @@ function handleTemplateViewCommand(command: RendererMacro) {
         }
     `)
 
-    // fighting with bug: https://github.com/logseq/logseq/issues/8623
-    logseq.provideStyle(`
-        div.macro { display: inline-block; }
-    `)
-
     const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, ...args ] = payload.arguments
