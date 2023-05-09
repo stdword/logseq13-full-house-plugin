@@ -486,19 +486,34 @@ export class RendererMacro extends Macro {
     }
  }
 
-export async function isInsideTemplate(blockID: BlockIdentity | EntityID): Promise<boolean> {
+export async function isRecursiveOrNestedTemplate(
+    blockID: BlockIdentity | EntityID,
+    templateID: EntityID,
+): Promise<'recursive' | 'nested' | null> {
     if (!blockID)
-        return false
+        return null
 
     const block = await logseq.Editor.getBlock(blockID)
     if (!block)
-        return false
+        return null
 
-    if (block.properties && block.properties.template !== undefined)
-        return true
+    if (block.id === templateID)
+        return 'recursive'
 
-    if (block.parent.id == block.page.id)
-        return false
+    const isInsideTemplate =
+        block.properties &&
+        block.properties[PropertiesUtils.templateProperty] !== undefined
 
-    return await isInsideTemplate(block.parent.id)
+    const parentResult =
+        block.parent.id !== block.page.id
+        ? await isRecursiveOrNestedTemplate(block.parent.id, templateID)
+        : null
+
+    if (parentResult === 'recursive')
+        return 'recursive'
+    if (parentResult === 'nested')
+        return 'nested'
+
+    // parentResult === null
+    return isInsideTemplate ? 'nested' : null
  }

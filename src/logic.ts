@@ -3,7 +3,11 @@ import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin
 
 import { InlineTemplate, ITemplate, Template } from './template'
 import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext, Context } from './context'
-import { p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock, LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro, parseReference, walkBlockTree, isUUID, html, escapeForHTML, isInsideTemplate } from './utils'
+import {
+    p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock,
+    LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro,
+    parseReference, walkBlockTree, isUUID, html, escapeForHTML, isRecursiveOrNestedTemplate
+} from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import { LogseqMarkup } from './utils/mldoc_ast'
 
@@ -195,30 +199,51 @@ async function isInsideMacro(blockUUID: string) {
     return true
  }
 
-async function delayUntilRendered(argsContext: ArgsContext, uuid: string, slot: string, rawCode: RendererMacro) {
+async function handleNestedRendering(templateBlock: BlockEntity, argsContext: ArgsContext, uuid: string, slot: string, rawCode: RendererMacro) {
     // prevent rendering if we are inside another template block
-    // reference: https://github.com/stdword/logseq13-full-house-plugin/discussions/18
-    // case: template rendering occurs via standard Logseq way
-    //       https://github.com/stdword/logseq13-full-house-plugin/discussions/6
-    if (argsContext['delay-until-rendered'] && await isInsideTemplate(uuid)) {
-        const message = rawCode.toString()
-        const content = html`
-            <span class="fh_template-view"
-                  data-uuid="${uuid}"
-                  data-on-click="editBlock"
-                ><i title="Rendering of this ${rawCode.name} was delayed">${message}</i></span>
-        `
 
-        logseq.provideUI({
-            slot: slot,
-            reset: true,
-            template: content,
-        })
+    const state = await isRecursiveOrNestedTemplate(uuid, templateBlock.id)
+
+    // case: template rendering occurs inside itself (recursive)
+    if (state === 'recursive') {
+        const code = html`
+            <i title="Rendering of this ${rawCode.name} was stopped due to recursion"
+                >${rawCode.toString()}</i>
+        `
+        provideHTML(uuid, code, slot)
+        return true
+    }
+
+    // case: template rendering occurs via standard Logseq way
+    //       https://github.com/stdword/logseq13-full-house-plugin/discussions/18
+    if (argsContext['delay-until-rendered'] && state === 'nested') {
+        const code = html`
+            <i title="Rendering of this ${rawCode.name} was delayed"
+                >${rawCode.toString()}</i>
+        `
+        provideHTML(uuid, code, slot)
         return true
     }
 
     return false
  }
+
+function provideHTML(blockUUID: string, htmlCode: string, slot: string) {
+    const content = html`
+        <span class="fh_template-view"
+              data-uuid="${blockUUID}"
+              data-on-click="editBlock"
+            >${htmlCode}</span>
+    `
+
+    logseq.provideUI({
+        key: `template-view_${slot}`,
+        slot: slot,
+        reset: true,
+        template: content,
+    })
+ }
+
 
 /**
  * @raises StateError: template doesn't exist
@@ -246,11 +271,12 @@ async (
         args.shift()
 
     const argsContext = ArgsContext.create(templateRef.original, args)
+    const template = await getTemplate(templateRef)
 
-    if (await delayUntilRendered(argsContext, uuid, slot, rawCode))
+    const handled = await handleNestedRendering(template.block, argsContext, uuid, slot, rawCode)
+    if (handled)
         return
 
-    const template = await getTemplate(templateRef)
     const context = await getCurrentContext(slot, template, uuid, argsContext)
     if (!context)
         return
@@ -315,13 +341,9 @@ async function _renderTemplateView(
     blockUUID: string,
     template: ITemplate,
     rawCode: RendererMacro,
-    args: string[] = [],
+    argsContext: ArgsContext,
 ) {
     if (await isInsideMacro(blockUUID))
-        return
-
-    const argsContext = ArgsContext.create(template.name, args)
-    if (await delayUntilRendered(argsContext, blockUUID, slot, rawCode))
         return
 
     const context = await getCurrentContext(slot, template, blockUUID, argsContext)
@@ -390,21 +412,8 @@ async function _renderTemplateView(
     const view = htmlFold(compiled)
     console.debug(p`View folded:`, {view})
 
-    const content = html`
-        <span class="fh_template-view"
-              data-uuid="${blockUUID}"
-              data-on-click="editBlock"
-            >${view}</span>
-    `
-
-    logseq.provideUI({
-        key: `template-view_${context.identity.key}`,
-        slot: slot,
-        reset: true,
-        template: content,
-    })
+    provideHTML(blockUUID, view, slot)
  }
-
 
 export async function renderTemplateView(
     slot: string,
@@ -414,7 +423,13 @@ export async function renderTemplateView(
     args: string[] = [],
 ) {
     const template = await getTemplate(templateRef)
-    await _renderTemplateView(slot, blockUUID, template, rawCode, args)
+    const argsContext = ArgsContext.create(template.name, args)
+
+    const handled = await handleNestedRendering(template.block, argsContext, blockUUID, slot, rawCode)
+    if (handled)
+        return
+
+    await _renderTemplateView(slot, blockUUID, template, rawCode, argsContext)
  }
 
 export async function renderView(
@@ -425,5 +440,6 @@ export async function renderView(
     args: string[] = [],
 ) {
     const template = getView(viewBody)
-    await _renderTemplateView(slot, blockUUID, template, rawCode, args)
+    const argsContext = ArgsContext.create(template.name, args)
+    await _renderTemplateView(slot, blockUUID, template, rawCode, argsContext)
  }
