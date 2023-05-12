@@ -27,8 +27,8 @@
         "clean": "rm -r ./dist/* || true",
         "dev": "vite",
         "test": "jest",
-        "build": "tsc && vite build --mode=dev",
-        "prod": "npm run clean && vite build"
+        "build": "tsc && npm run test && vite build --mode=dev",
+        "prod": "npm run test && npm run clean && vite build"
     },
     "dependencies": {
         "@logseq/libs": "^0.0.15",
