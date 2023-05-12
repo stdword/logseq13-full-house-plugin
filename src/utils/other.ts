@@ -40,7 +40,7 @@ export function f(strings: any, ...values: any[]): Function {
  *          <div>
  *              <p>Text</p>
  *          </div>
- *     ` // => '<div>\n<p>Text</p>\n</div>'
+ *     ` // => '<div><p>Text</p></div>'
  **/
 export function html(strings: any, ...values: any[]): string {
     const raw = String.raw({raw: strings}, ...values)
@@ -48,12 +48,7 @@ export function html(strings: any, ...values: any[]): string {
  }
 
 /**
- * ```typescript doctest
- * countOf('aaa, bbb, ccc', ',') // => 3
- * countOf('aaa, bbb, ccc', ', ') // => 3
- * countOf('aaa a', 'aa') // => 1
- * countOf('aaa', '') // => 0
- * ```
+ * Count substrings in string
  */
 export function countOf(string: string, substring: string): number {
     if (substring.length === 0)
@@ -63,6 +58,9 @@ export function countOf(string: string, substring: string): number {
     return matchedCount / substring.length
  }
 
+/**
+ * Find index of Nth substring in string
+ */
 export function indexOfNth(string: string, substring: string, count: number = 1): number | null {
     if (count <= 0)
         throw new Error('count param should be positive')
@@ -108,9 +106,13 @@ export function escapeForRegExp(str: string) {
 
 export function escapeForHTML(unsafe: string) {
     return unsafe
-        // .replaceAll('&', '&amp;')
-        // .replaceAll('<', '&lt;')
-        // .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        // .replaceAll("'", '&#039;')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", '&#039;')
+ }
+
+export function escapeForHiccup(unsafe: string) {
+    return unsafe.replaceAll('"', "'")
  }

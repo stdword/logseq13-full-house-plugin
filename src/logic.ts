@@ -2,11 +2,15 @@ import '@logseq/libs'
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import { InlineTemplate, ITemplate, Template } from './template'
-import { PageContext, BlockContext, ILogseqContext, ArgsContext, ConfigContext, Context } from './context'
+import {
+    ILogseqContext, Context, PageContext, BlockContext,
+    ArgsContext, ConfigContext,
+} from './context'
 import {
     p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock,
     LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro,
-    parseReference, walkBlockTree, isUUID, html, escapeForHTML, isRecursiveOrNestedTemplate
+    parseReference, walkBlockTree, isUUID, html, isRecursiveOrNestedTemplate,
+    escapeForHiccup,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import { LogseqMarkup } from './utils/mldoc_ast'
@@ -290,7 +294,7 @@ async (
         throw new RenderError(
             `[:p "Cannot render template "
                 [:i "${template.name || templateRef.original}"] ": "
-                [:pre "${escapeForHTML(message)}"]
+                [:pre "${escapeForHiccup(message)}"]
             ]`,
             {template, error},
         )
@@ -360,7 +364,7 @@ async function _renderTemplateView(
         throw new RenderError(
             `[:p "Cannot render template view "
                 [:i "${template.name}"] ": "
-                [:pre "${escapeForHTML(message)}"]
+                [:pre "${escapeForHiccup(message)}"]
             ]`,
             {template, error},
         )
