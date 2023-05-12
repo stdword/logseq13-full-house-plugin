@@ -7,6 +7,7 @@ import advancedFormat    from 'dayjs/plugin/advancedFormat'
 import weekday           from 'dayjs/plugin/weekday'
 import dayOfYear         from 'dayjs/plugin/dayOfYear'
 import weekOfYear        from 'dayjs/plugin/weekOfYear'
+import isoWeek           from 'dayjs/plugin/isoWeek'
 import quarterOfYear     from 'dayjs/plugin/quarterOfYear'
 import duration          from 'dayjs/plugin/duration'
 import UTC               from 'dayjs/plugin/utc'
@@ -14,7 +15,6 @@ import updateLocale      from 'dayjs/plugin/updateLocale'
 import logseqPlugin      from './utils/dayjs_logseq_plugin'
 
 import { cleanMacroArg, LogseqReference, p, Properties, PropertiesRefs, PropertiesUtils } from './utils'
-import { receiveMessageOnPort } from 'worker_threads'
 
 export { dayjs, Dayjs }
 dayjs.extend(customParseFormat)
@@ -22,6 +22,7 @@ dayjs.extend(advancedFormat)
 dayjs.extend(weekday)
 dayjs.extend(dayOfYear)
 dayjs.extend(weekOfYear)
+dayjs.extend(isoWeek)
 dayjs.extend(quarterOfYear)
 dayjs.extend(duration)
 dayjs.extend(UTC)
