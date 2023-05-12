@@ -6,7 +6,8 @@ try {
     locks = navigator.locks
 }
 catch (error) {
-    console.error('Cannot use Web Locks API')
+    if (process.env.NODE_ENV !== 'test')
+        console.error('Cannot use Web Locks API')
 }
 
 
