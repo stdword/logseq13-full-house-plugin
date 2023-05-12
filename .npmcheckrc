@@ -1,0 +1,7 @@
+{"depcheck": {"ignoreMatches": [
+	"@semantic-release/changelog",
+	"@semantic-release/exec",
+	"@semantic-release/git",
+	"conventional-changelog-conventionalcommits",
+	"semantic-release"
+]}}
