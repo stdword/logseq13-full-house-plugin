@@ -1,11 +1,3 @@
-- [Rendering named template](#rendering-named-template)
-- [Rendering any block or page as a template](#rendering-any-block-or-page-as-a-template)
-- [Making references via context variables](#making-references-via-context-variables)
-- [Accessing properties](#accessing-properties)
-- [Dates & times work](#dates--times-work)
-- [JavaScript environment](#javascript-environment)
-- [Conditional contexts](#conditional-contexts)
-
 ## Rendering named template
 - To **create a template** from block add `template` property with its name as a value (just like Logseq standard templates)
 - To **render a template**:

@@ -1,4 +1,5 @@
 <!-- {docsify-ignore-all} -->
+
 <table>
   <tr>
     <td width="25%">
@@ -28,4 +29,7 @@
 <br/>
 <br/>
 
-# Start
+# Showcases
+
+- View original `Full House` [templates](https://github.com/stdword/logseq13-full-house-plugin/discussions/categories/showroom?discussions_q=is%3Aopen+label%3Aoriginal+category%3AShowroom)
+- View community [templates](https://github.com/stdword/logseq13-full-house-plugin/discussions/categories/showroom?discussions_q=is%3Aopen+-label%3Aoriginal+category%3AShowroom+)

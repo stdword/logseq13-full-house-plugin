@@ -8,5 +8,5 @@
 - Super-configurable
 - Focused on UX and simplicity
 
-[GitHub](https://github.com/stdword/logseq13-full-house-plugin#readme)
 [Get Started](index.md)
+[GitHub](https://github.com/stdword/logseq13-full-house-plugin#readme)
