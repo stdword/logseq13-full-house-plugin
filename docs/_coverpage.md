@@ -1,4 +1,4 @@
-![logo](./icon.png ":size=256x256")
+![logo](assets/icon.png ":size=256x256")
 
 # 🏛 Full House Templates
 

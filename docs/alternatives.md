@@ -1,5 +1,3 @@
-# Comparison of alternatives to `🏛 Full House Templates`
-
 ## [Dynamic Lookup](https://github.com/peanball/logseq-dynamic-lookup)
 ### Plugin usage:
 1) Create `:macro`
