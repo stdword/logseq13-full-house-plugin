@@ -25,6 +25,7 @@
     "scripts": {
         "preinstall": "npx only-allow pnpm",
         "clean": "rm -r ./dist/* || true",
+        "docs": "docsify serve ./docs",
         "dev": "vite",
         "test": "jest",
         "build": "tsc && npm run test && vite build --mode=dev",

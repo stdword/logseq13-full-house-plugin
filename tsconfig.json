@@ -1,7 +1,6 @@
 {
     "include": [
-        "./src",
-        "./tests/**/*.test.ts"
+        "./src"
     ],
     "exclude": [
         "dist",
