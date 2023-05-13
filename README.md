@@ -7,15 +7,16 @@ Full House Templates
 </h1>
 
 <p align="center">
-  <img align="center" width="15%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/icon.png?raw=true"/>
+  <a href="https://github.com/stdword/logseq13-full-house-plugin#readme">
+    <img align="center" width="15%" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/icon.png?raw=true"/>
+  </a>
 </p>
 
 <!-- <p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b>Logseq13</b> family of plugins</i></p> -->
 
 <p align="center">
-  <a href="https://github.com/stdword/logseq13-full-house-plugin#readme">Home</a> |
-  <a href="docs/tutorial.md">Tutorial</a> |
-  <a src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/index.html"> Documentation</a> |
+  <a href="https://stdword.github.io/logseq13-full-house-plugin/#/tutorial">Tutorial</a> |
+  <a href="https://stdword.github.io/logseq13-full-house-plugin/">Documentation</a> |
   <a href="https://github.com/stdword/logseq13-full-house-plugin/discussions/categories/showroom?discussions_q=is%3Aopen+label%3Aoriginal+category%3AShowroom">Showcases</a>
 </p>
 
