@@ -18,7 +18,7 @@ async function mockLogseq(settingsOverride: object | null = {}, configOverride: 
         App: {
             async getUserConfigs() {
                 const defaultConfig = {
-                    preferredDateFormat: 'yyyy-MM-dd EEE',
+                    preferredDateFormat: 'dd-MM-yyyy',
                 }
                 return Object.assign(defaultConfig, configOverride)
             }
@@ -78,8 +78,7 @@ describe('ref template tag', () => {
         const logseq = await mockLogseq()
 
         const id = uuid()
-        const block = new BlockContext(0)
-        block.uuid = id
+        const block = new BlockContext(0, id)
 
         const mock_get_block = jest.spyOn(logseq.api, 'get_block')
         mock_get_block.mockReturnValue({uuid: id} as unknown as void)
@@ -124,5 +123,38 @@ describe('ref template tag', () => {
         const r = tags.ref(page)
         expect(logseq.api.get_page).toHaveBeenCalled()
         expect(r).toBe(`[[${name}]]`)
+    })
+})
+
+describe('embed template tag', () => {
+    test('strings', async () => {
+        expect( tags.embed('page') ).toBe('{{embed [[page]]}}')
+        expect( tags.embed('[[page]]') ).toBe('{{embed [[page]]}}')
+
+        const blockID = uuid()
+        expect( tags.embed(blockID) ).toBe(`{{embed ((${blockID}))}}`)
+        expect( tags.embed(`((${blockID}))`) ).toBe(`{{embed ((${blockID}))}}`)
+    })
+    test('dates', async () => {
+        await mockLogseq(null, {preferredDateFormat: 'dd-MM-yyyy'})
+        expect( tags.embed('2023-01-01') ).toBe('{{embed [[01-01-2023]]}}')
+        expect( tags.embed('[[2023|01|01]]') ).toBe('{{embed [[2023|01|01]]}}')
+        expect( tags.embed(dayjs('2023-12-12')) ).toBe('{{embed [[12-12-2023]]}}')
+    })
+    test('block context', async () => {
+        const logseq = await mockLogseq()
+
+        const id = uuid()
+        const block = new BlockContext(0, id)
+
+        expect( tags.embed(block) ).toBe(`{{embed ((${id}))}}`)
+    })
+    test('page context', async () => {
+        const logseq = await mockLogseq()
+
+        const name = 'Test Page'
+        const page = new PageContext(0, name)
+
+        expect( tags.embed(page) ).toBe(`{{embed [[${name}]]}}`)
     })
 })

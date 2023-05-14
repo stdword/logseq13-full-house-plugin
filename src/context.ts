@@ -218,10 +218,12 @@ export class BlockContext extends Context {
         return new BlockContext(BlockContext.emptyID)
     }
 
-    constructor(id: number) {
+    constructor(id: number, uuid?: string) {
         super()
 
         this.id = id
+        if (uuid)
+            this.uuid = uuid
     }
 }
 
