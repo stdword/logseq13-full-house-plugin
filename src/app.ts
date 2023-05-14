@@ -334,7 +334,7 @@ function handleViewCommand(command: RendererMacro) {
  }
 
 
-export const App = (logseq) => {
+export const App = (logseq: any) => {
     if (DEV) {
         // @ts-expect-error
         top!.hmr_count = (top!.hmr_count + 1) || 1

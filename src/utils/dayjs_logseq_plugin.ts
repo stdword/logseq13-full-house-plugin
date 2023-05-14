@@ -52,7 +52,7 @@ export class LogseqDayjsState {
     }
 }
 
-function formatLikeJournalPage(dayjsObj) {
+function formatLikeJournalPage(dayjsObj): string {
     if (!LogseqDayjsState.format)
         return ''
 
