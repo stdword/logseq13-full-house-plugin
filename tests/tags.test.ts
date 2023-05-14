@@ -158,3 +158,44 @@ describe('embed template tag', () => {
         expect( tags.embed(page) ).toBe(`{{embed [[${name}]]}}`)
     })
 })
+
+describe('empty template tag', () => {
+    test('empty values', () => {
+        expect( tags.empty('') ).toBe('')
+        expect( tags.empty('   ') ).toBe('')
+
+        expect( tags.empty('""') ).toBe('')
+        expect( tags.empty("''") ).toBe('')
+        expect( tags.empty("``") ).toBe('')
+        expect( tags.empty('«»') ).toBe('')
+
+        expect( tags.empty('-') ).toBe('')
+        expect( tags.empty('—') ).toBe('')
+
+        expect( tags.empty({}) ).toBe('')
+        expect( tags.empty([]) ).toBe('')
+
+        expect( tags.empty(undefined) ).toBe('')
+    })
+    test('non-empty values', () => {
+        expect( tags.empty('page') ).toBe('page')
+
+        expect( tags.empty(null) ).toBe(null)
+
+        expect( tags.empty(false) ).toBe(false)
+        expect( tags.empty(true) ).toBe(true)
+
+        expect( tags.empty(0) ).toBe(0)
+        expect( tags.empty(1) ).toBe(1)
+
+        expect( tags.empty(0.1) ).toBe(0.1)
+        expect( tags.empty(1.1) ).toBe(1.1)
+
+        expect( tags.empty({'page': 1}) ).toEqual({'page': 1})
+        expect( tags.empty(['page']) ).toEqual(['page'])
+    })
+    test('fallback', () => {
+        expect( tags.empty('', 'default') ).toBe('default')
+        expect( tags.empty('no', 'default') ).toBe('no')
+    })
+})

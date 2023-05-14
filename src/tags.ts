@@ -130,10 +130,20 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
     const r = ref(item)
     return `{{embed ${r}}}`
  }
-function empty(obj: string | any, fallback: string = ''): string {
-    obj = _asString(obj)
-    if (isEmptyString(obj))
+function empty(obj: any, fallback: any = ''): any {
+    if (obj === null)
+        return obj
+
+    if (Array.isArray(obj) && obj.length === 0)
         return fallback
+
+    if (isObject(obj) && Object.keys(obj).length === 0)
+        return fallback
+
+    const strObj = _asString(obj)
+    if (isEmptyString(strObj))
+        return fallback
+
     return obj
  }
 function when(obj: boolean | any, result: string | any): string {
@@ -312,5 +322,5 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
  }
 
 export const _private = {
-    ref, embed,
+    ref, embed, empty, when,
 }
