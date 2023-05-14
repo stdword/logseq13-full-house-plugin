@@ -35,9 +35,6 @@ async function init() {
 
     notifyUser()
 
-    // Logseq reads config setting `preferredDateFormat` with some delay
-    // So we need to wait some time
-    // setTimeout(onAppSettingsChanged, 100)
     await onAppSettingsChanged()
  }
 
