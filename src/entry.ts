@@ -1,5 +1,5 @@
 import "@logseq/libs"
-import { App } from "./index"
+import { App } from "./app"
 
 
 App(logseq)
