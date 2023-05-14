@@ -1,4 +1,3 @@
-import '@logseq/libs'
 import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
 import { dayjs } from './context'
@@ -12,6 +11,7 @@ import {
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
+const DEV = process.env.NODE_ENV === 'development'
 
 async function onAppSettingsChanged() {
     // TODO work with locales
@@ -26,7 +26,7 @@ async function onAppSettingsChanged() {
  }
 
 async function init() {
-    if (import.meta.env.DEV) {
+    if (DEV) {
         // @ts-expect-error
         logseq.UI.showMsg(`HMR #${top!.hmr_count}`, 'info', {timeout: 3000})
     }
@@ -37,7 +37,8 @@ async function init() {
 
     // Logseq reads config setting `preferredDateFormat` with some delay
     // So we need to wait some time
-    setTimeout(onAppSettingsChanged, 100)
+    // setTimeout(onAppSettingsChanged, 100)
+    await onAppSettingsChanged()
  }
 
 function notifyUser() {
@@ -61,7 +62,7 @@ function notifyUser() {
  }
 
 async function main() {
-    init()
+    await init()
 
     logseq.onSettingsChanged(async (old, new_) => {
         await onAppSettingsChanged()
@@ -151,7 +152,7 @@ async function main() {
 
         handleViewCommand(commandView)
     }
-}
+ }
 
 function registerBlockContextCopyCommand(label: string, command: RendererMacro) {
     logseq.Editor.registerBlockContextMenuItem(
@@ -332,8 +333,14 @@ function handleViewCommand(command: RendererMacro) {
     logseq.beforeunload(unload as unknown as () => Promise<void>)
  }
 
-if (import.meta.env.DEV) {
-    // @ts-expect-error
-    top!.hmr_count = (top!.hmr_count + 1) || 1
+
+export const App = (logseq) => {
+    if (DEV) {
+        // @ts-expect-error
+        top!.hmr_count = (top!.hmr_count + 1) || 1
+    }
+
+    logseq.ready(main).catch(console.error)
  }
-logseq.ready(main).catch(console.error)
+
+export const _private = { init }

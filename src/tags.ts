@@ -3,7 +3,7 @@ import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import { BlockContext, Context, dayjs, Dayjs, ILogseqContext, PageContext }  from './context'
 
-import { getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID, LogseqMarkup, LogseqReference, MLDOC_Node, p, parseReference, resolveAssetsLink, unquote, walkBlockTree } from './utils'
+import { getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID, LogseqDayjsState, LogseqMarkup, LogseqReference, MLDOC_Node, p, parseReference, resolveAssetsLink, unquote, walkBlockTree } from './utils'
 
 
 const isoDateFromat = 'YYYY-MM-DD'
@@ -45,26 +45,28 @@ type ITemplateTagsContext = {
 // These template tags could be used in raw javascript template code
 // → type declarations could be violated
 // → use this protection where necessary
-function _arg(v: any): string {
+function _asString(v: any): string {
     v ??= ''
     return v.toString()
  }
 
-function _tryAsDateString(item: string): string | null {
+function _asDateString(item: string): Dayjs | null {
     const day = dayjs(item, isoDateFromat, true)  // strict mode
-    if (day.isValid()) {
-        // @ts-expect-error
-        return day.toPage()
-    }
+    if (day.isValid())
+        return day
     return null
  }
 function _ref(name: string): string {
-    name = _arg(name)
     return `[[${name}]]`
  }
+function _is_ref(item: string): boolean {
+    return item.startsWith('[[') && item.endsWith(']]')
+ }
 function _bref(uuid: string): string {
-    uuid = _arg(uuid)
     return `((${uuid}))`
+ }
+function _is_bref(item: string): boolean {
+    return item.startsWith('((') && item.endsWith('))')
  }
 
 function ref(item: string | BlockContext | PageContext | Dayjs): string {
@@ -97,17 +99,20 @@ function ref(item: string | BlockContext | PageContext | Dayjs): string {
         return _ref(page?.originalName ?? '')
     }
 
-    let str = item as string
+    const str = _asString(item).trim()
+    if (_is_ref(str))
+        return str
+
+    if (_is_bref(str) && isUUID(str.slice(2, -2)))
+        return str
+
     if (isUUID(str))
         return _bref(str)
 
-    // check for the case `ref(today)`
-    const date = _tryAsDateString(str)
+    // check for the case `ref(today)` or `ref('YYYY-MM-DD')`
+    const date = _asDateString(str)
     if (date)
-        return _ref(date)
-
-    if (str.startsWith('[[') && str.endsWith(']]'))
-        str = str.slice(2, -2)
+        return _ref(date.format('page'))
 
     return _ref(str)
  }
@@ -126,7 +131,7 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
     return `{{embed ${r}}}`
  }
 function empty(obj: string | any, fallback: string = ''): string {
-    obj = _arg(obj)
+    obj = _asString(obj)
     if (isEmptyString(obj))
         return fallback
     return obj
@@ -135,8 +140,8 @@ function when(obj: boolean | any, result: string | any): string {
     const condition = !!obj
 
     if (condition) {
-        obj = _arg(obj)
-        return _arg(result)
+        obj = _asString(obj)
+        return _asString(result)
             .replaceAll('${_}', obj)
             .replaceAll('${}', obj)
             .replaceAll('$1', obj)
@@ -145,9 +150,9 @@ function when(obj: boolean | any, result: string | any): string {
     return ''
  }
 function fill(value: string | number, char: string, width: number): string {
-    value = _arg(value)
-    char = _arg(char)
-    width = Number(_arg(width))
+    value = _asString(value)
+    char = _asString(char)
+    width = Number(_asString(width))
     const count = Math.max(0, width - value.length)
     return char.repeat(count) + value
  }
@@ -157,16 +162,16 @@ function zeros(value: string | number, width: number = 2): string {
 
 /* dev */
 function parseMarkup(context: ILogseqContext, text: string): MLDOC_Node[] {
-    text = _arg(text)
+    text = _asString(text)
     return new LogseqMarkup(context).parse(text)
  }
 function toHTML(context: ILogseqContext, text: string): string {
-    text = _arg(text)
+    text = _asString(text)
     return new LogseqMarkup(context).toHTML(text)
  }
 function asset(context: ILogseqContext, name: string): string {
     // TODO: expand '/test.png'
-    name = _arg(name)
+    name = _asString(name)
     let originalProtocol: string
     try {
         const url = new URL(name)
@@ -182,14 +187,14 @@ function asset(context: ILogseqContext, name: string): string {
  }
 function color(value: string): string {
     // TODO: rgb(r, g, b) & others support
-    value = _arg(value)
+    value = _asString(value)
     value = unquote(value)
     if (!value.startsWith('#'))
         value = `#${value}`
     return value
  }
 function get(context: ILogseqContext, path: string): string {
-    path = _arg(path)
+    path = _asString(path)
 
     function getByPath(obj: any, parts: string[]) {
         while (parts.length)
@@ -249,7 +254,7 @@ async function links(
     if (source instanceof BlockContext)
         source = source.uuid!
 
-    source = _arg(source)
+    source = _asString(source)
     const sourceRef = parseReference(source)
     if (!sourceRef)
         return []
