@@ -116,7 +116,7 @@ function ref(item: string | BlockContext | PageContext | Dayjs): string {
 
     return _ref(str)
  }
-function bref(item: string | BlockContext | PageContext | Dayjs): string {
+function bref(item: any): string {
     // @ts-expect-error
     top!.logseq.api.show_msg(
         '"bref" is deprecated. Please use "ref" instead',
@@ -162,15 +162,32 @@ function when(obj: any, result: string | any, fallback: string | any = ''): stri
 
     return _asString(fallback)
  }
-function fill(value: string | number, char: string, width: number): string {
+function fill(
+    value: string | number,
+    char: string,
+    width: number,
+    align: 'left' | 'right' | 'center' = 'right',
+): string {
     value = _asString(value)
     char = _asString(char)
     width = Number(_asString(width))
     const count = Math.max(0, width - value.length)
-    return char.repeat(count) + value
+
+    const filler = char.repeat(count)
+    if (align === 'left')
+        return value + filler
+    else if (align === 'right')
+        return filler + value
+
+    const half = Math.floor(count / 2)
+    const remainder = count % 2
+    return char.repeat(half + remainder) + value + char.repeat(half)
  }
 function zeros(value: string | number, width: number = 2): string {
     return fill(value, '0', width)
+ }
+function spaces(value: string | number, width: number, align: 'left' | 'right' | 'center' = 'right'): string {
+    return fill(value, ' ', width, align)
  }
 
 /* dev */
@@ -325,5 +342,5 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
  }
 
 export const _private = {
-    ref, embed, empty, when,
+    ref, embed, empty, when, fill, zeros, spaces,
 }

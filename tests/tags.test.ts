@@ -221,3 +221,53 @@ describe('when template tag', () => {
         expect( tags.when(123, '{{embed [[${_}]]}}') ).toBe('{{embed [[123]]}}')
     })
 })
+
+describe('fill template tag', () => {
+    test('ok', async () => {
+        expect( tags.fill('1', '+', 2) ).toBe('+1')
+        expect( tags.fill(1, '_', 3) ).toBe('__1')
+        expect( tags.fill('x', ' ', 3) ).toBe('  x')
+    })
+    test('negative', async () => {
+        expect( tags.fill('val', '', 10) ).toBe('val')
+        expect( tags.fill('ok', 'x', 2) ).toBe('ok')
+        expect( tags.fill('okay', ' ', 2) ).toBe('okay')
+    })
+    test('alignment', async () => {
+        expect( tags.fill(1, '_', 2) ).toBe('_1')
+        expect( tags.fill(1, '_', 2, 'right') ).toBe('_1')
+        expect( tags.fill(1, '_', 2, 'left') ).toBe('1_')
+        expect( tags.fill(1, '_', 3, 'center') ).toBe('_1_')
+        expect( tags.fill(1, '_', 4, 'center') ).toBe('__1_')
+    })
+})
+
+describe('zeros template tag', () => {
+    test('ok', async () => {
+        expect( tags.zeros('1', 2) ).toBe('01')
+        expect( tags.zeros(1, 3) ).toBe('001')
+    })
+    test('negative', async () => {
+        expect( tags.zeros('xxx', 2) ).toBe('xxx')
+    })
+    test('default', async () => {
+        expect( tags.zeros(1) ).toBe('01')
+    })
+})
+
+describe('spaces template tag', () => {
+    test('ok', async () => {
+        expect( tags.spaces('1', 2) ).toBe(' 1')
+        expect( tags.spaces(1, 3) ).toBe('  1')
+    })
+    test('negative', async () => {
+        expect( tags.spaces('xxx', 2) ).toBe('xxx')
+    })
+    test('alignment', async () => {
+        expect( tags.spaces(1, 2) ).toBe(' 1')
+        expect( tags.spaces(1, 2, 'right') ).toBe(' 1')
+        expect( tags.spaces(1, 2, 'left') ).toBe('1 ')
+        expect( tags.spaces(1, 3, 'center') ).toBe(' 1 ')
+        expect( tags.spaces(1, 4, 'center') ).toBe('  1 ')
+    })
+})
