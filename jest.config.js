@@ -5,6 +5,7 @@ module.exports = {
     "process.env.NODE_ENV": "test",
   },
   "moduleNameMapper": {
-    '^@src/(.*)$': "<rootDir>/src/$1"
+    '^@src/(.*)$': "<rootDir>/src/$1",
+    '^@tests/(.*)$': "<rootDir>/tests/$1",
   }
 };

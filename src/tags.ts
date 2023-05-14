@@ -17,6 +17,7 @@ type ITemplateTagsContext = {
     when: Function
     fill: Function
     zeros: Function
+    spaces: Function
 
     yesterday: string
     today: string
@@ -320,7 +321,8 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
 
     return {
         ref, bref, embed,
-        empty, when, fill, zeros,
+        empty, when, fill, zeros, spaces,
+
         yesterday, today, tomorrow, time,
 
         dev: new Context({
