@@ -305,3 +305,7 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
         },
     }
  }
+
+export const _private = {
+    ref,
+}
