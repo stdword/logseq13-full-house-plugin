@@ -310,7 +310,7 @@ async function links(
 
 
 export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsContext {
-    const todayObj = dayjs()
+    const todayObj = dayjs().startOf('second')
     const yesterdayObj = todayObj.subtract(1, 'day').startOf('day')
     const tomorrowObj = todayObj.add(1, 'day').startOf('day')
 

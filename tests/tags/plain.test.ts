@@ -6,6 +6,7 @@ import * as dayjs from 'dayjs'
 import { _private as tags } from '@src/tags'
 import { _private as app } from '@src/app'
 import { BlockContext, PageContext } from '@src/context'
+import { toISODate } from '@src/utils'
 
 
 describe('ref template tag', () => {
@@ -36,11 +37,8 @@ describe('ref template tag', () => {
         expect( tags.ref(dayjs('2023-01-01')) ).toBe('[[2023-01-01 Sun]]')
 
         const now = new Date()
-        const m = `${now.getMonth() + 1}`
-        const d = now.getDate().toString()
-        const date = `${now.getFullYear()}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`
         const day = now.toDateString().slice(0, 3)
-        expect( tags.ref(dayjs()) ).toBe(`[[${date} ${day}]]`)
+        expect( tags.ref(dayjs()) ).toBe(`[[${toISODate(now)} ${day}]]`)
     })
     test('block context without api call', async () => {
         const logseq = await LogseqMock()

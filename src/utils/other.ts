@@ -116,3 +116,9 @@ export function escapeForHTML(unsafe: string) {
 export function escapeForHiccup(unsafe: string) {
     return unsafe.replaceAll('"', "'")
  }
+
+export function toISODate(date: Date) {
+    const m = `${date.getMonth() + 1}`
+    const d = date.getDate().toString()
+    return `${date.getFullYear()}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`
+ }
