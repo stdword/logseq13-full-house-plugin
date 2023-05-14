@@ -146,18 +146,21 @@ function empty(obj: any, fallback: any = ''): any {
 
     return obj
  }
-function when(obj: boolean | any, result: string | any): string {
+function when(obj: any, result: string | any, fallback: string | any = ''): string {
     const condition = !!obj
 
     if (condition) {
-        obj = _asString(obj)
+        if (typeof result !== 'string')
+            return _asString(result)
+
+        const strObj = _asString(obj)
         return _asString(result)
-            .replaceAll('${_}', obj)
-            .replaceAll('${}', obj)
-            .replaceAll('$1', obj)
+            .replaceAll('${_}', strObj)
+            .replaceAll('${}', strObj)
+            .replaceAll('$1', strObj)
     }
 
-    return ''
+    return _asString(fallback)
  }
 function fill(value: string | number, char: string, width: number): string {
     value = _asString(value)

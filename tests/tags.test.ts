@@ -199,3 +199,25 @@ describe('empty template tag', () => {
         expect( tags.empty('no', 'default') ).toBe('no')
     })
 })
+
+describe('when template tag', () => {
+    test('false condition', async () => {
+        expect( tags.when('', 'result') ).toBe('')
+        expect( tags.when(false, 'result') ).toBe('')
+        expect( tags.when(0, 'result') ).toBe('')
+        expect( tags.when(null, 'result') ).toBe('')
+        expect( tags.when(undefined, 'result') ).toBe('')
+
+        expect( tags.when('page'.length == 0, 'result') ).toBe('')
+    })
+    test('fallback', async () => {
+        expect( tags.when('', 'result', 'empty') ).toBe('empty')
+        expect( tags.when('ok', 123, 'empty') ).toBe('123')
+        expect( tags.when('', 'result', 123) ).toBe('123')
+    })
+    test('substitution', async () => {
+        expect( tags.when(123, '{{embed [[$1]]}}') ).toBe('{{embed [[123]]}}')
+        expect( tags.when(123, '{{embed [[${}]]}}') ).toBe('{{embed [[123]]}}')
+        expect( tags.when(123, '{{embed [[${_}]]}}') ).toBe('{{embed [[123]]}}')
+    })
+})
