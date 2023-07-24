@@ -318,8 +318,11 @@ async (
         })
     }
 
-    const oldContent = context.block.content!
     const toInsert = head.content
+    if (!toInsert)
+        return
+
+    const oldContent = context.currentBlock.content!
     const toReplace = rawCode.toPattern()
     const newContent = oldContent.replace(toReplace, toInsert)
     if (newContent === oldContent) {
