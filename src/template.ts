@@ -1,7 +1,7 @@
 import '@logseq/libs'
 import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
-import * as Eta from 'eta'
+import { Eta } from 'eta'
 
 import { ILogseqContext, BlockContext, Context, dayjs, ArgsContext } from './context'
 import { RenderError } from './errors'
@@ -9,20 +9,19 @@ import { getTemplateTagsContext } from './tags'
 import { p, IBlockNode, walkBlockTree, coerceToBool, LogseqReferenceAccessType, PropertiesUtils, Properties } from './utils'
 
 
-Eta.configure({
-    // doc: https://eta.js.org/docs/api/configuration
-    autoEscape: false,
-    useWith: true,
-    autoTrim: [false, false],
-    tags: ['``{', '}``'],
-    parse: {
-        exec: '!',
-        interpolate: '',
-        raw: '~',
-    },
-    plugins: [], // TODO: https://github.com/nebrelbug/eta_plugin_mixins
+const DEV = process.env.NODE_ENV === 'development'
 
-    filter: function (value: any): string {
+const eta = new Eta({
+    useWith: true,  /** Make data available on the global object instead of `varName` */
+    // varName: 'fh',  /** Name of the data object. Default "it" */
+
+    // functionHeader: '',  /** Raw JS code inserted in the template function. Useful for declaring global variables */
+
+    autoEscape: false, /** Automatically XML-escape interpolations */
+    // escapeFunction: null,
+
+    autoFilter: true,  /** Apply a `filterFunction` to every interpolation or raw interpolation */
+    filterFunction: function (value: any): string {
         if (value instanceof dayjs)
             // @ts-expect-error
             return value.toPage()
@@ -33,7 +32,31 @@ Eta.configure({
         value = value ?? ''
         return value.toString()
     },
- })
+
+    /** Configure automatic whitespace trimming: left & right */
+    /** values:
+     *    "nl" - trim new lines
+     *    "slurp" - trim whitespaces
+     *    false — no trimming
+     * */
+    autoTrim: [false, false],
+    // rmWhitespace: false,  /** Remove all safe-to-remove whitespace */
+
+    tags: ['``{', '}``'],  /** Template code delimiters. Default `['<%', '%>']` */
+    parse: {
+        exec: '!',  /** Prefix for evaluation. Default is no prefix */
+        interpolate: '',  /** Prefix for interpolation. Default "=" */
+        raw: '~', /** Prefix for raw interpolation. Default "~" */
+    },
+
+    plugins: [], // [{processFnString: null, processAST: null, processTemplate: null}],
+    // TODO: https://github.com/nebrelbug/eta_plugin_mixins
+
+    cache: false,  /** cache templates if `name` or `filename` is passed */
+    cacheFilepaths: false,  /** Holds cache of resolved filepaths */
+    views: '',  /** Directory that contains templates */
+    debug: !!DEV,  /** Pretty-format error messages (adds runtime penalties) */
+})
 
 
 // export enum VariableType {
@@ -186,7 +209,7 @@ export class Template implements ITemplate {
                 page: context.block.page,
                 level: lvl,
             })
-            return Eta.render(b.content, renderContext)
+            return eta.render(b.content, renderContext)
         })
     }
     getArgProperties() {
@@ -229,7 +252,7 @@ export class InlineTemplate implements ITemplate {
 
         const body = `${'``{'} ${this.body} ${'}``'}`
         return {
-            content: Eta.render(body, renderContext),
+            content: eta.render(body, renderContext),
             children: [],
         }
     }
