@@ -1,6 +1,7 @@
 import '@logseq/libs'
 import { IBatchBlock, BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
+import { LogseqMarkup } from '@src/extensions/mldoc_ast'
 import { InlineTemplate, ITemplate, Template } from './template'
 import {
     ILogseqContext, Context, PageContext, BlockContext,
@@ -13,7 +14,6 @@ import {
     escapeForHiccup,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
-import { LogseqMarkup } from './utils/mldoc_ast'
 
 
 /**

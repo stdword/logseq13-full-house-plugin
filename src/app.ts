@@ -1,12 +1,12 @@
 import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
+import { LogseqDayjsState } from '@src/extensions/dayjs_logseq_plugin'
 import { dayjs } from './context'
 import { renderTemplateInBlock, renderTemplateView, renderView } from './logic'
 import {
     indexOfNth, lockOn, p, sleep,
     cleanMacroArg, parseReference, isEmptyString,
     insertContent, PropertiesUtils, RendererMacro,
-    LogseqDayjsState,
     LogseqReference,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'

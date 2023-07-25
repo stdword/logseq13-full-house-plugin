@@ -1,8 +1,8 @@
 import { Mldoc } from 'mldoc'
-import { ArgsContext, ILogseqContext } from '../context'
-import { cleanMacroArg, Macro, RendererMacro } from './logseq'
+import { ArgsContext, ILogseqContext } from '@src/context'
+import { cleanMacroArg, Macro, RendererMacro } from '@src/utils/logseq'
 
-import { html, p } from './other'
+import { html, p } from '@src/utils/other'
 
 
 const MLDOC_OPTIONS = {
