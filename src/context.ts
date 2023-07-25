@@ -13,9 +13,10 @@ import * as quarterOfYear     from 'dayjs/plugin/quarterOfYear'
 import * as duration          from 'dayjs/plugin/duration'
 import * as UTC               from 'dayjs/plugin/utc'
 import * as updateLocale      from 'dayjs/plugin/updateLocale'
-import logseqPlugin           from '@src/extensions/dayjs_logseq_plugin'
+import logseqPlugin           from './extensions/dayjs_logseq_plugin'
 
 import { cleanMacroArg, LogseqReference, p, Properties, PropertiesRefs, PropertiesUtils } from './utils'
+
 
 export { dayjs, Dayjs }
 dayjs.extend(customParseFormat)

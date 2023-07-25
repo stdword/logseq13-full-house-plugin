@@ -1,7 +1,7 @@
 import '@logseq/libs'
 import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
-import { eta } from '@src/extensions/customized_eta'
+import { eta } from './extensions/customized_eta'
 import { ILogseqContext, BlockContext, Context, dayjs, ArgsContext } from './context'
 import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'

@@ -1,6 +1,6 @@
 import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
-import { LogseqDayjsState } from '@src/extensions/dayjs_logseq_plugin'
+import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { dayjs } from './context'
 import { renderTemplateInBlock, renderTemplateView, renderView } from './logic'
 import {

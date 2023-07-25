@@ -1,8 +1,8 @@
 import '@logseq/libs'
 import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
-import { LogseqDayjsState } from '@src/extensions/dayjs_logseq_plugin'
-import { LogseqMarkup, MLDOC_Node, resolveAssetsLink } from '@src/extensions/mldoc_ast'
+import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
+import { LogseqMarkup, MLDOC_Node, resolveAssetsLink } from './extensions/mldoc_ast'
 import { BlockContext, Context, dayjs, Dayjs, ILogseqContext, PageContext }  from './context'
 import {
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
