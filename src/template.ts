@@ -202,7 +202,7 @@ export class InlineTemplate implements ITemplate {
             c: contextObj,
         }
 
-        const body = `${'``{'} ${this.body} ${'}``'}`
+        const body = '``' + this.body + '``'
         return {
             content: eta.renderString(body, renderContext),
             children: [],
