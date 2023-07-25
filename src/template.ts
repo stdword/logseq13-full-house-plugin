@@ -13,12 +13,11 @@ const DEV = process.env.NODE_ENV === 'development'
 
 const eta = new Eta({
     useWith: true,  /** Make data available on the global object instead of `varName` */
-    // varName: 'fh',  /** Name of the data object. Default "it" */
-
-    // functionHeader: '',  /** Raw JS code inserted in the template function. Useful for declaring global variables */
+    varName: 'fh',  /** Name of the data object. Default "it" */
+    // functionHeader: 'const c = fh.c',  /** Raw JS code inserted in the template function. Useful for declaring global variables */
 
     autoEscape: false, /** Automatically XML-escape interpolations */
-    // escapeFunction: null,
+    // escapeFunction: eta.XMLEscape,
 
     autoFilter: true,  /** Apply a `filterFunction` to every interpolation or raw interpolation */
     filterFunction: function (value: any): string {
@@ -29,8 +28,7 @@ const eta = new Eta({
         if (typeof value === 'string')
             return value
 
-        value = value ?? ''
-        return value.toString()
+        return String(value)
     },
 
     /** Configure automatic whitespace trimming: left & right */
@@ -40,7 +38,7 @@ const eta = new Eta({
      *    false — no trimming
      * */
     autoTrim: [false, false],
-    // rmWhitespace: false,  /** Remove all safe-to-remove whitespace */
+    rmWhitespace: false,  /** Remove all safe-to-remove whitespace */
 
     tags: ['``{', '}``'],  /** Template code delimiters. Default `['<%', '%>']` */
     parse: {
@@ -55,7 +53,7 @@ const eta = new Eta({
     cache: false,  /** cache templates if `name` or `filename` is passed */
     cacheFilepaths: false,  /** Holds cache of resolved filepaths */
     views: '',  /** Directory that contains templates */
-    debug: !!DEV,  /** Pretty-format error messages (adds runtime penalties) */
+    debug: true,  /** Pretty-format error messages (adds runtime penalties) */
 })
 
 
@@ -209,7 +207,7 @@ export class Template implements ITemplate {
                 page: context.block.page,
                 level: lvl,
             })
-            return eta.render(b.content, renderContext)
+            return eta.renderString(b.content, renderContext)
         })
     }
     getArgProperties() {
@@ -252,7 +250,7 @@ export class InlineTemplate implements ITemplate {
 
         const body = `${'``{'} ${this.body} ${'}``'}`
         return {
-            content: eta.render(body, renderContext),
+            content: eta.renderString(body, renderContext),
             children: [],
         }
     }
