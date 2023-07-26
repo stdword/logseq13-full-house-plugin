@@ -116,8 +116,8 @@ function compileBody(buff) {
 
             if (meta.protectValue)
                 content = `(() => {
-                    try {return eval('${content}')}
-                    catch {return '${content}'}
+                    try {return eval(\`` + content + `\`)}
+                    catch {return \`` + content + `\`}
                 })()`
 
             if (filterFunction)
