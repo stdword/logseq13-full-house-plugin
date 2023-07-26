@@ -283,10 +283,6 @@ export type Properties     = {[index: string]: string  }
 export type PropertiesRefs = {[index: string]: string[]}
 
 export class PropertiesUtils {
-    // TODO?: org-mode properties
-    // TODO?: front-matter properties
-    // TODO?: :PROPERTIES: properties
-
     // list of built-in properties:
     //   https://github.com/logseq/logseq/blob/master/deps/graph-parser/src/logseq/graph_parser/property.cljs
 

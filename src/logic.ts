@@ -123,6 +123,9 @@ async function getTemplateBlock(
             byProperty: PropertiesUtils.templateProperty,
             includeChildren: true,
         })
+
+        if (accessedVia === 'name')
+            name = templateRef.value as string
     }
 
     if (!templateBlock)
