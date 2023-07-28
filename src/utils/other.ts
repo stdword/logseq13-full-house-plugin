@@ -96,12 +96,17 @@ export function sleep(ms: number) {
 
 export function escapeForRegExp(str: string) {
     const specials = [
+        // '-', '^', '$',
         '/', '.', '*', '+', '?', '|',
         '(', ')', '[', ']', '{', '}', '\\',
     ]
 
     const replacer = new RegExp('(\\' + specials.join('|\\') + ')', 'g')
     return str.replaceAll(replacer, '\\$1')
+
+    // alternative from MDN
+    // return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&')
+    // $& means the whole matched string
  }
 
 export function escapeForHTML(unsafe: string) {
