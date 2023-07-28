@@ -296,7 +296,7 @@ function parse(str) {
                 parseOpenReg.lastIndex = lastIndex = parseCloseReg.lastIndex;
                 const tagClose = closeTag.groups.tag
                 const currentTags = [tagOpen, tagClose].join("...");
-                trimLeftOfNextStr = config.parseTags[currentTags].trimRight ?? closeTag[2];
+                trimLeftOfNextStr =  closeTag[2] || config.parseTags[currentTags].trimRight;
 
                 currentObj = {
                     t: currentTags,
