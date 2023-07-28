@@ -1,4 +1,4 @@
-import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
+import { BlockEntity, IBatchBlock, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { dayjs } from './context'
@@ -8,8 +8,12 @@ import {
     cleanMacroArg, parseReference, isEmptyString,
     insertContent, PropertiesUtils, RendererMacro,
     LogseqReference,
+    walkBlockTree,
+    IBlockNode,
+    escapeForRegExp,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
+import { isOldSyntax } from './extensions/customized_eta'
 
 const DEV = process.env.NODE_ENV === 'development'
 
@@ -63,6 +67,50 @@ async function main() {
 
     logseq.onSettingsChanged(async (old, new_) => {
         await onAppSettingsChanged()
+    })
+
+    logseq.App.registerCommandPalette(
+        { key: 'convert-template', label: 'Convert to new 🏛syntax' }, async (e) => {
+            const selected = (await logseq.Editor.getSelectedBlocks()) ?? []
+            const editing = await logseq.Editor.checkEditing()
+            if (!editing && selected.length === 0) {
+                logseq.UI.showMsg(
+                    `[:p "Start editing template root block or select it"]`,
+                    'warning',
+                    {timeout: 5000},
+                )
+                return
+            }
+
+            const isSelectedState = selected.length !== 0
+            const uuids = isSelectedState ? selected.map((b) => b.uuid) : [editing as string]
+
+            const [ openTag, closeTag ] = [ '``{', '}``' ]
+            const [ openTagRegexp, closeTagRegexp ] = [ escapeForRegExp(openTag), escapeForRegExp(closeTag) ]
+            for (const uuid of uuids) {
+                const block = (await logseq.Editor.getBlock(uuid, {includeChildren: true}))!
+                if (!(await isOldSyntax(block as IBlockNode))) {
+                    logseq.UI.showMsg(
+                        `[:p "The block has already been written with the new syntax" [:pre "${block.content}"]]`,
+                        'warning',
+                        {timeout: 5000},
+                    )
+                    continue
+                }
+
+                await walkBlockTree(block as IBlockNode, async (b, lvl) => {
+                    const content = b.content
+                        .replaceAll(
+                            new RegExp(openTagRegexp + '(?!(?:-|_)?\\s*!)\\s*(.*?)\\s*' + closeTagRegexp, 'gs'),
+                            '``$1``',
+                        )
+                        .replaceAll(
+                            new RegExp(openTagRegexp + '(-|_)?\\s*!' + '(.*?)' + '(-|_)?' + closeTagRegexp, 'gs'),
+                            openTag + '$1$2$3' + closeTag,
+                        )
+                    await logseq.Editor.updateBlock((b as BlockEntity).uuid, content)
+                })
+            }
     })
 
     const commandTemplate = RendererMacro.command('template')
