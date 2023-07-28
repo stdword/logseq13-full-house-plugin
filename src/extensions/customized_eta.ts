@@ -178,7 +178,7 @@ function compileBody(buff) {
         if (typeof currentBlock === 'string') {
             const str = currentBlock
             // we know string exists
-            returnStr += '__eta.res+="' + str + '"\n'
+            returnStr += '__eta.res+=\'' + str + '\'\n'
         } else {
             if (config.debug)
                 returnStr += '__eta.line=' + currentBlock.lineNo + '\n'
@@ -200,11 +200,23 @@ function compileBody(buff) {
                 continue
             }
 
-            if (meta.protectValue)
-                content = `(() => {
-                    try {return eval(\`` + content + `\`)}
-                    catch {return \`` + content + `\`}
-                })()`
+            if (meta.protectValue) {
+                if (content.indexOf('`') === -1)
+                    content = `(() => {
+                        try {return eval(\`` + content + `\`)}
+                        catch {return \`` + content + `\`}
+                    })()`
+                else if (content.indexOf("'") === -1)
+                    content = `(() => {
+                        try {return eval('${content}')}
+                        catch {return '${content}'}
+                    })()`
+                else
+                    content = `(() => {
+                        try {return eval("${content}")}
+                        catch {return "${content}"}
+                    })()`
+            }
 
             if (filterFunction)
                 content = `this.config.parseTags[${currentBlock.t}].filterFunction(` + content + ')'
