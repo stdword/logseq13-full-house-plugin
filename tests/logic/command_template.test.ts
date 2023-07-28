@@ -31,7 +31,7 @@ async function testRender(syntax: string, expected: string | null = null) {
     return block.content
  }
 
-describe.only('template syntax', () => {
+describe('template syntax', () => {
     test('no syntax', async () => {
         await testRender('text', 'text') })
     test('js expression', async () => {
@@ -42,20 +42,42 @@ describe.only('template syntax', () => {
         expect(console._checkMe).toBe(13)
     })
 
+    test('back ticks inside expression', async () => {
+        await testRender('`` `1` + `2` ``', '12') })
+
     test('save spaces to the right', async () => {
-        await testRender('``{ }``  text', '  text') })
+        await testRender('``{ var x = 1 }``  text', '  text') })
     test('save spaces to the left', async () => {
-        await testRender('text  ``{ }``', 'text  ') })
+        await testRender('text  ``{ var x = 1 }``', 'text  ') })
     test('strip one new line to the right', async () => {
-        await testRender('``{ }``\n\ntext', '\ntext') })
+        await testRender('``{ var x = 1 }``\n\ntext', '\ntext') })
     test('strip no one new lines to the left', async () => {
-        await testRender('text\n\n``{ }``', 'text\n\n') })
+        await testRender('text\n\n``{ var x = 1 }``', 'text\n\n') })
 
     test('ref shortcut', async () => {
         await testRender('``["page"]``', '[[page]]') })
 })
 
-describe.only('template context', () => {
+describe('backwards compatibility', () => {
+    test('old syntax: exclamation mark', async () => {
+        await testRender('``{ ! var x = c.page.name }`` ``{ x }``', ' PAGE') })
+    test('new syntax: no exclamation mark', async () => {
+        await testRender('``{ var x = c.page.name }`` ``x``', ' PAGE') })
+
+    test('don\'t mix old & new syntax', async () => {
+        await testRender('``{ ! var x = c.page.name }`` ``x``', ' ``x``') })
+    test('don\'t mix new & old syntax', async () => {
+        await testRender('``{ var x = c.page.name }`` ``{ x }``', ' ') })
+
+    test('statement signs: var', async () => {
+        await testRender('``{ var x = c.page.name }``', '') })
+    test('statement signs: =', async () => {
+        await testRender('``{ c.page.name = "new" }``', '') })
+    test('statement signs: absent', async () => {
+        await testRender('``{ c.page.name }``', 'PAGE') })
+})
+
+describe('template context', () => {
     test('page name', async () => {
         await testRender('``c.page.name``', 'PAGE') })
     test('template name', async () => {
