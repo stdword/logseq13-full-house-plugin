@@ -1,7 +1,7 @@
 import '@logseq/libs'
 import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
-import { eta } from './extensions/customized_eta'
+import { RenderingSyntax } from './extensions/customized_eta'
 import { ILogseqContext, BlockContext, Context, dayjs, ArgsContext } from './context'
 import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'
@@ -151,6 +151,7 @@ export class Template implements ITemplate {
             c: contextObj,
         }
 
+        const renderrer = await RenderingSyntax.autoSelect(this.block as IBlockNode)
         return await walkBlockTree(this.block as IBlockNode, async (b, lvl) => {
             if (lvl === 0 && !this.includingParent)
                 return ''
@@ -161,7 +162,7 @@ export class Template implements ITemplate {
                 page: context.block.page,
                 level: lvl,
             })
-            return eta.renderString(b.content, renderContext)
+            return renderrer.renderString(b.content, renderContext)
         })
     }
     getArgProperties() {
@@ -202,9 +203,10 @@ export class InlineTemplate implements ITemplate {
             c: contextObj,
         }
 
+        const renderrer = RenderingSyntax.latest()
         const body = '`` ' + this.body + ' ``'
         return {
-            content: eta.renderString(body, renderContext),
+            content: renderrer.renderString(body, renderContext),
             children: [],
         }
     }
