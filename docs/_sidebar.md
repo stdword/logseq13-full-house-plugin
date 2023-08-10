@@ -1,6 +1,14 @@
 - [About](index.md)
 
+- [Changelog](changelog.md)
+
 - [Tutorial](tutorial.md)
+
+- Reference
+  - [Syntax](reference__syntax.md)
+  - [Context variables](reference__context.md)
+  - [Template tags](reference__tags.md)
+  - [Commands](reference__commands.md)
 
 - Other
   - [FAQ](faq.md)
