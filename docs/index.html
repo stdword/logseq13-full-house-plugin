@@ -29,10 +29,10 @@
     window.$docsify = {
       name: '🏛<br/>Full House Templates',
       repo: 'stdword/logseq13-full-house-plugin#readme',
-      // alias: { → doesn't work
-      //     '/.*/navbar.md': '/navbar.md',
-      //     '/ru/(.*)'   : './ru/$1',
-      // },
+      alias: { // doesn't work
+        // '/.*/navbar.md': '/navbar.md',
+        // '/ru/(.*)'   : './ru/$1',
+      },
       coverpage: true,
       onlyCover: true,
       loadSidebar: true,
@@ -81,6 +81,13 @@
         crossChapter: true,
         crossChapterText: true,
       },
+      tabs: {
+        persist: false,
+        sync: true,
+        theme: 'classic',
+        tabComments: false,
+        tabHeadings: true,
+      },
       plugins: [
         EditOnGithubPlugin.create(
           'https://github.com/stdword/logseq13-full-house-plugin/tree/main/docs/',
@@ -101,7 +108,18 @@
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
   <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-example-panels@1"></script>
+  <style>
+    :root {
+      --docsify-example-panels-left-panel-width : 40%;
+      --docsify-example-panels-right-panel-width : 60%;
+    }
+  </style>
+
   <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@3/dist/docsify-themeable/main.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@3/dist/docsify-themeable/index.min.js"></script>
 </body>
 </html>
+
+<!-- TODO: https://github.com/fzankl/docsify-plugin-flexible-alerts -->
