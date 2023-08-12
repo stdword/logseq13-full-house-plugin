@@ -117,7 +117,7 @@ const eta = new CustomizedEta({
             compileFunction: (meta, content_) => {
                 const content = content_.trim().toLowerCase()
                 if (content === 'current page')
-                    return '`[[${c.page.name}]]`'
+                    return '`[[${c.currentPage.name}]]`'
                 else if (content === 'today')
                     return 'ref(date.today)'
                 else if (content === 'yesterday')
