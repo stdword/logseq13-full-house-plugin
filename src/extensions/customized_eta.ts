@@ -128,6 +128,7 @@ const eta = new CustomizedEta({
                     return 'time'
 
                 // try NLP
+                Sherlock._setNow(null)
                 const parsed = Sherlock.parse(content)
                 const { isAllDay, eventTitle, startDate, endDate } = parsed
                 if (startDate) {

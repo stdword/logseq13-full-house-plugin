@@ -1,6 +1,8 @@
 import '@logseq/libs'
 import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
+import * as Sherlock from 'sherlockjs'
+
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { LogseqMarkup, MLDOC_Node, resolveAssetsLink } from './extensions/mldoc_ast'
 import { BlockContext, Context, dayjs, Dayjs, ILogseqContext, PageContext }  from './context'
@@ -43,6 +45,7 @@ type ITemplateTagsContext = {
         tomorrow: Dayjs
 
         from: Function
+        nlp: Function
     }
 }
 
@@ -195,6 +198,24 @@ function spaces(value: string | number, width: number, align: 'left' | 'right' |
     return fill(value, ' ', width, align)
  }
 
+
+/* date */
+function date_nlp(context: ILogseqContext, query: string, now: Dayjs | string = 'now'): Dayjs | null {
+    if (now === 'now')
+        Sherlock._setNow(null)
+    else if (now === 'page')
+        Sherlock._setNow(context.currentPage.day?.toDate() || null)
+    else
+        Sherlock._setNow(dayjs(now).toDate())
+
+    const parsed = Sherlock.parse(query)
+    const { isAllDay, eventTitle, startDate, endDate } = parsed
+    if (startDate)
+        return dayjs(startDate)
+    return null
+}
+
+
 /* dev */
 function parseMarkup(context: ILogseqContext, text: string): MLDOC_Node[] {
     text = _asString(text)
@@ -331,6 +352,7 @@ export function getTemplateTagsDatesContext() {
             today: todayObj.startOf('day'),
             now: todayObj,
             tomorrow: tomorrowObj,
+
             from: dayjs,
         },
     }
@@ -355,7 +377,9 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
             get: get.bind(null, context),
             links: parseLinks.bind(null, context),
         }) as unknown as ITemplateTagsContext['dev'],
-        date: datesContext.date,
+        date: Object.assign(datesContext.date, {
+            nlp: date_nlp.bind(null, context),
+        }),
     }
 }
 
