@@ -119,4 +119,25 @@ describe('standard template syntax', () => {
 
     test('current page', async () => {
         await testRender('<% current page %>', '[[PAGE]]') })
+
+    test('NLP relative week day', async () => {
+        const today = dayjs()
+        let day: dayjs.Dayjs | string = today.day(5)
+        if (day > today)
+            day = day.subtract(1, 'week')
+        day = day.format('page')
+        await testRender('<% last friday %>', '[[' + day + ']]') })
+    test('NLP relative days count', async () => {
+        const day = dayjs().subtract(5, 'day').format('page')
+        await testRender('<% 5 days ago %>', '[[' + day + ']]') })
+    test('NLP relative weeks count', async () => {
+        const day = dayjs().add(2, 'week').format('page')
+        await testRender('<% 2 weeks from now %>', '[[' + day + ']]') })
+
+    test('NLP exact 1', async () => {
+        await testRender('<% 17 August 2013 %>', '[[2013-08-17]]') })
+    test('NLP exact 2', async () => {
+        await testRender('<% Sat Aug 17 2013 %>', '[[2013-08-17]]') })
+    test('NLP exact 3', async () => {
+        await testRender('<% 2013-08-17 %>', '[[2013-08-17]]') })
 })

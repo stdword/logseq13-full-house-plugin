@@ -1,6 +1,8 @@
 import { Eta } from 'eta'
 import { EtaConfig } from 'eta/dist/types/config'
 
+import * as Sherlock from 'sherlockjs'
+
 import { dayjs } from '../context'
 import { IBlockNode, walkBlockTree } from '../utils'
 
@@ -124,6 +126,14 @@ const eta = new CustomizedEta({
                     return 'ref(tomorrow)'
                 else if (content === 'time')
                     return 'time'
+
+                // try NLP
+                const parsed = Sherlock.parse(content)
+                const { isAllDay, eventTitle, startDate, endDate } = parsed
+                if (startDate) {
+                    const day = dayjs(startDate).format('page')
+                    return `'[[${day}]]'`
+                }
 
                 return '\'' + content_ + '\''
             },
