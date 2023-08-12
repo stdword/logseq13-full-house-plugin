@@ -11,3 +11,11 @@ To manually convert your existing templates, use [this](reference__commands.md#c
 ### Rendering standard Logseq templates
 1. Rendering *dynamic variables* (inside `<% ... %>`) according to [Logseq Docs](https://docs.logseq.com/#/page/60311eda-b6f7-4779-8187-8830545b3a64). See [*Reference*](reference__syntax.md#id=standard-syntax) for more details.
 2. Possibility to mix standard Logseq templates syntax with other plugin [*Syntax*](reference__syntax.md).
+
+
+### Template tag `date.nlp` for getting NLP dates
+1. Relative to now moment
+2. Relative to any custom date
+3. Relative to current journal's page
+
+See [*Reference*](reference__tags.md#id=date-nlp) for more details.
