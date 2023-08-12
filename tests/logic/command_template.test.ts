@@ -8,6 +8,7 @@ import { _private as tags } from '@src/tags'
 import { _private as app } from '@src/app'
 import { RendererMacro, parseReference } from '@src/utils'
 import { renderTemplateInBlock } from '@src/logic'
+import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 
 
 let logseq: any
@@ -15,10 +16,10 @@ beforeEach(async () => {
     logseq = await LogseqMock(null, {preferredDateFormat: 'YYYY-MM-DD'})
 })
 
-async function testRender(syntax: string, expected: string | null = null) {
+async function testRender(syntax: string, expected: string | null = null, page: PageEntity | null = null) {
     const name = 'test_name'
     const command = RendererMacro.command('template').arg(name)
-    const block = logseq._createBlock(command.toString())
+    const block = logseq._createBlock(command.toString(), null, page)
     if (expected === '')
         expected = block.content
 
@@ -140,4 +141,20 @@ describe('standard template syntax', () => {
         await testRender('<% Sat Aug 17 2013 %>', '[[2013-08-17]]') })
     test('NLP exact 3', async () => {
         await testRender('<% 2013-08-17 %>', '[[2013-08-17]]') })
+})
+
+describe('template tags', () => {
+    test('date.nlp relative to now', async () => {
+        const day = dayjs().add(2, 'day').format('page')
+        await testRender('``date.nlp("in two days")``', day) })
+
+    test('date.nlp relative to tomorrow via string', async () => {
+        await testRender('``date.nlp("in two days", "2020-10-01")``', '2020-10-03') })
+    test('date.nlp relative to tomorrow via obj', async () => {
+        const day = dayjs().add(1, 'day').add(2, 'day').format('page')
+        await testRender('``date.nlp("in two days", date.tomorrow)``', day) })
+
+    test('date.nlp relative to now', async () => {
+        const page = logseq._createJournalPage('2020-10-01')
+        await testRender('``date.nlp("in two days", "page")``', '2020-10-03', page) })
 })

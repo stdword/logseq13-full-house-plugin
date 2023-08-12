@@ -88,7 +88,28 @@ export async function LogseqMock(
             logseq._pages.push(obj)
             return obj
         },
-        _createBlock: function (block: IBlockNode | string, parent: BlockEntity | null = null): BlockEntity {
+        _createJournalPage: function (isoDay: string): PageEntity {
+            const obj: PageEntity = {
+                format: 'markdown',
+
+                id: this._pages.length + 1,
+                uuid: genUUID(),
+
+                name: isoDay,
+                originalName: isoDay,
+
+                'journal?': true,
+                journalDay: Number(isoDay.replaceAll('-', '')),
+            }
+
+            logseq._pages.push(obj)
+            return obj
+        },
+        _createBlock: function (
+            block: IBlockNode | string,
+            parent: BlockEntity | null = null,
+            page: PageEntity | null = null,
+        ): BlockEntity {
             const content = typeof block === 'string' ? block : block.content
             const children = typeof block === 'string' ? [] : block.children
 
@@ -104,7 +125,7 @@ export async function LogseqMock(
                 left: {},
                 // @ts-expect-error
                 parent: parent ? {id: parent.id} : {},
-                page: {id: logseq._pages[0].id},
+                page: page ? {id: page.id} : {id: logseq._pages[0].id},
             }
             logseq._blocks.push(obj)
 
