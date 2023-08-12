@@ -35,7 +35,8 @@
         "@logseq/libs": "^0.0.15",
         "dayjs": "^1.11.9",
         "eta": "^3.1.0",
-        "mldoc": "^1.5.7"
+        "mldoc": "^1.5.7",
+        "sherlockjs": "^1.4.2"
     },
     "devDependencies": {
         "@semantic-release/changelog": "^6.0.3",

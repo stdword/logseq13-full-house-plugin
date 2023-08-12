@@ -17,6 +17,9 @@ dependencies:
   mldoc:
     specifier: ^1.5.7
     version: 1.5.7
+  sherlockjs:
+    specifier: ^1.4.2
+    version: 1.4.2
 
 devDependencies:
   '@semantic-release/changelog':
@@ -4931,6 +4934,10 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
     dev: true
+
+  /sherlockjs@1.4.2:
+    resolution: {integrity: sha512-Liynk2FRTyiHLzMqoe1LvRkT3MhMjUphIBKGa1pRovDKXEaygwpha76om/qV9YTG3qFr1+UIifEuH0VU+KVuRA==}
+    dev: false
 
   /signal-exit@3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
