@@ -1,16 +1,14 @@
 import { Eta } from 'eta'
+import { EtaConfig } from 'eta/dist/types/config'
 
 import { dayjs } from '../context'
 import { IBlockNode, walkBlockTree } from '../utils'
 
 
 class CustomizedEta extends Eta {
-    compileBody: Function
-
-    constructor(...args) {
-        super(...args)
+    constructor(customConfig?: object) {
+        super(customConfig)
         this.compileBody = compileBody
-        this.compileToString = compileToString
         this.parse = parse
     }
 }
@@ -284,7 +282,7 @@ function parse(str) {
 
     const openTagsReg = Object.values(config.parseTags).map((v: any) => escapeRegExp(v.tags[0])).join("|");
     const parseOpenReg = new RegExp("(" + openTagsReg + ")" + "(-|_)?\\s*", "g");
-    let m;
+    let m: RegExpExecArray | null;
     while (m = parseOpenReg.exec(str)) {
         const precedingString = str.slice(lastIndex, m.index);
         lastIndex = m[0].length + m.index;
@@ -298,13 +296,13 @@ function parse(str) {
             .map((v: any) => escapeRegExp(v.tags[1])).join("|");
         const parseCloseReg = new RegExp("'|\"|\\/\\*|(\\s*(-|_)?" + "(?<tag>" + closeTagsReg + "))", "g");
         parseCloseReg.lastIndex = lastIndex;
-        let closeTag;
+        let closeTag: RegExpExecArray | null;
         let currentObj: any = false;
         while (closeTag = parseCloseReg.exec(str)) {
             if (closeTag[1]) {
                 const content = str.slice(lastIndex, closeTag.index);
                 parseOpenReg.lastIndex = lastIndex = parseCloseReg.lastIndex;
-                const tagClose = closeTag.groups.tag
+                const tagClose = closeTag.groups!.tag
                 const currentTags = [tagOpen, tagClose].join("...");
                 trimLeftOfNextStr =  closeTag[2] || config.parseTags[currentTags].trimRight;
 
@@ -394,8 +392,8 @@ function ParseErr(message, str, indx) {
 }
 
 function trimWS(str, config, wsLeft, wsRight) {
-    let leftTrim;
-    let rightTrim;
+    let leftTrim: string;
+    let rightTrim: string;
     if (Array.isArray(config.autoTrim)) {
         // Slightly confusing,
         // but _}} will trim the left side of the following string
@@ -440,42 +438,4 @@ function escapeRegExp(string) {
 function getLineNo(str, index) {
     return str.slice(0, index).split("\n").length;
 }
-
-function compileToString(str, options) {
-    // complete copy from eta just to bind compileBody
-    // @ts-expect-error
-    const config = this.config;
-    const isAsync = options && options.async;
-    // @ts-expect-error
-    const buffer = this.parse.call(this, str);
-    // note: when the include function passes through options, the only parameter that matters is the filepath parameter
-    let res = `${config.functionHeader}
-let include = (template, data) => this.render(template, data, options);
-let includeAsync = (template, data) => this.renderAsync(template, data, options);
-
-let __eta = {res: "", e: this.config.escapeFunction, f: this.config.filterFunction${config.debug ? ', line: 1, templateStr: "' + str.replace(/\\|'/g, "\\$&").replace(/\r\n|\n|\r/g, "\\n") + '"' : ""}};
-
-function layout(path, data) {
-    __eta.layout = path;
-    __eta.layoutData = data;
-}${config.debug ? "try {" : ""}${config.useWith ? "with(" + config.varName + "||{}){" : ""}
-
-${// @ts-expect-error
-        compileBody.call(this, buffer)}
-if (__eta.layout) {
-    __eta.res = ${isAsync ? "await includeAsync" : "include"} (__eta.layout, {...${config.varName}, body: __eta.res, ...__eta.layoutData});
-}
-${config.useWith ? "}" : ""}${config.debug ? "} catch (e) { this.RuntimeErr(e, __eta.templateStr, __eta.line, options.filepath) }" : ""}
-return __eta.res;
-`;
-    if (config.plugins) {
-        for (let i = 0; i < config.plugins.length; i++) {
-            const plugin = config.plugins[i];
-            if (plugin.processFnString) {
-                res = plugin.processFnString(res, config);
-            }
-        }
-    }
-    return res;
- }
 /* END copy from eta source code */

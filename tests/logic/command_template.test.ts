@@ -10,7 +10,7 @@ import { RendererMacro, parseReference } from '@src/utils'
 import { renderTemplateInBlock } from '@src/logic'
 
 
-let logseq
+let logseq: any
 beforeEach(async () => {
     logseq = await LogseqMock(null, {preferredDateFormat: 'YYYY-MM-DD'})
 })
