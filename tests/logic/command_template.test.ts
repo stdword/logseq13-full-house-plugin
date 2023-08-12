@@ -2,17 +2,20 @@ import { v4 as uuid } from 'uuid'
 
 import { LogseqMock } from '@tests/index'
 
+import * as dayjs from 'dayjs'
+
 import { _private as tags } from '@src/tags'
 import { _private as app } from '@src/app'
 import { RendererMacro, parseReference } from '@src/utils'
-
-
 import { renderTemplateInBlock } from '@src/logic'
 
 
-async function testRender(syntax: string, expected: string | null = null) {
-    const logseq = await LogseqMock()
+let logseq
+beforeEach(async () => {
+    logseq = await LogseqMock(null, {preferredDateFormat: 'YYYY-MM-DD'})
+})
 
+async function testRender(syntax: string, expected: string | null = null) {
     const name = 'test_name'
     const command = RendererMacro.command('template').arg(name)
     const block = logseq._createBlock(command.toString())
@@ -89,4 +92,31 @@ describe('template context', () => {
         expect(content.slice(0, 9)).toBe('```json\n{')
         expect(content.slice(-5)).toBe('}\n```')
     })
+})
+
+describe('standard template syntax', () => {
+    test('unknown dynamic variable', async () => {
+        await testRender('<% UNknown %>', 'UNknown') })
+
+    test('time', async () => {
+        const time = dayjs().format('HH:mm')
+        await testRender('<% time %>', time) })
+
+    test('today page', async () => {
+        const today = dayjs().format('page')
+        await testRender('<% today %>', '[[' + today + ']]') })
+    test('today page with different spaces and case', async () => {
+        const today = dayjs().format('page')
+        await testRender('<%toDAY      %>', '[[' + today + ']]') })
+
+    test('yesterday page', async () => {
+        const yesterday = dayjs().subtract(1, 'day').format('page')
+        await testRender('<% yesterday %>', '[[' + yesterday + ']]') })
+
+    test('tomorrow page', async () => {
+        const tomorrow = dayjs().add(1, 'day').format('page')
+        await testRender('<% tomorrow %>', '[[' + tomorrow + ']]') })
+
+    test('current page', async () => {
+        await testRender('<% current page %>', '[[PAGE]]') })
 })

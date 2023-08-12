@@ -111,11 +111,25 @@ const eta = new CustomizedEta({
             autoFilter: true,
             parseFunction: (meta, content) => ({protectValue: true}),
         },
-        // '<%...%>': {
-        //   trimRight: false,
-        //   autoFilter: false,
-        //   filterFunction: RenderLogseqTemplate,
-        // },
+        '<%...%>': {
+            trimRight: false,
+            autoFilter: false,
+            compileFunction: (meta, content_) => {
+                const content = content_.trim().toLowerCase()
+                if (content === 'current page')
+                    return 'ref(c.page.name)'
+                else if (content === 'today')
+                    return 'ref(today)'
+                else if (content === 'yesterday')
+                    return 'ref(yesterday)'
+                else if (content === 'tomorrow')
+                    return 'ref(tomorrow)'
+                else if (content === 'time')
+                    return 'time'
+
+                return '\'' + content_ + '\''
+            },
+        },
     },
 
     plugins: [], // [{processFnString: null, processAST: null, processTemplate: null}],
