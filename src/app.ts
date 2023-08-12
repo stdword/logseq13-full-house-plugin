@@ -38,28 +38,38 @@ async function init() {
     console.info(p`Loaded`)
 
     notifyUser()
-
     await onAppSettingsChanged()
- }
+}
 
 function notifyUser() {
     if (!logseq.settings!.notifications)
         logseq.settings!.notifications = {}
 
-    if (!logseq.settings!.notifications.namedContextPageArg) {
-        logseq.UI.showMsg(
-            `[:div
-                [:p [:code "🏛 Full House Templates"]]
-                [:p [:b "Breaking Change"]
-                    ": Positional page context argument was replaced by named one."]
-                [:p "Use " [:code ":page"] " to specify page different than current."]
-                [:p [:i "Usage"] [:br]
-                    "🚫 " [:code ":template, <name>, Logseq"] [:br]
-                    "✅ " [:code ":template, <name>, :page Logseq"]]
-            ]`,
-            'info', {timeout: 60000})
-        logseq.updateSettings({notifications: {namedContextPageArg: true}})
+    // delete old notifications keys
+    delete logseq.settings!.notifications.namedContextPageArg
+
+    const previousPluginVersion = logseq.settings!.notifications.previousPluginVersion
+    const currentPluginVersion = logseq.baseInfo.version
+
+    // Notify only old users
+    if (previousPluginVersion && currentPluginVersion !== previousPluginVersion) {
+        if (!logseq.settings!.notifications.newTemplateSyntax) {
+            logseq.UI.showMsg(
+                `[:div
+                    [:p [:code "🏛 Full House Templates"]]
+                    [:p [:b "Breaking Change"] [:br]
+                        "New template syntax was introduced." [:br]
+                        "See details "
+                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=new-syntax"}
+                            "here"]
+                    "."]
+                ]`,
+                'warning', {timeout: 60000})
+            logseq.updateSettings({notifications: {newTemplateSyntax: true}})
+        }
     }
+
+    logseq.updateSettings({notifications: {previousPluginVersion: currentPluginVersion}})
  }
 
 async function main() {
