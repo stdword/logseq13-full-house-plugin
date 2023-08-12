@@ -137,7 +137,7 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
 }
 function empty(obj: any, fallback: any = ''): any {
     if (obj === null)
-        return fallback
+        return obj
 
     if (Array.isArray(obj) && obj.length === 0)
         return fallback
