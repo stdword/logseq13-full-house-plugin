@@ -57,7 +57,7 @@ const etaForCompatibility = new Eta({
     cacheFilepaths: false,  /** Holds cache of resolved filepaths */
     views: '',  /** Directory that contains templates */
     debug: false,  /** Pretty-format error messages (adds runtime penalties) */
- })
+})
 
 const eta = new CustomizedEta({
     useWith: true,  /** Make data available on the global object instead of `varName` */
@@ -139,7 +139,7 @@ const eta = new CustomizedEta({
     cacheFilepaths: false,  /** Holds cache of resolved filepaths */
     views: '',  /** Directory that contains templates */
     debug: false,  /** Pretty-format error messages (adds runtime penalties) */
- })
+})
 
 export async function isOldSyntax(block: IBlockNode) {
     let useOldSyntax = false
@@ -172,8 +172,7 @@ export async function isOldSyntax(block: IBlockNode) {
     })
 
     return useOldSyntax
- }
-
+}
 export class RenderingSyntax {
     static latest(): Eta {
         return eta
@@ -233,7 +232,7 @@ function compileBody(buff) {
             }
 
             if (filterFunction)
-                content = `this.config.parseTags[${currentBlock.t}].filterFunction(` + content + ')'
+                content = `this.config.parseTags['${currentBlock.t}'].filterFunction('` + content + '\')'
 
             if (autoFilter)
                 content = '__eta.f(' + content + ')'
@@ -241,11 +240,8 @@ function compileBody(buff) {
             returnStr += '__eta.res+=' + content + '\n'
         }
     }
-
-    console.debug(returnStr)
     return returnStr
- }
-
+}
 function parse(str) {
     // @ts-expect-error
     const config = this.config;
@@ -375,7 +371,7 @@ function parse(str) {
     }
 
     return buffer;
- }
+}
 
 
 /* START copy from eta source code: just to support extension-ability */
@@ -388,14 +384,14 @@ class EtaError extends Error {
         super(message);
         this.name = "Eta Error";
     }
- }
+}
 function ParseErr(message, str, indx) {
     const whitespace = str.slice(0, indx).split(/\n/);
     const lineNo = whitespace.length;
     const colNo = whitespace[lineNo - 1].length + 1;
     message += " at line " + lineNo + " col " + colNo + ":\n\n" + "  " + str.split(/\n/)[lineNo - 1] + "\n" + "  " + Array(colNo).join(" ") + "^";
     throw new EtaError(message);
- }
+}
 
 function trimWS(str, config, wsLeft, wsRight) {
     let leftTrim;
@@ -435,15 +431,15 @@ function trimWS(str, config, wsLeft, wsRight) {
         str = str.replace(/(?:\r\n|\n|\r)$/, "");
     }
     return str;
- }
+}
 
 function escapeRegExp(string) {
     // From MDN
     return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
- }
+}
 function getLineNo(str, index) {
     return str.slice(0, index).split("\n").length;
- }
+}
 
 function compileToString(str, options) {
     // complete copy from eta just to bind compileBody
