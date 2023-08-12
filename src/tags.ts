@@ -130,11 +130,11 @@ function bref(item: any): string {
     console.warn(p`"bref" is deprecated. Please use "ref" instead`)
 
     return ref(item)
- }
+}
 function embed(item: string | BlockContext | PageContext | Dayjs): string {
     const r = ref(item)
     return `{{embed ${r}}}`
- }
+}
 function empty(obj: any, fallback: any = ''): any {
     if (obj === null)
         return fallback
@@ -150,7 +150,7 @@ function empty(obj: any, fallback: any = ''): any {
         return fallback
 
     return obj
- }
+}
 function when(obj: any, result: string | any, fallback: string | any = ''): string {
     const condition = !!obj
 
@@ -249,7 +249,7 @@ function get(context: ILogseqContext, path: string): string {
         return ''
 
     return getByPath(context, parts) ?? ''
- }
+}
 
 /* query */
 //   where: source
@@ -313,7 +313,7 @@ async function links(
  }
 
 
-export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsContext {
+export function getTemplateTagsDatesContext() {
     const todayObj = dayjs().startOf('second')
     const yesterdayObj = todayObj.subtract(1, 'day').startOf('day')
     const tomorrowObj = todayObj.add(1, 'day').startOf('day')
@@ -324,10 +324,28 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
     const time = dayjs().format('HH:mm')
 
     return {
+        yesterday, today, tomorrow, time,
+
+        date: {
+            yesterday: yesterdayObj,
+            today: todayObj.startOf('day'),
+            now: todayObj,
+            tomorrow: tomorrowObj,
+            from: dayjs,
+        },
+    }
+}
+export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsContext {
+    const datesContext = getTemplateTagsDatesContext()
+
+    return {
         ref, bref, embed,
         empty, when, fill, zeros, spaces,
 
-        yesterday, today, tomorrow, time,
+        yesterday: datesContext.yesterday,
+        today: datesContext.today,
+        tomorrow: datesContext.tomorrow,
+        time: datesContext.time,
 
         dev: new Context({
             parseMarkup: parseMarkup.bind(null, context),
@@ -337,15 +355,9 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
             get: get.bind(null, context),
             links: parseLinks.bind(null, context),
         }) as unknown as ITemplateTagsContext['dev'],
-        date: {
-            yesterday: yesterdayObj,
-            today: todayObj.startOf('day'),
-            now: todayObj,
-            tomorrow: tomorrowObj,
-            from: dayjs,
-        },
+        date: datesContext.date,
     }
- }
+}
 
 export const _private = {
     ref, embed, empty, when, fill, zeros, spaces,

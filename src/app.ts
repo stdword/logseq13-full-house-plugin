@@ -70,7 +70,7 @@ function notifyUser() {
     }
 
     logseq.updateSettings({notifications: {previousPluginVersion: currentPluginVersion}})
- }
+}
 
 async function main() {
     await init()
@@ -207,7 +207,7 @@ async function main() {
 
         handleViewCommand(commandView)
     }
- }
+}
 
 function registerBlockContextCopyCommand(label: string, command: RendererMacro) {
     logseq.Editor.registerBlockContextMenuItem(
@@ -396,6 +396,6 @@ export const App = (logseq: any) => {
     }
 
     logseq.ready(main).catch(console.error)
- }
+}
 
 export const _private = { init }
