@@ -1,1 +1,150 @@
-## `c` variable
+## `c`: whole context variable
+You can always see whole context with `{{renderer :view, "c"}}`. \
+Or individual one with `{{renderer :view, "c.page"}}`
+
+
+## `c.page` & `c.currentPage`: page context
+`c.page`: current page or page provided with `:page` argument. \
+`c.currentPage` is always current page.
+
+```
+{
+    id: (number) 11320,
+    uuid: (string) '64d7d3a2-b635-487b-8aa9-0a44ad21e142',
+    name: (string) 'logseq/plugins/Full House Templates',
+    name_: (string) 'logseq/plugins/full house templates',
+    isJournal: (boolean) false,
+    props: {
+        icon: (string) 🏛,
+        related: (string) '[[logseq]], [[logseq/plugins]]'
+    },
+    propsRefs: {
+        icon: (array of string) [],
+        related: : (array of string) ['logseq', 'logseq/plugins']
+    }
+}
+```
+
+
+## `c.block` & `c.currentBlock`: block context
+`c.block`: current block or block provided with `:block` argument. \
+`c.currentBlock` is always current block.
+
+```
+{
+    id: (number) 25686,
+    uuid: (string) '64d8c048-37dd-4666-a653-15fb14eda201',
+    content: (string) '{{renderer :view, "c.block"}}\nproperty:: already existed',
+    props: {
+        property: (string) 'already existed'
+    },
+    propsRefs: {
+        property: (array of string) []
+    },
+
+    page: (page) ...
+
+    // NOTE: always starts from zero
+    level: (number) 0,
+
+    // NOTE: next fields not yet implemented
+    // Watch for https://github.com/stdword/logseq13-full-house-plugin/issues/12
+    children: (array of block) [...]
+    parentBlock: { id: (number) 25640 },
+    prevBlock: { id: (number) 25678 },
+    refs: (array of page) [ { id: (number) 25679 } ]
+}
+```
+
+
+## `c.template`: template block context
+```
+{
+    name: (string) template name, page name or block UUID
+    includingParent: (boolean) true
+    block: (block) template block
+    props: same as `block.props`
+    propsRefs: same as `block.propsRefs`
+}
+```
+
+
+## `c.self`: context for currently rendering block of template
+This is dynamic variable: changes during rendering. \
+This is handy if you need to access properties of child template block.
+
+Structure is the same as `c.block`.
+
+```
+[[Test Page]] ← c.page
+
+- template:: test ← c.template.block
+  - child ← c.self
+    - sub child ← c.self
+
+- {{renderer :template, test}} ← c.block
+```
+
+
+## `c.args`: arguments context
+Accessing arguments by its names. See detailed [Reference for arguments](reference__args.md).
+```
+{
+    (string) arg name: (string or boolean) arg value
+}
+```
+
+
+## `c.config`: configuration context
+```
+{
+    appVersion: (string) '0.9.13',
+    pluginVersion: (string) '3.0.0',
+    preferredWorkflow: (string) 'now',
+    preferredThemeMode: (string) 'light',
+    preferredFormat: (string) 'markdown',
+    preferredLanguage: (string) 'en-GB',
+    preferredDateFormat: (string) 'yyyy-MM-dd EEE',
+    preferredStartOfWeek: (number) 0,
+    enabledFlashcards: (boolean) true,
+    enabledJournals: (boolean) true,
+    showBrackets: (boolean) true,
+
+    graph: {
+        name: (string) 'My Notes',
+        path: (string) '/Users/User/Documents/My Notes',
+        data: {
+            favorites: (array of strings) [
+                'logseq/plugins/Full House Templates',
+                ...
+            ],
+            macros: {
+                (string) 'plugin-name': (string) 'Full House Templates',
+                ...
+            },
+            commands: (array of commands) [
+                [
+                    (string) 'eval clojure code',
+                    (string) '```cljs :results\n\n```'
+                ], ...
+            ],
+            shortcuts: {
+                (string) 'command/toggle-favorite': (string) 'shift+meta+f',
+                ...
+            }
+        }
+    }
+}
+```
+
+
+## `c.identity`: CSS context
+Accessing CSS class names for current rendered view. \
+Used for complex 🏛view development. See example [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9).
+
+```
+{
+    slot: (string) 'slot__34emiluj'
+    key: (string) '34emiluj'
+}
+```

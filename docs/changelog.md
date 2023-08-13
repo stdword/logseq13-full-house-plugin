@@ -2,8 +2,14 @@
 ### New template syntax :id=new-syntax
 !> Breaking change!
 
-This version introduces a [simplified template syntax](reference__syntax.md) to support agile syntax expansion in future functionality.
-For old templates, the plugin tries to auto-detect the syntax version. However, this behavior will be disabled in future versions.
+This version introduces the [new template syntax](reference__syntax.md) to support agile syntax expansion and to make it more simple.
+
+| Changes: |      |      |
+| ---: | :---: | :---: |
+| **Before** | ` ``{ c.page.name }`` ` | ` ``{ ! var x = c.page.name _}`` ` |
+| **After** | ` ``c.page.name`` ` | ` ``{ var x = c.page.name }`` ` |
+
+For now the plugin tries to auto-detect the syntax version. However, this behavior will be disabled in future versions.
 
 To manually convert your existing templates, use [this](reference__commands.md#convert-syntax-command) command.
 

@@ -5,10 +5,11 @@
 - [Tutorial](tutorial.md)
 
 - Reference
+  - [Commands](reference__commands.md)
   - [Syntax](reference__syntax.md)
   - [Context variables](reference__context.md)
+  - [Arguments](reference__args.md)
   - [Template tags](reference__tags.md)
-  - [Commands](reference__commands.md)
 
 - Other
   - [FAQ](faq.md)
