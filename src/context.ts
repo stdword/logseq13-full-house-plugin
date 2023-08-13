@@ -33,7 +33,7 @@ dayjs.extend(logseqPlugin)
 
 
 export interface ILogseqContext {
-    identity: {
+    identity: Context | {
         slot: string,
         key: string,
     }

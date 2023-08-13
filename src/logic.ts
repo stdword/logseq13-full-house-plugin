@@ -89,7 +89,7 @@ async function getCurrentContext(
 
     argsContext._hideUndefinedMode = true
     return {
-        identity: { slot, key: slot.split('__', 2)[1].trim() },
+        identity: new Context({ slot, key: slot.split('__', 2)[1].trim() }),
         config: await ConfigContext.get(),
 
         page: contextPage ? PageContext.createFromEntity(contextPage) : currentPageContext,
