@@ -38,21 +38,20 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 
 
 ## ⚜️ Features
-- 💪 Rendering templates :)
+- 💪 Rendering templates :) Fully compatibile with standard templates
 - 🤘 Accessing to any meta information: pages titles, blocks properties & content, your graph, etc.
 - 📅 Full support of dates-work: parsing, formatting, shifting
 - 👁‍🗨 Use views (or dynamic templates) to get freshly updated data of your graph
 - ☘️ Focusing on UX and simplicity: no more headache on where to add a space to make it work
 - 🔗 Easily make a reference to any journal page: relative to now moment, the current page, specific date or whatever you want
 - 👻 Custom logic with JS vars, conditions, loops and environment (if you know what I mean 😈)
-- 🛠 A set of handy template tags to work with
-- ✨ The long list of valuable ideas to implement ⤵️
+- 🛠 A set of handy [template tags](https://stdword.github.io/logseq13-full-house-plugin/#/reference__tags) to work with
 
 
 ## Very quick overview
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/222939346-f29ac2e0-5b68-461c-aed3-3853d6c0c6a2.gif" />
 
-See all plugin features in the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md).
+See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-full-house-plugin/#/tutorial).
 
 <table><tr><td>
 
@@ -60,15 +59,15 @@ See all plugin features in the [Tutorial](https://github.com/stdword/logseq13-fu
 
 ```markdown
 - template:: book
-  - ``{ ! var [ authors, name ] = c.page.name.split(' — ') _}``
-    alias:: ``{ ref(name) }``
-		author:: ``{ authors.split(', ').map(ref).join(', ') }``
+  - ``{ var [ authors, name ] = c.page.name.split(' — ') }``
+    alias:: ``[name]``
+		author:: ``authors.split(', ').map(ref).join(', ')``
 		category:: [[📖/productivity]]
 		tags:: book,
   - # Book overview
   - ...
-  - rendered with template «``{ c.template.name }``» [→] (``{ ref(c.template.block) }``)
-  - on ``{ date.now }``
+  - rendered with template «``c.template.name``» [→] (``[c.template.block]``)
+  - on ``date.now``
 ```
 
 ```markdown
@@ -113,7 +112,7 @@ See all plugin features in the [Tutorial](https://github.com/stdword/logseq13-fu
 - Click «...» and open the «Plugins» section (or press `t p`)
 - Click on the «Marketplace»
 - On the «Plugins» tab search for «Full House Templates» plugin and click install
-- See the [Tutorial](https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/tutorial.md) to start using your new superpower :)
+- See the [Tutorial](https://stdword.github.io/logseq13-full-house-plugin/#/tutorial) to start using your new superpower :)
 
 ### Manual way (in case of any troubles with recommended way)
 - Enable «Developer mode» in «...» → Settings → Advanced
@@ -126,21 +125,14 @@ See all plugin features in the [Tutorial](https://github.com/stdword/logseq13-fu
 |Plugin|`🏛 Full House` support|Details|
 |:-:|:-:|:--|
 |[Dynamic Lookup](https://github.com/peanball/logseq-dynamic-lookup)| ✅ full | [→](https://stdword.github.io/logseq13-full-house-plugin/#/alternatives?id=dynamic-lookup) |
-| [Smart Blocks](https://github.com/sawhney17/logseq-smartblocks) | ⚠️ partial | 🚫 NLP-dates <br/> 🚫 UI (buttons, template selection, variables) |
-| [Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin) | ⚠️ partial | 🚫 NLP-dates <br/> 🚫 UI (buttons, template selection, variables) |
+| [Smart Blocks](https://github.com/sawhney17/logseq-smartblocks) | ⚠️ partial | 🚫 UI (buttons, template selection, variables) |
+| [Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin) | ⚠️ partial | 🚫 UI (buttons, template selection, variables) |
 
 
 ## Roadmap
 - UI: views & templates selection
 - UI: user input & variables
 - UI: buttons
-- Extended contexts
-- Template selectors
-- Meta templates & automation
-- Compatibility with standard templates
-- Extended template tags
-- Logseq query language
-- ...
 
 
 ## Credits
