@@ -73,6 +73,8 @@ Or individual one with `{{renderer :view, "c.page"}}`
 This is dynamic variable: changes during rendering. \
 This is handy if you need to access properties of child template block.
 
+**NOTE**: doesn't available for [*Inline Views*](reference__commands.md#inline-view-command)
+
 Structure is the same as `c.block`.
 
 ```
