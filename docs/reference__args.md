@@ -77,10 +77,27 @@ No colon → no named arg (empty value):
 #### ***Rendered***
 \_\_inline\_\_: template name \
 13: first \
-: second (empty)
+: second (empty value)
 
  No colon → no named arg (empty value):
 
+<!-- tabs:end -->
+
+
+<!-- div:left-panel -->
+By argument position, excluding named ones:
+
+**Note**: counting starts from 1
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Command***
+`{{renderer :view, "c.args.$1", :first 1}}`: no positional \
+`{{renderer :view, "c.args.$1", :first 1, 2}}`: second
+
+#### ***Rendered***
+: no positional \
+2: second
 <!-- tabs:end -->
 
 <!-- panels:end -->

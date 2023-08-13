@@ -296,11 +296,13 @@ export class ArgsContext extends Context {
     static create(callSignature: string, args: string[]) {
         const entries: [string, string | boolean][] = [['0', callSignature]]
 
-        for (let [ index, [name, value] ] of Object.entries(ArgsContext.parse(args))) {
+        let positionalIndex = 1
+        for (const [ index, [name, value] ] of Object.entries(ArgsContext.parse(args))) {
             if (name)
                 entries.push([ name, value ])
+            else
+                entries.push([ `$${+positionalIndex++}`, value ])
             entries.push([ (+index + 1).toString(), value ])
-            entries.push([ `$${+index + 1}`, value ])
         }
 
         const instance = new ArgsContext(Object.fromEntries(entries), args)
