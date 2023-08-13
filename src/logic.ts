@@ -206,7 +206,13 @@ async function isInsideMacro(blockUUID: string) {
     return true
  }
 
-async function handleNestedRendering(templateBlock: BlockEntity, argsContext: ArgsContext, uuid: string, slot: string, rawCode: RendererMacro) {
+async function handleNestedRendering(
+    templateBlock: BlockEntity,
+    argsContext: ArgsContext,
+    uuid: string,
+    slot: string,
+    rawCode: RendererMacro,
+) {
     // prevent rendering if we are inside another template block
 
     const state = await isRecursiveOrNestedTemplate(uuid, templateBlock.id)
