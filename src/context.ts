@@ -307,8 +307,16 @@ export class ArgsContext extends Context {
         const hideUndefinedInstance = new Proxy(instance, {
             get(target, name, receiver) {
                 const value: any = target[name]
+
+                if (typeof name === 'symbol')
+                    return value
+
+                if (typeof value !== 'function' && !name.startsWith('_'))
+                    console.debug(p`Get args.${name.toString()} :: ${value}`)
+
                 if (target._hideUndefinedMode && value === undefined)
                     return ''
+
                 return value
             }
         })
