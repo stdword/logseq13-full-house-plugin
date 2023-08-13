@@ -194,7 +194,7 @@ async function isInsideMacro(blockUUID: string) {
             [:p "Please use the " [:code ":template-view"] "command instead,"
                 " specially designed for this case." ]
             [:p [:b "See details " [:a
-                {:href "https://github.com/stdword/logseq13-full-house-plugin/blob/main/docs/using-with-macros.md"}
+                {:href "https://stdword.github.io/logseq13-full-house-plugin/#/faq?id=using-with-macros"}
                 "here"]]]
         ]`,
         'error', {timeout: 15000})

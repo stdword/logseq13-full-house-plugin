@@ -1,4 +1,4 @@
-## How to use `🏛templates` with `:macros`?
+## How to use `🏛templates` with `:macros`? :id=using-with-macros
 ?> **Short answer**: In no way \
 Use the [`:template-view`](reference__commands.md#template-view-command) command instead, specially designed for this case \
 \
