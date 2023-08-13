@@ -25,3 +25,8 @@ To manually convert your existing templates, use [this](reference__commands.md#c
 3. Relative to current journal's page
 
 See [*Reference*](reference__tags.md#id=date-nlp) for more details.
+
+
+### Accessing positional arguments, excluding named ones
+This inline view `{{renderer :view, "c.args.$1", :first 1, 2}}` renders to `2`.
+See details [here](reference__args.md#accessing).
