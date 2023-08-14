@@ -1,3 +1,44 @@
+# [3.0.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.6.0...v3.0.0) (2023-08-14)
+
+
+### Bug Fixes
+
+* do not replace text if rendered template is empty ([8486445](https://github.com/stdword/logseq13-full-house-plugin/commit/8486445675f1d5d1df0a4a5ad72cc8289b65114d))
+* **engine:** <% current page %> stands for current page, not for `c.page` ([af8156a](https://github.com/stdword/logseq13-full-house-plugin/commit/af8156a573157d987a4f334c3e04ab91e4eb0802))
+* **engine:** add fool-protection for inline templates to prevent tags intersection ([b64136f](https://github.com/stdword/logseq13-full-house-plugin/commit/b64136f538464daf1044433ea89529948ec3870c))
+* **engine:** handling quotes in protections code ([55a6af9](https://github.com/stdword/logseq13-full-house-plugin/commit/55a6af9958b09680bd39c2918134f8f476374e6c))
+* **engine:** qoutes handling in corner cases ([6ca7be5](https://github.com/stdword/logseq13-full-house-plugin/commit/6ca7be558aef41f8a6f5e4a31c4b2716e85ac513))
+* **engine:** trimming right whitespaces overriding ([6e975cc](https://github.com/stdword/logseq13-full-house-plugin/commit/6e975ccf23bad37a1f07b446cc205a7598bf97f3))
+* fix link to docs in notification about :macros usage ([7003a07](https://github.com/stdword/logseq13-full-house-plugin/commit/7003a07b2912fbd2b3ff95fcce1b3a532286b4a8))
+* propper c.template.name in case of accessing template by property name ([5738a47](https://github.com/stdword/logseq13-full-house-plugin/commit/5738a47517f09d53dd48c48fa4b97b597ea38d97))
+* propper render of `c.identity` ([1bfb522](https://github.com/stdword/logseq13-full-house-plugin/commit/1bfb52224cc0172ef83d89a9585b75174dc27554))
+* remove css rule for macros ([dbf38c1](https://github.com/stdword/logseq13-full-house-plugin/commit/dbf38c14b4dfaccc97d0d575f55301c8325d9308)), closes [#22](https://github.com/stdword/logseq13-full-house-plugin/issues/22)
+* rendering `c.args` ([fbb3755](https://github.com/stdword/logseq13-full-house-plugin/commit/fbb3755fac0df3b1d919cedfbbb96f08c1326fbe))
+* **rendering:** "template not found" when template is a first block of a page ([e022a56](https://github.com/stdword/logseq13-full-house-plugin/commit/e022a569201a6cbf621566ba4df106aa2c3681aa))
+* **rendering:** prevent recursive rendering ([41458e1](https://github.com/stdword/logseq13-full-house-plugin/commit/41458e171872bca750bd6ad6865cf0f1c5b47acd))
+* **tags:** `empty` template tag null value should be fallen back ([a2a225c](https://github.com/stdword/logseq13-full-house-plugin/commit/a2a225c65e81a9085644f651d4ad5e54de46ec28))
+* **tags:** return null for `empty` template tag ([5c707a4](https://github.com/stdword/logseq13-full-house-plugin/commit/5c707a4a7e3302f1987881f20b756b107607b5a2))
+
+
+### Features
+
+* add isoWeek plugin for dayjs ([18196bf](https://github.com/stdword/logseq13-full-house-plugin/commit/18196bf386ae7c9ad1e8b344af99cdd5d534bddb))
+* **args:** positional only args with syntax `c.args.$1` ([52f7caf](https://github.com/stdword/logseq13-full-house-plugin/commit/52f7caf07cdf7fbbb750a0391f445f62f7c4541f))
+* **command:** command to convert template to a new syntax ([daf7ea9](https://github.com/stdword/logseq13-full-house-plugin/commit/daf7ea97a9d81d89ecd9a1f1336b0439d7f12eaa))
+* **context:** added `page.namespace` ([73ba0bd](https://github.com/stdword/logseq13-full-house-plugin/commit/73ba0bda0cfbcb18247f4e20f52fbd272601a7e3))
+* **engine:** autodetecting of syntax style ([ef6d611](https://github.com/stdword/logseq13-full-house-plugin/commit/ef6d6118e8d13bd9ddb841c83544cccbfea6ac56))
+* **engine:** render basic standard templates syntax ([d61cb53](https://github.com/stdword/logseq13-full-house-plugin/commit/d61cb535a710cc897caa4ed57134f70658fa2639))
+* **engine:** render standard templates syntax with nlp ([53d619d](https://github.com/stdword/logseq13-full-house-plugin/commit/53d619df2d749239fed04d933f865897a18a350d))
+* **engine:** support new syntax for rendering tags ([ad75616](https://github.com/stdword/logseq13-full-house-plugin/commit/ad75616eb98cbdd958b298f749c268bcf908c128))
+* **notifications:** add notification about new syntax; notify only old users ([c900fa4](https://github.com/stdword/logseq13-full-house-plugin/commit/c900fa46341c142934ad84e509068400431cbf18))
+* provide delayed option for views ([3c1bb84](https://github.com/stdword/logseq13-full-house-plugin/commit/3c1bb84dddd6a8b8e251067beb1f4b9d66ad471e))
+* **tags:** `date.nlp` template tag ([eef9e01](https://github.com/stdword/logseq13-full-house-plugin/commit/eef9e0193886ab6ce28d2375b899a2cb24645e93))
+
+
+### BREAKING CHANGES
+
+* **engine:** before: ``{ x }``, after: ``x``
+
 # [2.6.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.5.1...v2.6.0) (2023-05-08)
 
 
