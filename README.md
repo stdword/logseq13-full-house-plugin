@@ -112,7 +112,9 @@ See details about `fold-page-ref` [Showroom](https://github.com/stdword/logseq13
     - `[date.nlp('in two days')]` or `date.nlp('in two days')`
 ```
 
-<video src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/c0c45c08-66e4-41e3-8f76-533b6e91b372" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
+<video src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/c0c45c08-66e4-41e3-8f76-533b6e91b372" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">
+</video>
+
 </p></details>
 
 </td></tr></table>
