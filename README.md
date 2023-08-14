@@ -48,23 +48,52 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 - 🛠 A set of handy [template tags](https://stdword.github.io/logseq13-full-house-plugin/#/reference__tags) to work with
 
 
-
-
-
-
-
 ## Very quick overview
+### Book page 📖
+<img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/702dbb48-f70c-41d3-b78f-2f8fe764846a"/>
 <p align="center">
-  <img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/356f6dd6-f4d5-4a6c-9f72-0b2b776eb97d"/> </br>
+  </br></br>
   <b>template     →     rendered</b>
   <br>
-  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/d1724a02-9cb4-464b-8269-c4a2695c94f3" width=45% />
-  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/06afde10-ca50-4b4c-9869-a638ee808e40" width=45% />
+  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/8fb8f5d0-c6d1-4759-98bd-891f9f6e5b51" width=49% />
+  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/28f29ada-13b4-485c-956f-667aa50c4d29" width=49% />
 
 
 <table align="center"><tr><td>
 
-<details><summary>template</summary><p>
+<details><summary>details</summary><p>
+
+```markdown
+- template:: book
+  - ``{ var [ authors, name ] = c.page.name.split(' — ') }``
+    alias:: ``[name]``
+		author:: ``authors.split(', ').map(ref).join(', ')``
+		category:: [[📖/productivity]]
+		tags:: book,
+  - # Book overview
+  - ...
+  - rendered with template «``c.template.name``» [→] (``[c.template.block]``)
+  - on ``date.now``
+```
+</p></details> 
+
+</td></tr></table>
+
+</p>
+
+### Syntax power 💥
+<img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/356f6dd6-f4d5-4a6c-9f72-0b2b776eb97d"/>
+<p align="center">
+  </br></br>
+  <b>template     →     rendered</b>
+  <br>
+  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/d1724a02-9cb4-464b-8269-c4a2695c94f3" width=49% />
+  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/06afde10-ca50-4b4c-9869-a638ee808e40" width=49% />
+
+
+<table align="center"><tr><td>
+
+<details><summary>details</summary><p>
 
 See details about `fold-page-ref` [Showroom](https://github.com/stdword/logseq13-full-house-plugin/discussions/7).
 
@@ -82,51 +111,15 @@ See details about `fold-page-ref` [Showroom](https://github.com/stdword/logseq13
     - <% in two days %>
     - `[date.nlp('in two days')]` or `date.nlp('in two days')`
 ```
-</p></details> 
 
-</td><td>
-
-<details closed>
-  <summary><b>detailed video</b></summary>
-  <video src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/c0c45c08-66e4-41e3-8f76-533b6e91b372" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">
-  </video>
-</details>
+<video src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/c0c45c08-66e4-41e3-8f76-533b6e91b372" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
+</p></details>
 
 </td></tr></table>
 
 </p>
 
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/222939346-f29ac2e0-5b68-461c-aed3-3853d6c0c6a2.gif" />
-
 See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-full-house-plugin/#/tutorial).
-
-<table><tr><td>
-
-<details><summary>Template</summary><p>
-
-```markdown
-- template:: book
-  - ``{ var [ authors, name ] = c.page.name.split(' — ') }``
-    alias:: ``[name]``
-		author:: ``authors.split(', ').map(ref).join(', ')``
-		category:: [[📖/productivity]]
-		tags:: book,
-  - # Book overview
-  - ...
-  - rendered with template «``c.template.name``» [→] (``[c.template.block]``)
-  - on ``date.now``
-```
-</p></details> 
-
-</td><td>
-
-<details closed>
-  <summary><b>Video</b></summary>
-  <video src="https://user-images.githubusercontent.com/1984175/222938639-a46f94dc-2a91-41c0-9f6e-9c877dc7b61b.mp4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">
-  </video>
-</details>
-
-</td></tr></table>
 
 
 ## If you ❤️ what I'm doing — consider to support my work
