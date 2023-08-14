@@ -13,6 +13,12 @@ Or individual one with `{{renderer :view, "c.page"}}`
     uuid: (string) '64d7d3a2-b635-487b-8aa9-0a44ad21e142',
     name: (string) 'logseq/plugins/Full House Templates',
     name_: (string) 'logseq/plugins/full house templates',
+    namespace: {
+        parts: [ 'logseq', 'plugins', 'Full House Templates' ],
+        prefix: 'logseq/plugins',
+        suffix: 'Full House Templates',
+        pages: [ 'logseq', 'logseq/plugins' ]
+    },
     isJournal: (boolean) false,
     props: {
         icon: (string) 🏛,

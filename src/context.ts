@@ -98,6 +98,12 @@ export class PageContext extends Context {
     public uuid?: string
     public name?: string  // original
     public name_?: string  // id: lowercased
+    public namespace?: {
+        parts: Array<string>,
+        prefix: string,
+        suffix: string,
+        pages: Array<string>,
+    }
     public isJournal?: boolean
     public day?: Dayjs
     public file?: any
@@ -105,8 +111,22 @@ export class PageContext extends Context {
     public propsRefs?: PropertiesRefs
 
     static createFromEntity(page: PageEntity) {
-        const obj = new PageContext(page.id, page.originalName)
+        const name = page.originalName
+        const obj = new PageContext(page.id, name)
         obj._page = page
+
+        if (name.includes('/')) {
+            const parts = name.split('/')
+            obj.namespace = new Context({
+                parts,
+                prefix: parts.slice(0, -1).join('/'),
+                suffix: parts.at(-1),
+                pages: parts.slice(0, -1).reduce(
+                    (r, i) => r.concat(parts.slice(0, r.length + 1).join('/')),
+                    [] as Array<string>
+                ),
+            }) as unknown as PageContext['namespace']
+        }
 
         obj.uuid = page.uuid
 
@@ -136,6 +156,7 @@ export class PageContext extends Context {
         super()
 
         this.id = id
+
         if (name) {
             this.name = name
             this.name_ = name.toLowerCase()
