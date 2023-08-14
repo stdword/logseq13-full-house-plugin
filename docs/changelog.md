@@ -1,4 +1,4 @@
-## v3.0.0 (not released yet)
+## v3.0.0
 ### New template syntax :id=new-syntax
 !> Breaking change!
 
