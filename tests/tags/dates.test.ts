@@ -1,9 +1,7 @@
 import { LogseqMock } from '@tests/index'
 
-import * as dayjs from 'dayjs'
-
 import { getTemplateTagsContext } from '@src/tags'
-import { ILogseqContext } from '@src/context'
+import { ILogseqContext, dayjs } from '@src/context'
 import { toISODate } from '@src/utils'
 
 

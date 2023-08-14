@@ -28,8 +28,8 @@
         "docs": "docsify serve ./docs",
         "dev": "vite",
         "test": "jest",
-        "build": "tsc && npm run test && vite build --mode=dev",
-        "prod": "npm run test && npm run clean && vite build"
+        "build": "tsc && vite build --mode=dev",
+        "prod": "tsc && npm run clean && vite build"
     },
     "dependencies": {
         "@logseq/libs": "^0.0.15",
