@@ -48,7 +48,54 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 - 🛠 A set of handy [template tags](https://stdword.github.io/logseq13-full-house-plugin/#/reference__tags) to work with
 
 
+
+
+
+
+
 ## Very quick overview
+<p align="center">
+  <img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/356f6dd6-f4d5-4a6c-9f72-0b2b776eb97d"/> </br>
+  <b>template     →     rendered</b>
+  <br>
+  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/d1724a02-9cb4-464b-8269-c4a2695c94f3" width=45% />
+  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/06afde10-ca50-4b4c-9869-a638ee808e40" width=45% />
+
+
+<table align="center"><tr><td>
+
+<details><summary>template</summary><p>
+
+See details about `fold-page-ref` [Showroom](https://github.com/stdword/logseq13-full-house-plugin/discussions/7).
+
+```markdown
+- Mixing [./Full House Templates]([[logseq/plugins/Full House Templates]]) and stadard {{renderer(:view,"c.page.namespace.parts[0]")}} templates syntax `'in one template'.bold()`
+  template:: mix-syntax
+  - Current page:
+    - <% current page %>
+    - `[c.page]`
+    - `ref(c.page)` or `c.page.name`
+  - Journal pages:
+    - <% tomorrow %>
+    - `[tomorrow]` or `date.tomorrow`
+  - NLP dates:
+    - <% in two days %>
+    - `[date.nlp('in two days')]` or `date.nlp('in two days')`
+```
+</p></details> 
+
+</td><td>
+
+<details closed>
+  <summary><b>detailed video</b></summary>
+  <video src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/c0c45c08-66e4-41e3-8f76-533b6e91b372" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">
+  </video>
+</details>
+
+</td></tr></table>
+
+</p>
+
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/222939346-f29ac2e0-5b68-461c-aed3-3853d6c0c6a2.gif" />
 
 See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-full-house-plugin/#/tutorial).
@@ -68,21 +115,6 @@ See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-ful
   - ...
   - rendered with template «``c.template.name``» [→] (``[c.template.block]``)
   - on ``date.now``
-```
-
-```markdown
-- [[Tiago Forte — Building a Second Brain]]
-```
-
-```markdown
-- alias:: [[Building a Second Brain]]
-  author:: [[Tiago Forte]]
-  category:: [[📖/productivity]]
-  tags:: book,
-- # Book overview
-- ...
-- rendered with template «book» [→](((6403ec06-...)))
-- on Sun, 05 Mar 2023 01:12:01 GMT
 ```
 </p></details> 
 
