@@ -18,15 +18,15 @@ import { isOldSyntax } from './extensions/customized_eta'
 const DEV = process.env.NODE_ENV === 'development'
 
 async function onAppSettingsChanged() {
-    // TODO work with locales
-    // preferredLanguage
-    // preferredStartOfWeek
+    const config = await logseq.App.getUserConfigs()
+    LogseqDayjsState.format = config.preferredDateFormat
+
+    // TODO base this code on logseq config
+    //    preferredLanguage
+    //    preferredStartOfWeek
     dayjs.updateLocale('en', {
         weekStart: 1,
     })
-
-    const config = await logseq.App.getUserConfigs()
-    LogseqDayjsState.format = config.preferredDateFormat
  }
 
 async function init() {
@@ -36,7 +36,9 @@ async function init() {
     }
 
     console.info(p`Loaded`)
+}
 
+async function postInit() {
     notifyUser()
     await onAppSettingsChanged()
 }
@@ -207,6 +209,8 @@ async function main() {
 
         handleViewCommand(commandView)
     }
+
+    await postInit()
 }
 
 function registerBlockContextCopyCommand(label: string, command: RendererMacro) {
