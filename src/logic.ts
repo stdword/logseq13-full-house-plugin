@@ -53,7 +53,7 @@ async function getCurrentContext(
         const pageExists = await getPage(contextPageRef)
         if (!pageExists)
             throw new StateError(
-                `[:p "Page " [:i "${contextPageRef.original}"]" doesn't exist"]`,
+                `[:p "Page " [:i "${contextPageRef.original.replaceAll('"', '\\"')}"]" doesn't exist"]`,
                 {contextPageRef})
 
         contextPage = pageExists

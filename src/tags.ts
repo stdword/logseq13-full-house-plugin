@@ -56,74 +56,89 @@ type ITemplateTagsContext = {
 function _asString(v: any): string {
     v ??= ''
     return v.toString()
- }
+}
 
+function _withLabel(item: string, label: string) {
+    return `[${label}](${item})`
+}
 function _asDateString(item: string): Dayjs | null {
     const day = dayjs(item, isoDateFromat, true)  // strict mode
     if (day.isValid())
         return day
     return null
- }
-function _ref(name: string): string {
-    return `[[${name}]]`
- }
+}
+function _ref(name: string, label: string | null = null): string {
+    const item = `[[${name}]]`
+    if (label !== null)
+        return _withLabel(item, label)
+    return item
+}
 function _is_ref(item: string): boolean {
     return item.startsWith('[[') && item.endsWith(']]')
- }
-function _bref(uuid: string): string {
-    return `((${uuid}))`
- }
+}
+function _bref(uuid: string, label: string | null = null): string {
+    const item = `((${uuid}))`
+    if (label !== null)
+        return _withLabel(item, label)
+    return item
+}
 function _is_bref(item: string): boolean {
     return item.startsWith('((') && item.endsWith('))')
- }
+}
 
-function ref(item: string | BlockContext | PageContext | Dayjs): string {
+function ref(item: string | BlockContext | PageContext | Dayjs, label: string | null = null): string {
     item = item ?? ''
 
     if (item instanceof dayjs) {
         // @ts-expect-error
         item = item.toPage() as string
-        return _ref(item)
+        return _ref(item, label)
     }
 
     if (item instanceof BlockContext) {
         if (item.uuid)
-            return _bref(item.uuid)
+            return _bref(item.uuid, label)
 
         // @ts-expect-error
         const block = top!.logseq.api.get_block(item.id)
-        return _bref(block?.uuid ?? '')
+        return _bref(block?.uuid ?? '', label)
     }
 
     if (item instanceof PageContext) {
         if (item.name)
-            return _ref(item.name)
+            return _ref(item.name, label)
 
         // TODO: need async support for filter function in «eta»
         // const page = await getPage({type: 'id', value: item.id} as LogseqReference)
 
         // @ts-expect-error
         const page = top!.logseq.api.get_page(item.id)
-        return _ref(page?.originalName ?? '')
+        return _ref(page?.originalName ?? '', label)
     }
 
     const str = _asString(item).trim()
     if (_is_ref(str))
-        return str
+        if (label === null)
+            return str
+        else
+            return _withLabel(str, label)
 
     if (_is_bref(str) && isUUID(str.slice(2, -2)))
-        return str
+        if (label === null)
+            return str
+        else
+            return _withLabel(str, label)
 
     if (isUUID(str))
-        return _bref(str)
+        return _bref(str, label)
 
     // check for the case `ref(today)` or `ref('YYYY-MM-DD')`
     const date = _asDateString(str)
     if (date)
-        return _ref(date.format('page'))
+        return _ref(date.format('page'), label)
 
-    return _ref(str)
- }
+    return _ref(str, label)
+}
 function bref(item: any): string {
     // @ts-expect-error
     top!.logseq.api.show_msg(
@@ -196,7 +211,7 @@ function zeros(value: string | number, width: number = 2): string {
  }
 function spaces(value: string | number, width: number, align: 'left' | 'right' | 'center' = 'right'): string {
     return fill(value, ' ', width, align)
- }
+}
 
 
 /* date */
