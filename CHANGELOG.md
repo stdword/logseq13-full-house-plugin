@@ -1,3 +1,15 @@
+# [3.1.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.0.0...v3.1.0) (2023-08-23)
+
+
+### Bug Fixes
+
+* **rendering:** inserting child blocks of first child node in non-inclusion parent mode ([a8bec22](https://github.com/stdword/logseq13-full-house-plugin/commit/a8bec2203b3259178cb432069e408259576e0333)), closes [#26](https://github.com/stdword/logseq13-full-house-plugin/issues/26)
+
+
+### Features
+
+* **tags:** support label param for `ref` ([78ab990](https://github.com/stdword/logseq13-full-house-plugin/commit/78ab9905b2e5ec2101add68b1f3261ae11fd92bb))
+
 # [3.0.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v2.6.0...v3.0.0) (2023-08-14)
 
 
