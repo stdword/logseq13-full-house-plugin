@@ -6,7 +6,7 @@ import * as dayjs from 'dayjs'
 
 import { _private as tags } from '@src/tags'
 import { _private as app } from '@src/app'
-import { RendererMacro, parseReference } from '@src/utils'
+import { IBlockNode, RendererMacro, parseReference } from '@src/utils'
 import { renderTemplateInBlock } from '@src/logic'
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 
@@ -16,24 +16,29 @@ beforeEach(async () => {
     logseq = await LogseqMock(null, {preferredDateFormat: 'YYYY-MM-DD'})
 })
 
-async function testRender(syntax: string, expected: string | null = null, page: PageEntity | null = null) {
+async function testRender(
+    syntax: string,
+    expected?: string,
+    page?: PageEntity,
+    createTemplateFunc?: Function,
+) {
     const name = 'test_name'
     const command = RendererMacro.command('template').arg(name)
     const block = logseq._createBlock(command.toString(), null, page)
-    if (expected === '')
-        expected = block.content
 
-    const templateBlock = logseq._createTemplateBlock(name, syntax)
+    if (!createTemplateFunc)
+        createTemplateFunc = logseq._createTemplateBlock
+    const templateBlock = createTemplateFunc!(name, syntax)
 
     logseq.DB.datascriptQuery.mockReturnValue([templateBlock])
     await renderTemplateInBlock('slot__test', block.uuid, parseReference(name), command, [])
 
     expect(logseq.DB.datascriptQuery).toHaveBeenCalledTimes(1)
-    if (expected !== null)
+    if (expected !== undefined)
         expect(block.content).toBe(expected)
 
-    return block.content
- }
+    return block
+}
 
 describe('template syntax', () => {
     test('no syntax', async () => {
@@ -89,9 +94,9 @@ describe('template context', () => {
     test('identity', async () => {
         await testRender('``c.identity.slot``, ``c.identity.key``', 'slot__test, test') })
     test('full context', async () => {
-        const content = await testRender('``c``')
-        expect(content.slice(0, 9)).toBe('```json\n{')
-        expect(content.slice(-5)).toBe('}\n```')
+        const block = await testRender('``c``')
+        expect(block.content.slice(0, 9)).toBe('```json\n{')
+        expect(block.content.slice(-5)).toBe('}\n```')
     })
 })
 
@@ -154,7 +159,38 @@ describe('template tags', () => {
         const day = dayjs().add(1, 'day').add(2, 'day').format('page')
         await testRender('``date.nlp("in two days", date.tomorrow)``', day) })
 
-    test('date.nlp relative to now', async () => {
+    test('date.nlp relative to now in journal page', async () => {
         const page = logseq._createJournalPage('2020-10-01')
         await testRender('``date.nlp("in two days", "page")``', '2020-10-03', page) })
+})
+
+describe('template structure', () => {
+    test('rendering children of first child block', async () => {
+        const block = await testRender('parent', 'parent', undefined, (name, syntax) => {
+            const block = logseq._createTemplateBlock(name, syntax)
+            logseq._createBlock('child text 1', block.children[0])
+            logseq._createBlock('child text 2', block.children[0])
+            return block
+        })
+        expect(block.children).toHaveLength(2)
+        expect(block.children[0].content).toBe('child text 1')
+        expect(block.children[1].content).toBe('child text 2')
+    })
+
+    test('rendering children of second child block', async () => {
+        const block = await testRender('parent 1', 'parent 1', undefined, (name, syntax) => {
+            const block = logseq._createTemplateBlock(name, syntax)
+            logseq._createBlock('parent 2', block)
+            logseq._createBlock('child text 1', block.children[1])
+            logseq._createBlock('child text 2', block.children[1])
+            return block
+        })
+        expect(block.children).toHaveLength(0)
+
+        const secondBlock = logseq._blocks.find(block => (block.content === 'parent 2')) ?? null
+        expect(secondBlock).not.toBeNull()
+
+        expect(secondBlock.children[0].content).toBe('child text 1')
+        expect(secondBlock.children[1].content).toBe('child text 2')
+    })
 })

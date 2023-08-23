@@ -288,6 +288,7 @@ export class PropertiesUtils {
 
     static readonly idProperty = 'id'
     static readonly titleProperty = 'title'
+    static readonly filtersProperty = 'filters'
     static readonly templateProperty = 'template'
     static readonly includingParentProperty = 'template-including-parent'
 

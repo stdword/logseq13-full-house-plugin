@@ -312,25 +312,13 @@ async (
     let head: IBatchBlock
     let children: IBatchBlock[]
     if (template.includingParent)
-        [ head, children ] = [ rendered, rendered.children ]
+        [ head, children ] = [ rendered, [] ]
     else
         [ head, ...children ] = rendered.children
 
-    // NOTE: it is important to call `insertBatchBlock` before `updateBlock`
-    // due to @logseq/lib bug on batch inserting to empty block (content == '')
-
-    if (children.length) {
-        await logseq.Editor.insertBatchBlock(
-            uuid,
-            children, {
-            sibling: !template.includingParent,
-        })
-    }
+    console.debug(p`Template rendered:`, {head, children})
 
     const toInsert = head.content
-    if (!toInsert)
-        return
-
     const oldContent = context.currentBlock.content!
     const toReplace = rawCode.toPattern()
     const newContent = oldContent.replace(toReplace, toInsert)
@@ -344,7 +332,23 @@ async (
         return
     }
 
+    // WARNING: it is important to call `.insertBatchBlock` before `.updateBlock`
+    // due to @logseq/lib bug on batch inserting to empty block (content == '')
+    if (head.children && head.children.length)
+        await logseq.Editor.insertBatchBlock(
+            uuid,
+            head.children, {
+            sibling: false,
+        })
+
     await logseq.Editor.updateBlock(uuid, newContent)
+
+    if (children.length)
+        await logseq.Editor.insertBatchBlock(
+            uuid,
+            children, {
+            sibling: true,
+        })
  })
 
 /**

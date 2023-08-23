@@ -108,11 +108,14 @@ export class Template implements ITemplate {
                 b.content = b.content.slice(matchStart[0].length, -matchEnd[0].length)
         })
 
-        // TODO: allow user to control erasing standard props
-        PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateProperty)
-        PropertiesUtils.deleteProperty(this.block, PropertiesUtils.includingParentProperty)
-        if (this.accessedVia === 'page')
-            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.titleProperty)
+        if (this.includingParent) {
+            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateProperty)
+            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.includingParentProperty)
+            if (this.accessedVia === 'page') {
+                PropertiesUtils.deleteProperty(this.block, PropertiesUtils.titleProperty)
+                PropertiesUtils.deleteProperty(this.block, PropertiesUtils.filtersProperty)
+            }
+        }
 
         this._initialized = true
     }

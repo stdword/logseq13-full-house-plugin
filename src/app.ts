@@ -402,4 +402,4 @@ export const App = (logseq: any) => {
     logseq.ready(main).catch(console.error)
 }
 
-export const _private = { init }
+export const _private = { postInit }

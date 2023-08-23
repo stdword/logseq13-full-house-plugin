@@ -48,12 +48,29 @@ export async function LogseqMock(
                 return logseq._pages.find(page => (page.id === id)) ?? null
             },
             async getBlock(id: number | string, options?: object): Promise<BlockEntity | null> {
-                if (typeof id === 'string')
-                    return logseq._blocks.find(block => (block.uuid === id)) ?? null
-                return logseq._blocks.find(block => (block.id === id)) ?? null
+                return logseq._getBlock(id, options)
             },
             async insertAtEditingCursor(content: string) {
                 logseq._createBlock({content, children: []})
+            },
+            async insertBatchBlock(
+                uuid: string,
+                children: IBlockNode[],
+                opts?: Partial<{
+                    sibling: boolean
+                }>) {
+                opts ||= {}
+
+                const block = await this.getBlock(uuid)
+                if (!block)
+                    throw Error(`Block doesn't exist: ${uuid}`)
+
+                if (opts.sibling)
+                    for (const child of children)
+                        logseq._createBlock(child, block.parent.id, block.page.id)
+                else
+                    for (const child of children)
+                        logseq._createBlock(child, block, block.page.id)
             },
             async updateBlock(uuid, newContent) {
                 const block = await this.getBlock(uuid)
@@ -107,11 +124,13 @@ export async function LogseqMock(
         },
         _createBlock: function (
             block: IBlockNode | string,
-            parent: BlockEntity | null = null,
-            page: PageEntity | null = null,
+            parent: BlockEntity | number | null = null,
+            page: PageEntity | number | null = null,
         ): BlockEntity {
             const content = typeof block === 'string' ? block : block.content
             const children = typeof block === 'string' ? [] : block.children
+            const pageID = (typeof page === 'number') ? page : (page ? page.id : logseq._pages[0].id)
+            const parentID = (typeof parent === 'number') ? parent : (parent ? parent.id : null)
 
             const obj: BlockEntity = {
                 format: 'markdown',
@@ -124,12 +143,20 @@ export async function LogseqMock(
                 // @ts-expect-error
                 left: {},
                 // @ts-expect-error
-                parent: parent ? {id: parent.id} : {},
-                page: page ? {id: page.id} : {id: logseq._pages[0].id},
+                parent: parentID ? {id: parentID} : {},
+                page: {id: pageID},
             }
             logseq._blocks.push(obj)
 
             obj.children = children.map((b) => this._createBlock(b, obj))
+
+            if (parentID) {
+                const parentBlock = this._getBlock(parentID)!
+                if (!parentBlock.children)
+                    parentBlock.children = []
+                parentBlock.children.push(obj)
+            }
+
             return obj
         },
         _createTemplateBlock: function (name: string, content: string) {
@@ -139,15 +166,20 @@ export async function LogseqMock(
             })
             obj.properties!.template = name
             return obj
-        }
+        },
+        _getBlock: function (id: number | string, options?: object): BlockEntity | null {
+            if (typeof id === 'string')
+                return logseq._blocks.find(block => (block.uuid === id)) ?? null
+            return logseq._blocks.find(block => (block.id === id)) ?? null
+        },
     }
 
     Object.assign(logseq.settings, settingsOverride ?? {})
 
     // @ts-expect-error
     global.logseq = top.logseq = logseq
-    await app.init()
+    await app.postInit()
 
     logseq._createPage('PAGE')
     return logseq
- }
+}
