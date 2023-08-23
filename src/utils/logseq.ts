@@ -216,17 +216,18 @@ export async function getPageFirstBlock(
     ref: LogseqReference,
     { includeChildren = false }: { includeChildren?: boolean }
 ): Promise<BlockEntity | null> {
-    if (!['page', 'tag', 'name', 'uuid', 'id'].includes(ref.type))
+    if (!['page', 'tag', 'uuid', 'id'].includes(ref.type))
         return null
 
+    let idValue = ref.value.toString().toLowerCase()
+    if (ref.type !== 'id')
+        idValue = `"${idValue}"`
+
     let idField = ':block/name'
-    let idValue = `"${ref.value}"`
     if (ref.type === 'uuid')
         idField = ':block/uuid'
-    else if (ref.type === 'id') {
+    else if (ref.type === 'id')
         idField = ':db/id'
-        idValue = ref.value.toString()
-    }
 
     const query = `
         [:find (pull ?b [${includeChildren ? ':db/id' : '*'}])
@@ -246,7 +247,7 @@ export async function getPageFirstBlock(
         return block
 
     return await logseq.Editor.getBlock(block.id, {includeChildren: true})
- }
+}
 
 
 export function cleanMacroArg(
@@ -274,7 +275,7 @@ export function cleanMacroArg(
     const chars = Object.keys(escapeMap).join('')
     arg = arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
     return arg
- }
+}
 
 
 type LogseqProperty = { name: string, text: string, refs: string[] }
