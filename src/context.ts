@@ -281,17 +281,6 @@ export class ArgsContext extends Context {
         const entries: [string, string | boolean][] = []
         for (let value_ of args) {
             // Check whether it is named arg
-
-            // # Strict rules for name of the arg
-            // Idea: allow to access the arg with `c.args.<name>`
-            // Represented by a mix of javascript variable naming rules and .edn keywords:
-            //  - name must be preceded with `:`
-            //  - followed with non-numeric Unicode character
-            //  - other characters can contain alphanumeric Unicode characters, `$` and `_`
-            //  - must not be zero-length
-            //  - followed by one or more whitespace characters
-
-            // # Easy rules for name of the arg
             // Idea: be as non-restrictive as possible, but access the arg with `c.args.['<name>']`
             //  - name must be preceded with `:`
             //  - can contain any non-whitespace characters
@@ -301,9 +290,6 @@ export class ArgsContext extends Context {
             // # Rules for value of the arg
             //  - value can contain any characters (or no one)
             //  - value can be quoted with `"` to preserve whitespaces before it
-            //  - double `"` allows to include `"` to value
-
-            // TODO: create a setting to control strictness
 
             let name = ''
             let value: string | boolean = value_

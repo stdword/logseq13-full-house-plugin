@@ -21,6 +21,23 @@ Could be mixed with positional ones.
 <!-- tabs:end -->
 
 
+### `arg-`properties
+Arguments can have *default values* specified in template properties.
+- Property name should start with prefix `arg-`.
+
+<!-- tabs:start -->
+#### ***Template***
+```
+- template:: test
+  arg-icon:: 🏛
+  arg-plugin-name:: Full House Templates
+  - ``c.args.icon + c.args['plugin-name']``
+```
+#### ***Rendered***
+🏛Full House Templates
+<!-- tabs:end -->
+
+
 ## Accessing :id=accessing
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -98,6 +115,18 @@ By argument position, excluding named ones:
 #### ***Rendered***
 : no positional \
 2: second
+<!-- tabs:end -->
+
+<!-- div:left-panel -->
+Disable named arguments usage with «::»:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Command***
+`{{renderer :view, "c.args.$1", ::test 13}}`
+
+#### ***Rendered***
+:test 13
 <!-- tabs:end -->
 
 <!-- panels:end -->

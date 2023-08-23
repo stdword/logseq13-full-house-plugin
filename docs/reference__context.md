@@ -3,8 +3,8 @@ You can always see whole context with `{{renderer :view, "c"}}`. \
 Or individual one with `{{renderer :view, "c.page"}}`
 
 
-## `c.page` & `c.currentPage`: page context
-`c.page`: current page or page provided with `:page` argument. \
+## `c.page` & `c.currentPage`: page context :id=page-context
+`c.page`: current page or page provided with `:page` [argument](reference__commands.md#page-argument). \
 `c.currentPage` is always current page.
 
 ```
@@ -32,9 +32,9 @@ Or individual one with `{{renderer :view, "c.page"}}`
 ```
 
 
-## `c.block` & `c.currentBlock`: block context
-`c.block`: current block or block provided with `:block` argument. \
-`c.currentBlock` is always current block.
+## `c.block` & `c.currentBlock`: block context :id=block-context
+`c.block`: current block or block provided with `:block` [argument](reference__commands.md#block-argument). \
+`c.currentBlock` is always block rendering occurs in.
 
 ```
 {
