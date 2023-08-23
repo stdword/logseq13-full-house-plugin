@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.1.0...v3.1.1) (2023-08-23)
+
+
+### Bug Fixes
+
+* **rendering:** render page as a template ([54976ed](https://github.com/stdword/logseq13-full-house-plugin/commit/54976edac10e322ba389a26e3409c365cf6dc103))
+
 # [3.1.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.0.0...v3.1.0) (2023-08-23)
 
 
