@@ -165,7 +165,7 @@ export class Template implements ITemplate {
                 page: context.block.page,
                 level: lvl,
             })
-            return renderrer.renderString(b.content, renderContext)
+            return renderrer.renderStringAsync(b.content, renderContext)
         })
     }
     getArgProperties() {
@@ -209,7 +209,7 @@ export class InlineTemplate implements ITemplate {
         const renderrer = RenderingSyntax.latest()
         const body = '`` ' + this.body + ' ``'
         return {
-            content: renderrer.renderString(body, renderContext),
+            content: await renderrer.renderStringAsync(body, renderContext),
             children: [],
         }
     }
