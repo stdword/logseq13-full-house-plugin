@@ -12,8 +12,6 @@ Full House Templates
   </a>
 </p>
 
-<!-- <p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b>Logseq13</b> family of plugins</i></p> -->
-
 <p align="center">
   <a href="https://stdword.github.io/logseq13-full-house-plugin/#/tutorial">Tutorial</a> |
   <a href="https://stdword.github.io/logseq13-full-house-plugin/">Documentation</a> |
@@ -26,6 +24,8 @@ Full House Templates
 [![Downloads](https://img.shields.io/github/downloads/stdword/logseq13-full-house-plugin/total.svg?color=D25584)](https://github.com/stdword/logseq13-full-house-plugin#from-logseq-marketplace-recommended-way)
 
 </div>
+
+<p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b>Logseq13</b> family of plugins</i></p>
 
 <p align="center">
 ⚠️ <b>Under active development</b> ⚠️
