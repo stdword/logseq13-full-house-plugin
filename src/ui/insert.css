@@ -28,7 +28,6 @@ div {
     transition-timing-function: ease-in;
 }
 
-
 #modal {
     z-index: 999;
 
@@ -47,7 +46,6 @@ div {
     top: calc(10vh + 100px);
 }
 
-
 #panel {
     background: var(--ls-secondary-background-color);
 
@@ -61,17 +59,16 @@ div {
 
     border-radius: 8px;
 
-    transition-timing-function: cubic-bezier(0,0,.2,1);
-    transition-duration: .15s;
+    transition-timing-function: ease-out;
+    transition-duration: .3s;
     transition-property: all;
 
     opacity: 0;  /* will be set at runtime */
 }
 
-
 #panel-content {
     max-height: 85vh;
-    min-width: 720px;
+    min-width: 35em;
     overflow-x: hidden;
     overflow-y: overlay;
     padding: 2rem;
@@ -114,4 +111,100 @@ div {
 
 #search-query-input:focus {
     box-shadow: none;
+}
+
+
+#results-wrap {
+    max-height: calc(75vh - 64px);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#items {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+}
+
+.item > a {
+    word-break: break-all;
+
+    background: 0 0;
+    border: none;
+    border-radius: unset!important;
+    transition: none;
+
+    color: var(--ls-primary-text-color);
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+
+    cursor: pointer;
+
+    font-size: .875rem;
+    line-height: 1.25rem;
+
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+
+    padding-left: 1rem;
+    padding-right: 1rem;
+
+    justify-content: space-between;
+
+    display: flex;
+
+    color: var(--ls-link-text-color);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.item > a > span {
+    flex: 1 1 0%;
+}
+
+.item-selected, .item:hover {
+    word-break: break-all;
+    background-color: var(--ls-a-chosen-bg);
+}
+
+.item-selected span, .item:hover span {
+    color: var(--ls-secondary-text-color);
+}
+
+.cell {
+    align-items: center;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    display: inline-grid;
+}
+
+.cell-left {
+    display: flex;
+    grid-column: span 3/span 3;
+}
+
+.cell-right {
+    justify-content: flex-end;
+    display: flex;
+    grid-column: span 1/span 1;
+}
+
+.label {
+    white-space: nowrap;
+    opacity: .4;
+
+    border-radius: var(--ls-border-radius-low);
+    -webkit-border-radius: var(--ls-border-radius-low);
+    line-height: 1.45;
+    padding: 3px 5px!important;
+
+    color: var(--ls-page-inline-code-color);
+    font-family: MonoLisa,Fira Code,Monaco,Menlo,Consolas,COURIER NEW,monospace;
+    font-size: .9em;
+    font-style: normal;
+    letter-spacing: 0;
+    text-rendering: optimizeSpeed;
 }

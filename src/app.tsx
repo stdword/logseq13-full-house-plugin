@@ -58,12 +58,16 @@ async function postInit() {
                 '--ls-quaternary-background-color',
 
                 '--ls-border-color',
+                '--ls-border-radius-low',
+                '--ls-page-inline-code-color',
+                '--ls-a-chosen-bg',
 
                 '--ls-page-text-size',
                 '--ls-primary-text-color',
                 '--ls-secondary-text-color',
 
                 '--ls-font-family',
+                '--ls-link-text-color',
             ])
     })
 }

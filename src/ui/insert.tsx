@@ -31,11 +31,6 @@ function InsertUI({ blockUUID }) {
 
         const panel = document.getElementById('panel')
         panel!.style.opacity = '1'
-        const width = panel!.dataset.origWidth || panel!.clientWidth
-        const height = panel!.dataset.origHeight || panel!.clientHeight
-        panel!.style.width = `${width}px`
-        panel!.style.height = `${height}px`
-        console.log('ASD', width, height)
 
         const input = document.getElementById('search-query-input')
         input!.focus()
@@ -47,10 +42,6 @@ function InsertUI({ blockUUID }) {
         // handle show/hide animation
         const panel = document.getElementById('panel')
         panel!.style.opacity = '0'
-        panel!.dataset.origWidth = panel!.style.width.replace('px', '')
-        panel!.dataset.origHeight = panel!.style.height.replace('px', '')
-        panel!.style.width = `${panel!.clientWidth - 20}px`
-        panel!.style.height = `${panel!.clientHeight - 5}px`
 
         const overlay = document.getElementById('overlay')
         overlay!.style.opacity = '0'
@@ -60,7 +51,6 @@ function InsertUI({ blockUUID }) {
     }
 
     useEffect(() => {
-        // called on UI show
         console.log('on:SHOW', visible)
 
         if (visible)
@@ -100,7 +90,7 @@ function InsertUI({ blockUUID }) {
 
     useEffect(() => {
         console.log('on:FILTER', searchQueryState)
-        let results = ['test template', 'some template']
+        let results = ['test template', 'some template', 'cool', 'words', 'And long template names', 'with upper LETTERS']
         if (searchQueryState)
             results = results.filter(
                 (result) => result.toLowerCase().includes(searchQueryState.toLowerCase())
@@ -132,18 +122,17 @@ function InsertUI({ blockUUID }) {
                                 }}
                             />
                         </div>
-                        <div class="command-results-wrap">
-                            <div id="ui__ac" class="cp__palette-results">
-                                <div id="ui__ac-inner" class="hide-scrollbar">
+                        <div id="results-wrap">
+                            <div id="results">
+                                <div id="items">
                                     {resultsState.map((item) => (
-                                        <div class="menu-link-wrap" /* onClick={insertBlocks} */>
-                                            <a id="ac-0"
-                                                class="flex justify-between px-4 py-2 text-sm transition ease-in-out duration-150 cursor menu-link">
-                                                <span class="flex-1">
-                                                    <div class="inline-grid grid-cols-4 items-center w-full">
-                                                        <span class="col-span-3">{item}</span>
-                                                        <div class="col-span-1 flex justify-end tip">
-                                                            <code class="opacity-40 bg-transparent">Template</code>
+                                        <div className="item" /* onClick={insertBlocks} */>
+                                            <a>
+                                                <span>
+                                                    <div className="cell">
+                                                        <span className="cell-left">{item}</span>
+                                                        <div className="cell-right">
+                                                            <code className="label">Template</code>
                                                         </div>
                                                     </div>
                                                 </span>
