@@ -1,5 +1,7 @@
 import { BlockEntity, IBatchBlock, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 
+import { render } from 'preact'
+
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { dayjs } from './context'
 import { renderTemplateInBlock, renderTemplateView, renderView } from './logic'
@@ -11,11 +13,16 @@ import {
     walkBlockTree,
     IBlockNode,
     escapeForRegExp,
+    getCSSVars,
+    loadThemeVars,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import { isOldSyntax } from './extensions/customized_eta'
+import InsertUI from './ui/insert'
+
 
 const DEV = process.env.NODE_ENV === 'development'
+
 
 async function onAppSettingsChanged() {
     const config = await logseq.App.getUserConfigs()
@@ -41,6 +48,24 @@ async function init() {
 async function postInit() {
     notifyUser()
     await onAppSettingsChanged()
+
+    logseq.on('ui:visible:changed', ({ visible }) => {
+        if (visible)
+            loadThemeVars([
+                '--ls-primary-background-color',
+                '--ls-secondary-background-color',
+                '--ls-tertiary-background-color',
+                '--ls-quaternary-background-color',
+
+                '--ls-border-color',
+
+                '--ls-page-text-size',
+                '--ls-primary-text-color',
+                '--ls-secondary-text-color',
+
+                '--ls-font-family',
+            ])
+    })
 }
 
 function notifyUser() {
@@ -144,6 +169,18 @@ async function main() {
                     )
                     return
                 }
+        })
+
+        logseq.App.registerCommandPalette({
+            key: 'insert-template2',
+            label: 'Insert 🏛️template2',
+            keybinding: { binding: 'mod+u', mode: 'global' }
+        }, async (e) => {
+            render(
+                <InsertUI blockUUID={e.uuid} />,
+                document.getElementById('app')!
+            )
+            logseq.showMainUI()
         })
 
         logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
