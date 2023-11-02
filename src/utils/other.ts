@@ -127,3 +127,19 @@ export function toISODate(date: Date) {
     const d = date.getDate().toString()
     return `${date.getFullYear()}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`
  }
+
+export function getCSSVars(names) {
+    const style = getComputedStyle(top!.document.documentElement)
+    return names.map((name) => style.getPropertyValue(name))
+}
+
+export function loadThemeVars(vars) {
+    const vals = getCSSVars(vars)
+    if (!vals)
+        return
+
+    const style = document.body.style
+    vars.forEach((k, i) => {
+        style.setProperty(k, vals[i])
+    })
+}
