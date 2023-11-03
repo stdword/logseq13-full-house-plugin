@@ -15,6 +15,7 @@ import {
     escapeForRegExp,
     getCSSVars,
     loadThemeVars,
+    getChosenBlock,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import { isOldSyntax } from './extensions/customized_eta'
@@ -162,39 +163,38 @@ async function main() {
     const commandTemplate = RendererMacro.command('template')
     {
         const commandLabel = 'Insert 🏛template'
-        const commandGuide = commandTemplate
-            .arg('TEMPLATE NAME')
-            .toString()
 
-        logseq.App.registerCommandPalette(
-            { key: 'insert-template', label: commandLabel }, async (e) => {
-                const inserted = await insertContent(commandGuide, { positionOnArg: 1 })
-                if (!inserted) {
-                    logseq.UI.showMsg(
-                        `[:p "Start editing block or select one to insert "
-                             [:code ":template"]]`,
-                        'warning',
-                        {timeout: 5000},
-                    )
-                    return
-                }
-        })
-
-        logseq.App.registerCommandPalette({
-            key: 'insert-template2',
-            label: 'Insert 🏛️template2',
-            keybinding: { binding: 'mod+u', mode: 'global' }
-        }, async (e) => {
+        function showInsertUI(uuid: string, needToReplaceContent = false) {
             render(
-                <InsertUI blockUUID={e.uuid} />,
+                <InsertUI blockUUID={uuid} needToReplaceContent={needToReplaceContent} itemsType="template" />,
                 document.getElementById('app')!
             )
             logseq.showMainUI()
+        }
+
+        logseq.App.registerCommandPalette({
+            key: 'insert-template',
+            label: commandLabel,
+            keybinding: { binding: 'mod+u', mode: 'global' }
+        }, async (e) => {
+            const chosenBlock = await getChosenBlock()
+            if (!chosenBlock) {
+                logseq.UI.showMsg(
+                    `[:p "Start editing block or select one to insert "
+                         [:code ":template"]]`,
+                    'warning',
+                    {timeout: 5000},
+                )
+                return
+            }
+
+            const [ uuid, isSelectedState ] = chosenBlock
+            showInsertUI(uuid, isSelectedState)
         })
 
         logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
             // here user always in editing mode, so no need to check insertion
-            await insertContent(commandGuide, { positionOnArg: 1 })
+            showInsertUI(e.uuid)
         })
 
         registerBlockContextCopyCommand('Copy as 🏛template', commandTemplate)
