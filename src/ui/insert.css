@@ -2,6 +2,28 @@
     box-sizing: border-box;
 }
 
+:root {
+  scrollbar-color: var(--ls-scrollbar-foreground-color) var(--ls-scrollbar-background-color);
+}
+
+html ::-webkit-scrollbar-thumb {
+    background-color: var(--ls-scrollbar-foreground-color)
+}
+
+html ::-webkit-scrollbar {
+    background-color: var(--ls-scrollbar-background-color);
+    height: 8px;
+    width: var(--ls-scrollbar-width)
+}
+
+html ::-webkit-scrollbar-thumb:active {
+    background-color: var(--ls-scrollbar-thumb-hover-color)
+}
+
+html ::-webkit-scrollbar-corner {
+    background: 0 0
+}
+
 div {
     color: var(--ls-primary-text-color);
     font-size: var(--ls-page-text-size);

@@ -68,6 +68,11 @@ async function postInit() {
 
                 '--ls-font-family',
                 '--ls-link-text-color',
+
+                '--ls-scrollbar-width',
+                '--ls-scrollbar-foreground-color',
+                '--ls-scrollbar-background-color',
+                '--ls-scrollbar-thumb-hover-color',
             ])
     })
 }
