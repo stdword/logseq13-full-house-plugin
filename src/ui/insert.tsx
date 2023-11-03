@@ -126,9 +126,9 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     useEffect(() => {
         console.log('on:FILTER', searchQueryState)
         let results = [
-            'test template', 'some template', 'cool', 'words', 'And long template names', 'with upper LETTERS',
-            'test template', 'some template', 'cool', 'words', 'And long template names', 'with upper LETTERS',
-            'test template', 'some template', 'cool', 'words', 'And long template names', 'with upper LETTERS',
+            'test, template', 'some template', 'cool', 'words', 'And long template names', 'with upper LETTERS',
+            'test template', 'some, template', 'cool', 'words', 'And long template names', 'with upper, LETTERS',
+            'test template', 'some template', 'cool', 'words', 'And, long template names', 'with upper LETTERS',
         ]
         if (searchQueryState)
             results = results.filter(

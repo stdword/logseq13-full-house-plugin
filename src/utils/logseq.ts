@@ -438,6 +438,9 @@ export class Macro {
         if (!value)
             return this
 
+        if (value.includes(','))
+            value = '"' + value + '"'
+
         const obj = this.clone()
         obj.arguments.push(value)
         return obj
@@ -446,6 +449,12 @@ export class Macro {
         values = values ?? []
         if (!values.length)
             return this
+
+        values = values.map((value) => {
+            if (value.includes(','))
+                value = '"' + value + '"'
+            return value
+        })
 
         const obj = this.clone()
         obj.arguments.push(...values)
