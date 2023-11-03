@@ -20,27 +20,33 @@ export async function walkBlockTree(
     }
  }
 
+export async function getChosenBlock(): Promise<[string, boolean] | null> {
+    const selected = (await logseq.Editor.getSelectedBlocks()) ?? []
+    const editing = await logseq.Editor.checkEditing()
+    if (!editing && selected.length === 0)
+        return null
+
+    const isSelectedState = selected.length !== 0
+    const uuid = isSelectedState ? selected[0].uuid : editing as string
+    return [ uuid, isSelectedState ]
+}
+
 export async function insertContent(
     content: string,
-    options: { positionOnArg?: number, positionOnText?: string } = {},
+    options: { positionOnArg?: number, positionOnText?: string, positionIndex?: number } = {},
 ): Promise<boolean> {
     // Bug-or-feature with Command Palette modal: Logseq exits editing state when modal appears
     // To handle this: use selected blocks — the editing block turns to selected
 
-    const selected = (await logseq.Editor.getSelectedBlocks()) ?? []
-    const editing = await logseq.Editor.checkEditing()
-    if (!editing && selected.length === 0) {
+    const chosenBlock = await getChosenBlock()
+    if (!chosenBlock) {
         console.warn(p`Attempt to insert content while not in editing state and no one block is selected`)
         return false
     }
+    const [ uuid, isSelectedState ] = chosenBlock
 
-    // TODO: logseq needs API to set selection in editing state
-    // to implement feature like sublime text snippets: placeholders switched by TAB
-    // text ${1:arg1} snippet ${2:arg2}
-
-    const { positionOnArg, positionOnText } = options
-
-    let position = 0
+    const { positionOnArg, positionOnText, positionIndex } = options
+    let position: number | undefined
     if (positionOnArg) {
         let index = indexOfNth(content, ',', positionOnArg)
         if (!index)  // fallback to first arg
@@ -56,32 +62,39 @@ export async function insertContent(
 
         position = index
     }
-    else if (positionOnText)
-        position = content.indexOf(positionOnText)
-
-    const isSelectedState = selected.length !== 0
-    const uuid = isSelectedState ? selected[0].uuid : editing as string
+    else if (positionOnText) {
+        const index = content.indexOf(positionOnText)
+        if (index !== -1)
+            position = index
+    }
+    else if (positionIndex) {
+        if (positionIndex >= 0 && positionIndex < content.length)
+            position = positionIndex
+    }
 
     if (isSelectedState) {
         await logseq.Editor.updateBlock(uuid, content)
-        await logseq.Editor.editBlock(uuid, { pos: position })
+        if (position !== undefined)
+            await logseq.Editor.editBlock(uuid, { pos: position })
     } else {
         await logseq.Editor.insertAtEditingCursor(content)
 
-        // need delay before getting cursor position
-        await sleep(20)
-        const posInfo = await logseq.Editor.getEditingCursorPosition()
+        if (position !== undefined) {
+            // need delay before getting cursor position
+            await sleep(20)
+            const posInfo = await logseq.Editor.getEditingCursorPosition()
 
-        const relativePosition = posInfo!.pos - content.length + position
-        console.debug(
-            p`Calculating arg position`,
-            posInfo!.pos, '-', content.length, '+', position, '===', relativePosition,
-        )
+            const relativePosition = posInfo!.pos - content.length + position
+            console.debug(
+                p`Calculating arg position`,
+                posInfo!.pos, '-', content.length, '+', position, '===', relativePosition,
+            )
 
-        // need to exit to perform entering on certain position
-        await logseq.Editor.exitEditingMode()
-        await sleep(20)
-        await logseq.Editor.editBlock(uuid, { pos: relativePosition })
+            // need to exit to perform entering on certain position
+            await logseq.Editor.exitEditingMode()
+            await sleep(20)
+            await logseq.Editor.editBlock(uuid, { pos: relativePosition })
+        }
     }
 
     return true
