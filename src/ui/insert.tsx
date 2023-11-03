@@ -174,7 +174,9 @@ function InsertUI({ blockUUID }) {
 
     return (
         <div id="modal">
-            <div id="overlay" />
+            <div id="overlay"
+                 onClick={hideUI}
+            />
             <div id="panel">
                 <div id="panel-content">
                     <div id="content">
