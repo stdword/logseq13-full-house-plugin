@@ -27,7 +27,7 @@ html ::-webkit-scrollbar-corner {
 div {
     color: var(--ls-primary-text-color);
     font-size: var(--ls-page-text-size);
-    font-family: var(--ls-font-family);
+    font-family: var(--ls-font-family),sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
 
     display: block;
 }
