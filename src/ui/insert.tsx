@@ -3,6 +3,7 @@ import '@logseq/libs'
 import { useEffect, useRef, useState } from 'preact/hooks'
 
 import './insert.css'
+import { RendererMacro } from '../utils/logseq'
 
 
 async function collectTemplatesList() {
@@ -17,8 +18,12 @@ async function collectTemplatesList() {
     return result.map((item) => item[0].properties.template)
 }
 
+const typeToCommandMap = {
+    'template': 'template',
+    'view': 'template-view',
+}
 
-function InsertUI({ blockUUID }) {
+function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     const [visible, setVisible] = useState(true)
     const [searchQueryState, setSearchQueryState] = useState('')
     const [resultsState, setResultsState] = useState([] as string[])
@@ -167,9 +172,21 @@ function InsertUI({ blockUUID }) {
         }
     }
 
-    const insertHighlightedItem = () => {
-        if (highlightedIndexState !== null)
-            console.log('INSERT', resultsState[highlightedIndexState])
+    const insertHighlightedItem = async () => {
+        if (highlightedIndexState === null)
+            return
+
+        hideUI()
+
+        const content = RendererMacro.command(typeToCommandMap[itemsType])
+            .arg(resultsState[highlightedIndexState])
+            .toString()
+
+        if (needToReplaceContent) {
+            await logseq.Editor.updateBlock(blockUUID, content)
+        } else {
+            await logseq.Editor.insertAtEditingCursor(content)
+        }
     }
 
     return (
