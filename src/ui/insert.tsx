@@ -41,6 +41,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     const [searchQuery, setSearchQuery] = useState('')
     const [results, setResults] = useState([] as string[])
     const [highlightedIndex, setHighlightedIndex] = useState(null as number | null)
+    const [highlightedWithMouse, setHighlightedWithMouse] = useState(false)
 
     async function prepareData() {
         if (preparing)
@@ -117,6 +118,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
             const maxIndex = results.length - 1
             if (highlightedIndex === maxIndex)
                 return
+            setHighlightedWithMouse(false)
             setHighlightedIndex(highlightedIndex + 1)
         }
         else if (event.key === 'ArrowUp') {
@@ -129,6 +131,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
             const minIndex = 0
             if (highlightedIndex === minIndex)
                 return
+            setHighlightedWithMouse(false)
             setHighlightedIndex(highlightedIndex - 1)
         }
         else if (event.key === 'Enter') {
@@ -175,8 +178,17 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
                 setHighlightedIndex(results.length - 1)
     }
 
+    function scrollToHightlightedItem() {
+        if (highlightedIndex === null)
+            return
+
+        const itemsElement = document.getElementById('items')! as HTMLElement
+        const itemElement = itemsElement.childNodes[highlightedIndex] as HTMLElement
+        itemElement.scrollIntoView({block: 'nearest'})
+    }
+
     useEffect(() => {
-        const itemsElement = document.getElementById('items')!
+        const itemsElement = document.getElementById('items')! as HTMLElement
         results.forEach((item, index) => {
             const div = itemsElement.childNodes[index] as HTMLDivElement
             if (highlightedIndex === null || index !== highlightedIndex)
@@ -184,6 +196,8 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
             else
                 div.classList.add('selected')
         })
+        if (!highlightedWithMouse)
+            scrollToHightlightedItem()
     }, [highlightedIndex])
 
     const highlightItem = (event: MouseEvent) => {
@@ -191,6 +205,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         const itemsElement = document.getElementById('items')!
         for (const [index, node] of Object.entries(itemsElement.childNodes)) {
             if (node === currentItem) {
+                setHighlightedWithMouse(true)
                 setHighlightedIndex(Number(index))
                 break
             }
