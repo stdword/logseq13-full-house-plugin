@@ -82,7 +82,7 @@ div {
     border-radius: 8px;
 
     transition-timing-function: ease-out;
-    transition-duration: .3s;
+    transition-duration: .15s;
     transition-property: all;
 
     opacity: 0;  /* will be set at runtime */
@@ -149,7 +149,7 @@ div {
     position: relative;
 }
 
-.item > a {
+.item {
     word-break: break-all;
 
     background: 0 0;
@@ -183,16 +183,16 @@ div {
     text-decoration: none;
 }
 
-.item > a > span {
+.item > span {
     flex: 1 1 0%;
 }
 
-.item-selected, .item:hover {
+.selected {
     word-break: break-all;
     background-color: var(--ls-a-chosen-bg);
 }
 
-.item-selected span, .item:hover span {
+.selected span{
     color: var(--ls-secondary-text-color);
 }
 
