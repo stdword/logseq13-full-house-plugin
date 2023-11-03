@@ -56,8 +56,10 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     }
 
     useEffect(() => {
-        if (visible)
+        if (visible) {
             setTimeout(showUI, 100)
+            setHighlightedIndexState(0)
+        }
     }, [visible])
 
     useEffect(() => {
