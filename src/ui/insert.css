@@ -149,6 +149,12 @@ div {
     position: relative;
 }
 
+.nothing {
+    padding-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
 .item {
     word-break: break-all;
 

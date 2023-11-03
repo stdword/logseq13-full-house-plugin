@@ -23,7 +23,6 @@ function InsertUI({ blockUUID }) {
     const [searchQueryState, setSearchQueryState] = useState('')
     const [resultsState, setResultsState] = useState([] as string[])
     const [highlightedIndexState, setHighlightedIndexState] = useState(null as number | null)
-    // const firstUpdate = useRef(true)
 
     function showUI() {
         // handle show/hide animation
@@ -194,7 +193,7 @@ function InsertUI({ blockUUID }) {
                         <div id="results-wrap">
                             <div id="results">
                                 <div id="items">
-                                    {resultsState.map((item) => (
+                                    {resultsState.length ? resultsState.map((item) => (
                                         <div className="item"
                                              onClick={insertHighlightedItem}
                                              onMouseDown={highlightItem}
@@ -209,7 +208,10 @@ function InsertUI({ blockUUID }) {
                                                 </div>
                                             </span>
                                         </div>
-                                    ))}
+                                    )): <div className="nothing">
+                                            No results
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
