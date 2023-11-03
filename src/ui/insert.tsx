@@ -7,27 +7,36 @@ import { RendererMacro } from '../utils/logseq'
 
 
 async function collectTemplatesList() {
-    const data = [
-        ['test, template', ''], ['some template', ''], ['cool', ''], ['words', ''], ['And long template names', ''], ['with upper LETTERS', ''],
-        ['test template', 'Template'], ['some, template', 'Template'], ['cool', 'Template'], ['words', 'Template'], ['And long template names', 'Template'], ['with upper, LETTERS', 'Template'],
-        ['test template', 'View'], ['some template', 'View'], ['cool', 'View'], ['words', 'View'], ['And, long template names', 'View'], ['with upper LETTERS', 'View'],
-    ]
+    const query = `
+        [:find ?name ?label
+         :where
+         [?b :block/properties ?p]
+         [(get ?p :template) ?name]
+         [(get ?p :template-list-as "") ?label]
+        ]
+    `.trim()
+    const result = await logseq.DB.datascriptQuery(query)
+    const data = result
+        .map(([name, label]) => { return {name, label} })
+        .filter((item) => !item.name.startsWith('.'))
+        .filter((item) => item.label.toLowerCase() !== 'hidden')
+        .map(({name, label}) => {
+            [name, label] = [name.trim(), label.trim()]
+            const lowerLabel = label.toLowerCase()
+            if (lowerLabel === 'view')
+                label = 'View'
+            else if (lowerLabel === 'template')
+                label = 'Template'
+            return {name, label}
+        })
+
     return data.sort((a, b) => {
-        const x = a[0].toLowerCase()
-        const y = b[0].toLowerCase()
+        const x = a.name.toLowerCase()
+        const y = b.name.toLowerCase()
         if (x < y)
             return -1
         return Number(x > y)
     })
-    const query = `
-        [:find (pull ?b [*])
-         :where
-         [?b :block/properties ?p]
-         [(get ?p :template)]
-        ]
-    `.trim()
-    const result = await logseq.DB.datascriptQuery(query)
-    return result.map((item) => item[0].properties.template)
 }
 
 const typeToCommandMap = {
@@ -39,7 +48,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     const [visible, setVisible] = useState(true)
     const [preparing, setPreparing] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
-    const [results, setResults] = useState([] as string[])
+    const [results, setResults] = useState([] as {name: string, label: string}[])
     const [highlightedIndex, setHighlightedIndex] = useState(null as number | null)
     const [highlightedWithMouse, setHighlightedWithMouse] = useState(false)
 
@@ -158,7 +167,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         let items = results
         if (searchQuery)
             items = results.filter(
-                ([item, label]) => item.toLowerCase().includes(searchQuery.toLowerCase())
+                ({name, label}) => name.toLowerCase().includes(searchQuery.toLowerCase())
             )
 
         setResults(items)
@@ -219,7 +228,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         hideUI()
 
         const content = RendererMacro.command(typeToCommandMap[itemsType])
-            .arg(results[highlightedIndex][0])
+            .arg(results[highlightedIndex].name)
             .toString()
 
         if (needToReplaceContent) {
@@ -252,7 +261,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
                         <div id="results-wrap">
                             <div id="results">
                                 <div id="items">
-                                    {results.length ? results.map(([item, label]) => (
+                                    {results.length ? results.map(({name, label}) => (
                                         <div className="item"
                                              onClick={insertHighlightedItem}
                                              onMouseDown={highlightItem}
@@ -260,9 +269,9 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
                                         >
                                             <span>
                                                 <div className="cell">
-                                                    <span className="cell-left">{item}</span>
+                                                    <span className="cell-left">{name || '<NO NAME>'}</span>
                                                     <div className="cell-right">
-                                                        <code className="label">{label}</code>
+                                                        <code className="label">{label || 'Template / View'}</code>
                                                     </div>
                                                 </div>
                                             </span>
