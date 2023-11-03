@@ -7,6 +7,18 @@ import { RendererMacro } from '../utils/logseq'
 
 
 async function collectTemplatesList() {
+    const data = [
+        ['test, template', ''], ['some template', ''], ['cool', ''], ['words', ''], ['And long template names', ''], ['with upper LETTERS', ''],
+        ['test template', 'Template'], ['some, template', 'Template'], ['cool', 'Template'], ['words', 'Template'], ['And long template names', 'Template'], ['with upper, LETTERS', 'Template'],
+        ['test template', 'View'], ['some template', 'View'], ['cool', 'View'], ['words', 'View'], ['And, long template names', 'View'], ['with upper LETTERS', 'View'],
+    ]
+    return data.sort((a, b) => {
+        const x = a[0].toLowerCase()
+        const y = b[0].toLowerCase()
+        if (x < y)
+            return -1
+        return Number(x > y)
+    })
     const query = `
         [:find (pull ?b [*])
          :where
@@ -25,9 +37,19 @@ const typeToCommandMap = {
 
 function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     const [visible, setVisible] = useState(true)
+    const [preparing, setPreparing] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [results, setResults] = useState([] as string[])
     const [highlightedIndex, setHighlightedIndex] = useState(null as number | null)
+
+    async function prepareData() {
+        if (preparing)
+            return
+        setPreparing(true)
+        const data = await collectTemplatesList()
+        setResults(data)
+        setPreparing(false)
+    }
 
     function showUI() {
         // handle show/hide animation
@@ -59,6 +81,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         if (visible) {
             setTimeout(showUI, 100)
             setHighlightedIndex(0)
+            prepareData().catch(console.error)
         }
     }, [visible])
 
@@ -67,6 +90,10 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
             if (visible)
                 setVisible(true)
         })
+
+        logseq.App.onCurrentGraphChanged(() => {
+            setResults([])
+            hideUI()
         })
     }, [])
 
@@ -125,12 +152,6 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
 
     // filter results
     useEffect(() => {
-        console.log('on:FILTER', searchQueryState)
-        let results = [
-            'test, template', 'some template', 'cool', 'words', 'And long template names', 'with upper LETTERS',
-            'test template', 'some, template', 'cool', 'words', 'And long template names', 'with upper, LETTERS',
-            'test template', 'some template', 'cool', 'words', 'And, long template names', 'with upper LETTERS',
-        ]
         let items = results
         if (searchQuery)
             items = results.filter(
@@ -183,6 +204,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         hideUI()
 
         const content = RendererMacro.command(typeToCommandMap[itemsType])
+            .arg(results[highlightedIndex][0])
             .toString()
 
         if (needToReplaceContent) {
@@ -215,6 +237,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
                         <div id="results-wrap">
                             <div id="results">
                                 <div id="items">
+                                    {results.length ? results.map(([item, label]) => (
                                         <div className="item"
                                              onClick={insertHighlightedItem}
                                              onMouseDown={highlightItem}
@@ -224,7 +247,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
                                                 <div className="cell">
                                                     <span className="cell-left">{item}</span>
                                                     <div className="cell-right">
-                                                        <code className="label">Template</code>
+                                                        <code className="label">{label}</code>
                                                     </div>
                                                 </div>
                                             </span>
