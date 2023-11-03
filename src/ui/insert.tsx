@@ -25,9 +25,9 @@ const typeToCommandMap = {
 
 function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     const [visible, setVisible] = useState(true)
-    const [searchQueryState, setSearchQueryState] = useState('')
-    const [resultsState, setResultsState] = useState([] as string[])
-    const [highlightedIndexState, setHighlightedIndexState] = useState(null as number | null)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [results, setResults] = useState([] as string[])
+    const [highlightedIndex, setHighlightedIndex] = useState(null as number | null)
 
     function showUI() {
         // handle show/hide animation
@@ -51,27 +51,28 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         const overlay = document.getElementById('overlay')
         overlay!.style.opacity = '0'
 
-        setSearchQueryState('')
+        setSearchQuery('')
         setVisible(false)
     }
 
     useEffect(() => {
         if (visible) {
             setTimeout(showUI, 100)
-            setHighlightedIndexState(0)
+            setHighlightedIndex(0)
         }
     }, [visible])
 
     useEffect(() => {
         logseq.on('ui:visible:changed', ({ visible }) => {
-          if (visible)
-            setVisible(true)
+            if (visible)
+                setVisible(true)
+        })
         })
     }, [])
 
     const saveInputValue = (event) => {
         const input = event.target! as HTMLInputElement
-        setSearchQueryState(input.value)
+        setSearchQuery(input.value)
     }
 
     const returnFocus = (event: FocusEvent) => {
@@ -82,26 +83,26 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     const actWithHighlightedItem = (event: KeyboardEvent) => {
         if (event.key === 'ArrowDown') {
             event.preventDefault()
-            if (highlightedIndexState === null) {
-                setHighlightedIndexState(0)
+            if (highlightedIndex === null) {
+                setHighlightedIndex(0)
                 return
             }
-            const maxIndex = resultsState.length - 1
-            if (highlightedIndexState === maxIndex)
+            const maxIndex = results.length - 1
+            if (highlightedIndex === maxIndex)
                 return
-            setHighlightedIndexState(highlightedIndexState + 1)
+            setHighlightedIndex(highlightedIndex + 1)
         }
         else if (event.key === 'ArrowUp') {
             event.preventDefault()
-            if (highlightedIndexState === null) {
-                if (resultsState.length > 0)
-                    setHighlightedIndexState(resultsState.length - 1)
+            if (highlightedIndex === null) {
+                if (results.length > 0)
+                    setHighlightedIndex(results.length - 1)
                 return
             }
             const minIndex = 0
-            if (highlightedIndexState === minIndex)
+            if (highlightedIndex === minIndex)
                 return
-            setHighlightedIndexState(highlightedIndexState - 1)
+            setHighlightedIndex(highlightedIndex - 1)
         }
         else if (event.key === 'Enter') {
             event.preventDefault()
@@ -113,7 +114,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         const input = event.target! as HTMLInputElement
         if (event.key === 'Escape') {
             if (input.value !== '') {
-                setSearchQueryState('')
+                setSearchQuery('')
                 return
             }
 
@@ -130,58 +131,58 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
             'test template', 'some, template', 'cool', 'words', 'And long template names', 'with upper, LETTERS',
             'test template', 'some template', 'cool', 'words', 'And, long template names', 'with upper LETTERS',
         ]
-        if (searchQueryState)
-            results = results.filter(
-                (result) => result.toLowerCase().includes(searchQueryState.toLowerCase())
+        let items = results
+        if (searchQuery)
+            items = results.filter(
+                ([item, label]) => item.toLowerCase().includes(searchQuery.toLowerCase())
             )
 
-        setResultsState(results)
-        updateHighlightFor(results)
-    }, [searchQueryState])
+        setResults(items)
+        updateHighlightFor(items)
+    }, [searchQuery])
 
     function updateHighlightFor(results) {
         if (results.length == 0) {
-            setHighlightedIndexState(null)
+            setHighlightedIndex(null)
             return
         }
 
-        if (highlightedIndexState === null)
-            setHighlightedIndexState(0)
+        if (highlightedIndex === null)
+            setHighlightedIndex(0)
         else
-            if (highlightedIndexState >= results.length)
-                setHighlightedIndexState(results.length - 1)
+            if (highlightedIndex >= results.length)
+                setHighlightedIndex(results.length - 1)
     }
 
     useEffect(() => {
         const itemsElement = document.getElementById('items')!
-        resultsState.forEach((item, index) => {
+        results.forEach((item, index) => {
             const div = itemsElement.childNodes[index] as HTMLDivElement
-            if (highlightedIndexState === null || index !== highlightedIndexState)
+            if (highlightedIndex === null || index !== highlightedIndex)
                 div.classList.remove('selected')
             else
                 div.classList.add('selected')
         })
-    }, [highlightedIndexState])
+    }, [highlightedIndex])
 
     const highlightItem = (event: MouseEvent) => {
         const currentItem = (event.target! as HTMLDivElement).closest('.item')
         const itemsElement = document.getElementById('items')!
         for (const [index, node] of Object.entries(itemsElement.childNodes)) {
             if (node === currentItem) {
-                setHighlightedIndexState(Number(index))
+                setHighlightedIndex(Number(index))
                 break
             }
         }
     }
 
     const insertHighlightedItem = async () => {
-        if (highlightedIndexState === null)
+        if (highlightedIndex === null)
             return
 
         hideUI()
 
         const content = RendererMacro.command(typeToCommandMap[itemsType])
-            .arg(resultsState[highlightedIndexState])
             .toString()
 
         if (needToReplaceContent) {
@@ -204,7 +205,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
                                 id="search-query-input"
                                 type="text"
                                 placeholder=" 🏛️ Search for a template or view..."
-                                value={searchQueryState}
+                                value={searchQuery}
                                 onKeyDown={actWithHighlightedItem}
                                 onKeyUp={handleEscapeKey}
                                 onInput={saveInputValue}
@@ -214,7 +215,6 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
                         <div id="results-wrap">
                             <div id="results">
                                 <div id="items">
-                                    {resultsState.length ? resultsState.map((item) => (
                                         <div className="item"
                                              onClick={insertHighlightedItem}
                                              onMouseDown={highlightItem}
