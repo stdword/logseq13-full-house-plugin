@@ -3,14 +3,14 @@ import '@logseq/libs'
 import { useEffect, useRef, useState } from 'preact/hooks'
 
 import './insert.css'
-import { RendererMacro } from '../utils/logseq'
+import { RendererMacro } from '../utils'
 
 
 type DataItem = {name: string, label: string}
 type Data = DataItem[]
 
 
-async function collectTemplatesList(): Data {
+async function collectTemplatesList(): Promise<Data> {
     const query = `
         [:find ?name ?label
          :where
@@ -22,8 +22,6 @@ async function collectTemplatesList(): Data {
     const result = await logseq.DB.datascriptQuery(query)
     const data = result
         .map(([name, label]) => { return {name, label} })
-        .filter((item) => !item.name.startsWith('.'))
-        .filter((item) => item.label.toLowerCase() !== 'hidden')
         .map(({name, label}) => {
             [name, label] = [name.trim(), label.trim()]
             const lowerLabel = label.toLowerCase()
@@ -187,6 +185,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     // filter results
     useEffect(() => {
         let items = data.current
+            .filter((item) => !item.name.startsWith('.'))
         if (searchQuery)
             items = items.filter(
                 ({name, label}) => name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -283,15 +282,18 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
                                         >
                                             <span>
                                                 <div className="cell">
-                                                    <span className="cell-left">{name || '<NO NAME>'}</span>
+                                                    <span className="cell-left">{name ? name : <i>{'EMPTY NAME'}</i>}</span>
                                                     <div className="cell-right">
-                                                        <code className="label">{label || 'Template / View'}</code>
+                                                        { label
+                                                            ? <code className="label">{label}</code>
+                                                            : ''
+                                                        }
                                                     </div>
                                                 </div>
                                             </span>
                                         </div>
                                     )): <div className="nothing">
-                                            No results
+                                            {preparing ? 'Loading...' : 'No results'}
                                         </div>
                                     }
                                 </div>
