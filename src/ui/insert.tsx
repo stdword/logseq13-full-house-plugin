@@ -6,7 +6,11 @@ import './insert.css'
 import { RendererMacro } from '../utils/logseq'
 
 
-async function collectTemplatesList() {
+type DataItem = {name: string, label: string}
+type Data = DataItem[]
+
+
+async function collectTemplatesList(): Data {
     const query = `
         [:find ?name ?label
          :where
@@ -38,7 +42,23 @@ async function collectTemplatesList() {
         return Number(x > y)
     })
 }
-type Data = {name: string, label: string}[]
+
+async function insertLogic(
+    item: DataItem,
+    blockUUID: string,
+    needToReplaceContent: boolean,
+    itemsType: 'view' | 'template',
+) {
+    const content = RendererMacro.command(typeToCommandMap[itemsType])
+        .arg(item.name)
+        .toString()
+
+    if (needToReplaceContent) {
+        await logseq.Editor.updateBlock(blockUUID, content)
+    } else {
+        await logseq.Editor.insertAtEditingCursor(content)
+    }
+}
 
 const typeToCommandMap = {
     'template': 'template',
@@ -229,15 +249,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
 
         hideUI()
 
-        const content = RendererMacro.command(typeToCommandMap[itemsType])
-            .arg(results[highlightedIndex].name)
-            .toString()
-
-        if (needToReplaceContent) {
-            await logseq.Editor.updateBlock(blockUUID, content)
-        } else {
-            await logseq.Editor.insertAtEditingCursor(content)
-        }
+        await insertLogic(results[highlightedIndex], blockUUID, needToReplaceContent, itemsType)
     }
 
     return (
