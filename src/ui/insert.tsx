@@ -188,28 +188,42 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         let items = data.current
             .filter((item) => !item.name.startsWith('.'))
 
-        // fuzzy search
-        if (searchQuery)
-            items = fuzzysort
-                .go(searchQuery.toLowerCase(), items, {keys: ['name', 'label']})
-                .map((r) => {
-                    return {
-                        name: fuzzysort.highlight(r[0], '<mark>', '</mark>') || r.obj.name,
-                        label: fuzzysort.highlight(r[1], '<mark>', '</mark>') || r.obj.label,
-                    }
-                })
-                .map(({name, label}) => {
-                    return {
-                        name: name.replaceAll(' ', ' '),
-                        label: label.replaceAll(' ', ' '),
-                    }
-                }) as Data
-
-        // simple search
-        // if (searchQuery)
-        //     items = items.filter(
-        //         ({name, label}) => name.toLowerCase().includes(searchQuery.toLowerCase())
-        //     )
+        if (searchQuery) {
+            if (searchQuery.replace(/\s/g, '').length === 0) {
+                // use simple search for queries contains only spaces
+                // due to fuzzysort restrictions
+                items = items
+                    .filter(
+                        ({name, label}) => (name.includes(searchQuery) || label.includes(searchQuery))
+                    )
+                    .map(({name, label}) => {
+                        if (name.includes(searchQuery))
+                            name = name.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
+                        else if (label.includes(searchQuery))
+                            label = label.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
+                        return {
+                            name: name.replaceAll(' ', ' '),
+                            label: label.replaceAll(' ', ' '),
+                        }
+                    })
+            } else {
+                // fuzzy search
+                items = fuzzysort
+                    .go(searchQuery.toLowerCase(), items, {keys: ['name', 'label']})
+                    .map((r) => {
+                        return {
+                            name: fuzzysort.highlight(r[0], '<mark>', '</mark>') || r.obj.name,
+                            label: fuzzysort.highlight(r[1], '<mark>', '</mark>') || r.obj.label,
+                        }
+                    })
+                    .map(({name, label}) => {
+                        return {
+                            name: name.replaceAll(' ', ' '),
+                            label: label.replaceAll(' ', ' '),
+                        }
+                    }) as Data
+            }
+        }
 
         setResults(items)
         updateHighlightForLength(items.length)
