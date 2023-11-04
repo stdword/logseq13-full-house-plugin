@@ -180,8 +180,8 @@ async function main() {
             const chosenBlock = await getChosenBlock()
             if (!chosenBlock) {
                 logseq.UI.showMsg(
-                    `[:p "Start editing block or select one to insert "
-                         [:code ":template"]]`,
+                    `[:p "🏛️ Start editing block or select one to insert "
+                         [:p [:code ":template"] "or" [:code ":template-view"]]]`,
                     'warning',
                     {timeout: 5000},
                 )
