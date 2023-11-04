@@ -38,6 +38,7 @@ async function collectTemplatesList() {
         return Number(x > y)
     })
 }
+type Data = {name: string, label: string}[]
 
 const typeToCommandMap = {
     'template': 'template',
@@ -48,16 +49,17 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     const [visible, setVisible] = useState(true)
     const [preparing, setPreparing] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
-    const [results, setResults] = useState([] as {name: string, label: string}[])
+    const [results, setResults] = useState([] as Data)
     const [highlightedIndex, setHighlightedIndex] = useState(null as number | null)
     const [highlightedWithMouse, setHighlightedWithMouse] = useState(false)
 
+    const data = useRef([] as Data)
     async function prepareData() {
         if (preparing)
             return
         setPreparing(true)
-        const data = await collectTemplatesList()
-        setResults(data)
+        data.current = await collectTemplatesList()
+        setResults(data.current)
         setPreparing(false)
     }
 
@@ -164,18 +166,18 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
 
     // filter results
     useEffect(() => {
-        let items = results
+        let items = data.current
         if (searchQuery)
-            items = results.filter(
+            items = items.filter(
                 ({name, label}) => name.toLowerCase().includes(searchQuery.toLowerCase())
             )
 
         setResults(items)
-        updateHighlightFor(items)
+        updateHighlightForLength(items.length)
     }, [searchQuery])
 
-    function updateHighlightFor(results) {
-        if (results.length == 0) {
+    function updateHighlightForLength(length) {
+        if (length == 0) {
             setHighlightedIndex(null)
             return
         }
@@ -183,8 +185,8 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         if (highlightedIndex === null)
             setHighlightedIndex(0)
         else
-            if (highlightedIndex >= results.length)
-                setHighlightedIndex(results.length - 1)
+            if (highlightedIndex >= length)
+                setHighlightedIndex(length - 1)
     }
 
     function scrollToHightlightedItem() {
