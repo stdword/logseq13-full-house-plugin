@@ -1,6 +1,7 @@
 import '@logseq/libs'
 
 import { useEffect, useRef, useState } from 'preact/hooks'
+import fuzzysort from 'fuzzysort'
 
 import './insert.css'
 import { RendererMacro } from '../utils'
@@ -186,10 +187,29 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     useEffect(() => {
         let items = data.current
             .filter((item) => !item.name.startsWith('.'))
+
+        // fuzzy search
         if (searchQuery)
-            items = items.filter(
-                ({name, label}) => name.toLowerCase().includes(searchQuery.toLowerCase())
-            )
+            items = fuzzysort
+                .go(searchQuery.toLowerCase(), items, {keys: ['name', 'label']})
+                .map((r) => {
+                    return {
+                        name: fuzzysort.highlight(r[0], '<mark>', '</mark>') || r.obj.name,
+                        label: fuzzysort.highlight(r[1], '<mark>', '</mark>') || r.obj.label,
+                    }
+                })
+                .map(({name, label}) => {
+                    return {
+                        name: name.replaceAll(' ', ' '),
+                        label: label.replaceAll(' ', ' '),
+                    }
+                }) as Data
+
+        // simple search
+        // if (searchQuery)
+        //     items = items.filter(
+        //         ({name, label}) => name.toLowerCase().includes(searchQuery.toLowerCase())
+        //     )
 
         setResults(items)
         updateHighlightForLength(items.length)
@@ -282,10 +302,12 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
                                         >
                                             <span>
                                                 <div className="cell">
-                                                    <span className="cell-left">{name ? name : <i>{'EMPTY NAME'}</i>}</span>
+                                                    <span className="cell-left"
+                                                          dangerouslySetInnerHTML={{ __html: (name ? name : '<i>EMPTY NAME</i>') }}></span>
                                                     <div className="cell-right">
                                                         { label
-                                                            ? <code className="label">{label}</code>
+                                                            ? <code className="label"
+                                                                    dangerouslySetInnerHTML={{ __html: label }}></code>
                                                             : ''
                                                         }
                                                     </div>

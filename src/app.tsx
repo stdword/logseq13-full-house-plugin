@@ -69,6 +69,8 @@ async function postInit() {
 
                 '--ls-font-family',
                 '--ls-link-text-color',
+                '--ls-page-mark-bg-color',
+                '--ls-page-mark-color',
 
                 '--ls-scrollbar-width',
                 '--ls-scrollbar-foreground-color',

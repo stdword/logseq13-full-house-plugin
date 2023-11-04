@@ -236,3 +236,8 @@ div {
     letter-spacing: 0;
     text-rendering: optimizeSpeed;
 }
+
+mark {
+    background: var(--ls-page-mark-bg-color);
+    color: var(--ls-page-mark-color);
+}
