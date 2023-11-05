@@ -107,6 +107,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     const [results, setResults] = useState([] as Data)
     const [highlightedIndex, setHighlightedIndex] = useState(null as number | null)
     const [highlightedWithMouse, setHighlightedWithMouse] = useState(false)
+    const [optKeyPressed, setOptKeyPressed] = useState(false)
 
     const data = useRef([] as Data)
     async function prepareData() {
@@ -114,7 +115,6 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
             return
         setPreparing(true)
         data.current = await collectTemplatesList()
-        setResults(data.current)
         setPreparing(false)
     }
 
@@ -140,7 +140,6 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         const overlay = document.getElementById('overlay')
         overlay!.style.opacity = '0'
 
-        setSearchQuery('')
         setVisible(false)
     }
 
@@ -149,8 +148,8 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
 
         if (visible) {
             setTimeout(showUI, 100)
-            setHighlightedIndex(0)
             prepareData().catch(console.error)
+            setSearchQuery('')
         }
     }, [visible])
 
@@ -179,7 +178,10 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     }
 
     const actWithHighlightedItem = (event: KeyboardEvent) => {
-        if (event.key === 'ArrowDown') {
+        if (event.key === 'Alt') {
+            setOptKeyPressed(true)
+        }
+        else if (event.key === 'ArrowDown') {
             event.preventDefault()
             if (highlightedIndex === null) {
                 setHighlightedIndex(0)
@@ -211,29 +213,37 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     }
 
     const handleEscapeKey = (event: KeyboardEvent) => {
-        const input = event.target! as HTMLInputElement
-        if (event.key === 'Escape') {
+        if (event.key === 'Alt') {
+            setOptKeyPressed(false)
+        }
+        else if (event.key === 'Escape') {
+            const input = event.target! as HTMLInputElement
             if (input.value !== '') {
                 setSearchQuery('')
                 return
             }
 
             hideUI()
-            return
         }
     }
 
     // filter results
     useEffect(() => {
+        if (preparing)
+            return
 
         console.debug('effect:FILTER', `"${searchQuery}"`)
+
         let items = data.current
 
+        if (!optKeyPressed)
+            items = items.filter((item) => !item.name.startsWith('.'))
 
         if (searchQuery)
             items = searchLogic(items, searchQuery)
+
         setResults(items)
-    }, [searchQuery])
+    }, [searchQuery, optKeyPressed, preparing])
 
     useEffect(() => {
         const length = results.length
