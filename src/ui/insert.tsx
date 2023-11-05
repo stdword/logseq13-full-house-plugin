@@ -26,22 +26,24 @@ async function prepareDataLogic(): Promise<Data> {
     const result = await logseq.DB.datascriptQuery(query)
     const data = result
         .map(([uuid, name, label, page]) => { return {uuid, name, label, page} })
-        .map(({uuid, name, label, page}) => {
-            [name, label] = [name.trim(), label.trim()]
-            const lowerLabel = label.toLowerCase()
+        .map((item) => {
+            item.name = item.name.trim()
+            item.label = item.label.trim()
+
+            const lowerLabel = item.label.toLowerCase()
             if (lowerLabel === 'view')
-                label = 'View'
+                item.label = 'View'
             else if (lowerLabel === 'template')
-                label = 'Template'
-            return {uuid, name, label, page}
+                item.label = 'Template'
+
+            return item
         })
 
-    return data.sort((a, b) => {
-        const x = a.name.toLowerCase()
-        const y = b.name.toLowerCase()
-        if (x < y)
-            return -1
-        return Number(x > y)
+    return data.sort((a, b) => {  // by page then by name
+        const pageDiff = a.page.localeCompare(b.page)
+        if (pageDiff === 0)
+            return a.name.localeCompare(b.name)
+        return pageDiff
     })
 }
 
