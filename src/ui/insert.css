@@ -198,6 +198,10 @@ div {
     color: var(--ls-secondary-text-color);
 }
 
+.item.selected.will-open:hover {
+    cursor: e-resize;
+}
+
 .cell {
     align-items: center;
     grid-template-columns: repeat(4, minmax(0, 1fr));
