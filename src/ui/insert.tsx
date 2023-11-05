@@ -11,7 +11,7 @@ type DataItem = {uuid: string, name: string, label: string, page: string}
 type Data = DataItem[]
 
 
-async function collectTemplatesList(): Promise<Data> {
+async function prepareDataLogic(): Promise<Data> {
     const query = `
         [:find ?uuid ?name ?label ?page
          :where
@@ -76,40 +76,50 @@ function searchLogic(items: Data, searchQuery: string) {
     // due to fuzzysort restrictions
     if (searchQuery.replace(/\s/g, '').length === 0)
         return items
-            .filter(
-                ({uuid, name, label, page}) => (name.includes(searchQuery) || label.includes(searchQuery))
-            )
-            .map(({uuid, name, label, page}) => {
-                if (name.includes(searchQuery))
-                    name = name.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
-                else if (label.includes(searchQuery))
-                    label = label.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
-                return {  // replacing spaces to nb-spaces to keep them during html rendering
-                    uuid,
-                    name: name.replaceAll(' ', ' '),
-                    label: label.replaceAll(' ', ' '),
-                    page,
+            .filter((item) => (
+                item.name.includes(searchQuery) ||
+                item.page.includes(searchQuery) ||
+                item.label.includes(searchQuery)
+            ))
+            .map((item_) => {
+                const highlight = (s) => {
+                    return s
+                        .replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
+                        // replacing spaces to nb-spaces to keep them during html rendering
+                        .replaceAll(' ', ' ')
                 }
+
+                const item = structuredClone(item_)
+
+                if (item.name.includes(searchQuery))
+                    item.name = highlight(item.name)
+                else if (item.page.includes(searchQuery))
+                    item.page = highlight(item.page)
+                else if (item.label.includes(searchQuery))
+                    item.label = highlight(item.label)
+
+                return item
             })
 
     // fuzzy search
     return fuzzysort
-        .go(searchQuery.toLowerCase(), items, {keys: ['name', 'label']})
+        .go(searchQuery.toLowerCase(), items, {keys: ['name', 'page', 'label']})
         .map((r) => {
-            return {
-                uuid: r.obj.uuid,
-                name: fuzzysort.highlight(r[0], '<mark>', '</mark>') || r.obj.name,
-                label: fuzzysort.highlight(r[1], '<mark>', '</mark>') || r.obj.label,
-                page: r.obj.page,
+            const highlight = (r, original) => {
+                const highlighted = fuzzysort.highlight(r, '<mark>', '</mark>')
+                if (!highlighted)
+                    return original
+
+                // replacing spaces to nb-spaces to keep them during html rendering
+                return highlighted.replaceAll(' ', ' ')
             }
-        })
-        .map(({uuid, name, label, page}) => {
-            return {  // replacing spaces to nb-spaces to keep them during html rendering
-                uuid,
-                name: name.replaceAll(' ', ' '),
-                label: label.replaceAll(' ', ' '),
-                page,
-            }
+
+            const item = structuredClone(r.obj)
+            item.name = highlight(r[0], r.obj.name)
+            item.page = highlight(r[1], r.obj.page)
+            item.label = highlight(r[2], r.obj.label)
+
+            return item
         }) as Data
 }
 
@@ -136,7 +146,7 @@ function InsertUI({ blockUUID, isSelectedState }) {
         if (preparing)
             return
         setPreparing(true)
-        data.current = await collectTemplatesList()
+        data.current = await prepareDataLogic()
         setPreparing(false)
     }
 
@@ -410,7 +420,8 @@ function InsertUI({ blockUUID, isSelectedState }) {
                                                             : ''
                                                         }
                                                     </div>
-                                                    <span className="cell-under">{page}</span>
+                                                    <span className="cell-under"
+                                                          dangerouslySetInnerHTML={{ __html: page }}></span>
                                                 </div>
                                             </span>
                                         </div>
