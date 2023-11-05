@@ -29,6 +29,7 @@ async function prepareDataLogic(): Promise<Data> {
         .map((item) => {
             item.name = item.name.trim()
             item.label = item.label.trim()
+            item.name_ = item.name  // keep original name separately
 
             const lowerLabel = item.label.toLowerCase()
             if (lowerLabel === 'view')
@@ -63,7 +64,7 @@ async function insertLogic(
         itemsType = item.label as 'View' | 'Template'
 
     const content = RendererMacro.command(typeToCommandMap[itemsType])
-        .arg(item.name)
+        .arg(item.name_)
         .toString()
 
     if (isSelectedState) {
