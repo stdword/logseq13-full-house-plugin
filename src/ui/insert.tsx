@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'preact/hooks'
 import fuzzysort from 'fuzzysort'
 
 import './insert.css'
-import { RendererMacro } from '../utils'
+import { RendererMacro, unquote } from '../utils'
 
 
 const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
@@ -15,7 +15,7 @@ type Data = DataItem[]
 
 async function prepareDataLogic(): Promise<Data> {
     const query = `
-        [:find ?uuid ?name ?label ?page
+        [:find ?uuid ?name ?label ?page ?usage
          :where
          [?b :block/properties ?ps]
          [?b :block/page ?p]
@@ -23,11 +23,12 @@ async function prepareDataLogic(): Promise<Data> {
          [?b :block/uuid ?uuid]
          [(get ?ps :template) ?name]
          [(get ?ps :template-list-as "") ?label]
+         [(get ?ps :template-usage "") ?usage]
         ]
     `.trim()
     const result = await logseq.DB.datascriptQuery(query)
     const data = result
-        .map(([uuid, name, label, page]) => { return {uuid, name, label, page} })
+        .map(([uuid, name, label, page, usage]) => ({uuid, name, label, page, usage}))
         .map((item) => {
             // clean .name
             item.name = item.name.trim()
@@ -40,6 +41,10 @@ async function prepareDataLogic(): Promise<Data> {
                 item.label = 'View'
             else if (lowerLabel === 'template')
                 item.label = 'Template'
+
+            // clean .usage
+            item.usage = unquote(item.usage, '``')
+            item.usage = unquote(item.usage, '``')
 
             return item
         })
@@ -126,6 +131,7 @@ async function insertLogic(
     }
     const content = RendererMacro.command(typeToCommandMap[itemsType])
         .arg(item.name_)
+        .arg(item.usage)
         .toString()
 
     if (isSelectedState) {
