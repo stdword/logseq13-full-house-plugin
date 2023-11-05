@@ -7,30 +7,33 @@ import './insert.css'
 import { RendererMacro } from '../utils'
 
 
-type DataItem = {name: string, label: string}
+type DataItem = {uuid: string, name: string, label: string, page: string}
 type Data = DataItem[]
 
 
 async function collectTemplatesList(): Promise<Data> {
     const query = `
-        [:find ?name ?label
+        [:find ?uuid ?name ?label ?page
          :where
-         [?b :block/properties ?p]
-         [(get ?p :template) ?name]
-         [(get ?p :template-list-as "") ?label]
+         [?b :block/properties ?ps]
+         [?b :block/page ?p]
+         [?p :block/original-name ?page]
+         [?b :block/uuid ?uuid]
+         [(get ?ps :template) ?name]
+         [(get ?ps :template-list-as "") ?label]
         ]
     `.trim()
     const result = await logseq.DB.datascriptQuery(query)
     const data = result
-        .map(([name, label]) => { return {name, label} })
-        .map(({name, label}) => {
+        .map(([uuid, name, label, page]) => { return {uuid, name, label, page} })
+        .map(({uuid, name, label, page}) => {
             [name, label] = [name.trim(), label.trim()]
             const lowerLabel = label.toLowerCase()
             if (lowerLabel === 'view')
                 label = 'View'
             else if (lowerLabel === 'template')
                 label = 'Template'
-            return {name, label}
+            return {uuid, name, label, page}
         })
 
     return data.sort((a, b) => {
@@ -69,16 +72,18 @@ function searchLogic(items: Data, searchQuery: string) {
     if (searchQuery.replace(/\s/g, '').length === 0)
         return items
             .filter(
-                ({name, label}) => (name.includes(searchQuery) || label.includes(searchQuery))
+                ({uuid, name, label, page}) => (name.includes(searchQuery) || label.includes(searchQuery))
             )
-            .map(({name, label}) => {
+            .map(({uuid, name, label, page}) => {
                 if (name.includes(searchQuery))
                     name = name.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
                 else if (label.includes(searchQuery))
                     label = label.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
-                return {
+                return {  // replacing spaces to nb-spaces to keep them during html rendering
+                    uuid,
                     name: name.replaceAll(' ', ' '),
                     label: label.replaceAll(' ', ' '),
+                    page,
                 }
             })
 
@@ -87,14 +92,18 @@ function searchLogic(items: Data, searchQuery: string) {
         .go(searchQuery.toLowerCase(), items, {keys: ['name', 'label']})
         .map((r) => {
             return {
+                uuid: r.obj.uuid,
                 name: fuzzysort.highlight(r[0], '<mark>', '</mark>') || r.obj.name,
                 label: fuzzysort.highlight(r[1], '<mark>', '</mark>') || r.obj.label,
+                page: r.obj.page,
             }
         })
-        .map(({name, label}) => {
-            return {
+        .map(({uuid, name, label, page}) => {
+            return {  // replacing spaces to nb-spaces to keep them during html rendering
+                uuid,
                 name: name.replaceAll(' ', ' '),
                 label: label.replaceAll(' ', ' '),
+                page,
             }
         }) as Data
 }
@@ -351,7 +360,7 @@ function InsertUI({ blockUUID, isSelectedState }) {
                         <div id="results-wrap">
                             <div id="results">
                                 <div id="items">
-                                    {results.length ? results.map(({name, label}) => (
+                                    {results.length ? results.map(({name, label, page}) => (
                                         <div className="item"
                                              onClick={insertHighlightedItem}
                                              onMouseDown={highlightItem}
@@ -368,6 +377,7 @@ function InsertUI({ blockUUID, isSelectedState }) {
                                                             : ''
                                                         }
                                                     </div>
+                                                    <span className="cell-under">{page}</span>
                                                 </div>
                                             </span>
                                         </div>
