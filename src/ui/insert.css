@@ -65,21 +65,18 @@ div {
     left: 0;
     right: 0;
     bottom: 0;
-    top: calc(10vh + 100px);
+    top: 15vh;
 }
 
 #panel {
     background: var(--ls-secondary-background-color);
 
-    border: 1px solid var(--ls-border-color);
-    border-radius: 0.375rem;
-
     box-shadow: 0 0 #0000, 0 0 #0000, 0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1);
+    border: 1px solid var(--ls-border-color);
+    border-radius: 8px;
 
     overflow: hidden;
     position: relative;
-
-    border-radius: 8px;
 
     transition-timing-function: ease-out;
     transition-duration: .15s;
@@ -89,7 +86,6 @@ div {
 }
 
 #panel-content {
-    max-height: 85vh;
     min-width: 35em;
     overflow-x: hidden;
     overflow-y: overlay;
@@ -101,7 +97,7 @@ div {
     display: flex;
     flex-direction: column;
     margin: -2rem;
-    max-height: 75vh;
+    max-height: 72vh;
     overflow: hidden;
 }
 
