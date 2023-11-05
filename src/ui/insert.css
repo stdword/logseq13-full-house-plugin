@@ -241,3 +241,45 @@ mark {
     background: var(--ls-page-mark-bg-color);
     color: var(--ls-page-mark-color);
 }
+
+footer {
+    display: flex;
+    align-items: center;
+
+    min-height: 28px;
+
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+footer > ul {
+    padding: 0px;
+    margin: 0px;
+
+    font-size: 12px;
+
+    color: var(--ls-page-inline-code-color);
+    opacity: .7;
+}
+
+footer > ul > li {
+    display: inline;
+    margin-right: 16px;
+    color: var(--ls-page-inline-code-color);
+}
+
+footer > ul > li > svg {
+    width: 12px;
+    height: 12px;
+
+    display: inline;
+    margin-right: 4px;
+    margin-bottom: -2px;
+
+    fill: var(--ls-page-inline-code-color);
+}
+
+footer > ul > li > span {
+    font-size: 11px;
+    padding-right: 1px;
+}
