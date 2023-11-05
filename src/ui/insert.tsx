@@ -46,6 +46,7 @@ async function collectTemplatesList(): Promise<Data> {
 }
 
 async function openLogic(item: DataItem) {
+    logseq.Editor.exitEditingMode()
     logseq.App.pushState('page', {name: item.uuid})
 }
 
