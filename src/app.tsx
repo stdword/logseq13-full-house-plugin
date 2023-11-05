@@ -164,18 +164,18 @@ async function main() {
 
     const commandTemplate = RendererMacro.command('template')
     {
-        const commandLabel = 'Insert 🏛template'
+        const commandLabel = 'Insert 🏛template or 🏛️view'
 
-        function showInsertUI(uuid: string, needToReplaceContent = false) {
+        function showInsertUI(uuid: string, isSelectedState = false) {
             render(
-                <InsertUI blockUUID={uuid} needToReplaceContent={needToReplaceContent} itemsType="template" />,
+                <InsertUI blockUUID={uuid} isSelectedState={isSelectedState} />,
                 document.getElementById('app')!
             )
             logseq.showMainUI()
         }
 
         logseq.App.registerCommandPalette({
-            key: 'insert-template',
+            key: 'insert-template-or-view',
             label: commandLabel,
             keybinding: { binding: 'mod+u', mode: 'global' }
         }, async (e) => {
@@ -205,28 +205,6 @@ async function main() {
 
     const commandTemplateView = RendererMacro.command('template-view')
     {
-        const commandLabel = 'Insert 🏛view'
-        const commandGuide = commandTemplateView.arg('TEMPLATE NAME').toString()
-
-        logseq.App.registerCommandPalette(
-            { key: 'insert-template-view', label: commandLabel }, async (e) => {
-                const inserted = await insertContent(commandGuide, { positionOnArg: 1 })
-                if (!inserted) {
-                    logseq.UI.showMsg(
-                        `[:p "Start editing block or select one to insert "
-                             [:code ":template-view"]]`,
-                        'warning',
-                        {timeout: 5000},
-                    )
-                    return
-                }
-        })
-
-        logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
-            // here user always in editing mode, so no need to check insertion
-            await insertContent(commandGuide, { positionOnArg: 1 })
-        })
-
         registerBlockContextCopyCommand('Copy as 🏛view', commandTemplateView)
         handleTemplateViewCommand(commandTemplateView)
     }

@@ -45,14 +45,18 @@ async function collectTemplatesList(): Promise<Data> {
 async function insertLogic(
     item: DataItem,
     blockUUID: string,
-    needToReplaceContent: boolean,
-    itemsType: 'view' | 'template',
+    isSelectedState: boolean,
+    itemsType: 'View' | 'Template',
 ) {
+    // force itemType
+    if (['View', 'Template'].includes(item.label))
+        itemsType = item.label as 'View' | 'Template'
+
     const content = RendererMacro.command(typeToCommandMap[itemsType])
         .arg(item.name)
         .toString()
 
-    if (needToReplaceContent) {
+    if (isSelectedState) {
         await logseq.Editor.updateBlock(blockUUID, content)
     } else {
         await logseq.Editor.insertAtEditingCursor(content)
@@ -96,11 +100,11 @@ function searchLogic(items: Data, searchQuery: string) {
 }
 
 const typeToCommandMap = {
-    'template': 'template',
-    'view': 'template-view',
+    'Template': 'template',
+    'View': 'template-view',
 }
 
-function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
+function InsertUI({ blockUUID, isSelectedState }) {
     const [visible, setVisible] = useState(true)
     const [preparing, setPreparing] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -108,6 +112,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     const [highlightedIndex, setHighlightedIndex] = useState(null as number | null)
     const [highlightedWithMouse, setHighlightedWithMouse] = useState(false)
     const [optKeyPressed, setOptKeyPressed] = useState(false)
+    const [cmdKeyPressed, setCmdKeyPressed] = useState(false)
 
     const data = useRef([] as Data)
     async function prepareData() {
@@ -141,6 +146,10 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         overlay!.style.opacity = '0'
 
         setVisible(false)
+
+        // in case of loosing input focus with pressed Opt/Meta keys: KeyUp event didn't fire
+        setOptKeyPressed(false)
+        setCmdKeyPressed(false)
     }
 
     useEffect(() => {
@@ -303,7 +312,12 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
 
         hideUI()
 
-        await insertLogic(results[highlightedIndex], blockUUID, needToReplaceContent, itemsType)
+        await insertLogic(
+            results[highlightedIndex],
+            blockUUID,
+            isSelectedState,
+            cmdKeyPressed ? 'View' : 'Template',
+        )
     }
 
     return (
