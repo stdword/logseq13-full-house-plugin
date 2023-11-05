@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'preact/hooks'
 import fuzzysort from 'fuzzysort'
 
 import './insert.css'
-import { RendererMacro, setEditingCursorSelection, unquote } from '../utils'
+import { RendererMacro, setEditingCursorSelection, sleep, unquote } from '../utils'
 
 
 const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
@@ -136,19 +136,27 @@ async function insertLogic(
 
     const selectionPositions = [] as number[]
     for (const marker of ['{|}', '{|}']) {
-        const needCarriagePositioning = content.indexOf(marker)
-        if (needCarriagePositioning !== -1) {
+        const position = content.indexOf(marker)
+        if (position !== -1) {
             content = content.replace(marker, '')
-            selectionPositions.push(needCarriagePositioning)
+            selectionPositions.push(position)
         }
     }
-    if (selectionPositions.length === 1)
-        selectionPositions.push(selectionPositions[0])
 
     if (isSelectedState) {
         await logseq.Editor.updateBlock(blockUUID, content)
-        if (position !== undefined)
-            await logseq.Editor.editBlock(uuid, { pos: position })
+
+        if (selectionPositions.length === 0)
+            return
+
+        if (selectionPositions.length === 1)
+            await logseq.Editor.editBlock(blockUUID, { pos: selectionPositions[0] })
+        else {
+            await logseq.Editor.editBlock(blockUUID)
+            await sleep(20)
+            setEditingCursorSelection(...selectionPositions as [number, number])
+        }
+
         return
     }
 
@@ -156,6 +164,9 @@ async function insertLogic(
         await logseq.Editor.insertAtEditingCursor(content)
         return
     }
+
+    if (selectionPositions.length === 1)
+        selectionPositions.push(selectionPositions[0])
 
     const currentPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
     await logseq.Editor.insertAtEditingCursor(content)
