@@ -7,7 +7,9 @@ import './insert.css'
 import { RendererMacro } from '../utils'
 
 
-type DataItem = {uuid: string, name: string, label: string, page: string}
+const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
+
+type DataItem = {uuid: string, name: string, name_: string, label: string, page: string, usage: string}
 type Data = DataItem[]
 
 
@@ -27,10 +29,12 @@ async function prepareDataLogic(): Promise<Data> {
     const data = result
         .map(([uuid, name, label, page]) => { return {uuid, name, label, page} })
         .map((item) => {
+            // clean .name
             item.name = item.name.trim()
-            item.label = item.label.trim()
             item.name_ = item.name  // keep original name separately
 
+            // clean .label
+            item.label = item.label.trim()
             const lowerLabel = item.label.toLowerCase()
             if (lowerLabel === 'view')
                 item.label = 'View'
@@ -63,6 +67,10 @@ async function insertLogic(
     if (['View', 'Template'].includes(item.label))
         itemsType = item.label as 'View' | 'Template'
 
+    const typeToCommandMap = {
+        'Template': 'template',
+        'View': 'template-view',
+    }
     const content = RendererMacro.command(typeToCommandMap[itemsType])
         .arg(item.name_)
         .toString()
@@ -118,6 +126,7 @@ function searchLogic(items: Data, searchQuery: string) {
             }
 
             const item = structuredClone(r.obj)
+
             item.name = highlight(r[0], r.obj.name)
             item.page = highlight(r[1], r.obj.page)
             item.label = highlight(r[2], r.obj.label)
@@ -125,13 +134,6 @@ function searchLogic(items: Data, searchQuery: string) {
             return item
         }) as Data
 }
-
-const typeToCommandMap = {
-    'Template': 'template',
-    'View': 'template-view',
-}
-
-const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
 
 function InsertUI({ blockUUID, isSelectedState }) {
     const [visible, setVisible] = useState(true)
