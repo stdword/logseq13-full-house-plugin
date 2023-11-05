@@ -59,6 +59,42 @@ async function insertLogic(
     }
 }
 
+function searchLogic(items: Data, searchQuery: string) {
+    // use simple search for queries contains only spaces
+    // due to fuzzysort restrictions
+    if (searchQuery.replace(/\s/g, '').length === 0)
+        return items
+            .filter(
+                ({name, label}) => (name.includes(searchQuery) || label.includes(searchQuery))
+            )
+            .map(({name, label}) => {
+                if (name.includes(searchQuery))
+                    name = name.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
+                else if (label.includes(searchQuery))
+                    label = label.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
+                return {
+                    name: name.replaceAll(' ', ' '),
+                    label: label.replaceAll(' ', ' '),
+                }
+            })
+
+    // fuzzy search
+    return fuzzysort
+        .go(searchQuery.toLowerCase(), items, {keys: ['name', 'label']})
+        .map((r) => {
+            return {
+                name: fuzzysort.highlight(r[0], '<mark>', '</mark>') || r.obj.name,
+                label: fuzzysort.highlight(r[1], '<mark>', '</mark>') || r.obj.label,
+            }
+        })
+        .map(({name, label}) => {
+            return {
+                name: name.replaceAll(' ', ' '),
+                label: label.replaceAll(' ', ' '),
+            }
+        }) as Data
+}
+
 const typeToCommandMap = {
     'template': 'template',
     'view': 'template-view',
@@ -109,6 +145,8 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     }
 
     useEffect(() => {
+        console.debug('effect:VISIBLE', visible)
+
         if (visible) {
             setTimeout(showUI, 100)
             setHighlightedIndex(0)
@@ -117,6 +155,8 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     }, [visible])
 
     useEffect(() => {
+        console.debug('effect:INIT')
+
         logseq.on('ui:visible:changed', ({ visible }) => {
             if (visible)
                 setVisible(true)
@@ -185,51 +225,20 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
 
     // filter results
     useEffect(() => {
+
+        console.debug('effect:FILTER', `"${searchQuery}"`)
         let items = data.current
-            .filter((item) => !item.name.startsWith('.'))
 
-        if (searchQuery) {
-            if (searchQuery.replace(/\s/g, '').length === 0) {
-                // use simple search for queries contains only spaces
-                // due to fuzzysort restrictions
-                items = items
-                    .filter(
-                        ({name, label}) => (name.includes(searchQuery) || label.includes(searchQuery))
-                    )
-                    .map(({name, label}) => {
-                        if (name.includes(searchQuery))
-                            name = name.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
-                        else if (label.includes(searchQuery))
-                            label = label.replace(searchQuery, (sub) => ('<mark>' + sub + '</mark>'))
-                        return {
-                            name: name.replaceAll(' ', ' '),
-                            label: label.replaceAll(' ', ' '),
-                        }
-                    })
-            } else {
-                // fuzzy search
-                items = fuzzysort
-                    .go(searchQuery.toLowerCase(), items, {keys: ['name', 'label']})
-                    .map((r) => {
-                        return {
-                            name: fuzzysort.highlight(r[0], '<mark>', '</mark>') || r.obj.name,
-                            label: fuzzysort.highlight(r[1], '<mark>', '</mark>') || r.obj.label,
-                        }
-                    })
-                    .map(({name, label}) => {
-                        return {
-                            name: name.replaceAll(' ', ' '),
-                            label: label.replaceAll(' ', ' '),
-                        }
-                    }) as Data
-            }
-        }
 
+        if (searchQuery)
+            items = searchLogic(items, searchQuery)
         setResults(items)
-        updateHighlightForLength(items.length)
     }, [searchQuery])
 
-    function updateHighlightForLength(length) {
+    useEffect(() => {
+        const length = results.length
+        console.debug('effect:RESULTS', length)
+
         if (length == 0) {
             setHighlightedIndex(null)
             return
@@ -240,7 +249,7 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
         else
             if (highlightedIndex >= length)
                 setHighlightedIndex(length - 1)
-    }
+    }, [results])
 
     function scrollToHightlightedItem() {
         if (highlightedIndex === null)
@@ -252,6 +261,8 @@ function InsertUI({ blockUUID, needToReplaceContent, itemsType }) {
     }
 
     useEffect(() => {
+        // console.debug('effect:HIGHLIGHT', highlightedIndex)
+
         const itemsElement = document.getElementById('items')! as HTMLElement
         results.forEach((item, index) => {
             const div = itemsElement.childNodes[index] as HTMLDivElement
