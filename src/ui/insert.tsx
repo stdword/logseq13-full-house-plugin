@@ -287,7 +287,6 @@ function InsertUI({ blockUUID, isSelectedState }) {
         }
     }
 
-    // filter results
     useEffect(() => {
         if (preparing)
             return

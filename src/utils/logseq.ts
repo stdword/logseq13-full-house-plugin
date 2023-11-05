@@ -33,7 +33,12 @@ export async function getChosenBlock(): Promise<[string, boolean] | null> {
 
 export async function insertContent(
     content: string,
-    options: { positionOnArg?: number, positionOnText?: string, positionIndex?: number } = {},
+    options: {
+        positionOnArg?: number,
+        positionBeforeText?: string,
+        positionAfterText?: string,
+        positionIndex?: number
+    } = {},
 ): Promise<boolean> {
     // Bug-or-feature with Command Palette modal: Logseq exits editing state when modal appears
     // To handle this: use selected blocks — the editing block turns to selected
@@ -45,7 +50,7 @@ export async function insertContent(
     }
     const [ uuid, isSelectedState ] = chosenBlock
 
-    const { positionOnArg, positionOnText, positionIndex } = options
+    const { positionOnArg, positionBeforeText, positionAfterText, positionIndex } = options
     let position: number | undefined
     if (positionOnArg) {
         let index = indexOfNth(content, ',', positionOnArg)
@@ -62,10 +67,15 @@ export async function insertContent(
 
         position = index
     }
-    else if (positionOnText) {
-        const index = content.indexOf(positionOnText)
+    else if (positionBeforeText) {
+        const index = content.indexOf(positionBeforeText)
         if (index !== -1)
             position = index
+    }
+    else if (positionAfterText) {
+        const index = content.indexOf(positionAfterText)
+        if (index !== -1)
+            position = index + positionAfterText.length
     }
     else if (positionIndex) {
         if (positionIndex >= 0 && positionIndex < content.length)
@@ -90,15 +100,64 @@ export async function insertContent(
                 posInfo!.pos, '-', content.length, '+', position, '===', relativePosition,
             )
 
-            // need to exit to perform entering on certain position
-            await logseq.Editor.exitEditingMode()
-            await sleep(20)
-            await logseq.Editor.editBlock(uuid, { pos: relativePosition })
+            // try non-API way
+            const done = setEditingCursorPosition(relativePosition)
+            if (!done) {
+                // API way: need to exit to perform entering on certain position
+                await logseq.Editor.exitEditingMode()
+                await sleep(20)
+
+                await logseq.Editor.editBlock(uuid, { pos: relativePosition })
+            }
         }
     }
 
     return true
- }
+}
+
+/**
+ * Sets the current editing block cursor position.
+ * There is no need to check boundaries.
+ * Negative indexing is supported.
+ *
+ * @param `pos`: new cursor position
+ * @usage
+ *  setEditingCursorPosition(0) — set to the start
+ *  setEditingCursorPosition(-1) — set to the end
+ *  setEditingCursorPosition(-2) — set before the last char
+ */
+export function setEditingCursorPosition(pos: number) {
+    return setEditingCursorSelection(pos, pos)
+}
+
+function adjustIndexForLength(i, len) {
+    if (i > len)
+        i = len
+    if (i < (-len - 1))
+        i = -len - 1
+    if (i < 0)
+        i += len + 1
+    return i
+}
+
+export function setEditingCursorSelection(start: number, end: number) {
+    const editorElement = top!.document.getElementsByClassName('editor-wrapper')[0] as HTMLDivElement
+    if (!editorElement)
+        return false
+    const textAreaElement = top!.document.getElementById(
+        editorElement.id.replace(/^editor-/, '')
+    ) as HTMLTextAreaElement
+    if (!textAreaElement)
+        return false
+
+    const length = textAreaElement.value.length
+    start = adjustIndexForLength(start, length)
+    end = adjustIndexForLength(end, length)
+
+    textAreaElement.selectionStart = start
+    textAreaElement.selectionEnd = end
+    return true
+}
 
 export type LogseqReference = {
     type:

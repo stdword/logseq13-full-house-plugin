@@ -177,7 +177,7 @@ async function main() {
         logseq.App.registerCommandPalette({
             key: 'insert-template-or-view',
             label: commandLabel,
-            keybinding: { binding: 'mod+u', mode: 'global' }
+            keybinding: { binding: 'ctrl+u', mac: 'mod+u', mode: 'global' }
         }, async (e) => {
             const chosenBlock = await getChosenBlock()
             if (!chosenBlock) {
@@ -212,11 +212,15 @@ async function main() {
     const commandView = RendererMacro.command('view')
     {
         const commandLabel = 'Insert inline 🏛view'
-        const commandGuide = commandView.arg('"c.page.name"').toString()
+        const code = 'c.page.name'
+        const commandGuide = commandView.arg(`"${code}"`).toString()
 
-        logseq.App.registerCommandPalette(
-            { key: 'insert-view', label: commandLabel }, async (e) => {
-                const inserted = await insertContent(commandGuide, { positionOnArg: 1 })
+        logseq.App.registerCommandPalette({
+            key: 'insert-inline-view',
+            label: commandLabel,
+            keybinding: { binding: 'U', mode: 'global' },
+        }, async (e) => {
+                const inserted = await insertContent(commandGuide, { positionAfterText: code })
                 if (!inserted) {
                     logseq.UI.showMsg(
                         `[:p "Start editing block or select one to insert "
@@ -230,7 +234,7 @@ async function main() {
 
         logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
             // here user always in editing mode, so no need to check insertion
-            await insertContent(commandGuide, { positionOnArg: 1 })
+            await insertContent(commandGuide, { positionAfterText: code })
         })
 
         handleViewCommand(commandView)
