@@ -52,36 +52,6 @@ async function prepareDataLogic(): Promise<Data> {
     })
 }
 
-async function openLogic(item: DataItem) {
-    logseq.Editor.exitEditingMode()
-    logseq.App.pushState('page', {name: item.uuid})
-}
-
-async function insertLogic(
-    item: DataItem,
-    blockUUID: string,
-    isSelectedState: boolean,
-    itemsType: 'View' | 'Template',
-) {
-    // force itemType
-    if (['View', 'Template'].includes(item.label))
-        itemsType = item.label as 'View' | 'Template'
-
-    const typeToCommandMap = {
-        'Template': 'template',
-        'View': 'template-view',
-    }
-    const content = RendererMacro.command(typeToCommandMap[itemsType])
-        .arg(item.name_)
-        .toString()
-
-    if (isSelectedState) {
-        await logseq.Editor.updateBlock(blockUUID, content)
-    } else {
-        await logseq.Editor.insertAtEditingCursor(content)
-    }
-}
-
 function searchLogic(items: Data, searchQuery: string) {
     // use simple search for queries contains only spaces
     // due to fuzzysort restrictions
@@ -133,6 +103,36 @@ function searchLogic(items: Data, searchQuery: string) {
 
             return item
         }) as Data
+}
+
+async function openLogic(item: DataItem) {
+    logseq.Editor.exitEditingMode()
+    logseq.App.pushState('page', {name: item.uuid})
+}
+
+async function insertLogic(
+    item: DataItem,
+    blockUUID: string,
+    isSelectedState: boolean,
+    itemsType: 'View' | 'Template',
+) {
+    // force itemType
+    if (['View', 'Template'].includes(item.label))
+        itemsType = item.label as 'View' | 'Template'
+
+    const typeToCommandMap = {
+        'Template': 'template',
+        'View': 'template-view',
+    }
+    const content = RendererMacro.command(typeToCommandMap[itemsType])
+        .arg(item.name_)
+        .toString()
+
+    if (isSelectedState) {
+        await logseq.Editor.updateBlock(blockUUID, content)
+    } else {
+        await logseq.Editor.insertAtEditingCursor(content)
+    }
 }
 
 function InsertUI({ blockUUID, isSelectedState }) {
