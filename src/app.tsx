@@ -177,7 +177,7 @@ async function main() {
         logseq.App.registerCommandPalette({
             key: 'insert-template-or-view',
             label: commandLabel,
-            keybinding: { binding: 'ctrl+u', mac: 'mod+u', mode: 'global' }
+            keybinding: { binding: 'ctrl+t', mac: 'mod+t', mode: 'global' }
         }, async (e) => {
             const chosenBlock = await getChosenBlock()
             if (!chosenBlock) {
@@ -218,7 +218,6 @@ async function main() {
         logseq.App.registerCommandPalette({
             key: 'insert-inline-view',
             label: commandLabel,
-            keybinding: { binding: 'U', mode: 'global' },
         }, async (e) => {
                 const inserted = await insertContent(commandGuide, { positionAfterText: code })
                 if (!inserted) {
