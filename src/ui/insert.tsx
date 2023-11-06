@@ -131,7 +131,7 @@ async function insertLogic(
     }
     let content = RendererMacro.command(typeToCommandMap[itemsType])
         .arg(item.name_)
-        .arg(item.usage)
+        .arg(item.usage, {raw: true})
         .toString()
 
     const selectionPositions = [] as number[]

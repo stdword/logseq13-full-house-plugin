@@ -492,28 +492,29 @@ export class Macro {
             structuredClone(this),
         )
     }
-    arg(value: string) {
+    arg(value: string, opts: {raw: boolean} = {raw: false}) {
         value = value ?? ''
         if (!value)
             return this
 
-        if (value.includes(','))
+        if (!opts.raw && value.includes(','))
             value = '"' + value + '"'
 
         const obj = this.clone()
         obj.arguments.push(value)
         return obj
     }
-    args(values: string[]) {
+    args(values: string[], opts: {raw: boolean} = {raw: false}) {
         values = values ?? []
         if (!values.length)
             return this
 
-        values = values.map((value) => {
-            if (value.includes(','))
-                value = '"' + value + '"'
-            return value
-        })
+        if (!opts.raw)
+            values = values.map((value) => {
+                if (value.includes(','))
+                    value = '"' + value + '"'
+                return value
+            })
 
         const obj = this.clone()
         obj.arguments.push(...values)
