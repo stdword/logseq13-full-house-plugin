@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'preact/hooks'
 import fuzzysort from 'fuzzysort'
 
 import './insert.css'
-import { RendererMacro, setEditingCursorSelection, sleep, unquote } from '../utils'
+import { PropertiesUtils, RendererMacro, setEditingCursorSelection, sleep, unquote } from '../utils'
 
 
 const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
@@ -21,11 +21,12 @@ async function prepareDataLogic(): Promise<Data> {
          [?b :block/page ?p]
          [?p :block/original-name ?page]
          [?b :block/uuid ?uuid]
-         [(get ?ps :template) ?name]
-         [(get ?ps :template-list-as "") ?label]
-         [(get ?ps :template-usage "") ?usage]
+         [(get ?ps :${PropertiesUtils.templateProperty}) ?name]
+         [(get ?ps :${PropertiesUtils.templateListAsProperty} "") ?label]
+         [(get ?ps :${PropertiesUtils.templateUsageProperty} "") ?usage]
         ]
     `.trim()
+
     const result = await logseq.DB.datascriptQuery(query)
     const data = result
         .map(([uuid, name, label, page, usage]) => ({uuid, name, label, page, usage}))
@@ -42,9 +43,7 @@ async function prepareDataLogic(): Promise<Data> {
             else if (lowerLabel === 'template')
                 item.label = 'Template'
 
-            // clean .usage
-            item.usage = unquote(item.usage, '``')
-            item.usage = unquote(item.usage, '``')
+            item.usage = PropertiesUtils.cleanTemplateUsageString(item.usage, {cleanMarkers: false})
 
             return item
         })
@@ -135,7 +134,10 @@ async function insertLogic(
         .toString()
 
     const selectionPositions = [] as number[]
-    for (const marker of ['{|}', '{|}']) {
+    for (const marker of [
+        PropertiesUtils.carriagePositionMarker,
+        PropertiesUtils.carriagePositionMarker,
+    ]) {
         const position = content.indexOf(marker)
         if (position !== -1) {
             content = content.replace(marker, '')

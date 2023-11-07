@@ -162,7 +162,7 @@ async function main() {
             }
     })
 
-    const commandTemplate = RendererMacro.command('template')
+    const commandTemplateName = 'template'
     {
         const commandLabel = 'Insert 🏛template or 🏛️view'
 
@@ -199,21 +199,21 @@ async function main() {
             showInsertUI(e.uuid)
         })
 
-        registerBlockContextCopyCommand('Copy as 🏛template', commandTemplate)
-        handleTemplateCommand(commandTemplate)
+        registerBlockContextCopyCommand('Copy as 🏛template', commandTemplateName)
+        handleTemplateCommand(commandTemplateName)
     }
 
-    const commandTemplateView = RendererMacro.command('template-view')
+    const commandTemplateViewName = 'template-view'
     {
-        registerBlockContextCopyCommand('Copy as 🏛view', commandTemplateView)
-        handleTemplateViewCommand(commandTemplateView)
+        registerBlockContextCopyCommand('Copy as 🏛view', commandTemplateViewName)
+        handleTemplateViewCommand(commandTemplateViewName)
     }
 
-    const commandView = RendererMacro.command('view')
+    const commandViewName = 'view'
     {
         const commandLabel = 'Insert inline 🏛view'
         const code = 'c.page.name'
-        const commandGuide = commandView.arg(`"${code}"`).toString()
+        const commandGuide = RendererMacro.command(commandViewName).arg(`"${code}"`).toString()
 
         logseq.App.registerCommandPalette({
             key: 'insert-inline-view',
@@ -236,13 +236,13 @@ async function main() {
             await insertContent(commandGuide, { positionAfterText: code })
         })
 
-        handleViewCommand(commandView)
+        handleViewCommand(commandViewName)
     }
 
     await postInit()
 }
 
-function registerBlockContextCopyCommand(label: string, command: RendererMacro) {
+function registerBlockContextCopyCommand(label: string, commandName: string) {
     logseq.Editor.registerBlockContextMenuItem(
         label, async (e) => {
             const block = await logseq.Editor.getBlock(e.uuid)
@@ -261,10 +261,15 @@ function registerBlockContextCopyCommand(label: string, command: RendererMacro) 
                     logseq.Editor.upsertBlockProperty(e.uuid, PropertiesUtils.idProperty, e.uuid)
                 templateRef = `((${e.uuid}))`
             }
-            const textToCopy = command.arg(templateRef).toString()
+
+            let command = RendererMacro.command(commandName).arg(templateRef)
+
+            const templateUsage = PropertiesUtils.getTemplateUsageString(block, {cleanMarkers: true})
+            if (templateUsage)
+                command = command.arg(templateUsage, {raw: true})
 
             window.focus()  // need to make an interactions with clipboard
-            await navigator.clipboard.writeText(textToCopy)
+            await navigator.clipboard.writeText(command.toString())
 
             await logseq.UI.showMsg('Copied to clipboard',
                 'success', {timeout: 5000})
@@ -295,13 +300,13 @@ async function handleLogicErrors(func: Function) {
     }
  }
 
-function handleTemplateCommand(command: RendererMacro) {
+function handleTemplateCommand(commandName: string) {
     let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, templateRef_, ...args ] = payload.arguments
 
         const rawCommand = RendererMacro.command(type_ ?? '')
-        if (rawCommand.name !== command.name)
+        if (rawCommand.name !== commandName)
             return
 
         const raw = rawCommand.arg(templateRef_).args(args)
@@ -320,7 +325,7 @@ function handleTemplateCommand(command: RendererMacro) {
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
  }
-function handleTemplateViewCommand(command: RendererMacro) {
+function handleTemplateViewCommand(commandName: string) {
     logseq.provideModel({
         async editBlock(e: any) {
             const { uuid } = e.dataset
@@ -374,7 +379,7 @@ function handleTemplateViewCommand(command: RendererMacro) {
         let [ type_, templateRef_, ...args ] = payload.arguments
 
         const rawCommand = RendererMacro.command(type_ ?? '')
-        if (rawCommand.name !== command.name)
+        if (rawCommand.name !== commandName)
             return
 
         const raw = rawCommand.arg(templateRef_).args(args)
@@ -393,13 +398,13 @@ function handleTemplateViewCommand(command: RendererMacro) {
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
  }
-function handleViewCommand(command: RendererMacro) {
+function handleViewCommand(commandName: string) {
     const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
         let [ type_, viewBody_, ...args ] = payload.arguments
 
         const rawCommand = RendererMacro.command(type_ ?? '')
-        if (rawCommand.name !== command.name)
+        if (rawCommand.name !== commandName)
             return
 
         const raw = rawCommand.arg(viewBody_).args(args)
