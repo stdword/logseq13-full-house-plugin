@@ -1,14 +1,27 @@
 ## Render template :id=template-command
 Render existed template block, non-template block or page.
 
-#### **Direct usage**
-1. Call via `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
-2. Select the `«Insert 🏛template»` command
+#### **Via insertion UI** :id=insertion-ui
 
-#### **Indirect usage** :id=indirect
-1. Right-click on any block's bullet to open *Block Context Menu*
+<!-- panels:start -->
+<!-- div:left-panel -->
+1. Use `⌘t` (or `ctrl+t`) shortcut
+
+<!-- div:right-panel -->
+1. Use `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
+2. Select the `«Insert 🏛template or 🏛️view»` command
+<!-- panels:end -->
+
+- Then select appropriate template
+- There are shortcut tips for usage in the footer
+
+?> You cannot render non-template blocks or pages via UI. To do that use another approach:
+
+#### **Via block / page context menu** :id=indirect
+1. Right-click on any block's bullet or page title to open *Context Menu*
 2. Select the `«Copy as 🏛template»` item
 3. Code to call the command will be copied to clipboard. Paste it to any block.
+
 
 ### **Examples**
 
@@ -37,7 +50,7 @@ Use block reference to specify the block. Copy it from *Block Context Menu* dire
 
 
 #### Rendering page as a template
-Use page reference to specify the page. Only **first page block** and all it's **children** will be used as the template.
+Use page reference to specify the page. Enter it manually or use [*Context Menu*](#indirect). Only **first page block** and all it's **children** will be used as the template.
 - By default the first block will **not** be included.
     - This still can be configured with [inclusion control](#parent-block-inclusion-control).
 
@@ -175,28 +188,42 @@ Test Page
 ## Render view :id=template-view-command
 Render existed template block, non-template block or page as 🏛view: rendering occurs every time the block becomes visible.
 
-**Note**: rendered content will not be persisted. If you need to keep it, use [render template command](#template-command) instead.
+!> Rendered content will not be persisted. If you need to keep it, use [render template command](#template-command) instead.
 
-**Note**: rendered page or block *references* will not be displayed in *Linked references* and *Block references* sections. If you need it to be displayed, use [render template command](#template-command) instead.
+!> Rendered page or block *references* will not be displayed in *Linked references* and *Block references* sections. If you need it to be displayed, use [render template command](#template-command) instead.
 
-Another reason to use 🏛view is availability of custom CSS. See example [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9).
+Another reason to use 🏛view is availability of applying custom CSS. See example [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9).
 
-#### **Direct usage**
-1. Call via `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
-2. Select the `«Insert 🏛view»` command
 
-#### **Indirect usage**
-1. Right-click on any block's bullet to open *Block Context Menu*
+#### **Via insertion UI** :id=insertion-ui
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+1. Use `⌘t` (or `ctrl+t`) shortcut
+
+<!-- div:right-panel -->
+1. Use `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
+2. Select the `«Insert 🏛template or 🏛️view»` command
+<!-- panels:end -->
+
+- Then select appropriate template and hold `⌘` or `Ctrl` to insert it as view
+- There are shortcut tips for usage in the footer
+
+?> You cannot render non-template blocks or pages via UI. To do that use another approach:
+
+#### **Via block / page context menu** :id=indirect
+1. Right-click on any block's bullet or page title to open *Context Menu*
 2. Select the `«Copy as 🏛view»` item
 3. Code to call the command will be copied to clipboard. Paste it to any block.
+
 
 ?> The arguments, examples and way of rendering are very similar as for [render template command](#template-command). Only differences are reflected here.
 
 <!-- panels:start -->
 <!-- div:left-panel -->
 🏛View always displays in one block.
-- The parent block of template and it's first-level children will be displayed as wall of text.
-- The every other level of children will be displayed as bullet list.
+
+1. The parent block of template and it's first-level children will be displayed as wall of text.
 
 <!-- div:right-panel -->
 <!-- tabs:start -->
@@ -216,7 +243,14 @@ parent \
 child 1 \
 child 2
 <!-- tabs:end -->
+<!-- panels:end -->
 
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+2. The every other level of children will be displayed as bullet list.
+
+<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Template***
 ```
@@ -246,18 +280,32 @@ child 2
 - item
 
 <!-- tabs:end -->
-
 <!-- panels:end -->
 
 
 ## Render inline view :id=inline-view-command
 Rendering inline view: fast way to render any 🏛syntax without creating a whole template block.
 
-**Note**: The only syntax allowed here is [` `` `-syntax](reference__syntax.md#interpolation-syntax) and it will be **applied automatically**.
+?> The only syntax allowed here is [` `` `-syntax](reference__syntax.md#interpolation-syntax) and it will be **applied automatically**.
 
 #### **Usage**
 1. Call via `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
 2. Select the `«Insert inline 🏛view»` command
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+There is no need to use back-tick quotes:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+`{{renderer :view, c.page.name}}`
+
+#### ***Rendered***
+[[Test Page]]
+
+<!-- tabs:end -->
+<!-- panels:end -->
 
 
 
