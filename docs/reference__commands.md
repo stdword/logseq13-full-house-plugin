@@ -1,7 +1,7 @@
 ## Render template :id=template-command
 Render existed template block, non-template block or page.
 
-#### **Via insertion UI** :id=insertion-ui
+#### Via insertion UI  :id=insertion-ui
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -17,13 +17,13 @@ Render existed template block, non-template block or page.
 
 ?> You cannot render non-template blocks or pages via UI. To do that use another approach:
 
-#### **Via block / page context menu** :id=indirect
+#### Via block / page context menu :id=indirect
 1. Right-click on any block's bullet or page title to open *Context Menu*
 2. Select the `«Copy as 🏛template»` item
 3. Code to call the command will be copied to clipboard. Paste it to any block.
 
 
-### **Examples** :id=template-command-examples
+### Examples :id=template-command-examples
 
 #### Rendering template by name :id=template-command-rendering-by-name
 Standard way of rendering templates.
@@ -74,7 +74,7 @@ Render existed template block, non-template block or page as 🏛view: rendering
 Another reason to use 🏛view is availability of applying custom CSS. See example [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9).
 
 
-#### **Via insertion UI** :id=insertion-ui
+#### Via insertion UI :id=insertion-ui
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -90,11 +90,12 @@ Another reason to use 🏛view is availability of applying custom CSS. See examp
 
 ?> You cannot render non-template blocks or pages via UI. To do that use another approach:
 
-#### **Via block / page context menu** :id=indirect
+#### Via block / page context menu :id=indirect
 1. Right-click on any block's bullet or page title to open *Context Menu*
 2. Select the `«Copy as 🏛view»` item
 3. Code to call the command will be copied to clipboard. Paste it to any block.
 
+#### Examples
 ?> [Arguments](reference__configuring.md#configure-arguments), [examples and way of rendering](#template-command-examples) are very similar to [render template command](#template-command). Only differences are reflected below.
 
 <!-- panels:start -->
@@ -167,7 +168,7 @@ Rendering inline view: fast way to render any 🏛syntax without creating a whol
 
 ?> The only syntax allowed here is [` `` `-syntax](reference__syntax.md#interpolation-syntax) and it will be **applied automatically**.
 
-#### **Usage**
+<!-- {docsify-ignore} --> #### Usage
 1. Call via `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
 2. Select the `«Insert inline 🏛view»` command
 
@@ -191,7 +192,7 @@ There is no need to use back-tick quotes:
 ## Convert template to new syntax style :id=convert-syntax-command
 This command converts old template syntax style (used before `v3.0.0`) to new one. See details [here](changelog.md#new-syntax).
 
-#### **Usage**
+<!-- {docsify-ignore} --> #### Usage
 1. Select blocks with *old* plugin syntax
 2. Run the *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
 3. Select the `«Convert to new 🏛syntax»` command

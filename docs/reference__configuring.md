@@ -1,5 +1,20 @@
 ## Insertion UI
 
+### Hiding template from list
+Prepend «.» before template name to automatically hide it from UI list. Use shortcut tips in the UI footer to show them back.
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+This template will be hidden from the list:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+`template:: .test`
+<!-- tabs:end -->
+<!-- panels:end -->
+
+
 ### Restricting the rendering: as View or as Template only
 Use optional `template-list-as` property to do that.
 
