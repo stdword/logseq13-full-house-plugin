@@ -74,7 +74,7 @@ Render existed template block, non-template block or page as 🏛view: rendering
 Another reason to use 🏛view is availability of applying custom CSS. See example [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9).
 
 
-#### Via insertion UI
+#### Via insertion UI :id=view-insertion-ui
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -176,7 +176,7 @@ Rendering inline view: fast way to render any 🏛syntax without creating a whol
 
 <!-- panels:start -->
 <!-- div:left-panel -->
-There is no need to use back-tick quotes:
+There is no need to use back-tick «\`» quotes:
 
 <!-- div:right-panel -->
 <!-- tabs:start -->

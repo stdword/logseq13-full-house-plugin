@@ -172,39 +172,27 @@ function getView(body: string): InlineTemplate {
  }
 
 /**
- * @ui may show message to user
+ * @ui show message to user
  */
-async function isInsideMacro(blockUUID: string) {
-    if (blockUUID)
-        return false
-
-    // Where is uuid? It definitely should be here, but this is a bug:
-    //   https://github.com/logseq/logseq/issues/8904
-
-    // We are inside the :macros from config.edn
-    // And can't auto fill `c.block` & `c.page` context variables
+function showInsideMacroNotification() {
+    // We are probably inside the :macros from config.edn
+    // And can't find the renderer macro to replace with rendered template
 
     logseq.UI.showMsg(
         `[:div
-            [:p "It seems like you are using the " [:code ":macros"] " with"
-                [:code "🏛Full House Templates"]
-                "." ]
-            [:p "Unfortunately there is an issue in Logseq which restricts"
-                " usage of some plugin features with macros." ]
-            [:p "Please use the " [:code ":template-view"] "command instead,"
-                " specially designed for this case." ]
+            [:p "Cannot find the appropriate " [:code "{{renderer :template, ...}}"]
+                " content in block to replace it with rendered template."]
+            [:p "The possible reason is you are using " [:code "🏛Full House Templates"]
+                " with " [:code ":macros"] "."]
+            [:p "Please use the " [:code ":template-view"] "command " [:u "instead"]
+                [:code ":macros"] ", specially designed for this case." ]
             [:p [:b "See details " [:a
                 {:href "https://stdword.github.io/logseq13-full-house-plugin/#/faq?id=using-with-macros"}
                 "here"]]]
         ]`,
-        'error', {timeout: 15000})
-
-    console.debug(p`logseq issue: https://github.com/logseq/logseq/issues/8904`)
-
-    // TODO: continue to render template view
-    //   if it is not accessing `c.page` & `c.block` variables
+        'error', {timeout: 30000})
     return true
- }
+}
 
 async function handleNestedRendering(
     templateBlock: BlockEntity,
@@ -272,9 +260,6 @@ async (
     rawCode: RendererMacro,
     args: string[],
 ) => {
-    if (await isInsideMacro(uuid))
-        return
-
     // backwards compatibility
     //   obsolete: first arg is a context page ref
     //   now: :page arg is a context page ref
@@ -323,6 +308,8 @@ async (
     const toReplace = rawCode.toPattern()
     const newContent = oldContent.replace(toReplace, toInsert)
     if (newContent === oldContent) {
+        showInsideMacroNotification()
+
         console.warn(p`Cannot find renderer macro to replace it`, {
             uuid,
             oldContent,
@@ -349,7 +336,7 @@ async (
             children, {
             sibling: true,
         })
- })
+})
 
 /**
  * @raises StateError: template doesn't exist
@@ -363,9 +350,6 @@ async function _renderTemplateView(
     rawCode: RendererMacro,
     argsContext: ArgsContext,
 ) {
-    if (await isInsideMacro(blockUUID))
-        return
-
     const context = await getCurrentContext(slot, template, blockUUID, argsContext)
     if (!context)
         return
@@ -433,7 +417,7 @@ async function _renderTemplateView(
     console.debug(p`View folded:`, {view})
 
     provideHTML(blockUUID, view, slot)
- }
+}
 
 export async function renderTemplateView(
     slot: string,
