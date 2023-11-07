@@ -74,7 +74,7 @@ Render existed template block, non-template block or page as 🏛view: rendering
 Another reason to use 🏛view is availability of applying custom CSS. See example [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9).
 
 
-#### Via insertion UI :id=insertion-ui
+#### Via insertion UI
 
 <!-- panels:start -->
 <!-- div:left-panel -->

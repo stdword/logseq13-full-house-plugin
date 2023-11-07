@@ -1,3 +1,16 @@
+## v3.2.0 (not released yet)
+### Introduced UI for templates & views insertion
+- [Insert templates or views](reference__commands.md#insertion-ui)
+- [Hide them from list](reference__configuring.md#hiding-from-list)
+- [Restrict to View or Template only](reference__configuring.md#restricting-rendering)
+- [Provide usage hint](reference__configuring.md#default-usage)
+- [Control cursor position or text selection for arguments](reference__configuring.md#control-cursor)
+
+### Updated «Copy as ...» commands
+- To support [usage hint](reference__configuring.md#default-usage)
+- Added to [*page context menu*](reference__commands.md#indirect)
+
+
 ## v3.0.0
 ### New template syntax :id=new-syntax
 !> Breaking change!

@@ -1,6 +1,6 @@
 ## Insertion UI
 
-### Hiding template from list
+### Hiding template from list :id=hiding-from-list
 Prepend «.» before template name to automatically hide it from UI list. Use shortcut tips in the UI footer to show them back.
 
 <!-- panels:start -->
@@ -15,7 +15,7 @@ This template will be hidden from the list:
 <!-- panels:end -->
 
 
-### Restricting the rendering: as View or as Template only
+### Restricting the rendering: as View or as Template only :id=restricting-rendering
 Use optional `template-list-as` property to do that.
 
 <!-- panels:start -->
@@ -55,7 +55,7 @@ Or use any other text to label template in the *Insertion UI*:
 <!-- panels:end -->
 
 
-### Specifying default arguments
+### Specifying default arguments :id=default-usage
 Use optional `template-usage` property to specify default template arguments.
 
 <!-- panels:start -->
@@ -89,7 +89,7 @@ Back-tick quotes can be used to prevent displaying property value as a page refe
 <!-- panels:end -->
 
 
-### Control cursor position / text selection for arguments
+### Control cursor position / text selection for arguments :id=control-cursor
 Use optional `template-usage` property to specify cursor position (or text selection) for template arguments.
 
 <!-- panels:start -->
