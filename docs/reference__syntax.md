@@ -74,7 +74,20 @@ Reference to current page: ` ``ref(c.page)`` `
 Reference to current page: [[Test Page]] \
 Reference to current page: [[Test Page]]
 <!-- tabs:end -->
+<!-- panels:end -->
 
+<!-- panels:start -->
+<!-- div:left-panel -->
+Use an alias for reference:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+Reference to current page: ` ``[c.page, "Current"]`` `
+
+#### ***Rendered***
+Reference to current page: [Current]([[Test Page]])
+<!-- tabs:end -->
 <!-- panels:end -->
 
 

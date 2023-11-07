@@ -1,6 +1,8 @@
 ## `c`: whole context variable
-You can always see whole context with `{{renderer :view, "c"}}`. \
-Or individual one with `{{renderer :view, "c.page"}}`
+The main variable to keep all context information.
+
+?> You can always see whole context with `{{renderer :view, "c"}}`. \
+Or individual one (e.g. `c.page`) with `{{renderer :view, "c.page"}}`.
 
 
 ## `c.page` & `c.currentPage`: page context :id=page-context
