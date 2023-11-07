@@ -6,6 +6,7 @@
 
 - Reference
   - [Commands](reference__commands.md)
+  - [Configuring](reference__configuring.md)
   - [Syntax](reference__syntax.md)
   - [Context variables](reference__context.md)
   - [Arguments](reference__args.md)
