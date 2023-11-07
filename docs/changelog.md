@@ -1,5 +1,5 @@
 ## v3.2.0 (not released yet)
-### Introduced UI for templates & views insertion
+### Introduced UI for templates & views insertion :id=hello-ui
 - [Insert templates or views](reference__commands.md#insertion-ui)
 - [Hide them from list](reference__configuring.md#hiding-from-list)
 - [Restrict to View or Template only](reference__configuring.md#restricting-rendering)

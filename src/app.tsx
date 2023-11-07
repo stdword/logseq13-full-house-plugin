@@ -21,7 +21,7 @@ import {
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import { isOldSyntax } from './extensions/customized_eta'
-import InsertUI from './ui/insert'
+import InsertUI, { isMacOS, shortcutToOpenInsertUI } from './ui/insert'
 
 
 const DEV = process.env.NODE_ENV === 'development'
@@ -94,6 +94,22 @@ function notifyUser() {
 
     // Notify only old users
     if (previousPluginVersion && currentPluginVersion !== previousPluginVersion) {
+        if (!logseq.settings!.notifications.introducedUI) {
+            logseq.UI.showMsg(
+                `[:div
+                    [:p [:code "🏛 Full House Templates"]]
+                    [:p [:b "Hello, UI!"] [:br]
+                        "Introduced user-friendly way to insert templates and views: "
+                        "just press " [:code "${shortcutToOpenInsertUI[Number(isMacOS)].label}"] [:br] ]
+                    [:p "See details "
+                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=hello-ui"}
+                            "here"] "."]
+                    [:p "If you have shortcuts conflicts with other plugins, open " [:i "Settings → Keymap"] " to resolve them."]
+                ]`,
+                'info', {timeout: 60000})
+            logseq.updateSettings({notifications: {introducedUI: true}})
+        }
+
         if (!logseq.settings!.notifications.newTemplateSyntax) {
             logseq.UI.showMsg(
                 `[:div
@@ -179,7 +195,11 @@ async function main() {
         logseq.App.registerCommandPalette({
             key: 'insert-template-or-view',
             label: commandLabel,
-            keybinding: { binding: 'ctrl+t', mac: 'mod+t', mode: 'global' }
+            keybinding: {
+                binding: shortcutToOpenInsertUI[0].key,
+                mac: shortcutToOpenInsertUI[1].key,
+                mode: 'global'
+            }
         }, async (e) => {
             const chosenBlock = await getChosenBlock()
             if (!chosenBlock) {

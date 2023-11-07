@@ -7,7 +7,11 @@ import './insert.css'
 import { PropertiesUtils, RendererMacro, setEditingCursorSelection, sleep, unquote } from '../utils'
 
 
-const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
+export const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
+export const shortcutToOpenInsertUI = [
+    {label: 'Ctrl+T', key: 'ctrl+t'},
+    {label: '⌘T', key: 'mod+t'},
+]
 
 type DataItem = {uuid: string, name: string, name_: string, label: string, page: string, usage: string}
 type Data = DataItem[]
