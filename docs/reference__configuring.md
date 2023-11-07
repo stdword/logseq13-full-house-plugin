@@ -1,25 +1,51 @@
-### Controlling parent block inclusion :id=parent-block-inclusion-control
-Use the «+» or «-» sign as the first letter of the template reference to control the inclusion of the parent block.
-- Use «++» or «--» to *escape* this behaviour and use «+» or «-» as part of the template reference.
+## Insertion UI
 
+### Restricting the rendering: as View or as Template only
+Use optional `template-list-as` property to do that.
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+Insert only as *View*:
+
+<!-- div:right-panel -->
 <!-- tabs:start -->
-#### ***Command***
-`{{renderer :template, +[[Template Page]] }}` \
-`{{renderer :template, "+[[Template Page, with comma]]" }}`
-
-`{{renderer :template, -Template Name }}` \
-`{{renderer :template, --Template name with single minuses around- }}`
-
-`{{renderer :template, -((64e61063-1689-483f-903f-409766d81b2e)) }}`
+#### ***Template***
+`template:: Name` \
+`template-list-as:: view`
 <!-- tabs:end -->
+<!-- panels:end -->
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+Insert only as *Template*:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+`template:: Name` \
+`template-list-as:: template`
+<!-- tabs:end -->
+<!-- panels:end -->
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+Or use any other text to label template in the *Insertion UI*:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+`template:: Name` \
+`template-list-as:: related to work`
+<!-- tabs:end -->
+<!-- panels:end -->
 
 
-#### Specifying default arguments
+### Specifying default arguments
 Use optional `template-usage` property to specify default template arguments.
 
 <!-- panels:start -->
 <!-- div:left-panel -->
-It will be used automatically with [*UI*](#insertion-ui) or [*Context Menu*](#indirect) insertions.
+It will be used automatically with [*UI*](reference__commands.md#insertion-ui) or [*Context Menu*](reference__commands.md#indirect) insertions.
 
 <!-- div:right-panel -->
 <!-- tabs:start -->
@@ -48,10 +74,8 @@ Back-tick quotes can be used to prevent displaying property value as a page refe
 <!-- panels:end -->
 
 
-#### Control cursor position / text selection for arguments
+### Control cursor position / text selection for arguments
 Use optional `template-usage` property to specify cursor position (or text selection) for template arguments.
-
-?> Works only via [*Insertion UI*](#insrtion-ui)
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -101,49 +125,26 @@ Meeting text will be selected , and it only requires you to type in the page nam
 <!-- panels:end -->
 
 
-#### Restricting the rendering: as View or as Template only
-Use optional `template-list-as` property to do that.
 
-?> Works only via [*Insertion UI*](#insrtion-ui)
+## Rendering arguments :id=configure-arguments
 
-<!-- panels:start -->
-<!-- div:left-panel -->
-Insert only as *View*:
+### Controlling parent block inclusion :id=parent-block-inclusion-control
+Use the «+» or «-» sign as the first letter of the template reference to control the inclusion of the parent block.
+- Use «++» or «--» to *escape* this behaviour and use «+» or «-» as part of the template reference.
 
-<!-- div:right-panel -->
 <!-- tabs:start -->
-#### ***Template***
-`template:: Name` \
-`template-list-as:: view`
+#### ***Command***
+`{{renderer :template, +[[Template Page]] }}` \
+`{{renderer :template, "+[[Template Page, with comma]]" }}`
+
+`{{renderer :template, -Template Name }}` \
+`{{renderer :template, --Template name with single minuses around- }}`
+
+`{{renderer :template, -((64e61063-1689-483f-903f-409766d81b2e)) }}`
 <!-- tabs:end -->
-<!-- panels:end -->
-
-<!-- panels:start -->
-<!-- div:left-panel -->
-Insert only as *Template*:
-
-<!-- div:right-panel -->
-<!-- tabs:start -->
-#### ***Template***
-`template:: Name` \
-`template-list-as:: template`
-<!-- tabs:end -->
-<!-- panels:end -->
-
-<!-- panels:start -->
-<!-- div:left-panel -->
-Or use any other text to label template in the *Insertion UI*:
-
-<!-- div:right-panel -->
-<!-- tabs:start -->
-#### ***Template***
-`template:: Name` \
-`template-list-as:: related to work`
-<!-- tabs:end -->
-<!-- panels:end -->
 
 
-#### `:page` argument :id=page-argument
+### `:page` argument :id=page-argument
 Set page for `c.page` [context variable](reference__context.md#page-context). By default it is the current page opened in main view. \
 See arguments' [*Reference*](reference__args.md) for syntax details.
 
@@ -198,7 +199,8 @@ One, Two
 
 <!-- panels:end -->
 
-#### `:block` argument :id=block-argument
+
+### `:block` argument :id=block-argument
 Set block for `c.block` [context variable](reference__context.md#block-context). By default it is the block rendering occurs in. \
 See arguments' [*Reference*](reference__args.md) for syntax details.
 
@@ -226,7 +228,7 @@ Another's block content
 <!-- panels:end -->
 
 
-#### `:delay-until-rendered` argument :id=delay-until-rendered
+### `:delay-until-rendered` argument :id=delay-until-rendered
 
 <!-- panels:start -->
 <!-- div:left-panel -->

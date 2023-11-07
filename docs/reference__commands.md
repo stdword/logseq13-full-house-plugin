@@ -23,13 +23,13 @@ Render existed template block, non-template block or page.
 3. Code to call the command will be copied to clipboard. Paste it to any block.
 
 
-### **Examples**
+### **Examples** :id=template-command-examples
 
 #### Rendering template by name :id=template-command-rendering-by-name
 Standard way of rendering templates.
 Plugin will find the block with the property `template` and it's specified name.
 - The property `template-including-parent` with any bool value could be used to change the parent block inclusion. By default it is set to «*No*» (in opposite to standard Logseq templates).
-    - This can be configured with [inclusion control](#parent-block-inclusion-control) to ignore `template-including-parent` property.
+    - This can be configured with [inclusion control](reference__configuring.md#parent-block-inclusion-control) to ignore `template-including-parent` property.
 
 <!-- tabs:start -->
 #### ***Command***
@@ -41,7 +41,7 @@ Plugin will find the block with the property `template` and it's specified name.
 #### Rendering any non-template block
 Use block reference to specify the block. Copy it from *Block Context Menu* directly or use [indirect way](#indirect).
 - By default the parent block will be included (in opposite to [rendering by name](#template-command-rendering-by-name)).
-    - This still can be configured with [inclusion control](#parent-block-inclusion-control).
+    - This still can be configured with [inclusion control](reference__configuring.md#parent-block-inclusion-control).
 
 <!-- tabs:start -->
 #### ***Command***
@@ -52,7 +52,7 @@ Use block reference to specify the block. Copy it from *Block Context Menu* dire
 #### Rendering page as a template
 Use page reference to specify the page. Enter it manually or use [*Context Menu*](#indirect). Only **first page block** and all it's **children** will be used as the template.
 - By default the first block will **not** be included.
-    - This still can be configured with [inclusion control](#parent-block-inclusion-control).
+    - This still can be configured with [inclusion control](reference__configuring.md#parent-block-inclusion-control).
 
 <!-- tabs:start -->
 #### ***Command***
@@ -60,6 +60,8 @@ Use page reference to specify the page. Enter it manually or use [*Context Menu*
 `{{renderer :template, "[[Template Page, with comma]]" }}`
 <!-- tabs:end -->
 
+### Configuring arguments
+See documentation [here](reference__configuring.md#configure-arguments).
 
 
 ## Render view :id=template-view-command
@@ -93,8 +95,7 @@ Another reason to use 🏛view is availability of applying custom CSS. See examp
 2. Select the `«Copy as 🏛view»` item
 3. Code to call the command will be copied to clipboard. Paste it to any block.
 
-
-?> The arguments, examples and way of rendering are very similar as for [render template command](#template-command). Only differences are reflected here.
+?> [Arguments](reference__configuring.md#configure-arguments), [examples and way of rendering](#template-command-examples) are very similar to [render template command](#template-command). Only differences are reflected below.
 
 <!-- panels:start -->
 <!-- div:left-panel -->
