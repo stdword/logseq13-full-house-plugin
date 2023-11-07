@@ -409,9 +409,11 @@ export class PropertiesUtils {
         value = unquote(value, '``')
         value = unquote(value, '``')
 
-        // supports only two markers, so left intact any others
-        value = value.replace(PropertiesUtils.carriagePositionMarker, '')
-        value = value.replace(PropertiesUtils.carriagePositionMarker, '')
+        if (opts.cleanMarkers) {
+            // supports only two markers, so left intact any others
+            value = value.replace(PropertiesUtils.carriagePositionMarker, '')
+            value = value.replace(PropertiesUtils.carriagePositionMarker, '')
+        }
 
         return value
     }
