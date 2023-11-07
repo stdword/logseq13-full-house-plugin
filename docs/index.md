@@ -17,7 +17,7 @@
   </tr>
 </table>
 
-<!-- {docsify-ignore-all} --> ## If you ❤️ what I'm doing — consider to support my work
+## If you ❤️ what I'm doing — consider to support my work <!-- {docsify-ignore} -->
 
 <a href="https://www.buymeacoffee.com/stdword">
   <img align="center" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/coffee.png?raw=true" height="50px"/>

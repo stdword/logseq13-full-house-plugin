@@ -168,7 +168,9 @@ Rendering inline view: fast way to render any 🏛syntax without creating a whol
 
 ?> The only syntax allowed here is [` `` `-syntax](reference__syntax.md#interpolation-syntax) and it will be **applied automatically**.
 
-<!-- {docsify-ignore} --> #### Usage
+#### Usage
+<!-- {docsify-ignore} -->
+
 1. Call via `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
 2. Select the `«Insert inline 🏛view»` command
 
@@ -192,7 +194,9 @@ There is no need to use back-tick quotes:
 ## Convert template to new syntax style :id=convert-syntax-command
 This command converts old template syntax style (used before `v3.0.0`) to new one. See details [here](changelog.md#new-syntax).
 
-<!-- {docsify-ignore} --> #### Usage
+#### Usage
+<!-- {docsify-ignore} -->
+
 1. Select blocks with *old* plugin syntax
 2. Run the *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
 3. Select the `«Convert to new 🏛syntax»` command

@@ -5,10 +5,13 @@ The main variable to keep all context information.
 Or individual one (e.g. `c.page`) with `{{renderer :view, "c.page"}}`.
 
 
-## `c.page` & `c.currentPage`: page context :id=page-context
-`c.page`: current page or page provided with `:page` [argument](reference__commands.md#page-argument). \
-`c.currentPage` is always current page.
+### `c.page` & `c.currentPage` :id=page-context
+Page contexts:
+- `c.page`: current page or page provided with `:page` [argument](reference__commands.md#page-argument)
+- `c.currentPage` is always the current page
 
+#### Schema
+<!-- {docsify-ignore} -->
 ```
 {
     id: (number) 11320,
@@ -34,10 +37,13 @@ Or individual one (e.g. `c.page`) with `{{renderer :view, "c.page"}}`.
 ```
 
 
-## `c.block` & `c.currentBlock`: block context :id=block-context
-`c.block`: current block or block provided with `:block` [argument](reference__commands.md#block-argument). \
-`c.currentBlock` is always block rendering occurs in.
+### `c.block` & `c.currentBlock` :id=block-context
+Block contexts:
+- `c.block`: current block or block provided with `:block` [argument](reference__commands.md#block-argument)
+- `c.currentBlock` is always block rendering occurs in
 
+#### Schema
+<!-- {docsify-ignore} -->
 ```
 {
     id: (number) 25686,
@@ -65,7 +71,11 @@ Or individual one (e.g. `c.page`) with `{{renderer :view, "c.page"}}`.
 ```
 
 
-## `c.template`: template block context
+### `c.template`
+Template block context.
+
+#### Schema
+<!-- {docsify-ignore} -->
 ```
 {
     name: (string) template name, page name or block UUID
@@ -77,14 +87,17 @@ Or individual one (e.g. `c.page`) with `{{renderer :view, "c.page"}}`.
 ```
 
 
-## `c.self`: context for currently rendering block of template
-This is dynamic variable: changes during rendering. \
-This is handy if you need to access properties of child template block.
+### `c.self`
+Context for currently rendering block of template. This is dynamic variable: it changes during rendering.
 
-**NOTE**: doesn't available for [*Inline Views*](reference__commands.md#inline-view-command)
+It is handy if you need to access properties of child template block.
 
-Structure is the same as `c.block`.
+!> Doesn't available for [*Inline Views*](reference__commands.md#inline-view-command)
 
+?> Schema is the same as `c.block`
+
+#### Structure
+<!-- {docsify-ignore} -->
 ```
 [[Test Page]] ← c.page
 
@@ -96,8 +109,13 @@ Structure is the same as `c.block`.
 ```
 
 
-## `c.args`: arguments context
-Accessing arguments by its names. See detailed [Reference for arguments](reference__args.md).
+### `c.args`
+Arguments context. Accessing arguments by its names.
+
+See detailed [Reference for arguments](reference__args.md).
+
+#### Schema
+<!-- {docsify-ignore} -->
 ```
 {
     (string) arg name: (string or boolean) arg value
@@ -105,7 +123,11 @@ Accessing arguments by its names. See detailed [Reference for arguments](referen
 ```
 
 
-## `c.config`: configuration context
+### `c.config`
+Configuration context.
+
+#### Schema
+<!-- {docsify-ignore} -->
 ```
 {
     appVersion: (string) '0.9.13',
@@ -148,10 +170,13 @@ Accessing arguments by its names. See detailed [Reference for arguments](referen
 ```
 
 
-## `c.identity`: CSS context
-Accessing CSS class names for current rendered view. \
+### `c.identity`
+CSS context. Accessing CSS class names for currently rendering view.
+
 Used for complex 🏛view development. See example [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9).
 
+#### Schema
+<!-- {docsify-ignore} -->
 ```
 {
     slot: (string) 'slot__34emiluj'
