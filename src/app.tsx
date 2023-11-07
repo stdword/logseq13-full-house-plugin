@@ -16,6 +16,8 @@ import {
     getCSSVars,
     loadThemeVars,
     getChosenBlock,
+    getPageFirstBlock,
+    getPage,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import { isOldSyntax } from './extensions/customized_eta'
@@ -200,12 +202,14 @@ async function main() {
         })
 
         registerBlockContextCopyCommand('Copy as 🏛template', commandTemplateName)
+        registerPageContextCopyCommand('Copy as 🏛template', commandTemplateName)
         handleTemplateCommand(commandTemplateName)
     }
 
     const commandTemplateViewName = 'template-view'
     {
         registerBlockContextCopyCommand('Copy as 🏛view', commandTemplateViewName)
+        registerPageContextCopyCommand('Copy as 🏛view', commandTemplateViewName)
         handleTemplateViewCommand(commandTemplateViewName)
     }
 
@@ -274,7 +278,35 @@ function registerBlockContextCopyCommand(label: string, commandName: string) {
             await logseq.UI.showMsg('Copied to clipboard',
                 'success', {timeout: 5000})
     })
- }
+}
+
+function registerPageContextCopyCommand(label: string, commandName: string) {
+    logseq.App.registerPageMenuItem(
+        label, async ({ page: pageName }) => {
+            const pageRefString = `[[${pageName}]]`
+            const pageRef = parseReference(pageRefString)!
+            const page = await getPage(pageRef)
+            if (!page) {
+                console.debug(p`Assertion error: page should exists`, pageName)
+                return
+            }
+
+            let command = RendererMacro.command(commandName).arg(pageRefString)
+
+            const block = await getPageFirstBlock(pageRef)
+            if (block) {
+                const templateUsage = PropertiesUtils.getTemplateUsageString(block, {cleanMarkers: true})
+                if (templateUsage)
+                    command = command.arg(templateUsage, {raw: true})
+            }
+
+            window.focus()  // need to make an interactions with clipboard
+            await navigator.clipboard.writeText(command.toString())
+
+            await logseq.UI.showMsg('Copied to clipboard',
+                'success', {timeout: 5000})
+    })
+}
 
 async function handleRequiredRef(ref: string, refUserName: string) {
     ref = cleanMacroArg(ref)

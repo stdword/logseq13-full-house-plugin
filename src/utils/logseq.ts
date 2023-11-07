@@ -171,7 +171,7 @@ export type LogseqReference = {
     value: string | number,
     original: string,
     option: string,
- }
+}
 export type LogseqReferenceAccessType = 'page' | 'block' | 'name'
 
 export function parseReference(ref: string): LogseqReference | null {
@@ -220,14 +220,14 @@ export function parseReference(ref: string): LogseqReference | null {
         value = (value as string).trim()
 
     return { type: type_, value, option, original: ref } as LogseqReference
- }
+}
 
 export async function getPage(ref: LogseqReference): Promise<PageEntity | null> {
     if (['block', 'block?'].includes(ref.type))
         return null
 
     return await logseq.Editor.getPage(ref.value)
- }
+}
 
 export async function getBlock(
     ref: LogseqReference, {
@@ -286,7 +286,7 @@ export async function getBlock(
 
 export async function getPageFirstBlock(
     ref: LogseqReference,
-    { includeChildren = false }: { includeChildren?: boolean }
+    opts: { includeChildren?: boolean } = { includeChildren: false }
 ): Promise<BlockEntity | null> {
     if (!['page', 'tag', 'uuid', 'id'].includes(ref.type))
         return null
@@ -301,8 +301,9 @@ export async function getPageFirstBlock(
     else if (ref.type === 'id')
         idField = ':db/id'
 
+    const includeChildren = opts.includeChildren
     const query = `
-        [:find (pull ?b [${includeChildren ? ':db/id' : '*'}])
+        [:find (pull ?b [:db/id])
          :where
             [?b :block/page ?p]
             [?b :block/parent ?p]
@@ -315,10 +316,7 @@ export async function getPageFirstBlock(
         return null
 
     const block = ret.flat()[0]
-    if (!includeChildren)
-        return block
-
-    return await logseq.Editor.getBlock(block.id, {includeChildren: true})
+    return await logseq.Editor.getBlock(block.id, {includeChildren})
 }
 
 
