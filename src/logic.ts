@@ -260,14 +260,6 @@ async (
     rawCode: RendererMacro,
     args: string[],
 ) => {
-    // backwards compatibility
-    //   obsolete: first arg is a context page ref
-    //   now: :page arg is a context page ref
-    // → treat {{renderer :template, wiki, —, ru}}
-    //   as {{renderer :template, wiki, ru}}
-    if (args[0] === '')
-        args.shift()
-
     const argsContext = ArgsContext.create(templateRef.original, args)
     const template = await getTemplate(templateRef)
 
