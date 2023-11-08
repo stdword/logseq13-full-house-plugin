@@ -1,10 +1,21 @@
 ## v3.2.0 (not released yet)
 ### Introduced UI for templates & views insertion :id=hello-ui
-- [Insert templates or views](reference__commands.md#insertion-ui)
-- [Hide them from list](reference__configuring.md#hiding-from-list)
-- [Restrict to View or Template only](reference__configuring.md#restricting-rendering)
-- [Provide usage hint](reference__configuring.md#default-usage)
-- [Control cursor position or text selection for arguments](reference__configuring.md#control-cursor)
+?> Stylized for any theme!
+- [Insert templates or views](reference__commands.md#insertion-ui) <br/>
+  <img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/de4dd3fe-83b7-4b6f-8dd1-a7064933b583"/>
+- Fuzzy search by name, type, and parent page <br/>
+  <img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/78105236-1b80-4282-870e-c28e9ca6ab16"/>
+- Open page with the template by holding «Shift» key <br/>
+  <img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/0f1be295-93be-44a3-a2e0-802a8cbbeb44"/>
+- [Hide items from list with «.»](reference__configuring.md#hiding-from-list) <br/>
+  <img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/a1afd929-4028-43a3-a5b3-d59e14e44ed0">
+- [Restrict to View or Template only](reference__configuring.md#restricting-rendering) <br/>
+  <img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/0e18fe13-626d-48d8-b60f-e6d27f6256e2"/>
+- [Provide usage hint](reference__configuring.md#default-usage) <br/>
+  <img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/ea605064-e9dc-477f-86ec-00e68e9ce118"/>
+- [Control cursor position or text selection for arguments](reference__configuring.md#control-cursor) <br />
+  <img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/f1139f82-0a60-4a5b-8080-f8c6758ba9ea"/>
+
 
 ### Updated «Copy as ...» commands
 - To support [usage hint](reference__configuring.md#default-usage)
