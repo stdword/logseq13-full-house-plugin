@@ -88,6 +88,7 @@ function notifyUser() {
 
     // delete old notifications keys
     delete logseq.settings!.notifications.namedContextPageArg
+    delete logseq.settings!.notifications.newTemplateSyntax
 
     const previousPluginVersion = logseq.settings!.notifications.previousPluginVersion
     const currentPluginVersion = logseq.baseInfo.version
@@ -108,21 +109,6 @@ function notifyUser() {
                 ]`,
                 'info', {timeout: 60000})
             logseq.updateSettings({notifications: {introducedUI: true}})
-        }
-
-        if (!logseq.settings!.notifications.newTemplateSyntax) {
-            logseq.UI.showMsg(
-                `[:div
-                    [:p [:code "🏛 Full House Templates"]]
-                    [:p [:b "Breaking Change"] [:br]
-                        "New template syntax was introduced." [:br]
-                        "See details "
-                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=new-syntax"}
-                            "here"]
-                    "."]
-                ]`,
-                'warning', {timeout: 60000})
-            logseq.updateSettings({notifications: {newTemplateSyntax: true}})
         }
     }
 
@@ -204,10 +190,10 @@ async function main() {
             const chosenBlock = await getChosenBlock()
             if (!chosenBlock) {
                 logseq.UI.showMsg(
-                    `[:p "🏛️ Start editing block or select one to insert "
-                         [:p [:code ":template"] "or" [:code ":template-view"]]]`,
+                    `[:p "To insert " [:code "🏛️template"] "or" [:code "🏛️view"]
+                         " start editing block or select one"]`,
                     'warning',
-                    {timeout: 5000},
+                    {timeout: 15000},
                 )
                 return
             }
