@@ -1,4 +1,4 @@
-## v3.2.0 (not released yet)
+## v3.2.0
 ### Introduced UI for templates & views insertion :id=hello-ui
 ?> Stylized for any theme!
 - [Insert templates or views](reference__commands.md#insertion-ui) <br/>
