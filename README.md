@@ -38,17 +38,33 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 
 
 ## ⚜️ Features
-- 💪 Rendering templates :) Fully compatibile with standard templates
+- 💪 Rendering templates :) Completely replaces standard templates (can render them all)
 - 🤘 Accessing to any meta information: pages titles, blocks properties & content, your graph, etc.
 - 📅 Full support of dates-work: parsing, formatting, shifting
 - 👁‍🗨 Use views (or dynamic templates) to get freshly updated data of your graph
 - ☘️ Focusing on UX and simplicity: no more headache on where to add a space to make it work
 - 🔗 Easily make a reference to any journal page: relative to now moment, the current page, specific date or whatever you want
-- 👻 Custom logic with JS vars, conditions, loops and environment (if you know what I mean 😈)
+- 👻 High configurability with JavaScript logic: vars, conditions, loops (if you know what I mean 😈)
 - 🛠 A set of handy [template tags](https://stdword.github.io/logseq13-full-house-plugin/#/reference__tags) to work with
 
 
+
 ## Very quick overview
+### Insert from lovely UI 🤗
+<img width="500px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/df132005-7c72-4470-8a80-52c98485ab76"/>
+
+<table><tr><td>
+
+<details><summary>details</summary><p>
+
+See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logseq13-full-house-plugin/discussions/21).
+
+</p></details> 
+
+</td></tr></table>
+
+</p>
+
 ### Book page 📖
 <img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/702dbb48-f70c-41d3-b78f-2f8fe764846a"/>
 <p align="center">
@@ -95,7 +111,7 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 
 <details><summary>details</summary><p>
 
-See details about `fold-page-ref` [Showroom](https://github.com/stdword/logseq13-full-house-plugin/discussions/7).
+See details about `fold-page-ref` in [Showroom](https://github.com/stdword/logseq13-full-house-plugin/discussions/7).
 
 ```markdown
 - Mixing [./Full House Templates]([[logseq/plugins/Full House Templates]]) and stadard {{renderer(:view,"c.page.namespace.parts[0]")}} templates syntax `'in one template'.bold()`
@@ -152,22 +168,24 @@ See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-ful
 |Plugin|`🏛 Full House` support|Details|
 |:-:|:-:|:--|
 |[Dynamic Lookup](https://github.com/peanball/logseq-dynamic-lookup)| ✅ full | [→](https://stdword.github.io/logseq13-full-house-plugin/#/alternatives?id=dynamic-lookup) |
-| [Smart Blocks](https://github.com/sawhney17/logseq-smartblocks) | ⚠️ partial | 🚫 UI (buttons, template selection, variables) |
-| [Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin) | ⚠️ partial | 🚫 UI (buttons, template selection, variables) |
+| [Smart Blocks](https://github.com/sawhney17/logseq-smartblocks) | ⚠️ partial | 🚫 buttons, 🚫 variables |
+| [Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin) | ⚠️ partial | 🚫 buttons, 🚫 variables |
 
 
 ## Roadmap
-- UI: views & templates selection
-- UI: user input & variables
 - UI: buttons
+- UI: user input & variables
 
 
 ## Credits
-- Inspiration:
+- *Inspiration*:
   - [Obsidian Templater](https://github.com/SilentVoid13/Templater) by SilentVoid13
   - [Logseq SmartBlocks](https://github.com/sawhney17/logseq-smartblocks) by sawhney17
-- Based on lightweight embedded JS templating engine: [Eta](https://github.com/eta-dev/eta)
-- [Day.js](https://day.js.org) a minimalist JavaScript library for dates and times work
+  - [Logseq Assets Plus](https://github.com/xyhp915/logseq-assets-plus) by xyhp915
+- *Tech*:
+  - Based on lightweight embedded JS templating engine: [Eta](https://github.com/eta-dev/eta)
+  - [Day.js](https://day.js.org): a minimalist JavaScript library for dates and times work
+  - [fuzzysort](https://github.com/farzher/fuzzysort): SublimeText-like fuzzy search
 - Icon created by <a href="https://www.flaticon.com/free-icon/web-design_1085802" title="Flaticon">monkik</a>
 
 
