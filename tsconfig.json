@@ -25,7 +25,7 @@
     "jsx": "react-jsx",                                  /* Specify what JSX code is generated. */
     "experimentalDecorators": true,                      /* Enable experimental support for TC39 stage 2 draft decorators. */
     // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
-    "jsxFactory": "h",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h' */
+    // "jsxFactory": "h",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h' */
     // "jsxFragmentFactory": "",                         /* Specify the JSX Fragment reference used for fragments when targeting React JSX emit e.g. 'React.Fragment' or 'Fragment'. */
     "jsxImportSource": "preact",                         /* Specify module specifier used to import the JSX factory functions when using `jsx: react-jsx*`.` */
     // "reactNamespace": "",                             /* Specify the object invoked for `createElement`. This only applies when targeting `react` JSX emit. */
