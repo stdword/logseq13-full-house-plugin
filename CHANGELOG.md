@@ -1,3 +1,52 @@
+# [3.2.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.1.1...v3.2.0) (2023-11-08)
+
+
+### Bug Fixes
+
+* forgotten check for cleaningMarks from template-usage ([66ac683](https://github.com/stdword/logseq13-full-house-plugin/commit/66ac683adbe66c69f3723d82b3ca77cd113ed03f))
+* remove backwards compatibility for old page syntax: {{renderer :template, wiki, —, ru}} ([91b7aaa](https://github.com/stdword/logseq13-full-house-plugin/commit/91b7aaa8971a69272c5c7b8fecd1247da0ed1369))
+* replace macro checking with an informational message to user ([36f975e](https://github.com/stdword/logseq13-full-house-plugin/commit/36f975eda91b18f6e97551ac268dcaaf0b752096))
+* **ui:** always hightlight the first result ([616d102](https://github.com/stdword/logseq13-full-house-plugin/commit/616d1027ecf1b81c9bc8cbf3a12da08e7ce96afc))
+* **ui:** change default shortcut ([3ca5313](https://github.com/stdword/logseq13-full-house-plugin/commit/3ca531353bfe9d26cb64caeb896eccc7dc470305))
+* **ui:** exit editing block before jumping to template ([a866ab7](https://github.com/stdword/logseq13-full-house-plugin/commit/a866ab730221a54a6b4de29ad74c20122fe9fefe)), closes [#23](https://github.com/stdword/logseq13-full-house-plugin/issues/23)
+* **ui:** filter results bug ([b883ea1](https://github.com/stdword/logseq13-full-house-plugin/commit/b883ea1ab85952ad0a26266db887dd52346f5d1f))
+* **ui:** insert highlighted name bug ([1b232ee](https://github.com/stdword/logseq13-full-house-plugin/commit/1b232eecd7e790ba38e442c9fb78a00bfd04e4b3))
+* **ui:** unnecessary qoutes in usage with several args ([414919c](https://github.com/stdword/logseq13-full-house-plugin/commit/414919c0263f8e09779430d48cad9192dfc529cb))
+* **ui:** update default font ([7764d34](https://github.com/stdword/logseq13-full-house-plugin/commit/7764d341fd786552f9c46f5e82c7b9425d9b9d01))
+* **ui:** wrap template name with qoutes when comma is present ([eb0327c](https://github.com/stdword/logseq13-full-house-plugin/commit/eb0327c0561f96e3a0ec5d8a93700a7f071c48fb))
+
+
+### Features
+
+* "Copy as ..." commands for page ([e515336](https://github.com/stdword/logseq13-full-house-plugin/commit/e515336d30451920dcb7b930bba118a7d459db7c))
+* add fast carriage positioning without api ([cba9c27](https://github.com/stdword/logseq13-full-house-plugin/commit/cba9c27e8221d2fd1475108505b56c27c2920dcc))
+* generalize template-usage & template-list-as handling; support template-usage in "Copy as ..." ([78fb437](https://github.com/stdword/logseq13-full-house-plugin/commit/78fb437dc50bfb4b4c97bc9be8047a58618cf3e2))
+* **notification:** add notification about new UI ([7f82a1d](https://github.com/stdword/logseq13-full-house-plugin/commit/7f82a1dacdfd2a966a7eee030810254a1b925589))
+* **ui:** add "Preparing..." message & remove "hidden" label ([6a07d19](https://github.com/stdword/logseq13-full-house-plugin/commit/6a07d199de1a4dc2c41cc118b8bf4d8461f9dae8))
+* **ui:** add content insertion logix ([5717540](https://github.com/stdword/logseq13-full-house-plugin/commit/57175401841727929be8c0d0f0f22282e5938310))
+* **ui:** add data preparation and labels ([85241d3](https://github.com/stdword/logseq13-full-house-plugin/commit/85241d3cf5db029443e6c170bfc8e92200804690))
+* **ui:** add foter with shortcut hints and platform-dependant behaviour ([0e56d60](https://github.com/stdword/logseq13-full-house-plugin/commit/0e56d60e4df38723da08dc6d22b7a3bce581c3dd))
+* **ui:** add page name ([0727316](https://github.com/stdword/logseq13-full-house-plugin/commit/07273166c2c4dfa7e4c2bda769d62b2bcef3194e))
+* **ui:** add searching by template page name fix [#23](https://github.com/stdword/logseq13-full-house-plugin/issues/23) ([593759c](https://github.com/stdword/logseq13-full-house-plugin/commit/593759cda7dc527ead319d6585945c81e3d58a64))
+* **ui:** add template-usage property support ([fbcf99b](https://github.com/stdword/logseq13-full-house-plugin/commit/fbcf99b314c0dd073003beb37954b7c70bdd617b))
+* **ui:** change sorting: by page then by template name ([c11e409](https://github.com/stdword/logseq13-full-house-plugin/commit/c11e4093074650c6f80d2cb2189de526295d30bc))
+* **ui:** fuzzy search ([13d40c4](https://github.com/stdword/logseq13-full-house-plugin/commit/13d40c460481a073b43aa017d392caa190085075))
+* **ui:** hide ui on mouse missclick ([6fe984f](https://github.com/stdword/logseq13-full-house-plugin/commit/6fe984f81998217010ed55857e357880dbca9677))
+* **ui:** highlight with keyboard and mouse logic ([bb2b1f1](https://github.com/stdword/logseq13-full-house-plugin/commit/bb2b1f1a96a3f164e3a2d41ea25e695299b2e6c6))
+* **ui:** insertion view draft ([98b4e84](https://github.com/stdword/logseq13-full-house-plugin/commit/98b4e841cd08382ea5092e2d120a2d1470087a84))
+* **ui:** insertion view styles ([8147bd8](https://github.com/stdword/logseq13-full-house-plugin/commit/8147bd8da75fd4a38cab46fdf3c391f275433996))
+* **ui:** live showing hidden items with alt/opt key ([8a709b6](https://github.com/stdword/logseq13-full-house-plugin/commit/8a709b6d0d7d722fea9d44b63f98313875133f39))
+* **ui:** loading of templates data ([5ed57b7](https://github.com/stdword/logseq13-full-house-plugin/commit/5ed57b7225a91c125c63cd37aa125a4c336ed90c))
+* **ui:** merge insertion of templates and views ([6219469](https://github.com/stdword/logseq13-full-house-plugin/commit/6219469885602d7affa30faf056841cf26128ce2))
+* **ui:** no results case ([54abc7b](https://github.com/stdword/logseq13-full-house-plugin/commit/54abc7b70a6d7f923e13369a540f93e21dad0a02))
+* **ui:** open template block with shift ([68c7d9a](https://github.com/stdword/logseq13-full-house-plugin/commit/68c7d9a02f829f979d232433cd4ea17b052f4e11))
+* **ui:** replace old insert command ([a56c445](https://github.com/stdword/logseq13-full-house-plugin/commit/a56c445ea72890b4976f11eecf341ff34ce9eb86))
+* **ui:** scrolling ([60b98d3](https://github.com/stdword/logseq13-full-house-plugin/commit/60b98d3d745e43254d283a6738a9fa5e1468b0b4))
+* **ui:** smart selection after insertion with selected block ([c67d4c7](https://github.com/stdword/logseq13-full-house-plugin/commit/c67d4c7dcd68e095e155531770bd29074622e5e5))
+* **ui:** smart selection after insertion within editing block ([664cc07](https://github.com/stdword/logseq13-full-house-plugin/commit/664cc0712cdd13a60f92cb93d1e9a8e1b7b02ca2))
+* **ui:** special search case for spaces only ([efb6abd](https://github.com/stdword/logseq13-full-house-plugin/commit/efb6abd63575ec508cd5666914732033a2a129c6))
+* utils to get css vars from main frame ([835ead0](https://github.com/stdword/logseq13-full-house-plugin/commit/835ead0f410360906dd4809ad19e0e6c05f6b635))
+
 ## [3.1.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.1.0...v3.1.1) (2023-08-23)
 
 
