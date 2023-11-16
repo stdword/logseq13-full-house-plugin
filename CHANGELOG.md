@@ -1,3 +1,11 @@
+## [3.2.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.2.0...v3.2.1) (2023-11-16)
+
+
+### Bug Fixes
+
+* **notifications:** macro warning notification accidental appearing ([e06179c](https://github.com/stdword/logseq13-full-house-plugin/commit/e06179cbd4740cb2a7eb924c3f847861b71f044b))
+* remove notification about prev release & update insert warning notification ([7734351](https://github.com/stdword/logseq13-full-house-plugin/commit/773435108289ae7364dca4ea462c7ea6f18d4f52))
+
 # [3.2.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.1.1...v3.2.0) (2023-11-08)
 
 
