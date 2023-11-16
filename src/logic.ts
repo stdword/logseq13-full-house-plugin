@@ -300,7 +300,8 @@ async (
     const toReplace = rawCode.toPattern()
     const newContent = oldContent.replace(toReplace, toInsert)
     if (newContent === oldContent) {
-        showInsideMacroNotification()
+        if (oldContent.search(/\{\{\s*\w+\s*.*?\}\}/g) !== -1)
+            showInsideMacroNotification()
 
         console.warn(p`Cannot find renderer macro to replace it`, {
             uuid,
