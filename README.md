@@ -164,6 +164,21 @@ See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-ful
 - ⚠️ The important point here is: every new plugin release should be updated manually
 
 
+## FAQ
+### How to insert frequently used templates rapidly fast?
+1. Create the `:command` in `config.edn`.
+   **Hint**: to perform fast searches, use any command name, but add a special character (e.g. the dot «.»)
+   ```clojure
+   :commands
+    [
+    	["psy client session                                             [.]"
+            [[:editor/input "{{renderer :template, psy → session, :page [[client ]], :online}}" {:backward-pos 13}]] ],
+    ]
+   ```
+3. Restart Logseq with <kbd>⌘R</kbd> or <kbd>Ctrl+R</kbd>
+4. Use `/`-command to insert template with only 3 key presses (`/.↩︎`):
+   <img width="600px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/9d5f4314-9c67-4e84-96c6-a45a08d7d8f0"/>
+
 ## Alternatives
 |Plugin|`🏛 Full House` support|Details|
 |:-:|:-:|:--|
