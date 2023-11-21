@@ -328,11 +328,11 @@ async function handleLogicErrors(func: Function) {
         await func()
     } catch (error) {
         if (error instanceof StateError)
-            await logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
+            await logseq.UI.showMsg(error.message, 'error', {timeout: 15000})
         else if (error instanceof StateMessage)
-            await logseq.UI.showMsg(error.message, 'info', {timeout: 5000})
+            await logseq.UI.showMsg(error.message, 'info', {timeout: 15000})
         else if (error instanceof RenderError)
-            await logseq.UI.showMsg(error.message, 'error', {timeout: 5000})
+            await logseq.UI.showMsg(error.message, 'error', {timeout: 15000})
         else
             console.error(p`${(error as Error).stack}`)
     }
