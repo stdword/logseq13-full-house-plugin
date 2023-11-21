@@ -105,9 +105,9 @@ export function escapeForRegExp(str: string) {
     return str.replaceAll(replacer, '\\$1')
 
     // alternative from MDN
-    // return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&')
+    // return str.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&')
     // $& means the whole matched string
- }
+}
 
 export function escapeForHTML(unsafe: string) {
     return unsafe
