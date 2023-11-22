@@ -20,6 +20,11 @@ export async function walkBlockTree(
     }
  }
 
+/**
+ * @returns pair [UUID, false] in case of currently editing block
+ * @returns pair [UUID, true] in case of selected block (outside of editing mode)
+ * @returns null in case of none of the blocks are selected (outside of editing mode)
+ */
 export async function getChosenBlock(): Promise<[string, boolean] | null> {
     const selected = (await logseq.Editor.getSelectedBlocks()) ?? []
     const editing = await logseq.Editor.checkEditing()
@@ -35,6 +40,7 @@ export async function insertContent(
     content: string,
     options: {
         positionOnArg?: number,
+        positionOnNthText?: {count: number, text: string},
         positionBeforeText?: string,
         positionAfterText?: string,
         positionIndex?: number
@@ -50,9 +56,13 @@ export async function insertContent(
     }
     const [ uuid, isSelectedState ] = chosenBlock
 
-    const { positionOnArg, positionBeforeText, positionAfterText, positionIndex } = options
+    const { positionOnArg, positionOnNthText, positionBeforeText, positionAfterText, positionIndex } = options
     let position: number | undefined
-    if (positionOnArg) {
+    if (positionOnNthText) {
+        const { text, count } = positionOnNthText
+        position = indexOfNth(content, text, count) ?? content.length
+    }
+    else if (positionOnArg) {
         let index = indexOfNth(content, ',', positionOnArg)
         if (!index)  // fallback to first arg
             index = indexOfNth(content, ',', 1)
@@ -78,8 +88,9 @@ export async function insertContent(
             position = index + positionAfterText.length
     }
     else if (positionIndex) {
-        if (positionIndex >= 0 && positionIndex < content.length)
-            position = positionIndex
+        const adjustedIndex = adjustIndexForLength(positionIndex, content.length)
+        if (adjustedIndex < content.length)  // skip adjustedIndex == content.length
+            position = adjustedIndex
     }
 
     if (isSelectedState) {
