@@ -78,6 +78,11 @@ async function postInit() {
                 '--ls-scrollbar-foreground-color',
                 '--ls-scrollbar-background-color',
                 '--ls-scrollbar-thumb-hover-color',
+
+                '--lx-accent-05',
+                '--lx-accent-09',
+                '--lx-accent-09-alpha',
+                '--lx-accent-11',
             ])
     })
 }

@@ -2,26 +2,23 @@
     box-sizing: border-box;
 }
 
-:root {
-  scrollbar-color: var(--ls-scrollbar-foreground-color) var(--ls-scrollbar-background-color);
-}
-
 html ::-webkit-scrollbar-thumb {
-    background-color: var(--ls-scrollbar-foreground-color)
+/*    background-color: ;*/
+    background-color: var(--lx-accent-05, color-mix(in srgb, var(--ls-scrollbar-thumb-hover-color) 50%, transparent));
 }
 
 html ::-webkit-scrollbar {
     background-color: var(--ls-scrollbar-background-color);
     height: 8px;
-    width: var(--ls-scrollbar-width)
+    width: var(--ls-scrollbar-width);
 }
 
 html ::-webkit-scrollbar-thumb:active {
-    background-color: var(--ls-scrollbar-thumb-hover-color)
+    background-color: var(--lx-accent-09, var(--ls-scrollbar-thumb-hover-color));
 }
 
 html ::-webkit-scrollbar-corner {
-    background: 0 0
+    background: 0 0;
 }
 
 div {
@@ -191,11 +188,11 @@ div {
 
 .selected {
     word-break: break-all;
-    background-color: var(--ls-a-chosen-bg);
+    background-color: var(--lx-accent-05, var(--ls-a-chosen-bg));
 }
 
-.selected span{
-    color: var(--ls-secondary-text-color);
+.selected span {
+    color: var(--lx-accent-11, var(--ls-secondary-text-color));
 }
 
 .item.selected.will-open:hover {
@@ -240,7 +237,7 @@ div {
     line-height: 1.45;
     padding: 3px 5px!important;
 
-    color: var(--ls-page-inline-code-color);
+    color: var(--lx-accent-11, var(--ls-page-inline-code-color));
     font-family: MonoLisa,Fira Code,Monaco,Menlo,Consolas,COURIER NEW,monospace;
     font-size: .9em;
     font-style: normal;
@@ -249,7 +246,7 @@ div {
 }
 
 mark {
-    background: var(--ls-page-mark-bg-color);
+    background-color: var(--lx-accent-09-alpha, var(--ls-page-mark-bg-color));
     color: var(--ls-page-mark-color);
 }
 
@@ -268,15 +265,13 @@ footer > ul {
     margin: 0px;
 
     font-size: 12px;
-
-    color: var(--ls-page-inline-code-color);
     opacity: .7;
 }
 
 footer > ul > li {
     display: inline;
     margin-right: 16px;
-    color: var(--ls-page-inline-code-color);
+    color: var(--lx-accent-09, var(--ls-page-inline-code-color));
 }
 
 footer > ul > li > svg {
@@ -287,7 +282,7 @@ footer > ul > li > svg {
     margin-right: 4px;
     margin-bottom: -2px;
 
-    fill: var(--ls-page-inline-code-color);
+    fill: var(--lx-accent-09, var(--ls-page-inline-code-color));
 }
 
 footer > ul > li > span {

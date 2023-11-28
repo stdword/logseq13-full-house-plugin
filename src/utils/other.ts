@@ -129,7 +129,7 @@ export function toISODate(date: Date) {
  }
 
 export function getCSSVars(names) {
-    const style = getComputedStyle(top!.document.documentElement)
+    const style = getComputedStyle(top!.document.body)
     return names.map((name) => style.getPropertyValue(name))
 }
 
