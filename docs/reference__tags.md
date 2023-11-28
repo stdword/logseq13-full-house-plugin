@@ -87,7 +87,7 @@ The next day after date: ` ``[ date.nlp('tomorrow', '2020-01-01') ]`` `
 
 #### ***Rendered***
 Tomorrow: [[2023-08-13]] \
-The next day after date: [[2020-01-03]]
+The next day after date: [[2020-01-02]]
 <!-- tabs:end -->
 
 
@@ -97,7 +97,7 @@ In journal page `[[2020-01-01]]`:
 <!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Template***
-Next journal page: ` ``[ date.nlp('tommorow', 'page') ]`` `
+Next journal page: ` ``[ date.nlp('tomorrow', 'page') ]`` `
 
 #### ***Rendered***
 Next journal page: [[2020-01-02]]
