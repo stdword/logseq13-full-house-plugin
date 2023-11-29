@@ -1,3 +1,15 @@
+# [3.3.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.2.1...v3.3.0) (2023-11-29)
+
+
+### Bug Fixes
+
+* **notifications:** change appearing time of messages from rendering templates ([91e4faf](https://github.com/stdword/logseq13-full-house-plugin/commit/91e4fafff05c7e0282395a0bbe94473c14f6e311))
+
+
+### Features
+
+* support radix colors ([2bc82c2](https://github.com/stdword/logseq13-full-house-plugin/commit/2bc82c24fd909700bcbcd00a376369b4808e74a7))
+
 ## [3.2.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.2.0...v3.2.1) (2023-11-16)
 
 
