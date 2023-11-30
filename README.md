@@ -50,10 +50,25 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 
 
 ## Very quick overview
+### Create amazing views: `Glass Card` from Logseq.com landing page
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/1984175/229943053-82aea6fb-3cd1-497a-967c-d76533a6cff4.png" width=45% />
+    <img src="https://user-images.githubusercontent.com/1984175/229949828-01222090-bdbc-4a52-b39e-30dc5f91e2ce.gif" width=45% />
+<table align="center"><tr><td>
+
+<details><summary>details</summary><p>
+
+See info about `glass-card` in [Showroom](https://github.com/stdword/logseq13-full-house-plugin/discussions/9).
+
+</p></details> 
+
+</td></tr></table>
+</p>
+
 ### Insert from lovely UI 🤗
 <img width="500px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/df132005-7c72-4470-8a80-52c98485ab76"/>
 
-<table><tr><td>
+<table align="center"><tr><td>
 
 <details><summary>details</summary><p>
 
@@ -65,7 +80,7 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 </p>
 
-### Book page 📖
+### Add logic to templates: Book page 📖
 <img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/702dbb48-f70c-41d3-b78f-2f8fe764846a"/>
 <p align="center">
   </br></br>
@@ -97,7 +112,7 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 </p>
 
-### Syntax power 💥
+### Mix standard templates syntax with new one: Syntax power 💥
 <img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/356f6dd6-f4d5-4a6c-9f72-0b2b776eb97d"/>
 <p align="center">
   </br></br>
@@ -152,7 +167,7 @@ See setup instructions in [Showroom](https://github.com/stdword/logseq13-full-ho
 </td></tr></table>
 
 
-#### See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-full-house-plugin/#/tutorial)
+### See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-full-house-plugin/#/tutorial)
 
 
 ## If you ❤️ what I'm doing — consider to support my work
