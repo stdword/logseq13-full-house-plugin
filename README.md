@@ -137,7 +137,22 @@ See details about `fold-page-ref` in [Showroom](https://github.com/stdword/logse
 
 </p>
 
-See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-full-house-plugin/#/tutorial).
+
+### Inline properties referencing 🔭
+<img width="800px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/d360c4a6-149b-449e-ae7f-2c68979ac074"/>
+
+<table><tr><td>
+
+<details><summary>details</summary><p>
+
+See setup instructions in [Showroom](https://github.com/stdword/logseq13-full-house-plugin/discussions/34).
+
+</p></details> 
+
+</td></tr></table>
+
+
+#### See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-full-house-plugin/#/tutorial)
 
 
 ## If you ❤️ what I'm doing — consider to support my work
