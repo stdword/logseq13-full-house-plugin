@@ -67,7 +67,6 @@ See info about `glass-card` in [Showroom](https://github.com/stdword/logseq13-fu
 
 ### Insert from lovely UI 🤗
 <img width="500px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/df132005-7c72-4470-8a80-52c98485ab76"/>
-![demo](https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/f49dcf90-ef72-4ffd-8769-70dd5f96fcaa)
 
 <table><tr><td>
 
