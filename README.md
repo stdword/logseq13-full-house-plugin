@@ -81,11 +81,8 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 </p>
 
 ### Add logic to templates: Book page 📖
-<img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/702dbb48-f70c-41d3-b78f-2f8fe764846a"/>
 <p align="center">
-  </br></br>
-  <b>template     →     rendered</b>
-  <br>
+  <b>                                                                                                template     →     rendered on page [[Tiago Forta — Building a Second Brain]]</b>
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/8fb8f5d0-c6d1-4759-98bd-891f9f6e5b51" width=49% />
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/28f29ada-13b4-485c-956f-667aa50c4d29" width=49% />
 
@@ -113,9 +110,7 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 </p>
 
 ### Mix standard templates syntax with new one: Syntax power 💥
-<img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/356f6dd6-f4d5-4a6c-9f72-0b2b776eb97d"/>
 <p align="center">
-  </br></br>
   <b>template     →     rendered</b>
   <br>
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/d1724a02-9cb4-464b-8269-c4a2695c94f3" width=49% />
