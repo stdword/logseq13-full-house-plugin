@@ -41,8 +41,12 @@ async function onAppSettingsChanged() {
 
 async function init() {
     if (DEV) {
-        // @ts-expect-error
-        logseq.UI.showMsg(`HMR #${top!.hmr_count}`, 'info', {timeout: 3000})
+        logseq.UI.showMsg(
+            // @ts-expect-error
+            `[:div [:b "Full House Templates"] [:p "HMR #${top!.hmr_count}"] ]`,
+            'info',
+            {timeout: 3000},
+        )
     }
 
     console.info(p`Loaded`)
