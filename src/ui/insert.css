@@ -188,7 +188,7 @@ div {
 
 .selected {
     word-break: break-all;
-    background-color: var(--lx-accent-05, var(--ls-a-chosen-bg));
+    background-color: var(--lx-accent-05, var(--ls-quaternary-background-color));
 }
 
 .selected span {

@@ -63,7 +63,6 @@ async function postInit() {
                 '--ls-border-color',
                 '--ls-border-radius-low',
                 '--ls-page-inline-code-color',
-                '--ls-a-chosen-bg',
 
                 '--ls-page-text-size',
                 '--ls-primary-text-color',
