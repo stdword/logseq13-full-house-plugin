@@ -20,16 +20,13 @@ Full House Templates
 
 <div align="center">
 
+[![](https://img.shields.io/badge/status-active_development-e89829)](https://github.com/stdword/logseq13-full-house-plugin/releases)
 [![Version](https://img.shields.io/github/v/release/stdword/logseq13-full-house-plugin?color=5895C9)](https://github.com/stdword/logseq13-full-house-plugin/releases)
 [![Downloads](https://img.shields.io/github/downloads/stdword/logseq13-full-house-plugin/total.svg?color=D25584)](https://github.com/stdword/logseq13-full-house-plugin#from-logseq-marketplace-recommended-way)
 
 </div>
 
 <p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b><a href="https://github.com/search?q=owner%3Astdword+logseq13&type=repositories">Logseq13</a></b> family of plugins</i></p>
-
-<p align="center">
-⚠️ <b>Under active development</b> ⚠️
-</p>
 
 
 ## Summary
