@@ -468,6 +468,9 @@ export class PropertiesUtils {
         if (block.propertiesTextValues)
             delete block.propertiesTextValues[nameCamelCased]
 
+        block.content = PropertiesUtils.deletePropertyFromString(block.content, name)
+    }
+    static deletePropertyFromString(content: string, name: string): string {
         // case when properties in content use different style of naming
         //   logseq-prop-name
         //   logseq_prop_name
@@ -475,8 +478,14 @@ export class PropertiesUtils {
         // all this names is the same for logseq → we should erase all
         for (const n of [name, name.replaceAll('-', '_'), name.replaceAll('_', '-')]) {
             const propRegexp = PropertiesUtils.propertyContentFormat({name: n})
-            block.content = block.content.replaceAll(new RegExp(propRegexp, 'gim'), '')
+            content = content.replaceAll(new RegExp(propRegexp, 'gim'), '')
         }
+        return content
+    }
+    static deleteAllProperties(content: string): string {
+        for (const name of PropertiesUtils.getPropertyNames(content))
+            content = PropertiesUtils.deletePropertyFromString(content, name)
+        return content
     }
     static getPropertyNames(text: string): string[] {
         const propertyNames: string[] = []
