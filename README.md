@@ -79,7 +79,7 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 ### Add logic to templates: Book page 📖
 <p align="center">
-  <b>                                                   template     →     rendered on page [[Tiago Forta — Building a Second Brain]]</b>
+  <b>                                                   template     →     rendered on page [[Tiago Forte — Building a Second Brain]]</b>
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/8fb8f5d0-c6d1-4759-98bd-891f9f6e5b51" width=49% />
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/28f29ada-13b4-485c-956f-667aa50c4d29" width=49% />
 
