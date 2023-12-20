@@ -391,6 +391,18 @@ export class PropertiesUtils {
             text = text[0].toLowerCase() + text.slice(1)
         return text
     }
+    static fromCamelCase(text: string): string {
+        return text.replaceAll(
+            /\p{Uppercase_Letter}\p{Lowercase_Letter}/gu,
+            (m) => '-' + m.toLowerCase(),
+        )
+    }
+    static fromCamelCaseAll(properties: Record<string, any> | undefined) {
+        return Object.fromEntries(
+            Object.entries(properties ?? {})
+                .map(([k, v]) => [PropertiesUtils.fromCamelCase(k), v])
+        )
+    }
 
     static getTemplateUsageString(
         block: BlockEntity,
