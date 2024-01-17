@@ -53,9 +53,9 @@ async function prepareDataLogic(): Promise<Data> {
         })
 
     return data.sort((a, b) => {  // by page then by name
-        const pageDiff = a.page.localeCompare(b.page)
+        const pageDiff = a.page.localeCompare(b.page, 'en', { numeric: true })
         if (pageDiff === 0)
-            return a.name.localeCompare(b.name)
+            return a.name.localeCompare(b.name, 'en', { numeric: true })
         return pageDiff
     })
 }
