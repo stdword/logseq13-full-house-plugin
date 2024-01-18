@@ -132,6 +132,10 @@ export class PageContext extends Context {
     public props?: Properties
     public propsRefs?: PropertiesRefs
 
+    static parseDay(day: string | number) {
+        return dayjs(day.toString(), 'YYYYMMDD').startOf('day')
+    }
+
     static createFromEntity(page: PageEntity) {
         const name = page.originalName
         const obj = new PageContext(page.id, name)
@@ -165,9 +169,8 @@ export class PageContext extends Context {
 
         obj.isJournal = page['journal?']
 
-        const day = page.journalDay?.toString()
-        if (day)
-            obj.day = dayjs(day, 'YYYYMMDD').startOf('day')
+        if (page.journalDay)
+            obj.day = PageContext.parseDay(page.journalDay)
         return obj
     }
     static empty() {

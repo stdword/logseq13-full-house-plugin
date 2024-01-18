@@ -14,41 +14,6 @@ import {
 
 const isoDateFromat = 'YYYY-MM-DD'
 
-type ITemplateTagsContext = {
-    ref: Function
-    bref: Function
-    embed: Function
-
-    empty: Function
-    when: Function
-    fill: Function
-    zeros: Function
-    spaces: Function
-
-    yesterday: string
-    today: string
-    tomorrow: string
-    time: string
-
-    dev: {
-        parseMarkup: (text: string) => MLDOC_Node[]
-        toHTML: (text: string) => string
-        asset: (name: string) => string
-        color: (value: string) => string
-        links: Function
-    }
-
-    date: {
-        yesterday: Dayjs
-        today: Dayjs
-        now: Dayjs
-        tomorrow: Dayjs
-
-        from: Function
-        nlp: Function
-    }
-}
-
 
 // These template tags could be used in raw javascript template code
 // → type declarations could be violated
@@ -153,6 +118,7 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
     const r = ref(item)
     return `{{embed ${r}}}`
 }
+
 function empty(obj: any, fallback: any = ''): any {
     if (obj === null)
         return obj
@@ -231,6 +197,78 @@ function date_nlp(context: ILogseqContext, query: string, now: Dayjs | string = 
 }
 
 
+/* query */
+function query_refsCount(context: ILogseqContext, page: PageContext | string = '') {
+    let name = page as string
+    if (page instanceof PageContext)
+        name = page.name!
+
+    // @ts-expect-error
+    const refs = top!.logseq.api.datascript_query(`
+      [:find (pull ?b [:block/uuid])
+         :where
+            [?b :block/refs ?r]
+            [?r :block/original-name ?rn]
+            [(= ?rn "${name || context.page.name}")]
+      ]
+    `.trim())
+    if (!refs || refs.length === 0)
+        return 0
+
+    return refs.length
+}
+
+function queryRefs(
+    context: ILogseqContext,
+    page: PageContext | string = '',
+    only: 'journals' | 'pages' | '' = '',
+    flat: boolean = true,
+) {
+    let name = page as string
+    if (page instanceof PageContext)
+        name = page.name!
+
+    let filterOnly = ''
+    if (only === 'journals')
+        filterOnly = '[?p :block/journal? true]'
+    else if (only === 'pages')
+        filterOnly = '[?p :block/journal? false]'
+
+    // @ts-expect-error
+    const refs = top!.logseq.api.datascript_query(`
+      [:find (pull ?p [
+        [:block/journal-day :as :day]
+        [:block/original-name :as :name] ])
+          :where
+            [?b :block/refs ?r]
+            [?r :block/original-name ?rn]
+            [(= ?rn "${name || context.page.name}")]
+            [?b :block/page ?p]
+            ${filterOnly}
+      ]
+    `.trim())
+    if (!refs || refs.length === 0)
+        return []
+
+    if (only === 'journals')
+        refs.sort((a, b) => b['day'] - a['day'])
+
+    return refs.flat().map((r) => {
+        if (flat)
+            return r.name
+        if (r.day)
+            r.day = PageContext.parseDay(r.day)
+        return r
+    })
+}
+function query_journalRefs(context: ILogseqContext, page: PageContext | string = '') {
+    return queryRefs(context, page, 'journals', false)
+}
+function query_pageRefs(context: ILogseqContext, page: PageContext | string = '') {
+    return queryRefs(context, page, 'pages', true)
+}
+
+
 /* dev */
 function parseMarkup(context: ILogseqContext, text: string): MLDOC_Node[] {
     text = _asString(text)
@@ -287,14 +325,6 @@ function get(context: ILogseqContext, path: string): string {
     return getByPath(context, parts) ?? ''
 }
 
-/* query */
-//   where: source
-//   how: tree-path-spec, by prop, by ancestor?
-//   what:
-//     links (external, local, assets, images) — how: labeled, with-meta, inclusion
-//     pages, tag-pages, ref-pages
-//     blocks
-
 function parseLinks(context: ILogseqContext, text: string): string[] {
     const links: string[] = []
 
@@ -309,7 +339,7 @@ function parseLinks(context: ILogseqContext, text: string): string[] {
         }
 
     return links
- }
+}
 
 async function links(
     context: ILogseqContext,
@@ -346,7 +376,7 @@ async function links(
         })
 
     return linksInBlock
- }
+}
 
 
 export function getTemplateTagsDatesContext() {
@@ -372,7 +402,7 @@ export function getTemplateTagsDatesContext() {
         },
     }
 }
-export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsContext {
+export function getTemplateTagsContext(context: ILogseqContext) {
     const datesContext = getTemplateTagsDatesContext()
 
     return {
@@ -384,6 +414,13 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
         tomorrow: datesContext.tomorrow,
         time: datesContext.time,
 
+        query: new Context({
+            refs: new Context({
+                count: query_refsCount.bind(null, context),
+                journals: query_journalRefs.bind(null, context),
+                pages: query_pageRefs.bind(null, context),
+        })}),
+
         dev: new Context({
             parseMarkup: parseMarkup.bind(null, context),
             toHTML: toHTML.bind(null, context),
@@ -391,7 +428,7 @@ export function getTemplateTagsContext(context: ILogseqContext): ITemplateTagsCo
             color,
             get: get.bind(null, context),
             links: parseLinks.bind(null, context),
-        }) as unknown as ITemplateTagsContext['dev'],
+        }),
         date: Object.assign(datesContext.date, {
             nlp: date_nlp.bind(null, context),
         }),
