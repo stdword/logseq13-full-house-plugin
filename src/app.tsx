@@ -77,15 +77,22 @@ async function postInit() {
                 '--ls-page-mark-bg-color',
                 '--ls-page-mark-color',
 
-                '--ls-scrollbar-width',
                 '--ls-scrollbar-foreground-color',
-                '--ls-scrollbar-background-color',
                 '--ls-scrollbar-thumb-hover-color',
 
                 '--lx-accent-05',
                 '--lx-accent-09',
                 '--lx-accent-09-alpha',
                 '--lx-accent-11',
+
+                '--fht-footer-text',
+                '--fht-hightlight',
+                '--fht-label-text',
+                '--fht-active',
+                '--fht-active-text',
+                '--fht-scrollbar',
+                '--fht-scrollbar-thumb',
+                '--fht-scrollbar-thumb-hover',
             ])
     })
 }
