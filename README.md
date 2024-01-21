@@ -47,7 +47,7 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 
 
 ## Very quick overview
-### Create amazing views: `Glass Card` from Logseq.com landing page
+### Create amazing views: `Glass Card` from Logseq.com landing page example
 <p align="center">
     <img src="https://user-images.githubusercontent.com/1984175/229943053-82aea6fb-3cd1-497a-967c-d76533a6cff4.png" width=45% />
     <img src="https://user-images.githubusercontent.com/1984175/229949828-01222090-bdbc-4a52-b39e-30dc5f91e2ce.gif" width=45% />
@@ -77,7 +77,7 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 </p>
 
-### Add logic to templates: Book page 📖
+### Add logic to templates: Book page example 📖
 <p align="center">
   <b>                                                   template     →     rendered on page [[Tiago Forte — Building a Second Brain]]</b>
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/8fb8f5d0-c6d1-4759-98bd-891f9f6e5b51" width=49% />
@@ -106,7 +106,7 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 </p>
 
-### Mix standard templates syntax with new one: Syntax power 💥
+### Mix with standard templates syntax: Syntax power 💥
 <p align="center">
   <b>template     →     rendered</b>
   <br>
@@ -145,7 +145,7 @@ See details about `fold-page-ref` in [Showroom](https://github.com/stdword/logse
 </p>
 
 
-### Inline properties referencing 🔭
+### Mix with macros: Inline properties referencing example 🔭
 <img width="800px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/d360c4a6-149b-449e-ae7f-2c68979ac074"/>
 
 <table><tr><td>
