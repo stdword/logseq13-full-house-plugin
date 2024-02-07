@@ -34,22 +34,24 @@ TODO
 ## `tomorrow` :id=tomorrow
 TODO
 
-## `date.now` :id=date-now
+
+## `date`
+### `.now` :id=date-now
 TODO
 
-## `date.yesterday` :id=date-yesterday
+### `.yesterday` :id=date-yesterday
 TODO
 
-## `date.today` :id=date-today
+### `.today` :id=date-today
 TODO
 
-## `date.tomorrow` :id=date-tomorrow
+### `.tomorrow` :id=date-tomorrow
 TODO
 
-## `date.from` :id=date-from
+### `.from` :id=date-from
 TODO
 
-## `date.nlp(query, moment = 'now')` :id=date-nlp
+### `.nlp(query, moment = 'now')` :id=date-nlp
 Getting dates via natural language processing.
 
 - `query`: string representation of NLP date
@@ -106,18 +108,39 @@ Next journal page: [[2020-01-02]]
 <!-- panels:end -->
 
 
+## `query.refs`
 
-## `dev.parseMarkup` :id=dev-parse-markup
+### `.count` :id=query-refs-count
 TODO
 
-## `dev.toHTML` :id=dev-to-html
+### `.journals` :id=query-refs-journals
 TODO
 
-## `dev.asset` :id=dev-asset
+### `.pages` :id=query-refs-pages
 TODO
 
-## `dev.color` :id=dev-color
+
+## `dev`
+### `.parseMarkup` :id=dev-parse-markup
 TODO
 
-## `dev.links` :id=dev-links
+### `.toHTML` :id=dev-to-html
+TODO
+
+### `.asset` :id=dev-asset
+TODO
+
+### `.color` :id=dev-color
+TODO
+
+### `.get` :id=dev-get
+TODO
+
+### `.links` :id=dev-links
+TODO
+
+### `.context.page` :id=dev-context-page
+TODO
+
+### `.context.block` :id=dev-context-block
 TODO
