@@ -364,10 +364,11 @@ async function _renderTemplateView(
     }
 
     const compiled = await walkBlockTree(rendered, async (b, lvl) => {
-        if (!b.content.trim())
+        const content = (b.content || '').toString()
+        if (!content.trim())
             return ''
 
-        return new LogseqMarkup(context).toHTML(b.content)
+        return new LogseqMarkup(context).toHTML(content)
     })
     console.debug(p`Markup compiled:`, {data: compiled})
 
