@@ -109,7 +109,6 @@ const eta = new CustomizedEta({
         '``...``': {
             trimRight: false,
             autoFilter: true,
-            parseFunction: (meta, content) => ({protectValue: true}),
         },
         '<%...%>': {
             trimRight: false,
@@ -220,24 +219,6 @@ function compileBody(buff) {
             if (meta.isStatement) {
                 returnStr += content
                 continue
-            }
-
-            if (meta.protectValue) {
-                if (content.indexOf('`') === -1)
-                    content = `(() => {
-                        try {return eval(\`` + content + `\`)}
-                        catch {return \`` + content + `\`}
-                    })()`
-                else if (content.indexOf("'") === -1)
-                    content = `(() => {
-                        try {return eval('${content}')}
-                        catch {return '${content}'}
-                    })()`
-                else
-                    content = `(() => {
-                        try {return eval("${content}")}
-                        catch {return "${content}"}
-                    })()`
             }
 
             if (filterFunction)
