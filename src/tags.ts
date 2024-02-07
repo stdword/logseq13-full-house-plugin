@@ -428,6 +428,10 @@ export function getTemplateTagsContext(context: ILogseqContext) {
             color,
             get: get.bind(null, context),
             links: parseLinks.bind(null, context),
+            context: new Context({
+                page: PageContext.createFromEntity,
+                block: BlockContext.createFromEntity,
+            })
         }),
         date: Object.assign(datesContext.date, {
             nlp: date_nlp.bind(null, context),
