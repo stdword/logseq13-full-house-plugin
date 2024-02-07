@@ -55,7 +55,6 @@ dayjs.extend(logseqPlugin)
 
 
 export interface ILogseqContext {
-    tags: Context
     identity: Context | {
         slot: string,
         key: string,
@@ -67,6 +66,7 @@ export interface ILogseqContext {
     currentBlock: BlockContext
     args: ArgsContext
 
+    tags?: Context
     self?: BlockContext
     template?: {
         name: string,
@@ -100,8 +100,11 @@ export class Context {
                     return item
                 })
             else if (typeof value === 'function') {
-                const signature = value.toString().match(/function\s*\w*?\((.*?)\)\s*\{/)
+                const doc = value.toString()
+                const signature = doc.match(/function\s*\w*?\((.*?)\)\s*\{/)
                 value = `function(${signature[1] || ''})`.replaceAll('"', "'")
+                if (doc.startsWith('async'))
+                    value = 'async ' + value
             }
 
             result[field] = value
