@@ -12,6 +12,7 @@ import {
     LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro,
     parseReference, walkBlockTree, isUUID, html, isRecursiveOrNestedTemplate,
     escapeForHiccup,
+    coerceStringToBool,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
@@ -37,8 +38,10 @@ async function getCurrentContext(
     for (const [ key, value ] of Object.entries(argsProps))
         if (key.startsWith(ArgsContext.propertyPrefix)) {
             const name = key.slice(ArgsContext.propertyPrefix.length)
-            if (argsContext[name] === undefined)
-                argsContext[name] = value
+            if (argsContext[name] === undefined) {
+                const bool = coerceStringToBool(value)
+                argsContext[name] = bool !== null ? bool : value
+            }
         }
 
     // @ts-expect-error
