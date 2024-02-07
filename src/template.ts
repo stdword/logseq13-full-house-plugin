@@ -101,7 +101,7 @@ export class Template implements ITemplate {
             PropertiesUtils.deleteProperty(b as BlockEntity, PropertiesUtils.idProperty)
 
             // unwrap triple back-ticks block: special case for long templates
-            const [ start, end ] = [ /^```.*?\n/u, /\n```$/u ]
+            const [ start, end ] = [ /^\n?```.*?\n/u, /\n```$/u ]
             const matchStart = b.content.match(start)
             const matchEnd = b.content.match(end)
             if (matchStart && matchEnd)
