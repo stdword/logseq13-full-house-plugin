@@ -2,7 +2,7 @@
 The main variable to keep all context information.
 
 ?> You can always see whole context with `{{renderer :view, "c"}}`. \
-Or individual one (e.g. `c.page`) with `{{renderer :view, "c.page"}}`.
+Or individual one (e.g. `c.tags`) with `{{renderer :view, "c.tags"}}`.
 
 
 ### `c.page` & `c.currentPage` :id=page-context
@@ -119,6 +119,21 @@ See detailed [Reference for arguments](reference__args.md).
 ```
 {
     (string) arg name: (string or boolean) arg value
+}
+```
+
+
+### `c.tags`
+Template tags context. Helpful utils for creating templates.
+Every item available in two ways: `c.tags.<item>` and `<item>`.
+
+See detailed [Reference for tags](reference__tags.md).
+
+#### Schema
+<!-- {docsify-ignore} -->
+```
+{
+    (string) tag name: (function) signature
 }
 ```
 

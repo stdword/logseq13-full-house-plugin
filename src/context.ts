@@ -55,6 +55,7 @@ dayjs.extend(logseqPlugin)
 
 
 export interface ILogseqContext {
+    tags: Context
     identity: Context | {
         slot: string,
         key: string,
@@ -65,6 +66,7 @@ export interface ILogseqContext {
     block: BlockContext
     currentBlock: BlockContext
     args: ArgsContext
+
     self?: BlockContext
     template?: {
         name: string,
@@ -97,6 +99,11 @@ export class Context {
                         return item.filterForDisplaying()
                     return item
                 })
+            else if (typeof value === 'function') {
+                const signature = value.toString().match(/function\s*\w*?\((.*?)\)\s*\{/)
+                value = `function(${signature[1] || ''})`.replaceAll('"', "'")
+            }
+
             result[field] = value
         }
         return result

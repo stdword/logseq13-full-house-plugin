@@ -149,10 +149,12 @@ export class Template implements ITemplate {
         }) as unknown as ILogseqContext['template']
 
         const contextObj = new Context(context)
-        const renderContext = {
-            ...getTemplateTagsContext(contextObj as unknown as ILogseqContext),
-            c: contextObj,
-        }
+        const tags = getTemplateTagsContext(contextObj as unknown as ILogseqContext)
+
+        // @ts-expect-error
+        contextObj.tags = new Context(tags)
+
+        const renderContext = {c: contextObj, ...tags}
 
         const renderrer = await RenderingSyntax.autoSelect(this.block as IBlockNode)
         return await walkBlockTree(this.block as IBlockNode, async (b, lvl) => {
@@ -201,10 +203,12 @@ export class InlineTemplate implements ITemplate {
             ...context,
             self: BlockContext.empty(),
         })
-        const renderContext = {
-            ...getTemplateTagsContext(contextObj as unknown as ILogseqContext),
-            c: contextObj,
-        }
+        const tags = getTemplateTagsContext(contextObj as unknown as ILogseqContext)
+
+        // @ts-expect-error
+        contextObj.tags = tags
+
+        const renderContext = {c: contextObj, ...tags}
 
         const renderrer = RenderingSyntax.latest()
         const body = '`` ' + this.body + ' ``'

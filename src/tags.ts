@@ -378,6 +378,12 @@ async function links(
     return linksInBlock
 }
 
+function bindContext(f, context) {
+    const func = f.bind(null, context)
+    const signature = f.toString().replace('context, ', '')
+    func.toString = () => signature
+    return func
+}
 
 export function getTemplateTagsDatesContext() {
     const todayObj = dayjs().startOf('second')
@@ -405,7 +411,7 @@ export function getTemplateTagsDatesContext() {
 export function getTemplateTagsContext(context: ILogseqContext) {
     const datesContext = getTemplateTagsDatesContext()
 
-    return {
+    return new Context({
         ref, bref, embed,
         empty, when, fill, zeros, spaces,
 
@@ -416,27 +422,27 @@ export function getTemplateTagsContext(context: ILogseqContext) {
 
         query: new Context({
             refs: new Context({
-                count: query_refsCount.bind(null, context),
-                journals: query_journalRefs.bind(null, context),
-                pages: query_pageRefs.bind(null, context),
+                count: bindContext(query_refsCount, context),
+                journals: bindContext(query_journalRefs, context),
+                pages: bindContext(query_pageRefs, context),
         })}),
 
         dev: new Context({
-            parseMarkup: parseMarkup.bind(null, context),
-            toHTML: toHTML.bind(null, context),
-            asset: asset.bind(null, context),
+            parseMarkup: bindContext(parseMarkup, context),
+            toHTML: bindContext(toHTML, context),
+            asset: bindContext(asset, context),
             color,
-            get: get.bind(null, context),
-            links: parseLinks.bind(null, context),
+            get: bindContext(get, context),
+            links: bindContext(parseLinks, context),
             context: new Context({
-                page: PageContext.createFromEntity,
-                block: BlockContext.createFromEntity,
-            })
+                page: function (entity) { return PageContext.createFromEntity(entity) },
+                block: function (entity) { return BlockContext.createFromEntity(entity) },
+            }),
         }),
         date: Object.assign(datesContext.date, {
-            nlp: date_nlp.bind(null, context),
+            nlp: bindContext(date_nlp, context),
         }),
-    }
+    })
 }
 
 export const _private = {
