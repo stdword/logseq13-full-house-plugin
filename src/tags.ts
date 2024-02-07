@@ -434,6 +434,7 @@ export function getTemplateTagsContext(context: ILogseqContext) {
             color,
             get: bindContext(get, context),
             links: bindContext(parseLinks, context),
+            walkTree: async function (root, callback, level) { return walkBlockTree(root, callback, level) },
             context: new Context({
                 page: function (entity) { return PageContext.createFromEntity(entity) },
                 block: function (entity) { return BlockContext.createFromEntity(entity) },
