@@ -376,8 +376,6 @@ export class PropertiesUtils {
     static readonly templateUsageProperty = 'template-usage'
     static readonly includingParentProperty = 'template-including-parent'
 
-    static readonly carriagePositionMarker = '{|}'
-
     static propertyContentFormat = f`\n?^[^\\S]*${'name'}::.*$`
     static propertyRestrictedChars = '\\s:;,^@#~"`/|\\(){}[\\]'
 
@@ -402,41 +400,6 @@ export class PropertiesUtils {
             Object.entries(properties ?? {})
                 .map(([k, v]) => [PropertiesUtils.fromCamelCase(k), v])
         )
-    }
-
-    static getTemplateUsageString(
-        block: BlockEntity,
-        opts: {
-            cleanMarkers?: boolean
-        } = {cleanMarkers: false}
-    ): string {
-        let usage = PropertiesUtils.getProperty(
-                block, PropertiesUtils.templateUsageProperty
-            ).text
-        if (!usage)
-            return ''
-
-        usage = PropertiesUtils.cleanTemplateUsageString(usage, { cleanMarkers: opts.cleanMarkers })
-
-        return usage
-    }
-    static cleanTemplateUsageString(
-        value: string,
-        opts: {
-            cleanMarkers?: boolean
-        } = {cleanMarkers: false}
-    ) {
-        // value can be `quoted` or ``double quoted``
-        value = unquote(value, '``')
-        value = unquote(value, '``')
-
-        if (opts.cleanMarkers) {
-            // supports only two markers, so left intact any others
-            value = value.replace(PropertiesUtils.carriagePositionMarker, '')
-            value = value.replace(PropertiesUtils.carriagePositionMarker, '')
-        }
-
-        return value
     }
 
     static getProperty(obj: BlockEntity | PageEntity, name: string): LogseqProperty {
@@ -607,7 +570,7 @@ export class Macro {
  }
 
 export class RendererMacro extends Macro {
-    static command(name: string) {
+    static command(name: string): RendererMacro {
         return new RendererMacro(name)
     }
 

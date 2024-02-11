@@ -444,3 +444,48 @@ export async function renderView(
     const argsContext = ArgsContext.create(template.name, args)
     await _renderTemplateView(slot, blockUUID, template, rawCode, argsContext)
  }
+
+export async function templateMacroStringForBlock(uuid: string, isView: boolean = false): Promise<string> {
+    const block = await logseq.Editor.getBlock(uuid)
+    if (!block)
+        return ''
+
+    const templateName = PropertiesUtils.getProperty(
+        block, PropertiesUtils.templateProperty
+    ).text
+    let templateRef = templateName
+    if (!templateRef) {
+        const uuidExisted = PropertiesUtils.hasProperty(block.content, PropertiesUtils.idProperty)
+        if (!uuidExisted)
+            await logseq.Editor.upsertBlockProperty(uuid, PropertiesUtils.idProperty, uuid)
+        templateRef = `((${uuid}))`
+    }
+
+    const commandName = isView ? 'template-view' : 'template'
+    let command = RendererMacro.command(commandName).arg(templateRef)
+
+    const templateUsage = Template.getUsageString(block, {cleanMarkers: true})
+    if (templateUsage)
+        command = command.arg(templateUsage, {raw: true})
+
+    return command.toString()
+}
+export async function templateMacroStringForPage(name: string, isView: boolean = false): Promise<string> {
+    const pageRefString = `[[${name}]]`
+    const pageRef = parseReference(pageRefString)!
+    const page = await getPage(pageRef)
+    if (!page)
+        return ''
+
+    const commandName = isView ? 'template-view' : 'template'
+    let command = RendererMacro.command(commandName).arg(pageRefString)
+
+    const block = await getPageFirstBlock(pageRef)
+    if (block) {
+        const templateUsage = Template.getUsageString(block, {cleanMarkers: true})
+        if (templateUsage)
+            command = command.arg(templateUsage, {raw: true})
+    }
+
+    return command.toString()
+}

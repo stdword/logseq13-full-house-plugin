@@ -4,7 +4,10 @@ import { render } from 'preact'
 
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { dayjs } from './context'
-import { renderTemplateInBlock, renderTemplateView, renderView } from './logic'
+import {
+    renderTemplateInBlock, renderTemplateView, renderView,
+    templateMacroStringForBlock, templateMacroStringForPage,
+} from './logic'
 import {
     indexOfNth, lockOn, p, sleep,
     cleanMacroArg, parseReference, isEmptyString,
@@ -270,62 +273,32 @@ async function main() {
 function registerBlockContextCopyCommand(label: string, commandName: string) {
     logseq.Editor.registerBlockContextMenuItem(
         label, async (e) => {
-            const block = await logseq.Editor.getBlock(e.uuid)
-            if (!block) {
+            const macro = await templateMacroStringForBlock(e.uuid)
+            if (!macro) {
                 console.debug(p`Assertion error: block should exists`, e.uuid)
                 return
             }
 
-            const templateName = PropertiesUtils.getProperty(
-                block, PropertiesUtils.templateProperty
-            ).text
-            let templateRef = templateName
-            if (!templateRef) {
-                const uuidExisted = PropertiesUtils.hasProperty(block.content, PropertiesUtils.idProperty)
-                if (!uuidExisted)
-                    logseq.Editor.upsertBlockProperty(e.uuid, PropertiesUtils.idProperty, e.uuid)
-                templateRef = `((${e.uuid}))`
-            }
-
-            let command = RendererMacro.command(commandName).arg(templateRef)
-
-            const templateUsage = PropertiesUtils.getTemplateUsageString(block, {cleanMarkers: true})
-            if (templateUsage)
-                command = command.arg(templateUsage, {raw: true})
-
             window.focus()  // need to make an interactions with clipboard
-            await navigator.clipboard.writeText(command.toString())
+            await navigator.clipboard.writeText(macro)
 
-            await logseq.UI.showMsg('Copied to clipboard',
-                'success', {timeout: 5000})
+            await logseq.UI.showMsg('Copied to clipboard', 'success', {timeout: 5000})
     })
 }
 
 function registerPageContextCopyCommand(label: string, commandName: string) {
     logseq.App.registerPageMenuItem(
         label, async ({ page: pageName }) => {
-            const pageRefString = `[[${pageName}]]`
-            const pageRef = parseReference(pageRefString)!
-            const page = await getPage(pageRef)
-            if (!page) {
+            const command = await templateMacroStringForPage(pageName)
+            if (!command) {
                 console.debug(p`Assertion error: page should exists`, pageName)
                 return
-            }
-
-            let command = RendererMacro.command(commandName).arg(pageRefString)
-
-            const block = await getPageFirstBlock(pageRef)
-            if (block) {
-                const templateUsage = PropertiesUtils.getTemplateUsageString(block, {cleanMarkers: true})
-                if (templateUsage)
-                    command = command.arg(templateUsage, {raw: true})
             }
 
             window.focus()  // need to make an interactions with clipboard
             await navigator.clipboard.writeText(command.toString())
 
-            await logseq.UI.showMsg('Copied to clipboard',
-                'success', {timeout: 5000})
+            await logseq.UI.showMsg('Copied to clipboard', 'success', {timeout: 5000})
     })
 }
 

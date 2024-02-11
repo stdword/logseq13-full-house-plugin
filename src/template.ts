@@ -7,7 +7,7 @@ import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'
 import {
     p, IBlockNode, walkBlockTree, coerceToBool, LogseqReferenceAccessType,
-    PropertiesUtils, Properties
+    PropertiesUtils, Properties, unquote
 } from './utils'
 
 
@@ -51,12 +51,45 @@ export interface ITemplate {
 }
 
 export class Template implements ITemplate {
+    static readonly carriagePositionMarker = '{|}'
+
     public block: BlockEntity
     public name: string
     public includingParent: boolean
     public accessedVia: LogseqReferenceAccessType
 
     private _initialized: boolean
+
+    static getUsageString(
+        block: BlockEntity,
+        opts: { cleanMarkers?: boolean } = {cleanMarkers: false},
+    ): string {
+        let usage = PropertiesUtils.getProperty(
+                block, PropertiesUtils.templateUsageProperty
+            ).text
+        if (!usage)
+            return ''
+
+        usage = Template.cleanUsageString(usage, { cleanMarkers: opts.cleanMarkers })
+
+        return usage
+    }
+    static cleanUsageString(
+        value: string,
+        opts: { cleanMarkers?: boolean } = {cleanMarkers: false},
+    ) {
+        // value can be `quoted` or ``double quoted``
+        value = unquote(value, '``')
+        value = unquote(value, '``')
+
+        if (opts.cleanMarkers) {
+            // supports only two markers, so left intact any others
+            value = value.replace(Template.carriagePositionMarker, '')
+            value = value.replace(Template.carriagePositionMarker, '')
+        }
+
+        return value
+    }
 
     constructor(
         block: BlockEntity, args: {

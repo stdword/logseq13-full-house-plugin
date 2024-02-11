@@ -5,6 +5,7 @@ import fuzzysort from 'fuzzysort'
 
 import './insert.css'
 import { PropertiesUtils, RendererMacro, setEditingCursorSelection, sleep, unquote } from '../utils'
+import { Template } from '../template'
 
 
 export const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
@@ -47,7 +48,7 @@ async function prepareDataLogic(): Promise<Data> {
             else if (lowerLabel === 'template')
                 item.label = 'Template'
 
-            item.usage = PropertiesUtils.cleanTemplateUsageString(item.usage, {cleanMarkers: false})
+            item.usage = Template.cleanUsageString(item.usage, {cleanMarkers: false})
 
             return item
         })
@@ -139,8 +140,8 @@ async function insertLogic(
 
     const selectionPositions = [] as number[]
     for (const marker of [
-        PropertiesUtils.carriagePositionMarker,
-        PropertiesUtils.carriagePositionMarker,
+        Template.carriagePositionMarker,
+        Template.carriagePositionMarker,
     ]) {
         const position = content.indexOf(marker)
         if (position !== -1) {
