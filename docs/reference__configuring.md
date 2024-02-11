@@ -165,50 +165,39 @@ See arguments' [*Reference*](reference__args.md) for syntax details.
 
 <!-- panels:start -->
 <!-- div:left-panel -->
-Rendering template ``c.page.name``:
+Example:
 
 <!-- div:right-panel -->
 <!-- tabs:start -->
+#### ***Template «test»***
+` ``c.page.name`` `
+
 #### ***Command***
 `{{renderer :template, test}}`
-
-#### ***Rendered***
-Test Page
-<!-- tabs:end -->
-
-<!-- tabs:start -->
-#### ***Command***
 `{{renderer :template, test, :page [[Another Page]]}}`
 
 #### ***Rendered***
+Test Page \
 Another Page
+
 <!-- tabs:end -->
 
 <!-- div:left-panel -->
-Specifying page with **comma** «,» in name for template `c.page.name`:
+Specifying page with **comma** «,» in its name:
 
 <!-- div:right-panel -->
 <!-- tabs:start -->
+#### ***Template «test»***
+` ``c.page.name`` `
+
 #### ***Command***
 `{{renderer :template, test, :page [[One, Two]]}}`
-
-#### ***Rendered***
-ERROR: No such page **[[One**
-<!-- tabs:end -->
-
-<!-- tabs:start -->
-#### ***Command***
 `{{renderer :template, test, :page "[[One, Two]]"}}`
-
-#### ***Rendered***
-ERROR: No such page **"[[One**
-<!-- tabs:end -->
-
-<!-- tabs:start -->
-#### ***Command***
 `{{renderer :template, test, ":page [[One, Two]]"}}`
 
 #### ***Rendered***
+ERROR: No such page **[[One** \
+ERROR: No such page **"[[One** \
 One, Two
 <!-- tabs:end -->
 
@@ -221,22 +210,19 @@ See arguments' [*Reference*](reference__args.md) for syntax details.
 
 <!-- panels:start -->
 <!-- div:left-panel -->
-Rendering template ``c.block.content``:
+Example:
 
 <!-- div:right-panel -->
 <!-- tabs:start -->
+#### ***Template «test»***
+` ``c.block.content`` `
+
 #### ***Command***
 `{{renderer :template, test}}`
-
-#### ***Rendered***
-{{renderer :template, test}}
-<!-- tabs:end -->
-
-<!-- tabs:start -->
-#### ***Command***
 `{{renderer :template, test, :block ((64e61063-1689-483f-903f-409766d81b2e))}}`
 
 #### ***Rendered***
+{{renderer :template, test}} \
 Another's block content
 <!-- tabs:end -->
 
@@ -252,12 +238,12 @@ Use it when you need to **nest** a command inside another template and prevent i
 
 <!-- div:right-panel -->
 <!-- tabs:start -->
-#### ***Template «nested»***
-``c.page.name``
-
 #### ***Template***
 Delayed rendering: \
-*`{{renderer :template, nested, :delay-until-rendered}}`*
+*{{renderer :template, nested, :delay-until-rendered}}*
+
+#### ***Template «nested»***
+` ``c.page.name`` `
 
 #### ***Rendered***
 Delayed rendering: \

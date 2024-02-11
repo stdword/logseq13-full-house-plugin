@@ -1,7 +1,60 @@
 ## `ref` :id=ref
-TODO
+Make a reference to page (`[[name]]`) or block (`((uuid))`).
 
-## `bref` :id=bref
+?> Could be used implicitly with [` ``[...]`` `](reference__syntax.md#reference-interpolation-syntax) syntax
+
+`ref(obj, label?)`
+- `obj` is one of the following items:
+    - page name
+    - page context
+    - block uuid
+    - block context
+    - dayjs object
+    - date ISO string (YYYY-MM-DD)
+- `label`: custom label for the reference (optional)
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+Example:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+`ref('page name')` \
+`ref(c.currentPage)` \
+`ref('64e61063-1689-483f-903f-409766d81b2e')` \
+`ref(c.block)` \
+`ref(date.tomorrow)` \
+`ref('2020-01-01')`
+
+#### ***Rendered***
+[[page name]] \
+[[page name]] \
+((64e61063-1689-483f-903f-409766d81b2e)) \
+((64e61063-1689-483f-903f-409766d81b2e)) \
+[[2023-08-12 Sat]] \
+[[2020-01-01 Wed]]
+<!-- tabs:end -->
+
+<!-- div:left-panel -->
+Additional usage:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+` ``['page name']`` `
+`ref('the long page name', 'page')`
+
+#### ***Rendered***
+[[page name]] \
+[[page]]
+<!-- tabs:end -->
+
+<!-- panels:end -->
+
+
+
+## `tag` :id=tag
 TODO
 
 ## `embed` :id=embed
@@ -55,12 +108,12 @@ TODO
 Getting dates via natural language processing.
 
 - `query`: string representation of NLP date
-- `moment`: moment to base relative dates on (default: `'now'`)
+- `moment`: zero point to base relative dates on (default: `'now'`)
     - Use `'page'` to set relative moment to current journal's day
         - Acts like `'now'` if page is not a journal page
     - To set any custom moment use:
-        - String in ISO format: `'2020-01-01'`
-        - Dayjs object: `date.tomorrow`
+        - String in ISO format (e.g `'2020-01-01'`)
+        - Dayjs object (e.g. `date.tomorrow`). See [*date.from*](#date-from) for details
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -73,8 +126,8 @@ Standard Logseq syntax: `<% in two days %>` \
 Plugin syntax: ` ``[ date.nlp('in two days') ]`` `
 
 #### ***Rendered***
-Standard Logseq syntax: [[2023-08-12]] \
-Plugin syntax: [[2023-08-12]]
+Standard Logseq syntax: [[2023-08-12 Sat]] \
+Plugin syntax: [[2023-08-12 Sat]]
 <!-- tabs:end -->
 
 
@@ -88,8 +141,8 @@ Tomorrow: ` ``[ date.nlp('in two days', date.yesterday) ]`` ` \
 The next day after date: ` ``[ date.nlp('tomorrow', '2020-01-01') ]`` `
 
 #### ***Rendered***
-Tomorrow: [[2023-08-13]] \
-The next day after date: [[2020-01-02]]
+Tomorrow: [[2023-08-13 Sun]] \
+The next day after date: [[2020-01-02 Thu]]
 <!-- tabs:end -->
 
 
@@ -102,7 +155,7 @@ In journal page `[[2020-01-01]]`:
 Next journal page: ` ``[ date.nlp('tomorrow', 'page') ]`` `
 
 #### ***Rendered***
-Next journal page: [[2020-01-02]]
+Next journal page: [[2020-01-02 Thu]]
 <!-- tabs:end -->
 
 <!-- panels:end -->

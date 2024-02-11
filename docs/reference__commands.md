@@ -8,12 +8,12 @@ Render existed template block, non-template block or page.
 1. Use `⌘t` (or `ctrl+t`) shortcut
 
 <!-- div:right-panel -->
-1. Use `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
-2. Select the `«Insert 🏛template or 🏛️view»` command
+1a. Use `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
+
+1b. Select the `«Insert 🏛template or 🏛️view»` command
 <!-- panels:end -->
 
-- Then select appropriate template
-- There are shortcut tips for usage in the footer
+2. Then select the appropriate template.
 
 ?> You cannot render non-template blocks or pages via UI. To do that use another approach:
 
@@ -65,7 +65,7 @@ See documentation [here](reference__configuring.md#configure-arguments).
 
 
 ## Render view :id=template-view-command
-Render existed template block, non-template block or page as 🏛view: rendering occurs every time the block becomes visible.
+Render existed template block, non-template block or page as 🏛view. For views rendering occurs every time the block becomes visible.
 
 !> Rendered content will not be persisted. If you need to keep it, use [render template command](#template-command) instead.
 
@@ -81,12 +81,12 @@ Another reason to use 🏛view is availability of applying custom CSS. See examp
 1. Use `⌘t` (or `ctrl+t`) shortcut
 
 <!-- div:right-panel -->
-1. Use `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
-2. Select the `«Insert 🏛template or 🏛️view»` command
+1a. Use `/`-command or *Command Palette* (`⌘⇧P` or `Ctrl+Shift+P`)
+
+1b. Select the `«Insert 🏛template or 🏛️view»` command
 <!-- panels:end -->
 
-- Then select appropriate template and hold `⌘` or `Ctrl` to insert it as view
-- There are shortcut tips for usage in the footer
+2. Then select the appropriate view. Or select the template and hold `⌘` or `Ctrl` to insert it as view.
 
 ?> You cannot render non-template blocks or pages via UI. To do that use another approach:
 

@@ -7,7 +7,7 @@ Or individual one (e.g. `c.tags`) with `{{renderer :view, "c.tags"}}`.
 
 ### `c.page` & `c.currentPage` :id=page-context
 Page contexts:
-- `c.page`: current page or page provided with `:page` [argument](reference__commands.md#page-argument)
+- `c.page`: current page or page provided with `:page` [argument](reference__configuring.md#page-argument)
 - `c.currentPage` is always the current page
 
 #### Schema
