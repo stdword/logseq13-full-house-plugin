@@ -203,6 +203,21 @@ class MldocASTtoHTMLCompiler {
                     }
                     return compiledValue ?? ''
                 }
+                case 'Tag': {
+                    const node = data.length ? data[0] : []
+                    if (node.length === 0)
+                        return ''
+
+                    let tag = ''
+                    if (node[0] === 'Plain')  // tag doesn't include spaces
+                        tag = node.at(1) ?? ''
+                    else if (node[0] === 'Link') { // tag includes spaces
+                        const refNode = node.at(1)?.url
+                        if (refNode && refNode.length && refNode[0] === 'Page_ref')
+                            tag = refNode.at(1) ?? ''
+                    }
+                    return this.createTagRef(tag)
+                }
                 case 'Link': {
                     const meta: string = data.metadata ?? ''
 
@@ -236,10 +251,10 @@ class MldocASTtoHTMLCompiler {
                                     return this.createImageLink(protocol, link, label, meta)
                                 return this.createLink(protocol, link, label)
                             }
-                            default:
-                                console.warn(p`Unknown link type:`, {type, url})
                         }
+                        console.warn(p`Unknown link type:`, {type, url})
                     }
+                    return ''
                 }
                 default:
                     console.warn(p`Unknown node type:`, {type, node})
@@ -309,6 +324,18 @@ class MldocASTtoHTMLCompiler {
                 </div>
                 ${wrapBrackets(']]')}
             </span>
+        `
+    }
+    createTagRef(name: string): string {
+        const nameID = name.toLowerCase()
+
+        return html`
+            <div style="display: inline;">
+                <a class="tag"
+                   data-ref="${nameID}"
+                   data-on-click="clickRef"
+                   >#${name}</a>
+            </div>
         `
     }
     createLink(protocol: string, link: string, label: string): string {

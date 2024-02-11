@@ -92,6 +92,56 @@ describe('ref template tag', () => {
     })
 })
 
+describe('tag template tag', () => {
+    test('strings', () => {
+        expect( tags.tag('page') ).toBe('#page')
+        expect( tags.tag('[page]') ).toBe('#[page]')
+        expect( tags.tag('[[page]]') ).toBe('#page')
+        expect( tags.tag('[[page') ).toBe('#[[page')
+
+        expect( tags.tag('page with spaces') ).toBe('#[[page with spaces]]')
+        expect( tags.tag('  page with spaces  ') ).toBe('#[[page with spaces]]')
+        expect( tags.tag('  [[page with spaces ]] ') ).toBe('#[[page with spaces ]]')
+    })
+    test('date strings', async () => {
+        await LogseqMock(null, {preferredDateFormat: 'yyyy-MM-dd EEE'})
+        expect( tags.tag('2023-01-01') ).toBe('#[[2023-01-01 Sun]]')
+        expect( tags.tag('[[2023-01-01]]') ).toBe('#2023-01-01')
+    })
+    test('dates', async () => {
+        await LogseqMock(null, {preferredDateFormat: 'yyyy-MM-dd EEE'})
+        expect( tags.tag(dayjs('2023-01-01')) ).toBe('#[[2023-01-01 Sun]]')
+
+        const now = new Date()
+        const day = now.toDateString().slice(0, 3)
+        expect( tags.tag(dayjs()) ).toBe(`#[[${toISODate(now)} ${day}]]`)
+    })
+    test('page context without api call', async () => {
+        const logseq = await LogseqMock()
+
+        const name = 'Test Page'
+        const page = new PageContext(0, name)
+
+        logseq.api.get_page.mockReturnValue({originalName: name} as unknown as void)
+
+        const r = tags.tag(page)
+        expect(logseq.api.get_page).toHaveBeenCalledTimes(0)
+        expect(r).toBe(`#[[${name}]]`)
+    })
+    test('page context with api call', async () => {
+        const logseq = await LogseqMock()
+
+        const name = 'Test Page'
+        const page = new PageContext(0)
+
+        logseq.api.get_page.mockReturnValue({originalName: name} as unknown as void)
+
+        const r = tags.tag(page)
+        expect(logseq.api.get_page).toHaveBeenCalled()
+        expect(r).toBe(`#[[${name}]]`)
+    })
+})
+
 describe('embed template tag', () => {
     test('strings', async () => {
         expect( tags.embed('page') ).toBe('{{embed [[page]]}}')

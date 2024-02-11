@@ -41,6 +41,14 @@ function _ref(name: string, label: string | null = null): string {
 function _is_ref(item: string): boolean {
     return item.startsWith('[[') && item.endsWith(']]')
 }
+function _tag(name: string): string {
+    if (!(name.startsWith('[[') && name.endsWith(']]')) && name.search(/\s/) !== -1)
+        name = `[[${name}]]`
+    return '#' + name
+}
+function _is_tag(item: string): boolean {
+    return item.startsWith('#')
+}
 function _bref(uuid: string, label: string | null = null): string {
     const item = `((${uuid}))`
     if (label !== null)
@@ -73,9 +81,6 @@ function ref(item: string | BlockContext | PageContext | Dayjs, label: string | 
         if (item.name)
             return _ref(item.name, label)
 
-        // TODO: need async support for filter function in «eta»
-        // const page = await getPage({type: 'id', value: item.id} as LogseqReference)
-
         // @ts-expect-error
         const page = top!.logseq.api.get_page(item.id)
         return _ref(page?.originalName ?? '', label)
@@ -103,6 +108,37 @@ function ref(item: string | BlockContext | PageContext | Dayjs, label: string | 
         return _ref(date.format('page'), label)
 
     return _ref(str, label)
+}
+function tag(item: string | PageContext | Dayjs): string {
+    item = item ?? ''
+
+    if (item instanceof dayjs) {
+        // @ts-expect-error
+        item = item.toPage() as string
+        return _tag(item)
+    }
+
+    if (item instanceof PageContext) {
+        if (item.name)
+            return _tag(item.name)
+
+        // @ts-expect-error
+        const page = top!.logseq.api.get_page(item.id)
+        return _tag(page?.originalName ?? '')
+    }
+
+    const str = _asString(item).trim()
+    if (_is_tag(str))
+        return str
+    if (_is_ref(str))
+        return _tag(str.slice(2, -2))
+
+    // check for the case `ref(today)` or `ref('YYYY-MM-DD')`
+    const date = _asDateString(str)
+    if (date)
+        return _tag(date.format('page'))
+
+    return _tag(str)
 }
 function bref(item: any): string {
     // @ts-expect-error
@@ -174,7 +210,7 @@ function fill(
  }
 function zeros(value: string | number, width: number = 2): string {
     return fill(value, '0', width)
- }
+}
 function spaces(value: string | number, width: number, align: 'left' | 'right' | 'center' = 'right'): string {
     return fill(value, ' ', width, align)
 }
@@ -412,7 +448,7 @@ export function getTemplateTagsContext(context: ILogseqContext) {
     const datesContext = getTemplateTagsDatesContext()
 
     return new Context({
-        ref, bref, embed,
+        ref, bref, tag, embed,
         empty, when, fill, zeros, spaces,
 
         yesterday: datesContext.yesterday,
@@ -447,5 +483,5 @@ export function getTemplateTagsContext(context: ILogseqContext) {
 }
 
 export const _private = {
-    ref, embed, empty, when, fill, zeros, spaces,
+    ref, tag, embed, empty, when, fill, zeros, spaces,
 }

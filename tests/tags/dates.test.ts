@@ -8,7 +8,7 @@ import { toISODate } from '@src/utils'
 describe('string dates values', () => {
     test('ok iso format', async () => {
         await LogseqMock(null, {preferredDateFormat: 'YYYY-MM-DD'})
-        const tags = getTemplateTagsContext({} as ILogseqContext)
+        const tags = getTemplateTagsContext({} as ILogseqContext) as any
 
         expect( tags.yesterday ).toBe(dayjs().subtract(1, 'day').format('page'))
         expect( tags.tomorrow ).toBe(dayjs().add(1, 'day').format('page'))
@@ -18,7 +18,7 @@ describe('string dates values', () => {
     })
     test('ok date objects', async () => {
         await LogseqMock(null, {preferredDateFormat: 'YYYY-MM-DD'})
-        const tags = getTemplateTagsContext({} as ILogseqContext)
+        const tags = getTemplateTagsContext({} as ILogseqContext) as any
 
         const yesterday = new Date()
         yesterday.setDate(yesterday.getDate() - 1)

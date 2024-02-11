@@ -55,7 +55,37 @@ Additional usage:
 
 
 ## `tag` :id=tag
-TODO
+Make a tag reference to page (`#name`).
+
+`tag(obj)`
+- `obj` is one of the following items:
+    - page name
+    - page context
+    - dayjs object
+    - date ISO string (YYYY-MM-DD)
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+Example:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+`tag('name')` \
+`tag(c.currentPage)` \
+`tag(date.tomorrow)` \
+`tag('2020-01-01')`
+
+#### ***Rendered***
+#name \
+#[[page name]] \
+#[[2023-08-12 Sat]] \
+#[[2020-01-01 Wed]]
+<!-- tabs:end -->
+
+<!-- panels:end -->
+
+
 
 ## `embed` :id=embed
 TODO
