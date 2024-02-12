@@ -2,12 +2,12 @@ import '@logseq/libs'
 import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import { RenderingSyntax } from './extensions/customized_eta'
-import { ILogseqContext, BlockContext, Context, dayjs, ArgsContext } from './context'
+import { ILogseqContext, BlockContext, Context, ArgsContext } from './context'
 import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'
 import {
     p, IBlockNode, walkBlockTree, coerceToBool, LogseqReferenceAccessType,
-    PropertiesUtils, Properties, unquote
+    PropertiesUtils, Properties, unquote, splitMacroArgs
 } from './utils'
 
 
@@ -43,6 +43,7 @@ import {
 
 export interface ITemplate {
     name: string
+    includingParent: boolean
 
     getArgProperties(): Properties
     render(context: ILogseqContext): Promise<IBlockNode>
@@ -60,6 +61,12 @@ export class Template implements ITemplate {
 
     private _initialized: boolean
 
+    static getUsageArgs(block: BlockEntity): string[] {
+        const usage = Template.getUsageString(block, {cleanMarkers: true})
+        if (usage)
+            return splitMacroArgs(usage)
+        return []
+    }
     static getUsageString(
         block: BlockEntity,
         opts: { cleanMarkers?: boolean } = {cleanMarkers: false},
@@ -89,6 +96,9 @@ export class Template implements ITemplate {
         }
 
         return value
+    }
+    static getArgProperties(block: BlockEntity) {
+        return PropertiesUtils.getProperties(block, ArgsContext.propertyPrefix).values
     }
 
     constructor(
@@ -174,6 +184,7 @@ export class Template implements ITemplate {
 
         const blockContext = BlockContext.createFromEntity(this.block)
         context.template = new Context({
+            _obj: this,
             name: this.name,
             includingParent: this.includingParent,
             block: blockContext,
@@ -204,12 +215,13 @@ export class Template implements ITemplate {
         })
     }
     getArgProperties() {
-        return PropertiesUtils.getProperties(this.block, ArgsContext.propertyPrefix).values
+        return Template.getArgProperties(this.block)
     }
 }
 
 export class InlineTemplate implements ITemplate {
-    public name: string = '__inline__'
+    public name = '__inline__'
+    public includingParent = true
     public body: string
 
     constructor(body: string) {

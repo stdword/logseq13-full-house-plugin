@@ -367,8 +367,8 @@ export function cleanMacroArg(
     return escapeMacroArg(arg, {quote: false, escape: true})
 }
 export function splitMacroArgs(args: string) {
-    // source: https://stackoverflow.com/a/11457952
-    return Array.from(args.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) ?? [])
+    // source: https://stackoverflow.com/a/53774647
+    return args.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
 }
 
 type LogseqProperty = { name: string, text: string, refs: string[] }

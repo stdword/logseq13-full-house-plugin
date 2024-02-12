@@ -12,7 +12,7 @@ import {
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
     LogseqReference, p, parseReference, RendererMacro, splitMacroArgs, unquote, walkBlockTree
 } from './utils'
-import { compileTemplateView, getTemplate, getTemplateBlock, templateMacroStringForBlock } from './logic'
+import { compileTemplateView, getArgsContext, getTemplate, getTemplateBlock, templateMacroStringForBlock } from './logic'
 import { StateError } from './errors'
 import { ITemplate, Template } from './template'
 
@@ -160,7 +160,7 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
     return `{{embed ${r}}}`
 }
 
-async function _template(ref: LogseqReference, args: string[]): Promise<string> {
+async function _include__template(context: ILogseqContext, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
     let block: BlockEntity
     try {
         [block, ] = await getTemplateBlock(ref)
@@ -170,17 +170,15 @@ async function _template(ref: LogseqReference, args: string[]): Promise<string> 
 
     let command = RendererMacro.command('template').arg(ref.value as string)
 
-    if (args.length !== 0)
-        command = command.args(args)
-    else {
-        const templateUsage = Template.getUsageString(block, {cleanMarkers: true})
-        if (templateUsage)
-            command = command.arg(templateUsage, {raw: true})
-    }
+    if (!args)
+        args = Template.getUsageArgs(block)
+    if (layoutMode)
+        args.push(`:transcluded-from ${context.template!.block.id}`)
+    command = command.args(args)
 
     return command.toString()
 }
-async function _view(context: ILogseqContext, ref: LogseqReference, args: string[]): Promise<string> {
+async function _include__view(context: ILogseqContext, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
     let template: Template
     try {
         template = await getTemplate(ref)
@@ -188,33 +186,47 @@ async function _view(context: ILogseqContext, ref: LogseqReference, args: string
         return ''
     }
 
-    if (args.length === 0) {
-        const templateUsage = Template.getUsageString(template.block, {cleanMarkers: true})
-        if (templateUsage)
-            args = splitMacroArgs(templateUsage)
-    }
-    const argsContext = ArgsContext.create(template.name, args)
+    if (!args)
+        args = Template.getUsageArgs(template.block)
 
-    return compileTemplateView(
+    const argsContext = layoutMode
+        ? await getArgsContext(template, args, context.template!._obj)
+        : undefined
+
+    return await compileTemplateView(
         // @ts-expect-error
         context.identity.slot,
         template,
-        argsContext,
+        args,
         context as ILogseqCurrentContext,
+        argsContext,
     )
 }
-async function include(context: ILogseqContext, name: string, ...args: string[]) {
+async function _include(context: ILogseqContext, layoutMode: boolean, name: string, args?: string[] | string) {
     const ref = parseReference(name ?? '')
     if (!ref)
         return ''
 
-    args = args.map((arg) => arg.toString())
+    if (args !== undefined && !Array.isArray(args))
+        args = splitMacroArgs(args.toString())
+    args = args as string[] | undefined
+
+    if (args)  // runtime protection
+        args = args.map((arg) => arg.toString())
 
     if (context.mode === 'template')
-        return _template(ref, args)
+        return await _include__template(context, layoutMode, ref, args)
     else if (context.mode === 'view')
-        return _view(context, ref, args)
+        return await _include__view(context, layoutMode, ref, args)
+
+    console.debug(p`Unknown rendering mode: ${context.mode}`)
     return ''
+}
+async function include(context: ILogseqContext, name: string, args?: string[] | string) {
+    return await _include(context, false, name, args)
+}
+async function layout(context: ILogseqContext, name: string, args?: string[] | string) {
+    return await _include(context, true, name, args)
 }
 
 function empty(obj: any, fallback: any = ''): any {
@@ -496,14 +508,14 @@ export function getTemplateTagsDatesContext() {
     return {
         yesterday, today, tomorrow, time,
 
-        date: {
+        date: new Context({
             yesterday: yesterdayObj,
             today: todayObj.startOf('day'),
             now: todayObj,
             tomorrow: tomorrowObj,
 
             from: dayjs,
-        },
+        }),
     }
 }
 export function getTemplateTagsContext(context: ILogseqContext) {
@@ -517,6 +529,9 @@ export function getTemplateTagsContext(context: ILogseqContext) {
         today: datesContext.today,
         tomorrow: datesContext.tomorrow,
         time: datesContext.time,
+
+        include: bindContext(include, context),
+        layout: bindContext(layout, context),
 
         query: new Context({
             refs: new Context({
@@ -537,7 +552,6 @@ export function getTemplateTagsContext(context: ILogseqContext) {
                 page: function (entity) { return PageContext.createFromEntity(entity) },
                 block: function (entity) { return BlockContext.createFromEntity(entity) },
             }),
-            include: bindContext(include, context),
         }),
         date: Object.assign(datesContext.date, {
             nlp: bindContext(date_nlp, context),

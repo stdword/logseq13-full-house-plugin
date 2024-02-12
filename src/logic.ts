@@ -45,17 +45,30 @@ async function getCurrentContext(
     }
 }
 
-/**
- * @raises StateError: Arg `:page` doesn't exist or improperly specified
- * @raises StateError: Arg `:block` doesn't exist or improperly specified
- */
-async function getCallContext(
-    slot: string,
+export async function getArgsContext(
     template: ITemplate,
-    argsContext: ArgsContext,
-): Promise<ILogseqCallContext> {
+    args: string[],
+    precedingTemplate?: ITemplate,
+): Promise<ArgsContext> {
+    const argsContext = ArgsContext.create(template.name, args)
+
     // fulfill args with template arg-props
     const argsProps = template.getArgProperties()
+
+    if (!precedingTemplate) {
+        const blockID = argsContext['transcluded-from']
+        if (blockID) {
+            const block = await logseq.Editor.getBlock(Number(blockID))
+            if (block) {
+                const precedingArgsProps = Template.getArgProperties(block)
+                Object.assign(argsProps, precedingArgsProps)
+            }
+        }
+    } else {  // for handling template layouts
+        const precedingArgsProps = precedingTemplate.getArgProperties()
+        Object.assign(argsProps, precedingArgsProps)
+    }
+
     for (const [ key, value ] of Object.entries(argsProps))
         if (key.startsWith(ArgsContext.propertyPrefix)) {
             const name = key.slice(ArgsContext.propertyPrefix.length)
@@ -69,6 +82,17 @@ async function getCallContext(
             }
         }
 
+    return argsContext
+}
+
+/**
+ * @raises StateError: Arg `:page` doesn't exist or improperly specified
+ * @raises StateError: Arg `:block` doesn't exist or improperly specified
+ */
+async function getCallContext(
+    slot: string,
+    argsContext: ArgsContext,
+): Promise<ILogseqCallContext> {
     // @ts-expect-error
     const contextPageRef = parseReference(argsContext.page as string ?? '')
     let contextPage: PageEntity | null = null
@@ -105,20 +129,19 @@ async function getCallContext(
         contextBlock = blockExists
     }
 
-    argsContext._hideUndefinedMode = true
     return {
         identity: new Context({ slot, key: slot.split('__', 2)[1].trim() }),
         config: await ConfigContext.get(),
 
         page: contextPage ? PageContext.createFromEntity(contextPage) : null,
         block: contextBlock ? BlockContext.createFromEntity(contextBlock) : null,
-        args: argsContext,
     }
 }
 
-async function getContext(
+async function assembleContext(
     callContext: ILogseqCallContext,
     currentContext: ILogseqCurrentContext,
+    argsContext: ArgsContext,
 ): Promise<ILogseqContext> {
     return {
         mode: currentContext.mode,
@@ -131,7 +154,7 @@ async function getContext(
         block: callContext.block || currentContext.currentBlock,
         currentBlock: currentContext.currentBlock,
 
-        args: callContext.args,
+        args: argsContext,
     }
 }
 
@@ -230,7 +253,7 @@ function showInsideMacroNotification() {
 
 async function handleNestedRendering(
     templateBlock: BlockEntity,
-    argsContext: ArgsContext,
+    args: string[],
     uuid: string,
     slot: string,
     rawCode: RendererMacro,
@@ -251,7 +274,7 @@ async function handleNestedRendering(
 
     // case: template rendering occurs via standard Logseq way
     //       https://github.com/stdword/logseq13-full-house-plugin/discussions/18
-    if (argsContext['delay-until-rendered'] && state === 'nested') {
+    if (args.includes(':delay-until-rendered') && state === 'nested') {
         const code = html`
             <i title="Rendering of this ${rawCode.name} was delayed"
                 >${rawCode.toString()}</i>
@@ -294,10 +317,8 @@ async (
     rawCode: RendererMacro,
     args: string[],
 ) => {
-    const argsContext = ArgsContext.create(templateRef.original, args)
     const template = await getTemplate(templateRef)
-
-    const handled = await handleNestedRendering(template.block, argsContext, uuid, slot, rawCode)
+    const handled = await handleNestedRendering(template.block, args, uuid, slot, rawCode)
     if (handled)
         return
 
@@ -305,9 +326,11 @@ async (
     if (!currentContext)
         return
 
-    const context = await getContext(
-        await getCallContext(slot, template, argsContext),
+    const argsContext = await getArgsContext(template, args)
+    const context = await assembleContext(
+        await getCallContext(slot, argsContext),
         currentContext,
+        argsContext,
     )
 
     let rendered: IBlockNode
@@ -376,12 +399,17 @@ async (
 export async function compileTemplateView(
     slot: string,
     template: ITemplate,
-    argsContext: ArgsContext,
+    args: string[],
     currentContext: ILogseqCurrentContext,
+    argsContext?: ArgsContext,
 ): Promise<string> {
-    const context = await getContext(
-        await getCallContext(slot, template, argsContext),
+    if (!argsContext)
+        argsContext = await getArgsContext(template, args)
+
+    const context = await assembleContext(
+        await getCallContext(slot, argsContext),
         currentContext,
+        argsContext,
     )
 
     let rendered: IBlockNode
@@ -409,7 +437,7 @@ export async function compileTemplateView(
     })
     console.debug(p`Markup compiled:`, {data: compiled})
 
-    if (compiled.content === '' && compiled.children.length === 1)
+    if (!template.includingParent && compiled.children.length === 1)
         compiled = compiled.children[0]
 
     const htmlFold = (node: IBlockNode, level = 0): string => {
@@ -457,13 +485,13 @@ async function _renderTemplateView(
     slot: string,
     blockUUID: string,
     template: ITemplate,
-    argsContext: ArgsContext,
+    args: string[],
 ) {
     const currentContext = await getCurrentContext(blockUUID, 'view')
     if (!currentContext)
         return
 
-    const view = await compileTemplateView(slot, template, argsContext, currentContext)
+    const view = await compileTemplateView(slot, template, args, currentContext)
     provideHTML(blockUUID, view, slot)
 }
 
@@ -475,13 +503,11 @@ export async function renderTemplateView(
     args: string[] = [],
 ) {
     const template = await getTemplate(templateRef)
-    const argsContext = ArgsContext.create(template.name, args)
-
-    const handled = await handleNestedRendering(template.block, argsContext, blockUUID, slot, rawCode)
+    const handled = await handleNestedRendering(template.block, args, blockUUID, slot, rawCode)
     if (handled)
         return
 
-    await _renderTemplateView(slot, blockUUID, template, argsContext)
+    await _renderTemplateView(slot, blockUUID, template, args)
 }
 
 export async function renderView(
@@ -491,8 +517,7 @@ export async function renderView(
     args: string[] = [],
 ) {
     const template = getView(viewBody)
-    const argsContext = ArgsContext.create(template.name, args)
-    await _renderTemplateView(slot, blockUUID, template, argsContext)
+    await _renderTemplateView(slot, blockUUID, template, args)
 }
 
 export async function templateMacroStringForBlock(uuid: string, isView: boolean = false): Promise<string> {

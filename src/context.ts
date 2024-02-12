@@ -4,6 +4,7 @@ import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 import {
     cleanMacroArg, LogseqReference, p, Properties, PropertiesRefs, PropertiesUtils
 } from './utils'
+import { ITemplate } from './template'
 
 // dayjs: for tests
 // import { Dayjs }  from 'dayjs'
@@ -79,6 +80,7 @@ export interface ILogseqContext extends ILogseqCallContext, ILogseqCurrentContex
     tags?: Context
     self?: BlockContext
     template?: {
+        _obj: ITemplate,
         name: string,
         includingParent: boolean,
         block: BlockContext,
