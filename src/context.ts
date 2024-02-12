@@ -108,6 +108,11 @@ export class Context {
                         return item.filterForDisplaying()
                     return item
                 })
+            else if (value instanceof dayjs)
+                // @ts-expect-error
+                value = `dayjs(${value.toISOString()})`
+            else if (value == dayjs)
+                value = 'dayjs()'
             else if (typeof value === 'function') {
                 const doc = value.toString()
                 const signature = doc.match(/function\s*\w*?\((.*?)\)\s*\{/)
