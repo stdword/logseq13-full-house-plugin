@@ -11,7 +11,7 @@ Make a reference to page (`[[name]]`) or block (`((uuid))`).
     - block context
     - dayjs object
     - date ISO string (YYYY-MM-DD)
-- `label`: custom label for the reference (optional)
+- `label`: (optional) custom label for the reference
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -231,3 +231,37 @@ TODO
 ### `.context.block` :id=dev-context-block
 TODO
 
+
+
+### `.include` :id=dev-include
+Include another template by name.
+
+`async dev.include(name, ...args?)`
+- `name`: template name. Only templates with `template::` property can be included.
+- `args`: (optional) arguments for included template. If not specified `template-usage::` property will be used to get arguments values.
+
+<!-- tabs:start -->
+#### ***Template***
+This is ` ``await dev.include('nested')`` `!
+
+#### ***Template «nested»***
+` ``c.template.name`` `
+
+#### ***Rendered***
+This is nested!
+<!-- tabs:end -->
+
+
+<!-- tabs:start -->
+#### ***Template***
+Buy list:
+` ``{_ for (const item of ['apple', 'orange', 'lemon']) { _}`` ` \
+    ` ``await dev.include('bold', item)`` ` \
+` ``{- } }`` `
+
+#### ***Template «bold»***
+` ``c.args.$1.bold()`` `
+
+#### ***Rendered***
+Buy list: **apple** **orange** **lemon**
+<!-- tabs:end -->
