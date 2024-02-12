@@ -1,4 +1,6 @@
-## `ref` :id=ref
+## `Reference operations` :id=section-refs
+
+### `ref` :id=ref
 Make a reference to page (`[[name]]`) or block (`((uuid))`).
 
 ?> Could be used implicitly with [` ``[...]`` `](reference__syntax.md#reference-interpolation-syntax) syntax
@@ -54,7 +56,7 @@ Additional usage:
 
 
 
-## `tag` :id=tag
+### `tag` :id=tag
 Make a tag reference to page (`#name`).
 
 `tag(obj)`
@@ -87,56 +89,103 @@ Example:
 
 
 
-## `embed` :id=embed
+### `embed TODO` :id=embed
+
+
+
+## `String operations` :id=section-string
+
+### `empty TODO` :id=empty
 TODO
 
-## `empty` :id=empty
+### `when TODO` :id=when
 TODO
 
-## `when` :id=when
+### `fill TODO` :id=fill
 TODO
 
-## `fill` :id=fill
+### `zeros TODO` :id=zeros
 TODO
 
-## `zeros` :id=zeros
+### `spaces TODO` :id=spaces
 TODO
 
-## `spaces` :id=spaces
+
+
+## `Nested templating` :id=section-nested
+
+### `include` :id=include
+Include another template by name.
+
+`async include(name, ...args?)`
+- `name`: template name. Only templates with `template::` property can be included.
+- `args`: (optional) arguments for included template. If not specified `template-usage::` property will be used to get arguments values.
+
+<!-- tabs:start -->
+#### ***Template***
+This is ` ``await dev.include('nested')`` `!
+
+#### ***Template «nested»***
+` ``c.template.name`` `
+
+#### ***Rendered***
+This is nested!
+<!-- tabs:end -->
+
+
+<!-- tabs:start -->
+#### ***Template***
+Buy list:
+` ``{_ for (const item of ['apple', 'orange', 'lemon']) { _}`` ` \
+    ` ``await dev.include('bold', item)`` ` \
+` ``{- } }`` `
+
+#### ***Template «bold»***
+` ``c.args.$1.bold()`` `
+
+#### ***Rendered***
+Buy list: **apple** **orange** **lemon**
+<!-- tabs:end -->
+
+
+
+## `Date constants` :id=section-date-constants
+
+### `time TODO` :id=time
 TODO
 
-## `time` :id=time
+### `yesterday TODO` :id=yesterday
 TODO
 
-## `yesterday` :id=yesterday
+### `today TODO` :id=today
 TODO
 
-## `today` :id=today
+### `tomorrow TODO` :id=tomorrow
 TODO
 
-## `tomorrow` :id=tomorrow
-TODO
 
 
 ## `date`
-### `.now` :id=date-now
+
+### `.now TODO` :id=date-now
 TODO
 
-### `.yesterday` :id=date-yesterday
+### `.yesterday TODO` :id=date-yesterday
 TODO
 
-### `.today` :id=date-today
+### `.today TODO` :id=date-today
 TODO
 
-### `.tomorrow` :id=date-tomorrow
+### `.tomorrow TODO` :id=date-tomorrow
 TODO
 
-### `.from` :id=date-from
+### `.from TODO` :id=date-from
 TODO
 
-### `.nlp(query, moment = 'now')` :id=date-nlp
+### `.nlp` :id=date-nlp
 Getting dates via natural language processing.
 
+`date.nlp(query, moment = 'now')`
 - `query`: string representation of NLP date
 - `moment`: zero point to base relative dates on (default: `'now'`)
     - Use `'page'` to set relative moment to current journal's day
@@ -191,77 +240,45 @@ Next journal page: [[2020-01-02 Thu]]
 <!-- panels:end -->
 
 
+
 ## `query.refs`
 
-### `.count` :id=query-refs-count
+### `.count TODO` :id=query-refs-count
 TODO
 
-### `.journals` :id=query-refs-journals
+### `.journals TODO` :id=query-refs-journals
 TODO
 
-### `.pages` :id=query-refs-pages
+### `.pages TODO` :id=query-refs-pages
 TODO
+
 
 
 ## `dev`
-### `.parseMarkup` :id=dev-parse-markup
+
+### `.parseMarkup TODO` :id=dev-parse-markup
 TODO
 
-### `.toHTML` :id=dev-to-html
+### `.toHTML TODO` :id=dev-to-html
 TODO
 
-### `.asset` :id=dev-asset
+### `.asset TODO` :id=dev-asset
 TODO
 
-### `.color` :id=dev-color
+### `.color TODO` :id=dev-color
 TODO
 
-### `.get` :id=dev-get
+### `.get TODO` :id=dev-get
 TODO
 
-### `.links` :id=dev-links
+### `.links TODO` :id=dev-links
 TODO
 
-### `.walkTree` :id=dev-walk-tree
+### `.walkTree TODO` :id=dev-walk-tree
 TODO
 
-### `.context.page` :id=dev-context-page
+### `.context.page TODO` :id=dev-context-page
 TODO
 
-### `.context.block` :id=dev-context-block
+### `.context.block TODO` :id=dev-context-block
 TODO
-
-
-
-### `.include` :id=dev-include
-Include another template by name.
-
-`async dev.include(name, ...args?)`
-- `name`: template name. Only templates with `template::` property can be included.
-- `args`: (optional) arguments for included template. If not specified `template-usage::` property will be used to get arguments values.
-
-<!-- tabs:start -->
-#### ***Template***
-This is ` ``await dev.include('nested')`` `!
-
-#### ***Template «nested»***
-` ``c.template.name`` `
-
-#### ***Rendered***
-This is nested!
-<!-- tabs:end -->
-
-
-<!-- tabs:start -->
-#### ***Template***
-Buy list:
-` ``{_ for (const item of ['apple', 'orange', 'lemon']) { _}`` ` \
-    ` ``await dev.include('bold', item)`` ` \
-` ``{- } }`` `
-
-#### ***Template «bold»***
-` ``c.args.$1.bold()`` `
-
-#### ***Rendered***
-Buy list: **apple** **orange** **lemon**
-<!-- tabs:end -->
