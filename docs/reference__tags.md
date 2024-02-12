@@ -112,18 +112,20 @@ TODO
 
 
 
-## `Nested templating` :id=section-nested
+## `Nesting templates` :id=section-nesting
 
-### `include` :id=include
+### `include` :id=nesting-include
 Include another template by name.
 
 `async include(name, ...args?)`
 - `name`: template name. Only templates with `template::` property can be included.
-- `args`: (optional) arguments for included template. If not specified `template-usage::` property will be used to get arguments values.
+- `args`: (optional) arguments for included template. Can be a string or an array.
+    - If not specified `template-usage::` property will be used to get default arguments' values.
+    - If you need to include template with no arguments: use empty value `[]` or `''`.
 
 <!-- tabs:start -->
 #### ***Template***
-This is ` ``await dev.include('nested')`` `!
+This is ` ``await include('nested')`` `!
 
 #### ***Template «nested»***
 ` ``c.template.name`` `
@@ -135,16 +137,72 @@ This is nested!
 
 <!-- tabs:start -->
 #### ***Template***
-Buy list:
-` ``{_ for (const item of ['apple', 'orange', 'lemon']) { _}`` ` \
-    ` ``await dev.include('bold', item)`` ` \
-` ``{- } }`` `
+Args from usage string: ` ``await include('nested')`` ` \
+No args: ` ``await include('nested', [])`` ` \
+No args: ` ``await include('nested', '')`` ` \
+Explicit args: ` ``await include('nested', ':value ARG')`` ` \
+Explicit args: ` ``await include('nested', [':value ARG', ':another TOO'])`` `
 
-#### ***Template «bold»***
+#### ***Template «nested»***
+```
+- template:: nested
+  template-usage:: :value USAGE
+  - ``c.args.value``
+```
+
+#### ***Rendered***
+Args from usage string: USAGE \
+No args: \
+No args: \
+Explicit args: ARG \
+Explicit args: ARG
+<!-- tabs:end -->
+
+
+<!-- tabs:start -->
+#### ***Template***
+Buy list: \
+` ``{ for (const item of ['apple', 'orange', 'lemon']) { }`` ` \
+    → ` ``await include('nested', item)`` ` \
+` ``{ } }`` `
+
+#### ***Template «nested»***
 ` ``c.args.$1.bold()`` `
 
 #### ***Rendered***
-Buy list: **apple** **orange** **lemon**
+Buy list: \
+    → **apple** \
+    → **orange** \
+    → **lemon**
+<!-- tabs:end -->
+
+
+
+### `layout` :id=nesting-layout
+Include another template by name. Acts like [`include`](#include) with the only difference: it preserves template [arg-properties](reference__args.md#arg-properties). Use it to inherit templates.
+
+`async layout(name, ...args?)`
+
+<!-- tabs:start -->
+#### ***Template «parent»***
+```
+- template:: parent
+  arg-value:: ORIGINAL
+  - ``c.args.value``
+```
+
+#### ***Template «child»***
+```
+- template:: child
+  arg-value:: OVERRIDED
+  - ``await include('nested')``
+  - ``await layout('nested')``
+```
+
+#### ***Rendered***
+- ORIGINAL
+- OVERRIDED
+
 <!-- tabs:end -->
 
 

@@ -21,9 +21,11 @@ Could be mixed with positional ones.
 <!-- tabs:end -->
 
 
-### `arg-`properties
+### `arg-`properties :id=arg-properties
 Arguments can have *default values* specified in template properties.
 - Property name should start with prefix `arg-`.
+
+?> You can **inherit templates** with the help of *arg-properties* and [`layout`](reference__tags.md#nesting-layout) template tag
 
 <!-- tabs:start -->
 #### ***Template***
