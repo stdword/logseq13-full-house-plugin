@@ -59,9 +59,13 @@ async function getCallContext(
     for (const [ key, value ] of Object.entries(argsProps))
         if (key.startsWith(ArgsContext.propertyPrefix)) {
             const name = key.slice(ArgsContext.propertyPrefix.length)
-            if (argsContext[name] === undefined) {
-                const bool = coerceStringToBool(value)
-                argsContext[name] = bool !== null ? bool : value
+            if (argsContext._get(name) === undefined) {
+                argsContext[name] = value
+                if (name.endsWith('?')) {
+                    const bool = coerceStringToBool(value)
+                    if (bool !== null)
+                        argsContext[name] = bool
+                }
             }
         }
 

@@ -68,12 +68,13 @@ export interface ILogseqCallContext {
     config: ConfigContext
     page: PageContext | null
     block: BlockContext | null
-    args: ArgsContext
 }
 
 export interface ILogseqContext extends ILogseqCallContext, ILogseqCurrentContext {
     page: PageContext
     block: BlockContext
+
+    args: ArgsContext
 
     tags?: Context
     self?: BlockContext
@@ -301,8 +302,8 @@ export class BlockContext extends Context {
 export class ArgsContext extends Context {
     static propertyPrefix = 'arg-'
 
+    public _obj?: ArgsContext
     public _args: string[]
-    public _hideUndefinedMode = false
 
     static parse(args: string[]): [string, string | boolean][] {
         const entries: [string, string | boolean][] = []
@@ -362,6 +363,7 @@ export class ArgsContext extends Context {
         }
 
         const instance = new ArgsContext(Object.fromEntries(entries), args)
+        instance._obj = instance
         const hideUndefinedInstance = new Proxy(instance, {
             get(target, name, receiver) {
                 const value: any = target[name]
@@ -372,7 +374,7 @@ export class ArgsContext extends Context {
                 if (typeof value !== 'function' && !name.startsWith('_'))
                     console.debug(p`Get args.${name.toString()} :: ${value}`)
 
-                if (target._hideUndefinedMode && value === undefined)
+                if (value === undefined)
                     return ''
 
                 return value
@@ -383,6 +385,12 @@ export class ArgsContext extends Context {
     constructor(data: {[index: string]: any}, args: string[]) {
         super(data)
         this._args = args
+        this._obj = undefined
+    }
+    _get(name: string) {
+        // to pass through hide undefined proxy
+        if (this._obj)
+            return this._obj[name]
     }
 }
 
