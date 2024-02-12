@@ -54,17 +54,26 @@ dayjs.extend(updateLocale)
 dayjs.extend(logseqPlugin)
 
 
-export interface ILogseqContext {
+export interface ILogseqCurrentContext {
+    mode: 'template' | 'view'
+    currentPage: PageContext
+    currentBlock: BlockContext
+}
+
+export interface ILogseqCallContext {
     identity: Context | {
         slot: string,
         key: string,
     }
     config: ConfigContext
-    page: PageContext
-    currentPage: PageContext
-    block: BlockContext
-    currentBlock: BlockContext
+    page: PageContext | null
+    block: BlockContext | null
     args: ArgsContext
+}
+
+export interface ILogseqContext extends ILogseqCallContext, ILogseqCurrentContext {
+    page: PageContext
+    block: BlockContext
 
     tags?: Context
     self?: BlockContext

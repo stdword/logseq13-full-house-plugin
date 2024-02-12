@@ -40,7 +40,7 @@ async function onAppSettingsChanged() {
     dayjs.updateLocale('en', {
         weekStart: 1,
     })
- }
+}
 
 async function init() {
     if (DEV) {
@@ -225,15 +225,15 @@ async function main() {
             showInsertUI(e.uuid)
         })
 
-        registerBlockContextCopyCommand('Copy as 🏛template', commandTemplateName)
-        registerPageContextCopyCommand('Copy as 🏛template', commandTemplateName)
+        registerBlockContextCopyCommand('Copy as 🏛template', false)
+        registerPageContextCopyCommand('Copy as 🏛template', false)
         handleTemplateCommand(commandTemplateName)
     }
 
     const commandTemplateViewName = 'template-view'
     {
-        registerBlockContextCopyCommand('Copy as 🏛view', commandTemplateViewName)
-        registerPageContextCopyCommand('Copy as 🏛view', commandTemplateViewName)
+        registerBlockContextCopyCommand('Copy as 🏛view', true)
+        registerPageContextCopyCommand('Copy as 🏛view', true)
         handleTemplateViewCommand(commandTemplateViewName)
     }
 
@@ -241,7 +241,10 @@ async function main() {
     {
         const commandLabel = 'Insert inline 🏛view'
         const code = 'c.page.name'
-        const commandGuide = RendererMacro.command(commandViewName).arg(`"${code}"`).toString()
+        const commandGuide = RendererMacro
+            .command(commandViewName)
+            .arg(`"${code}"`, {raw: true})
+            .toString()
 
         logseq.App.registerCommandPalette({
             key: 'insert-inline-view',
@@ -270,10 +273,10 @@ async function main() {
     await postInit()
 }
 
-function registerBlockContextCopyCommand(label: string, commandName: string) {
+function registerBlockContextCopyCommand(label: string, isView: boolean) {
     logseq.Editor.registerBlockContextMenuItem(
         label, async (e) => {
-            const macro = await templateMacroStringForBlock(e.uuid)
+            const macro = await templateMacroStringForBlock(e.uuid, isView)
             if (!macro) {
                 console.debug(p`Assertion error: block should exists`, e.uuid)
                 return
@@ -285,11 +288,10 @@ function registerBlockContextCopyCommand(label: string, commandName: string) {
             await logseq.UI.showMsg('Copied to clipboard', 'success', {timeout: 5000})
     })
 }
-
-function registerPageContextCopyCommand(label: string, commandName: string) {
+function registerPageContextCopyCommand(label: string, isView: boolean) {
     logseq.App.registerPageMenuItem(
         label, async ({ page: pageName }) => {
-            const command = await templateMacroStringForPage(pageName)
+            const command = await templateMacroStringForPage(pageName, isView)
             if (!command) {
                 console.debug(p`Assertion error: page should exists`, pageName)
                 return
@@ -310,7 +312,7 @@ async function handleRequiredRef(ref: string, refUserName: string) {
     }
 
     return parseReference(ref)!
- }
+}
 async function handleLogicErrors(func: Function) {
     try {
         await func()
@@ -324,7 +326,7 @@ async function handleLogicErrors(func: Function) {
         else
             console.error(p`${(error as Error).stack}`)
     }
- }
+}
 
 function handleTemplateCommand(commandName: string) {
     let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
@@ -350,7 +352,7 @@ function handleTemplateCommand(commandName: string) {
         })
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
- }
+}
 function handleTemplateViewCommand(commandName: string) {
     logseq.provideModel({
         async editBlock(e: any) {
@@ -423,7 +425,7 @@ function handleTemplateViewCommand(commandName: string) {
         })
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
- }
+}
 function handleViewCommand(commandName: string) {
     const unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
         const uuid = payload.uuid
@@ -446,11 +448,11 @@ function handleViewCommand(commandName: string) {
 
         console.debug(p`Rendering view`, {slot, uuid, viewBody, args})
         await handleLogicErrors(async () => {
-            await renderView(slot, uuid, viewBody, raw, args)
+            await renderView(slot, uuid, viewBody, args)
         })
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
- }
+}
 
 
 export const App = (logseq: any) => {

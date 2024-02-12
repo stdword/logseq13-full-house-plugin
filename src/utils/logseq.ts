@@ -330,7 +330,23 @@ export async function getPageFirstBlock(
     return await logseq.Editor.getBlock(block.id, {includeChildren})
 }
 
+export function escapeMacroArg(
+    arg: string, opts = {
+    quote: true,
+    escape: true,
+}): string {
+    if (opts.quote && arg.includes(',') && !(arg.startsWith('"') && arg.endsWith('"')))
+        arg = `"${arg}"`
 
+    // To deal with XSS: escape dangerous (for datascript raw queries) chars
+    const escapeMap = {
+        '"': '\\"',
+    }
+
+    const chars = Object.keys(escapeMap).join('')
+    arg = arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
+    return arg
+}
 export function cleanMacroArg(
     arg: string | null | undefined, opts = {
     escape: true,
@@ -348,16 +364,12 @@ export function cleanMacroArg(
     if (!opts.escape)
         return arg
 
-    // To deal with XSS: escape dangerous (for datascript raw queries) chars
-    const escapeMap = {
-        '"': '\\"',
-    }
-
-    const chars = Object.keys(escapeMap).join('')
-    arg = arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
-    return arg
+    return escapeMacroArg(arg, {quote: false, escape: true})
 }
-
+export function splitMacroArgs(args: string) {
+    // source: https://stackoverflow.com/a/11457952
+    return Array.from(args.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) ?? [])
+}
 
 type LogseqProperty = { name: string, text: string, refs: string[] }
 
@@ -529,8 +541,8 @@ export class Macro {
         if (!value)
             return this
 
-        if (!opts.raw && value.includes(','))
-            value = '"' + value + '"'
+        if (!opts.raw)
+            value = escapeMacroArg(value, {quote: true, escape: false})
 
         const obj = this.clone()
         obj.arguments.push(value)
@@ -543,9 +555,7 @@ export class Macro {
 
         if (!opts.raw)
             values = values.map((value) => {
-                if (value.includes(','))
-                    value = '"' + value + '"'
-                return value
+                return escapeMacroArg(value, {quote: true, escape: false})
             })
 
         const obj = this.clone()

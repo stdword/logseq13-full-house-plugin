@@ -5,7 +5,7 @@ import { LogseqMarkup } from './extensions/mldoc_ast'
 import { InlineTemplate, ITemplate, Template } from './template'
 import {
     ILogseqContext, Context, PageContext, BlockContext,
-    ArgsContext, ConfigContext,
+    ArgsContext, ConfigContext, ILogseqCurrentContext, ILogseqCallContext,
 } from './context'
 import {
     p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock,
@@ -17,15 +17,10 @@ import {
 import { RenderError, StateError, StateMessage } from './errors'
 
 
-/**
- * @raises StateError: Arg `:page` doesn't exist or improperly specified
- */
 async function getCurrentContext(
-    slot: string,
-    template: ITemplate,
     blockUUID: string,
-    argsContext: ArgsContext,
-): Promise<ILogseqContext | null> {
+    mode: ILogseqCurrentContext['mode'],
+): Promise<ILogseqCurrentContext | null> {
     if (!blockUUID) {
         // Where is uuid? It definitely should be here, but this is a bug:
         //   https://github.com/logseq/logseq/issues/8904
@@ -33,6 +28,32 @@ async function getCurrentContext(
         return null
     }
 
+    const currentBlock = await logseq.Editor.getBlock(blockUUID)
+    if (!currentBlock) {
+        console.debug(p`logseq issue → rendering non-existed block / slot`)
+        return null
+    }
+
+    const currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
+    const currentPageContext = PageContext.createFromEntity(currentPage)
+    const currentBlockContext = BlockContext.createFromEntity(currentBlock, { page: currentPageContext })
+
+    return {
+        mode,
+        currentPage: currentPageContext,
+        currentBlock: currentBlockContext,
+    }
+}
+
+/**
+ * @raises StateError: Arg `:page` doesn't exist or improperly specified
+ * @raises StateError: Arg `:block` doesn't exist or improperly specified
+ */
+async function getCallContext(
+    slot: string,
+    template: ITemplate,
+    argsContext: ArgsContext,
+): Promise<ILogseqCallContext> {
     // fulfill args with template arg-props
     const argsProps = template.getArgProperties()
     for (const [ key, value ] of Object.entries(argsProps))
@@ -80,35 +101,41 @@ async function getCurrentContext(
         contextBlock = blockExists
     }
 
-    const currentBlock = await logseq.Editor.getBlock(blockUUID)
-    if (!currentBlock) {
-        console.debug(p`logseq issue → rendering non-existed block / slot`)
-        return null
-    }
-
-    const currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
-    const currentPageContext = PageContext.createFromEntity(currentPage)
-    const currentBlockContext = BlockContext.createFromEntity(currentBlock, { page: currentPageContext })
-
     argsContext._hideUndefinedMode = true
     return {
         identity: new Context({ slot, key: slot.split('__', 2)[1].trim() }),
         config: await ConfigContext.get(),
 
-        page: contextPage ? PageContext.createFromEntity(contextPage) : currentPageContext,
-        currentPage: currentPageContext,
-
-        block: contextBlock ? BlockContext.createFromEntity(contextBlock) : currentBlockContext,
-        currentBlock: currentBlockContext,
-
+        page: contextPage ? PageContext.createFromEntity(contextPage) : null,
+        block: contextBlock ? BlockContext.createFromEntity(contextBlock) : null,
         args: argsContext,
     }
- }
+}
+
+async function getContext(
+    callContext: ILogseqCallContext,
+    currentContext: ILogseqCurrentContext,
+): Promise<ILogseqContext> {
+    return {
+        mode: currentContext.mode,
+        identity: callContext.identity,
+        config: callContext.config,
+
+        page: callContext.page || currentContext.currentPage,
+        currentPage: currentContext.currentPage,
+
+        block: callContext.block || currentContext.currentBlock,
+        currentBlock: currentContext.currentBlock,
+
+        args: callContext.args,
+    }
+}
+
 
 /**
  * @raises StateError: template doesn't exist
  */
-async function getTemplateBlock(
+export async function getTemplateBlock(
     templateRef: LogseqReference
 ): Promise<[BlockEntity, string | undefined, LogseqReferenceAccessType]> {
     let templateBlock: BlockEntity | null
@@ -144,7 +171,7 @@ async function getTemplateBlock(
     return [ templateBlock, name, accessedVia ]
  }
 
-async function getTemplate(ref: LogseqReference): Promise<Template> {
+export async function getTemplate(ref: LogseqReference): Promise<Template> {
     const [ templateBlock, name, accessedVia ] = await getTemplateBlock(ref)
 
     let includingParent: boolean | undefined
@@ -270,9 +297,14 @@ async (
     if (handled)
         return
 
-    const context = await getCurrentContext(slot, template, uuid, argsContext)
-    if (!context)
+    const currentContext = await getCurrentContext(uuid, 'template')
+    if (!currentContext)
         return
+
+    const context = await getContext(
+        await getCallContext(slot, template, argsContext),
+        currentContext,
+    )
 
     let rendered: IBlockNode
     try {
@@ -335,20 +367,18 @@ async (
 })
 
 /**
- * @raises StateError: template doesn't exist
- * @raises StateMessage: template doesn't have any content (empty)
  * @raises RenderError: template rendering error
  */
-async function _renderTemplateView(
+export async function compileTemplateView(
     slot: string,
-    blockUUID: string,
     template: ITemplate,
-    rawCode: RendererMacro,
     argsContext: ArgsContext,
-) {
-    const context = await getCurrentContext(slot, template, blockUUID, argsContext)
-    if (!context)
-        return
+    currentContext: ILogseqCurrentContext,
+): Promise<string> {
+    const context = await getContext(
+        await getCallContext(slot, template, argsContext),
+        currentContext,
+    )
 
     let rendered: IBlockNode
     try {
@@ -366,7 +396,7 @@ async function _renderTemplateView(
         )
     }
 
-    const compiled = await walkBlockTree(rendered, async (b, lvl) => {
+    let compiled = await walkBlockTree(rendered, async (b, lvl) => {
         const content = (b.content || '').toString()
         if (!content.trim())
             return ''
@@ -374,6 +404,9 @@ async function _renderTemplateView(
         return new LogseqMarkup(context).toHTML(content)
     })
     console.debug(p`Markup compiled:`, {data: compiled})
+
+    if (compiled.content === '' && compiled.children.length === 1)
+        compiled = compiled.children[0]
 
     const htmlFold = (node: IBlockNode, level = 0): string => {
         const children = () => node.children.map(
@@ -413,6 +446,20 @@ async function _renderTemplateView(
     const view = htmlFold(compiled)
     console.debug(p`View folded:`, {view})
 
+    return view
+}
+
+async function _renderTemplateView(
+    slot: string,
+    blockUUID: string,
+    template: ITemplate,
+    argsContext: ArgsContext,
+) {
+    const currentContext = await getCurrentContext(blockUUID, 'view')
+    if (!currentContext)
+        return
+
+    const view = await compileTemplateView(slot, template, argsContext, currentContext)
     provideHTML(blockUUID, view, slot)
 }
 
@@ -430,20 +477,19 @@ export async function renderTemplateView(
     if (handled)
         return
 
-    await _renderTemplateView(slot, blockUUID, template, rawCode, argsContext)
- }
+    await _renderTemplateView(slot, blockUUID, template, argsContext)
+}
 
 export async function renderView(
     slot: string,
     blockUUID: string,
     viewBody: string,
-    rawCode: RendererMacro,
     args: string[] = [],
 ) {
     const template = getView(viewBody)
     const argsContext = ArgsContext.create(template.name, args)
-    await _renderTemplateView(slot, blockUUID, template, rawCode, argsContext)
- }
+    await _renderTemplateView(slot, blockUUID, template, argsContext)
+}
 
 export async function templateMacroStringForBlock(uuid: string, isView: boolean = false): Promise<string> {
     const block = await logseq.Editor.getBlock(uuid)

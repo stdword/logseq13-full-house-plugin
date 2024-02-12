@@ -194,7 +194,7 @@ function compileBody(buff) {
     // @ts-expect-error
     const config = this.config
 
-    let returnStr = ''
+    let returnStr = 'include = undefined; includeAsync = undefined; layout = undefined;\n'
     for (const currentBlock of buff) {
         if (typeof currentBlock === 'string') {
             const str = currentBlock

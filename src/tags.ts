@@ -5,11 +5,16 @@ import * as Sherlock from 'sherlockjs'
 
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { LogseqMarkup, MLDOC_Node, resolveAssetsLink } from './extensions/mldoc_ast'
-import { BlockContext, Context, dayjs, Dayjs, ILogseqContext, PageContext }  from './context'
+import { ArgsContext, BlockContext, Context, dayjs, Dayjs, ILogseqContext, ILogseqCurrentContext, PageContext }  from './context'
 import {
+    cleanMacroArg,
+    escapeMacroArg,
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
-    LogseqReference, p, parseReference, unquote, walkBlockTree
+    LogseqReference, p, parseReference, RendererMacro, splitMacroArgs, unquote, walkBlockTree
 } from './utils'
+import { compileTemplateView, getTemplate, getTemplateBlock, templateMacroStringForBlock } from './logic'
+import { StateError } from './errors'
+import { ITemplate, Template } from './template'
 
 
 const isoDateFromat = 'YYYY-MM-DD'
@@ -153,6 +158,63 @@ function bref(item: any): string {
 function embed(item: string | BlockContext | PageContext | Dayjs): string {
     const r = ref(item)
     return `{{embed ${r}}}`
+}
+
+async function _template(ref: LogseqReference, args: string[]): Promise<string> {
+    let block: BlockEntity
+    try {
+        [block, ] = await getTemplateBlock(ref)
+    } catch (error) {  // StateError
+        return ''
+    }
+
+    let command = RendererMacro.command('template').arg(ref.value as string)
+
+    if (args.length !== 0)
+        command = command.args(args)
+    else {
+        const templateUsage = Template.getUsageString(block, {cleanMarkers: true})
+        if (templateUsage)
+            command = command.arg(templateUsage, {raw: true})
+    }
+
+    return command.toString()
+}
+async function _view(context: ILogseqContext, ref: LogseqReference, args: string[]): Promise<string> {
+    let template: Template
+    try {
+        template = await getTemplate(ref)
+    } catch (error) {  // StateMessage
+        return ''
+    }
+
+    if (args.length === 0) {
+        const templateUsage = Template.getUsageString(template.block, {cleanMarkers: true})
+        if (templateUsage)
+            args = splitMacroArgs(templateUsage)
+    }
+    const argsContext = ArgsContext.create(template.name, args)
+
+    return compileTemplateView(
+        // @ts-expect-error
+        context.identity.slot,
+        template,
+        argsContext,
+        context as ILogseqCurrentContext,
+    )
+}
+async function include(context: ILogseqContext, name: string, ...args: string[]) {
+    const ref = parseReference(name ?? '')
+    if (!ref)
+        return ''
+
+    args = args.map((arg) => arg.toString())
+
+    if (context.mode === 'template')
+        return _template(ref, args)
+    else if (context.mode === 'view')
+        return _view(context, ref, args)
+    return ''
 }
 
 function empty(obj: any, fallback: any = ''): any {
@@ -475,6 +537,7 @@ export function getTemplateTagsContext(context: ILogseqContext) {
                 page: function (entity) { return PageContext.createFromEntity(entity) },
                 block: function (entity) { return BlockContext.createFromEntity(entity) },
             }),
+            include: bindContext(include, context),
         }),
         date: Object.assign(datesContext.date, {
             nlp: bindContext(date_nlp, context),
