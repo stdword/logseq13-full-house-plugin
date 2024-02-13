@@ -296,13 +296,17 @@ function date_nlp(context: ILogseqContext, query: string, now: Dayjs | string = 
         Sherlock._setNow(null)
     else if (now === 'page')
         Sherlock._setNow(context.currentPage.day?.toDate() || null)
-    else
-        Sherlock._setNow(dayjs(now).toDate())
+    else {
+        const day = dayjs(now)
+        Sherlock._setNow(day.isValid() ? day.toDate() : null)
+    }
 
     const parsed = Sherlock.parse(query)
     const { isAllDay, eventTitle, startDate, endDate } = parsed
-    if (startDate)
-        return dayjs(startDate)
+    if (startDate) {
+        const day = dayjs(startDate)
+        return day.isValid() ? day : null
+    }
     return null
 }
 

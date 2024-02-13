@@ -1,5 +1,3 @@
-!> This documentation describes **new syntax**, introduced in `v3.0.0`. See details [here](changelog.md#new-syntax).
-
 ##  \`\`...\`\` :id=interpolation-syntax
 Use double back-tick «` `` `» to *start* and *finish* JavaScript expression.
 
@@ -41,24 +39,12 @@ Accessing [context](reference__context.md) data:
     Argument value: Unspecified
 <!-- tabs:end -->
 
-<!-- div:left-panel -->
-Falling back to inline code block in case of any errors:
-
-<!-- div:right-panel -->
-<!-- tabs:start -->
-    #### ***Template***
-    Inline code block: ` ``@some text@`` `
-
-    #### ***Rendered***
-    Inline code block: `@some text@`
-<!-- tabs:end -->
-
 <!-- panels:end -->
 
 
 
 ## \`\`[...]\`\` :id=reference-interpolation-syntax
-Use «` ``[ `» and «` ]`` `» to call [`ref`](reference__tags.md#ref) template tag in a short way.
+Use «` ``[ `» and «` ]`` `» to call [`ref`](reference__tags.md#ref) template tag in a short form.
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -87,6 +73,47 @@ Reference to current page: ` ``[c.page, "Current"]`` `
 
 #### ***Rendered***
 Reference to current page: [Current]([[Test Page]])
+<!-- tabs:end -->
+<!-- panels:end -->
+
+
+
+## \`\`@...\`\` :id=dates-nlp-syntax
+Use «` ``@ `» and «` `` `» to call [`date.nlp`](reference__tags.md#date-nlp) template tag in a short form.
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+These lines are completely the same:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+- ` ``@in two days`` `
+- ` ``ref(date.nlp('in two days'))`` `
+
+#### ***Rendered***
+- [[2023-08-14 Mon]]
+- [[2023-08-14 Mon]]
+
+<!-- tabs:end -->
+<!-- panels:end -->
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+Start from current journal page or any date:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+- Current journal: ` ``c.page.name.italics()`` `
+- ` ``@in two days, page`` `
+- ` ``@in two days, 2020-01-01`` `
+
+#### ***Rendered***
+- Current journal: *2020-01-01 Wed*
+- [[2020-01-03 Fri]]
+- [[2020-01-03 Fri]]
+
 <!-- tabs:end -->
 <!-- panels:end -->
 

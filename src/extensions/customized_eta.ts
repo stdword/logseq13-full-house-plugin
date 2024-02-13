@@ -106,6 +106,18 @@ const eta = new CustomizedEta({
             autoFilter: true,
             compileFunction: (meta, content) => `ref(${content})`,
         },
+        '``@...``': {
+            trimRight: false,
+            autoFilter: true,
+            compileFunction: (meta, content) => {
+                const parts = content.split(',')
+                let now = 'now'
+                if (parts.length > 1)
+                    now = parts.pop().trim().toLowerCase()
+                content = parts.join(',')
+                return `ref(date.nlp('${content}', '${now}'))`
+            },
+        },
         '``...``': {
             trimRight: false,
             autoFilter: true,
