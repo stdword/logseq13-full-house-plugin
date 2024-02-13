@@ -3,8 +3,6 @@
 ### `ref` :id=ref
 Make a reference to page (`[[name]]`) or block (`((uuid))`).
 
-?> Could be used implicitly with [` ``[...]`` `](reference__syntax.md#reference-interpolation-syntax) syntax
-
 `ref(obj, label?)`
 - `obj` is one of the following items:
     - page name
@@ -14,6 +12,8 @@ Make a reference to page (`[[name]]`) or block (`((uuid))`).
     - dayjs object
     - date ISO string (YYYY-MM-DD)
 - `label`: (optional) custom label for the reference
+
+?> Could be used implicitly with [` ``[...]`` `](reference__syntax.md#reference-interpolation-syntax) syntax
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -44,12 +44,13 @@ Additional usage:
 <!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Template***
-` ``['page name']`` `
-`ref('the long page name', 'page')`
+- ` ``['page name']`` `
+- `ref('the long page name', 'page')`
 
 #### ***Rendered***
-[[page name]] \
-[[page]]
+- [[page name]]
+- [[page]]
+
 <!-- tabs:end -->
 
 <!-- panels:end -->
@@ -267,6 +268,8 @@ Getting dates via natural language processing.
         - String in ISO format (e.g `'2020-01-01'`)
         - Dayjs object (e.g. `date.tomorrow`). See [*date.from*](#date-from) for details
 
+?> Could be used implicitly with [` ``@...`` `](reference__syntax.md#dates-nlp-syntax) syntax
+
 <!-- panels:start -->
 <!-- div:left-panel -->
 Equivalent of `<% in two days %>`:
@@ -274,12 +277,14 @@ Equivalent of `<% in two days %>`:
 <!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Template***
-Standard Logseq syntax: `<% in two days %>` \
-Plugin syntax: ` ``[ date.nlp('in two days') ]`` `
+- Standard Logseq syntax: `<% in two days %>`
+- Plugin syntax: ` ``[ date.nlp('in two days') ]`` `
+- Shorthand syntax: ` ``@in two days`` `
 
 #### ***Rendered***
-Standard Logseq syntax: [[2023-08-12 Sat]] \
-Plugin syntax: [[2023-08-12 Sat]]
+- Standard Logseq syntax: [[2023-08-12 Sat]]
+- Plugin syntax: [[2023-08-12 Sat]]
+- Shorthand syntax: [[2023-08-12 Sat]]
 <!-- tabs:end -->
 
 
