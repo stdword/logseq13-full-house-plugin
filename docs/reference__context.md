@@ -24,6 +24,7 @@ Page contexts:
         suffix: 'Full House Templates',
         pages: [ 'logseq', 'logseq/plugins' ]
     },
+    file: (string) 'pages/logseq___plugins___Full House Templates.md',
     isJournal: (boolean) false,
     props: {
         icon: (string) 🏛,

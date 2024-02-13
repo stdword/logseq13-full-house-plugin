@@ -183,12 +183,14 @@ export class PageContext extends Context {
 
         obj.uuid = page.uuid
 
-        // TODO: construct file
-        //   file: {id: 42234}
-        obj.file = page.file
-
-        // TODO: construct namespace
-        //   namespace: {id: 42234}
+        // @ts-expect-error
+        const path = top!.logseq.api.datascript_query(`[:find ?path
+         :where
+            [?p :block/name "${obj.name_}"]
+            [?p :block/file ?f]
+            [?f :file/path ?path]
+        ]`)?.flat().at(0)
+        obj.file = path ? path : page.file
 
         const props = PropertiesUtils.getProperties(page)
         obj.props = (new Context(props.values)) as unknown as PageContext['props']
