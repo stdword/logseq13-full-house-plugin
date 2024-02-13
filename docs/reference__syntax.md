@@ -122,6 +122,24 @@ No result: ` ``{ c.page.name }`` `
 No result:
 <!-- tabs:end -->
 
+
+<!-- div:left-panel -->
+But there are the special `out` & `outn` functions to output info within ` ``{...}`` `:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+- ` ``{ for (const i of [1, 2, 3]) out(i) }`` `
+- ` ``{ for (const i of [1, 2, 3]) outn(i) }`` `
+
+#### ***Rendered***
+- 123
+- 1 \
+  2 \
+  3
+
+<!-- tabs:end -->
+
 <!-- panels:end -->
 
 
