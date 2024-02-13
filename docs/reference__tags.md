@@ -66,11 +66,6 @@ Make a tag reference to page (`#name`).
     - dayjs object
     - date ISO string (YYYY-MM-DD)
 
-<!-- panels:start -->
-<!-- div:left-panel -->
-Example:
-
-<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Template***
 `tag('name')` \
@@ -85,11 +80,31 @@ Example:
 #[[2020-01-01 Wed]]
 <!-- tabs:end -->
 
-<!-- panels:end -->
 
 
+### `embed` :id=embed
+Call an `embed` macro for pages `{{embed [[page]] }}` or blocks `{{embed ((uuid...)) }}`.
 
-### `embed TODO` :id=embed
+`embed(obj)`
+- `obj`: one of the allowed objects for [`ref`](#ref)
+
+<!-- tabs:start -->
+#### ***Template***
+`embed('page name')` \
+`embed(c.currentPage)` \
+`embed('64e61063-1689-483f-903f-409766d81b2e')` \
+`embed(c.block)` \
+`embed(date.tomorrow)` \
+`embed('2020-01-01')`
+
+#### ***Rendered***
+{{embed [[page name]] }} \
+{{embed [[page name]] }} \
+{{embed ((64e61063-1689-483f-903f-409766d81b2e)) }} \
+{{embed ((64e61063-1689-483f-903f-409766d81b2e)) }} \
+{{embed [[2023-08-12 Sat]] }} \
+{{embed [[2020-01-01 Wed]] }}
+<!-- tabs:end -->
 
 
 
