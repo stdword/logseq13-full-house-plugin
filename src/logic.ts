@@ -51,11 +51,13 @@ export async function getArgsContext(
     precedingTemplate?: ITemplate,
 ): Promise<ArgsContext> {
     const argsContext = ArgsContext.create(template.name, args)
-
-    // fulfill args with template arg-props
     const argsProps = template.getArgProperties()
 
-    if (!precedingTemplate) {
+    // for handling template layouts
+    if (precedingTemplate) {
+        const precedingArgsProps = precedingTemplate.getArgProperties()
+        Object.assign(argsProps, precedingArgsProps)
+    } else {
         const blockID = argsContext['transcluded-from']
         if (blockID) {
             const block = await logseq.Editor.getBlock(Number(blockID))
@@ -64,11 +66,9 @@ export async function getArgsContext(
                 Object.assign(argsProps, precedingArgsProps)
             }
         }
-    } else {  // for handling template layouts
-        const precedingArgsProps = precedingTemplate.getArgProperties()
-        Object.assign(argsProps, precedingArgsProps)
     }
 
+    // fulfill args with template arg-props
     for (const [ key, value ] of Object.entries(argsProps))
         if (key.startsWith(ArgsContext.propertyPrefix)) {
             const name = key.slice(ArgsContext.propertyPrefix.length)
@@ -78,6 +78,13 @@ export async function getArgsContext(
                     const bool = coerceStringToBool(value)
                     if (bool !== null)
                         argsContext[name] = bool
+
+                    // copy to arg without «?»
+                    const name_ = name.slice(0, -1)
+                    if (argsProps[name_] === undefined &&
+                        argsContext._get(name_) === undefined
+                    )
+                        argsContext[name_] = argsContext[name]
                 }
             }
         }

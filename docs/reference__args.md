@@ -27,17 +27,60 @@ Arguments can have *default values* specified in template properties.
 
 ?> You can **inherit templates** with the help of *arg-properties* and [`layout`](reference__tags.md#nesting-layout) template tag
 
+<!-- panels:start -->
+<!-- div:left-panel -->
+Example:
+
+<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Template***
 ```
 - template:: test
   arg-icon:: 🏛
-  arg-plugin-name:: Full House Templates
-  - ``c.args.icon + c.args['plugin-name']``
+  arg-the-name:: Full House Templates
+  - ``c.args.icon + c.args['the-name']``
 ```
 #### ***Rendered***
 🏛Full House Templates
 <!-- tabs:end -->
+
+<!-- div:left-panel -->
+Arg-properties **with** the «?» at the end of the name will be coerced to a boolean value:
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+```
+- template:: test
+  arg-ok:: yes
+  arg-ok?:: yes
+  - ``c.args.ok``
+  - ``c.args['ok?']``
+```
+#### ***Rendered***
+- yes
+- true
+
+<!-- tabs:end -->
+
+<!-- div:left-panel -->
+Also the will be copied to args **without** «?» at the end of the name (if there are no collisions):
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+```
+- template:: test
+  arg-ok?:: yes
+  - ``c.args.ok``
+  - ``c.args['ok?']``
+```
+#### ***Rendered***
+- true
+- true
+
+<!-- tabs:end -->
+<!-- panels:end -->
 
 
 ## Accessing :id=accessing
