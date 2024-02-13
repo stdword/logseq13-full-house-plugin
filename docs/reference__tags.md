@@ -195,7 +195,7 @@ Buy list: \
 
 
 ### `layout` :id=nesting-layout
-Include another template by name. Acts like [`include`](#include) with the only difference: it preserves template [arg-properties](reference__args.md#arg-properties). Use it to inherit templates.
+Include another template by name. Acts like [`include`](#include) with the only difference: it preserves template [arg-properties](reference__args.md#arg-properties). Use it to **inherit templates**.
 
 `async layout(name, ...args?)`
 
