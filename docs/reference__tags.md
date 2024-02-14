@@ -357,36 +357,107 @@ Include another template by name. Acts like [`include`](#include) with the only 
 
 ## `Date constants` :id=section-date-constants
 
-### `time TODO` :id=time
-TODO
+### `time` :id=time
+String time in format: `'HH:mm'`. In local timezone.
 
-### `yesterday TODO` :id=yesterday
-TODO
+<!-- tabs:start -->
+#### ***Template***
+` ``time`` `
 
-### `today TODO` :id=today
-TODO
+#### ***Rendered***
+23:32
+<!-- tabs:end -->
 
-### `tomorrow TODO` :id=tomorrow
-TODO
+
+
+### `yesterday` :id=yesterday
+String yesterday date in ISO format: `'YYYY-MM-DD'`. In local timezone.
+
+<!-- tabs:start -->
+#### ***Template***
+` ``yesterday`` `
+
+#### ***Rendered***
+2023-08-11
+<!-- tabs:end -->
+
+
+
+### `today` :id=today
+String today date in ISO format: `'YYYY-MM-DD'`. In local timezone.
+
+<!-- tabs:start -->
+#### ***Template***
+` ``today`` `
+
+#### ***Rendered***
+2023-08-12
+<!-- tabs:end -->
+
+
+
+### `tomorrow` :id=tomorrow
+String tomorrow date in ISO format: `'YYYY-MM-DD'`. In local timezone.
+
+<!-- tabs:start -->
+#### ***Template***
+` ``tomorrow`` `
+
+#### ***Rendered***
+2023-08-13
+<!-- tabs:end -->
 
 
 
 ## `date`
 
-### `.now TODO` :id=date-now
-TODO
+### `.now` :id=date-now
+[Day.js](https://day.js.org) object with now date and time value.
 
-### `.yesterday TODO` :id=date-yesterday
-TODO
+<!-- tabs:start -->
+#### ***Template***
+Local timezone: ` ``date.now`` (``time``) ` \
+UTC: ` ``date.now.toString()`` ` \
+UTC ISO: ` ``date.now.toISOString()`` `
 
-### `.today TODO` :id=date-today
-TODO
+#### ***Rendered***
+Local timezone: 2023-08-12 Wed (23:23) \
+UTC: Wed, 12 Aug 2023 20:23:00 GMT \
+UTC ISO: 2023-08-12T20:23:00.000Z
+<!-- tabs:end -->
 
-### `.tomorrow TODO` :id=date-tomorrow
-TODO
+### `.today` :id=date-today
+Same as [`date.now`](#date-now), but points to the starts of the day (00:00 in local timezone).
 
-### `.from TODO` :id=date-from
-TODO
+### `.yesterday` :id=date-yesterday
+Same as [`date.today`](#date-today), but for yesterday date.
+
+### `.tomorrow` :id=date-tomorrow
+Same as [`date.today`](#date-today), but for tomorrow date.
+
+
+
+
+### `.from` :id=date-from
+[Day.js](https://day.js.org) object builder. See whole documentation section [here](https://day.js.org/docs/en/parse/parse) for details.
+
+<!-- tabs:start -->
+#### ***Template***
+Timezone: ` ``date.from.tz.guess()``, ``date.from().offsetName()`` ` \
+` ``date.from('2024').toISOString()`` ` \
+` ``date.from('2024-08').toISOString()`` ` \
+` ``date.from('2024-08-12').toISOString()`` ` \
+` ``date.from('12|08|2024 (23h)', 'DD|MM|YYYY (HH[h])').toISOString()`` ` — escaping with `[]` for `h`
+
+#### ***Rendered***
+Europe/Minsk, GMT+3 \
+2023-12-31T21:00:00.000Z \
+2024-07-31T21:00:00.000Z \
+2024-08-11T21:00:00.000Z \
+2024-08-12T20:00:00.000Z — escaping with `[]` for `h`
+<!-- tabs:end -->
+
+
 
 ### `.nlp` :id=date-nlp
 Getting dates via natural language processing.
