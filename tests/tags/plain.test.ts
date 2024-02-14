@@ -191,12 +191,11 @@ describe('empty template tag', () => {
         expect( tags.empty({}) ).toBe('')
         expect( tags.empty([]) ).toBe('')
 
+        expect( tags.empty(null) ).toBe('')
         expect( tags.empty(undefined) ).toBe('')
     })
     test('non-empty values', () => {
         expect( tags.empty('page') ).toBe('page')
-
-        expect( tags.empty(null) ).toBe(null)
 
         expect( tags.empty(false) ).toBe(false)
         expect( tags.empty(true) ).toBe(true)

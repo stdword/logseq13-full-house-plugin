@@ -88,6 +88,7 @@ export async function LogseqMock(
             get_block: jest.fn(),
             get_page: jest.fn(),
             get_app_info: () => { return {} },
+            datascript_query: jest.fn(),
         },
 
         _createPage: function (name: string): PageEntity {

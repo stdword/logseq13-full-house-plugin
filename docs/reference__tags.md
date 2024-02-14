@@ -111,8 +111,33 @@ Call an `embed` macro for pages `{{embed [[page]] }}` or blocks `{{embed ((uuid.
 
 ## `String operations` :id=section-string
 
-### `empty TODO` :id=empty
-TODO
+### `empty` :id=empty
+Checks whether the object is empty or not. If it is empty it will be replaced with fallback object.
+
+`empty(obj, fallback = '') → obj, fallback`
+- `obj`: value to check for emptyness
+- `fallback`: replacement object (default: `''`)
+
+!> It is very different than JavaScript «empty» values. \
+\
+*Empty* values example: \
+`null`, `undefined`, `[]`, `{}`, `'     '`, `''`, `""`, ` `` `, `«»`, `-`, `—`, etc. \
+\
+*Non-empty* values example: \
+`0`, `false`, etc.
+
+<!-- tabs:start -->
+#### ***Template***
+` ``empty([1, 2, 3])`` ` \
+` ``empty([])`` ` \
+` ``empty([], 'empty array')`` `
+
+#### ***Rendered***
+[1, 2, 3] \
+\
+empty array
+<!-- tabs:end -->
+
 
 ### `when TODO` :id=when
 TODO

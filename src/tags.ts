@@ -229,9 +229,9 @@ async function layout(context: ILogseqContext, name: string, args?: string[] | s
     return await _include(context, true, name, args)
 }
 
-function empty(obj: any, fallback: any = ''): any {
-    if (obj === null)
-        return obj
+function empty(obj: any, fallback: any = '') {
+    if (obj === null || obj === undefined)
+        return fallback
 
     if (Array.isArray(obj) && obj.length === 0)
         return fallback
