@@ -268,7 +268,7 @@ function when(obj: any, result: any, fallback: any = '') {
     return fallback
 }
 function fill(
-    value: string,
+    value: string | number,
     char: string,
     width: number,
     align: 'left' | 'right' | 'center' = 'right',
@@ -288,10 +288,10 @@ function fill(
     const remainder = count % 2
     return char.repeat(half + remainder) + value + char.repeat(half)
  }
-function zeros(value: string, width: number) {
+function zeros(value: string | number, width: number) {
     return fill(value, '0', width)
 }
-function spaces(value: string, width: number, align: 'left' | 'right' | 'center' = 'right') {
+function spaces(value: string | number, width: number, align: 'left' | 'right' | 'center' = 'right') {
     return fill(value, ' ', width, align)
 }
 

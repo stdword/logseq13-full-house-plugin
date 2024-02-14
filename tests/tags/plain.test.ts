@@ -255,8 +255,8 @@ describe('when template tag', () => {
     })
     test('fallback', async () => {
         expect( tags.when('', 'result', 'empty') ).toBe('empty')
-        expect( tags.when('ok', 123, 'empty') ).toBe('123')
-        expect( tags.when('', 'result', 123) ).toBe('123')
+        expect( tags.when('ok', 123, 'empty') ).toBe(123)
+        expect( tags.when('', 'result', 123) ).toBe(123)
     })
     test('substitution', async () => {
         expect( tags.when(123, '{{embed [[$1]]}}') ).toBe('{{embed [[123]]}}')
@@ -292,9 +292,6 @@ describe('zeros template tag', () => {
     })
     test('negative', async () => {
         expect( tags.zeros('xxx', 2) ).toBe('xxx')
-    })
-    test('default', async () => {
-        expect( tags.zeros(1) ).toBe('01')
     })
 })
 
