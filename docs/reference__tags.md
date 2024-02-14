@@ -196,14 +196,67 @@ Root namespace: logseq
 
 
 
-### `fill TODO` :id=fill
-TODO
+### `fill` :id=fill
+Complements the input string `value` with `char` characters to reach the `width` width.
 
-### `zeros TODO` :id=zeros
-TODO
+`fill(value, char, width, align = 'right')`
+- `value`: value to complement
+- `char`: character to use as filler
+- `width`: full width of result string
+- `align`: align initial value to the *left*, *right* or *center* (default: `'right'`)
 
-### `spaces TODO` :id=spaces
-TODO
+<!-- tabs:start -->
+#### ***Template***
+«` ``fill(1, '+', 2)`` `» \
+«` ``fill(13, ' ', 4, 'center')`` `» \
+«` ``fill('x', 'y', 3, 'left')`` `»
+
+#### ***Rendered***
+«+1» \
+« 13 » \
+«xyy»
+<!-- tabs:end -->
+
+
+
+### `zeros` :id=zeros
+Shortcut for [`fill`](#fill) with zeros and right alignment.
+
+`zeros(value, width)`
+- Same as `fill(value, '0', width)`
+- `value`: value to complement
+- `width`: full width of result string
+
+<!-- tabs:start -->
+#### ***Template***
+«` ``zeros(1, 2)`` `» \
+«` ``zeros(13, 4)`` `»
+
+#### ***Rendered***
+«01» \
+«0013»
+<!-- tabs:end -->
+
+
+
+### `spaces` :id=spaces
+Shortcut for [`fill`](#fill) with spaces.
+
+`spaces(value, width, align)`
+- Same as `fill(value, ' ', width, align)`
+- `value`: value to complement
+- `width`: full width of result string
+- `align`: align initial value to the *left*, *right* or *center* (default: `'right'`)
+
+<!-- tabs:start -->
+#### ***Template***
+«` ``spaces(1, 2)`` `» \
+«` ``spaces('hey', 5, 'center')`` `»
+
+#### ***Rendered***
+« 1» \
+« hey »
+<!-- tabs:end -->
 
 
 
