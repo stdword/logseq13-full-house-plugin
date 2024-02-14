@@ -246,27 +246,27 @@ function empty(obj: any, fallback: any = '') {
 
     return obj
 }
-function when(obj: any, result: string | any, fallback: string | any = ''): string {
 function bool(value: string, fallback: any = '') {
     if (typeof value !== 'string')
         return fallback
     return coerceStringToBool(value) ?? fallback
 }
+function when(obj: any, result: any, fallback: any = '') {
     const condition = !!obj
 
     if (condition) {
         if (typeof result !== 'string')
-            return _asString(result)
+            return result
 
         const strObj = _asString(obj)
-        return _asString(result)
+        return result
             .replaceAll('${_}', strObj)
             .replaceAll('${}', strObj)
             .replaceAll('$1', strObj)
     }
 
-    return _asString(fallback)
- }
+    return fallback
+}
 function fill(
     value: string | number,
     char: string,
@@ -533,7 +533,7 @@ export function getTemplateTagsContext(context: ILogseqContext) {
 
     return new Context({
         ref, bref, tag, embed,
-        empty, when, fill, zeros, spaces,
+        empty, bool, when, fill, zeros, spaces,
 
         yesterday: datesContext.yesterday,
         today: datesContext.today,
@@ -570,5 +570,5 @@ export function getTemplateTagsContext(context: ILogseqContext) {
 }
 
 export const _private = {
-    ref, tag, embed, empty, when, fill, zeros, spaces,
+    ref, tag, embed, empty, bool, when, fill, zeros, spaces,
 }

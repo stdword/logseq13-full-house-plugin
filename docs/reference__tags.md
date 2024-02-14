@@ -139,8 +139,6 @@ empty array
 <!-- tabs:end -->
 
 
-### `when TODO` :id=when
-TODO
 
 ### `bool` :id=bool
 Checks whether the string is `true`, `false` or non-boolean.
@@ -168,6 +166,34 @@ true \
 false \
 null
 <!-- tabs:end -->
+
+
+
+### `when` :id=when
+If the object is empty (in JavaScript way) return `fallback`, otherwise return `result` (which can be based on object value).
+
+`when(obj, result, fallback = '')`
+- `obj`: value to check the emptyness
+- `result`: value for non-empty case
+    - Can contain `$1`, `${}`, `${_}`: these values will be replaces with object itself
+- `fallback`: value for empty case (default: `''`)
+
+<!-- tabs:start -->
+#### ***Template***
+This is ` ``when(c.page.day, 'journal page for $1 day', 'page')`` ` \
+Root namespace: ` ``when(c.page.name.split('/').at(0), '$1')`` `
+
+#### ***Rendered***
+*In journal page:*
+This is journal page for 2023-08-12 Sat
+Root namespace: 2023-08-12 Sat
+
+*In logseq/plugins page:*
+This is journal page
+Root namespace: logseq
+
+<!-- tabs:end -->
+
 
 
 ### `fill TODO` :id=fill
