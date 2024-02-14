@@ -97,9 +97,6 @@ export function isEmptyString(obj: string): boolean {
  }
 
 export function coerceStringToBool(str: string): boolean | null {
-    if (isEmptyString(str))
-        return null
-
     const trueValues = [
         '✅', '✔️', '☑️', '🔘',
         '+', '1',
@@ -127,7 +124,7 @@ export function coerceStringToBool(str: string): boolean | null {
         return false
 
     return null
- }
+}
 
 /* Coerce to bool:
  *  - any bool object
@@ -139,7 +136,7 @@ export function coerceToBool(
     opts?: {
         defaultForUncoercible?: boolean,
         defaultForEmpty?: boolean,
-    }): boolean | null {
+}): boolean | null {
     if (isBoolean(obj))
         return !!obj
 

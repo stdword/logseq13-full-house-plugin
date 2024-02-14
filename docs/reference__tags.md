@@ -142,6 +142,34 @@ empty array
 ### `when TODO` :id=when
 TODO
 
+### `bool` :id=bool
+Checks whether the string is `true`, `false` or non-boolean.
+
+`bool(obj, fallback = '') → true, false, fallback`
+- `obj`: value to check to be boolean
+- `fallback`: replacement object (default: `''`)
+
+!> It is very different than JavaScript «boolean» values. \
+\
+*true* values example: \
+`✅`, `+`, `1`, `v`, `yes`, `ok`, `on`, etc. \
+\
+*false* values example: \
+`❌`, `-`, `0`, `x`, `no`, `none`, `OFF`, etc.
+
+<!-- tabs:start -->
+#### ***Template***
+` ``bool('true')`` ` \
+` ``bool('f')`` ` \
+` ``bool([])`` `
+
+#### ***Rendered***
+true \
+false \
+null
+<!-- tabs:end -->
+
+
 ### `fill TODO` :id=fill
 TODO
 

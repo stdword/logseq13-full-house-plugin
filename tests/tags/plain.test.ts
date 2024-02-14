@@ -215,6 +215,34 @@ describe('empty template tag', () => {
     })
 })
 
+describe('bool template tag', () => {
+    test('true values', () => {
+        expect( tags.bool('✅') ).toBe(true)
+        expect( tags.bool('+')  ).toBe(true)
+        expect( tags.bool('1')  ).toBe(true)
+        expect( tags.bool('v')  ).toBe(true)
+        expect( tags.bool('yes')).toBe(true)
+        expect( tags.bool('ok') ).toBe(true)
+        expect( tags.bool('ON') ).toBe(true)
+    })
+    test('false values', () => {
+        expect( tags.bool('❌')  ).toBe(false)
+        expect( tags.bool('-')   ).toBe(false)
+        expect( tags.bool('0')   ).toBe(false)
+        expect( tags.bool('x')   ).toBe(false)
+        expect( tags.bool('no')  ).toBe(false)
+        expect( tags.bool('none')).toBe(false)
+        expect( tags.bool('OFF') ).toBe(false)
+    })
+    test('non-bool & fallback', () => {
+        const fallback = []
+        expect( tags.bool(' ', fallback)).toBe(fallback)
+        expect( tags.bool('', 13) ).toBe(13)
+        expect( tags.bool('""')   ).toBe('')
+        expect( tags.bool('—')    ).toBe('')
+    })
+})
+
 describe('when template tag', () => {
     test('false condition', async () => {
         expect( tags.when('', 'result') ).toBe('')

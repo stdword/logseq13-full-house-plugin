@@ -8,6 +8,7 @@ import { LogseqMarkup, MLDOC_Node, resolveAssetsLink } from './extensions/mldoc_
 import { ArgsContext, BlockContext, Context, dayjs, Dayjs, ILogseqContext, ILogseqCurrentContext, PageContext }  from './context'
 import {
     cleanMacroArg,
+    coerceStringToBool,
     escapeMacroArg,
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
     LogseqReference, p, parseReference, RendererMacro, splitMacroArgs, unquote, walkBlockTree
@@ -246,6 +247,11 @@ function empty(obj: any, fallback: any = '') {
     return obj
 }
 function when(obj: any, result: string | any, fallback: string | any = ''): string {
+function bool(value: string, fallback: any = '') {
+    if (typeof value !== 'string')
+        return fallback
+    return coerceStringToBool(value) ?? fallback
+}
     const condition = !!obj
 
     if (condition) {
