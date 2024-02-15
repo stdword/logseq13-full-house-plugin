@@ -1,5 +1,7 @@
 import { Eta } from 'eta'
-import { EtaConfig } from 'eta/dist/types/config'
+import { EtaConfig, Options } from 'eta/dist/types/config'
+import { AstObject } from 'eta/dist/types/parse'
+import { TemplateFunction } from 'eta/dist/types/compile'
 
 import * as Sherlock from 'sherlockjs'
 
@@ -10,6 +12,10 @@ import { IBlockNode, walkBlockTree } from '../utils'
 class CustomizedEta extends Eta {
     constructor(customConfig?: object) {
         super(customConfig)
+        // @ts-expect-error
+        this.compile = compile
+        // @ts-expect-error
+        this.compileToString = compileToString
         this.compileBody = compileBody
         this.parse = parse
     }
@@ -51,7 +57,6 @@ const etaForCompatibility = new Eta({
     },
 
     plugins: [], // [{processFnString: null, processAST: null, processTemplate: null}],
-    // TODO: https://github.com/nebrelbug/eta_plugin_mixins
 
     cache: false,  /** cache templates if `name` or `filename` is passed */
     cacheFilepaths: false,  /** Holds cache of resolved filepaths */
@@ -62,7 +67,12 @@ const etaForCompatibility = new Eta({
 const eta = new CustomizedEta({
     useWith: true,  /** Make data available on the global object instead of `varName` */
     varName: 'fh',  /** Name of the data object. Default "it" */
-    // functionHeader: 'const c = fh.c',  /** Raw JS code inserted in the template function. Useful for declaring global variables */
+
+    /** Raw JS code inserted in the template function. Useful for declaring global variables */
+    functionHeader: [
+        'function out(x){__eta.res+=__eta.f(x)}',
+        'function outn(x){__eta.res+=__eta.f(x)+"\\n"}',
+    ].join('\n') + '\n',
 
     autoEscape: false, /** Automatically XML-escape interpolations */
     // escapeFunction: eta.XMLEscape,
@@ -89,10 +99,9 @@ const eta = new CustomizedEta({
 
     /*
         trim: [false, 'nl'],
+        autoFilter: false,
         parseFunction: null,
         compileFunction: null,
-        autoFilter: false,
-        filterFunction: null,
     */
     parseTags: {
         '``{...}``': {
@@ -152,13 +161,20 @@ const eta = new CustomizedEta({
         },
     },
 
-    plugins: [], // [{processFnString: null, processAST: null, processTemplate: null}],
-    // TODO: https://github.com/nebrelbug/eta_plugin_mixins
+    plugins: [
+        {
+            processFnString: (fn, config) => {console.debug('ETA JS:', {fn}); return fn},
+            // processFnString: null,
+            processAST: null,
+            processTemplate: null,
+        },
+        // TODO: https://github.com/nebrelbug/eta_plugin_mixins
+    ],
 
     cache: false,  /** cache templates if `name` or `filename` is passed */
     cacheFilepaths: false,  /** Holds cache of resolved filepaths */
     views: '',  /** Directory that contains templates */
-    debug: false,  /** Pretty-format error messages (adds runtime penalties) */
+    debug: true,  /** Pretty-format error messages (adds runtime penalties) */
 })
 
 export async function isOldSyntax(block: IBlockNode) {
@@ -202,16 +218,71 @@ export class RenderingSyntax {
     }
 }
 
+const AsyncFunction = async function () {}.constructor
+function compile(this: Eta, str: string, options?: Partial<Options>): TemplateFunction {
+    const config: EtaConfig = this.config
+
+    const ctor = options && options.async ? (AsyncFunction as FunctionConstructor) : Function
+    try {
+        return new ctor(config.varName, 'options',
+            this.compileToString.call(this, str, options)
+        ) as TemplateFunction
+    } catch (e) {
+        if (e instanceof SyntaxError) {
+            const buffer: Array<AstObject> = this.parse.call(this, str)
+            let body = this.compileBody.call(this, buffer)
+            if (config.debug)
+                body = body.replaceAll(/^__eta\.line=\d+$\n/gm, '')
+            throw new EtaError(
+                'Bad template syntax\n\n' +
+                e.message + '\n' +
+                Array(e.message.length + 1).join('=') + '\n' +
+                body + '\n'
+            )
+        } else throw e
+    }
+}
+function compileToString(this: Eta, str: string, options?: Partial<Options>): string {
+    const config = this.config;
+    const isAsync = options && options.async;
+
+    const compileBody = this.compileBody;
+
+    const buffer: Array<AstObject> = this.parse.call(this, str);
+
+    let res = `${config.functionHeader}
+let __eta = {res: "", e: this.config.escapeFunction, f: this.config.filterFunction${
+    config.debug
+      ? ', line: 1, templateStr: "' +
+        str.replace(/\\|"/g, "\\$&").replace(/\r\n|\n|\r/g, "\\n") +
+        '"'
+      : ""
+  }}
+${config.debug ? "try {" : ""}${config.useWith ? "with(" + config.varName + "||{}){" : ""}
+${compileBody.call(this, buffer)}
+${config.useWith ? "}" : ""}${
+    config.debug
+      ? "} catch (e) { this.RuntimeErr(e, __eta.templateStr, __eta.line, options.filepath) }"
+      : ""
+  }
+return __eta.res
+`.trim()
+
+    if (config.plugins) {
+        for (let i = 0; i < config.plugins.length; i++) {
+            const plugin = config.plugins[i]
+            if (plugin.processFnString)
+                res = plugin.processFnString(res, config)
+        }
+    }
+
+    return res
+}
 function compileBody(buff) {
     // @ts-expect-error
     const config = this.config
 
-    let returnStr = [
-        'includeAsync = undefined;',
-        'var out = (x) => {__eta.res+=__eta.f(x)};',
-        'var outn = (x) => {__eta.res+=__eta.f(x)+"\\n"};',
-    ].join('\n') + '\n'
-
+    let returnStr = ''
     for (const currentBlock of buff) {
         if (typeof currentBlock === 'string') {
             const str = currentBlock
@@ -237,9 +308,6 @@ function compileBody(buff) {
                 returnStr += content
                 continue
             }
-
-            if (filterFunction)
-                content = `this.config.parseTags['${currentBlock.t}'].filterFunction('` + content + '\')'
 
             if (autoFilter)
                 content = '__eta.f(' + content + ')'
@@ -381,7 +449,7 @@ function parse(str) {
 }
 
 
-/* START copy from eta source code: just to support extension-ability */
+/* START copy from eta source code as is: just to support extension-ability */
 const templateLitReg = /`(?:\\[\s\S]|\${(?:[^{}]|{(?:[^{}]|{[^}]*})*})*}|(?!\${)[^\\`])*`/g;
 const singleQuoteReg = /'(?:\\[\s\w"'\\`]|[^\n\r'\\])*?'/g;
 const doubleQuoteReg = /"(?:\\[\s\w"'\\`]|[^\n\r"\\])*?"/g;
