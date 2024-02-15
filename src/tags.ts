@@ -319,20 +319,23 @@ function date_nlp(context: ILogseqContext, query: string, now: Dayjs | string = 
 
 /* query */
 function query_refsCount(context: ILogseqContext, page: PageContext | string = '') {
-    let name = page as string
+    let name = context.page.name!
     if (page instanceof PageContext)
         name = page.name!
+    else if (page)
+        name = _asString(page)
+    name = name.toLowerCase()
 
     // @ts-expect-error
     const refs = top!.logseq.api.datascript_query(`
       [:find (pull ?b [:block/uuid])
          :where
             [?b :block/refs ?r]
-            [?r :block/original-name ?rn]
-            [(= ?rn "${name || context.page.name}")]
+            [?r :block/name ?rn]
+            [(= ?rn "${name}")]
       ]
     `.trim())
-    if (!refs || refs.length === 0)
+    if (!refs)
         return 0
 
     return refs.length
@@ -342,11 +345,13 @@ function queryRefs(
     context: ILogseqContext,
     page: PageContext | string = '',
     only: 'journals' | 'pages' | '' = '',
-    flat: boolean = true,
 ) {
-    let name = page as string
+    let name = context.page.name!
     if (page instanceof PageContext)
         name = page.name!
+    else if (page)
+        name = _asString(page)
+    name = name.toLowerCase()
 
     let filterOnly = ''
     if (only === 'journals')
@@ -355,14 +360,14 @@ function queryRefs(
         filterOnly = '[?p :block/journal? false]'
 
     // @ts-expect-error
-    const refs = top!.logseq.api.datascript_query(`
+    let refs = top!.logseq.api.datascript_query(`
       [:find (pull ?p [
         [:block/journal-day :as :day]
         [:block/original-name :as :name] ])
           :where
             [?b :block/refs ?r]
-            [?r :block/original-name ?rn]
-            [(= ?rn "${name || context.page.name}")]
+            [?r :block/name ?rn]
+            [(= ?rn "${name}")]
             [?b :block/page ?p]
             ${filterOnly}
       ]
@@ -370,22 +375,27 @@ function queryRefs(
     if (!refs || refs.length === 0)
         return []
 
+    refs = refs.flat()
+
     if (only === 'journals')
         refs.sort((a, b) => b['day'] - a['day'])
 
-    return refs.flat().map((r) => {
-        if (flat)
+    return refs.map((r) => {
+        if (only === 'pages')
             return r.name
+
         if (r.day)
             r.day = PageContext.parseDay(r.day)
+        if (only === 'journals')
+            return r.day
         return r
     })
 }
 function query_journalRefs(context: ILogseqContext, page: PageContext | string = '') {
-    return queryRefs(context, page, 'journals', false)
+    return queryRefs(context, page, 'journals')
 }
 function query_pageRefs(context: ILogseqContext, page: PageContext | string = '') {
-    return queryRefs(context, page, 'pages', true)
+    return queryRefs(context, page, 'pages')
 }
 
 

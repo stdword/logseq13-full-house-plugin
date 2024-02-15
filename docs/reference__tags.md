@@ -524,14 +524,60 @@ Next journal page: [[2020-01-02 Thu]]
 
 ## `query.refs`
 
-### `.count TODO` :id=query-refs-count
-TODO
+### `.count` :id=query-refs-count
+Count the linked references for current or specified page.
 
-### `.journals TODO` :id=query-refs-journals
-TODO
+`query.refs.count(name?) → number`
 
-### `.pages TODO` :id=query-refs-pages
-TODO
+<!-- tabs:start -->
+#### ***Template***
+For current page: ` ``query.refs.count()`` ` \
+For «books» page: ` ``query.refs.count('books')`` `
+
+#### ***Rendered***
+For current page: 13 \
+For «books» page: 171
+
+<!-- tabs:end -->
+
+
+
+### `.journals` :id=query-refs-journals
+Get *descending-ordered* journal linked references for current or specified page.
+
+`query.refs.journals(name?) → array of page journal days (dayjs objects)`
+
+<!-- tabs:start -->
+#### ***Template***
+` ``query.refs.journals('books').map((day) => day.toPage()).join('\n')`` `
+
+#### ***Rendered***
+2024-01-31 Wed \
+2023-12-09 Sat \
+2023-06-26 Mon \
+2022-12-28 Wed
+
+<!-- tabs:end -->
+
+
+
+
+### `.pages` :id=query-refs-pages
+Get *unordered* non-journal linked references for current or specified page.
+
+`query.refs.pages(name?) → array of page names`
+
+<!-- tabs:start -->
+#### ***Template***
+` ``query.refs.pages('books').join('\n')`` `
+
+#### ***Rendered***
+Library \
+My Books \
+UX Crash Course \
+CS 501
+
+<!-- tabs:end -->
 
 
 
