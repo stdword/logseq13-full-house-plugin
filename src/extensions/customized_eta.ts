@@ -163,8 +163,8 @@ const eta = new CustomizedEta({
 
     plugins: [
         {
-            processFnString: (fn, config) => {console.debug('ETA JS:', {fn}); return fn},
-            // processFnString: null,
+            // processFnString: (fn, config) => {console.debug('ETA JS:', {fn}); return fn},
+            processFnString: null,
             processAST: null,
             processTemplate: null,
         },

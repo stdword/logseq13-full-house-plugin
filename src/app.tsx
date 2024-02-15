@@ -34,12 +34,17 @@ async function onAppSettingsChanged() {
     const config = await logseq.App.getUserConfigs()
     LogseqDayjsState.format = config.preferredDateFormat
 
-    // TODO base this code on logseq config
-    //    preferredLanguage
-    //    preferredStartOfWeek
-    dayjs.updateLocale('en', {
-        weekStart: 1,
-    })
+    /*
+    mon 0 1
+    tue 1 2
+    ...
+    sat 5 6
+    sun 6 0
+    */
+    const weekStart = config.preferredStartOfWeek !== undefined
+        ? (Number(config.preferredStartOfWeek) + 1) % 7
+        : 0
+    dayjs.updateLocale('en', {weekStart})
 }
 
 async function init() {
@@ -57,7 +62,6 @@ async function init() {
 
 async function postInit() {
     notifyUser()
-    await onAppSettingsChanged()
 
     logseq.on('ui:visible:changed', ({ visible }) => {
         if (visible)
