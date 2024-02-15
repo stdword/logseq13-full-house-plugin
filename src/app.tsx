@@ -105,28 +105,27 @@ function notifyUser() {
         logseq.settings!.notifications = {}
 
     // delete old notifications keys
-    delete logseq.settings!.notifications.namedContextPageArg
-    delete logseq.settings!.notifications.newTemplateSyntax
+    logseq.updateSettings({notifications: {namedContextPageArg: undefined}})
+    logseq.updateSettings({notifications: {newTemplateSyntax: undefined}})
+    logseq.updateSettings({notifications: {introducedUI: undefined}})
 
     const previousPluginVersion = logseq.settings!.notifications.previousPluginVersion
     const currentPluginVersion = logseq.baseInfo.version
 
     // Notify only old users
     if (previousPluginVersion && currentPluginVersion !== previousPluginVersion) {
-        if (!logseq.settings!.notifications.introducedUI) {
+        if (!logseq.settings!.notifications.introducedNLPSyntax) {
             logseq.UI.showMsg(
                 `[:div
                     [:p [:code "🏛 Full House Templates"]]
-                    [:p [:b "Hello, UI!"] [:br]
-                        "Introduced user-friendly way to insert templates and views: "
-                        "just press " [:code "${shortcutToOpenInsertUI[Number(isMacOS)].label}"] [:br] ]
+                    [:p [:b "New Syntax!"] [:br]
+                        "Introduced new syntax " [:code "\`\`@...\`\`"] " and various template tags." ]
                     [:p "See details "
-                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=hello-ui"}
+                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v340"}
                             "here"] "."]
-                    [:p "If you have shortcuts conflicts with other plugins, open " [:i "Settings → Keymap"] " to resolve them."]
                 ]`,
                 'info', {timeout: 60000})
-            logseq.updateSettings({notifications: {introducedUI: true}})
+            logseq.updateSettings({notifications: {introducedNLPSyntax: true}})
         }
     }
 
