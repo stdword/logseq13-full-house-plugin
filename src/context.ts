@@ -19,6 +19,7 @@ import { ITemplate } from './template'
 // import * as quarterOfYear     from 'dayjs/plugin/quarterOfYear'
 // import * as duration          from 'dayjs/plugin/duration'
 // import * as utc               from 'dayjs/plugin/utc'
+// import * as timezone          from 'dayjs/plugin/timezone'
 // import * as updateLocale      from 'dayjs/plugin/updateLocale'
 // import logseqPlugin           from './extensions/dayjs_logseq_plugin'
 //
@@ -36,6 +37,7 @@ import isoWeek           from 'dayjs/plugin/isoWeek'
 import quarterOfYear     from 'dayjs/plugin/quarterOfYear'
 import duration          from 'dayjs/plugin/duration'
 import utc               from 'dayjs/plugin/utc'
+import timezone          from 'dayjs/plugin/timezone'
 import updateLocale      from 'dayjs/plugin/updateLocale'
 import logseqPlugin      from './extensions/dayjs_logseq_plugin'
 //
@@ -51,6 +53,7 @@ dayjs.extend(isoWeek)
 dayjs.extend(quarterOfYear)
 dayjs.extend(duration)
 dayjs.extend(utc)
+dayjs.extend(timezone)
 dayjs.extend(updateLocale)
 dayjs.extend(logseqPlugin)
 
