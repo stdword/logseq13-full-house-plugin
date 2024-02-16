@@ -583,6 +583,24 @@ CS 501
 
 ## `dev`
 
+### `.uuid` :id=dev-uuid
+Generate random UUID identifier.
+
+`dev.uuid(shortForm = false)`
+- `shortForm`: use 11-digit form instead of long 32-digit one
+
+<!-- tabs:start -->
+#### ***Template***
+` ``dev.uuid()`` ` \
+` ``dev.uuid(true)`` `
+
+#### ***Rendered***
+915aa8bd-5e44-4fc7-a39b-0f0ba28191f7 \
+ped5xte85rg
+
+<!-- tabs:end -->
+
+
 ### `.parseMarkup TODO` :id=dev-parse-markup
 TODO
 

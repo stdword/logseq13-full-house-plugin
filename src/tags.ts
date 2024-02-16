@@ -400,6 +400,15 @@ function query_pageRefs(context: ILogseqContext, page: PageContext | string = ''
 
 
 /* dev */
+function dev_uuid(shortForm: boolean = false) {
+    if (shortForm) {
+        let value = Math.random().toString(36).slice(2)
+        if (value.length < 11)
+            value += '0'
+        return value
+    }
+    return crypto.randomUUID()
+}
 function parseMarkup(context: ILogseqContext, text: string): MLDOC_Node[] {
     text = _asString(text)
     return new LogseqMarkup(context).parse(text)
@@ -561,6 +570,7 @@ export function getTemplateTagsContext(context: ILogseqContext) {
         })}),
 
         dev: new Context({
+            uuid: dev_uuid,
             parseMarkup: bindContext(parseMarkup, context),
             toHTML: bindContext(toHTML, context),
             asset: bindContext(asset, context),
