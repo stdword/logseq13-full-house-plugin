@@ -6,9 +6,11 @@ import * as dayjs from 'dayjs'
 
 import { _private as tags } from '@src/tags'
 import { _private as app } from '@src/app'
-import { IBlockNode, RendererMacro, parseReference } from '@src/utils'
-import { renderTemplateInBlock } from '@src/logic'
+import { IBlockNode, LogseqReferenceAccessType, RendererMacro, parseReference } from '@src/utils'
+import { compileTemplateView, renderTemplateInBlock } from '@src/logic'
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
+import { Template } from '@src/template'
+import { BlockContext, ILogseqCurrentContext, PageContext } from '@src/context'
 
 
 let logseq: any
@@ -21,6 +23,7 @@ async function testRender(
     expected?: string,
     page?: PageEntity,
     createTemplateFunc?: Function,
+    executeRendering?: Function,
 ) {
     const name = 'test_name'
     const command = RendererMacro.command('template').arg(name)
@@ -30,10 +33,19 @@ async function testRender(
         createTemplateFunc = logseq._createTemplateBlock
     const templateBlock = createTemplateFunc!(name, syntax)
 
-    logseq.DB.datascriptQuery.mockReturnValue([templateBlock])
-    await renderTemplateInBlock('slot__test', block.uuid, parseReference(name), command, [])
+    let mockedValues = templateBlock
+    if (!Array.isArray(mockedValues))
+        mockedValues = [mockedValues]
 
-    expect(logseq.DB.datascriptQuery).toHaveBeenCalledTimes(1)
+    for (const mockedValue of mockedValues)
+        logseq.DB.datascriptQuery.mockReturnValueOnce([mockedValue])
+    if (!executeRendering)
+        executeRendering = async () => {
+            await renderTemplateInBlock('slot__test', block.uuid, parseReference(name), command, [])
+        }
+    await executeRendering()
+
+    expect(logseq.DB.datascriptQuery).toHaveBeenCalledTimes(mockedValues.length)
     if (expected !== undefined)
         expect(block.content).toBe(expected)
 
@@ -162,6 +174,10 @@ describe('template tags', () => {
     test('date.nlp relative to now in journal page', async () => {
         const page = logseq._createJournalPage('2020-10-01')
         await testRender('``date.nlp("in two days", "page")``', '2020-10-03', page) })
+
+    test('special syntax for date.nlp', async () => {
+        const page = logseq._createJournalPage('2020-10-01')
+        await testRender('``@in two days, page``', '[[2020-10-03]]', page) })
 })
 
 describe('template structure', () => {
@@ -176,7 +192,6 @@ describe('template structure', () => {
         expect(block.children[0].content).toBe('child text 1')
         expect(block.children[1].content).toBe('child text 2')
     })
-
     test('rendering children of second child block', async () => {
         const block = await testRender('parent 1', 'parent 1', undefined, (name, syntax) => {
             const block = logseq._createTemplateBlock(name, syntax)
@@ -192,5 +207,80 @@ describe('template structure', () => {
 
         expect(secondBlock.children[0].content).toBe('child text 1')
         expect(secondBlock.children[1].content).toBe('child text 2')
+    })
+    test('template inclusion', async () => {
+        await testRender('``await include("base")``', '{{renderer :template, base}}', undefined, (name, syntax) => {
+            const blockBase = logseq._createTemplateBlock('base', 'base:``c.page.name``')
+            const blockChild = logseq._createTemplateBlock(name, syntax)
+            return [blockChild, blockBase]
+        })
+    })
+    test('view inclusion', async () => {
+        const name = 'test_view'
+        const command = RendererMacro.command('template-view').arg(name)
+        const block = logseq._createBlock(command.toString())
+
+        const templateBlock = logseq._createTemplateBlock(
+            name, 'child:``await include("base")``', {argProp: 'OVERRIDED', 'arg-prop': 'OVERRIDED'}
+        )
+        const templateBlockBase = logseq._createTemplateBlock(
+            'base', 'base:``c.args.prop``', {argProp: 'BASE VALUE', 'arg-prop': 'BASE VALUE'})
+
+        const [includingParent, accessedVia] = [false, 'name' as LogseqReferenceAccessType]
+        const template = new Template(templateBlock, {name, includingParent, accessedVia})
+        await template.init()
+
+        logseq.DB.datascriptQuery.mockReturnValueOnce([templateBlockBase])
+
+        const view = await compileTemplateView(
+            'slot__test',
+            template,
+            [],
+            {
+                mode: 'view',
+                currentPage: PageContext.createFromEntity(await logseq.Editor.getPage(block.page.id)),
+                currentBlock: BlockContext.createFromEntity(block),
+            } as ILogseqCurrentContext,
+        )
+
+        expect(logseq.DB.datascriptQuery).toHaveBeenCalledTimes(1)
+
+        const expectedBase = 'base:BASE VALUE'
+        const expectedChild = `child:${expectedBase}`
+        expect(view).toBe(expectedChild)
+    })
+    test('view inheritance', async () => {
+        const name = 'test_view'
+        const command = RendererMacro.command('template-view').arg(name)
+        const block = logseq._createBlock(command.toString())
+
+        const templateBlock = logseq._createTemplateBlock(
+            name, 'child:``await layout("base")``', {argProp: 'OVERRIDED', 'arg-prop': 'OVERRIDED'}
+        )
+        const templateBlockBase = logseq._createTemplateBlock(
+            'base', 'base:``c.args.prop``', {argProp: 'BASE VALUE', 'arg-prop': 'BASE VALUE'})
+
+        const [includingParent, accessedVia] = [false, 'name' as LogseqReferenceAccessType]
+        const template = new Template(templateBlock, {name, includingParent, accessedVia})
+        await template.init()
+
+        logseq.DB.datascriptQuery.mockReturnValueOnce([templateBlockBase])
+
+        const view = await compileTemplateView(
+            'slot__test',
+            template,
+            [],
+            {
+                mode: 'view',
+                currentPage: PageContext.createFromEntity(await logseq.Editor.getPage(block.page.id)),
+                currentBlock: BlockContext.createFromEntity(block),
+            } as ILogseqCurrentContext,
+        )
+
+        expect(logseq.DB.datascriptQuery).toHaveBeenCalledTimes(1)
+
+        const expectedBase = 'base:OVERRIDED'
+        const expectedChild = `child:${expectedBase}`
+        expect(view).toBe(expectedChild)
     })
 })

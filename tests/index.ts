@@ -130,6 +130,7 @@ export async function LogseqMock(
             block: IBlockNode | string,
             parent: BlockEntity | number | null = null,
             page: PageEntity | number | null = null,
+            props: object = {},
         ): BlockEntity {
             const content = typeof block === 'string' ? block : block.content
             const children = typeof block === 'string' ? [] : block.children
@@ -142,7 +143,8 @@ export async function LogseqMock(
                 id: this._blocks.length + 1,
                 uuid: genUUID(),
                 content: content,
-                properties: {},
+                properties: props,
+                propertiesTextValues: props,
 
                 // @ts-expect-error
                 left: {},
@@ -163,11 +165,14 @@ export async function LogseqMock(
 
             return obj
         },
-        _createTemplateBlock: function (name: string, content: string) {
+        _createTemplateBlock: function (name: string, content: string, props: object) {
+            const propsContent = props
+                ? '\n' + Object.entries(props).map(([p, v]) => `${p}:: ${v}`).join('\n')
+                : ''
             const obj = logseq._createBlock({
-                content: `template:: ${name}`,
+                content: `template:: ${name}` + propsContent,
                 children: [{content: content, children: []}],
-            })
+            }, null, null, props)
             obj.properties!.template = name
             return obj
         },
