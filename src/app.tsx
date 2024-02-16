@@ -62,6 +62,7 @@ async function init() {
 
 async function postInit() {
     notifyUser()
+    await onAppSettingsChanged()  // for proper tests running
 
     logseq.on('ui:visible:changed', ({ visible }) => {
         if (visible)

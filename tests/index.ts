@@ -36,6 +36,7 @@ export async function LogseqMock(
             async getUserConfigs() {
                 const defaultConfig = {
                     preferredDateFormat: 'dd-MM-yyyy',
+                    preferredStartOfWeek: 0,
                 }
                 return Object.assign(defaultConfig, configOverride)
             }

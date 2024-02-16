@@ -129,7 +129,7 @@ describe('standard template syntax', () => {
     test('NLP relative week day', async () => {
         const today = dayjs()
         let day: dayjs.Dayjs | string = today.day(5)
-        if (day > today)
+        if (day >= today)
             day = day.subtract(1, 'week')
         day = day.format('page')
         await testRender('<% last friday %>', '[[' + day + ']]') })
