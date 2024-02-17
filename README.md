@@ -209,11 +209,6 @@ See setup instructions in [Showroom](https://github.com/stdword/logseq13-full-ho
 | [Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin) | ⚠️ partial | 🚫 buttons, 🚫 variables |
 
 
-## Roadmap
-- UI: buttons
-- UI: user input & variables
-
-
 ## Credits
 - *Inspiration*:
   - [Obsidian Templater](https://github.com/SilentVoid13/Templater) by SilentVoid13
