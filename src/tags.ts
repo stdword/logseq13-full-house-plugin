@@ -9,6 +9,7 @@ import { ArgsContext, BlockContext, Context, dayjs, Dayjs, ILogseqContext, ILogs
 import {
     cleanMacroArg,
     coerceStringToBool,
+    escape,
     escapeMacroArg,
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
     LogseqReference, p, parseReference, RendererMacro, splitMacroArgs, unquote, walkBlockTree
@@ -16,6 +17,7 @@ import {
 import { compileTemplateView, getArgsContext, getTemplate, getTemplateBlock, templateMacroStringForBlock } from './logic'
 import { StateError } from './errors'
 import { ITemplate, Template } from './template'
+import { PagesQueryBuilder } from './query'
 
 
 const isoDateFromat = 'YYYY-MM-DD'
@@ -318,6 +320,13 @@ function date_nlp(context: ILogseqContext, query: string, now: Dayjs | string = 
 
 
 /* query */
+function query_pages() {
+    return new PagesQueryBuilder()
+}
+function query_random_block() {
+
+}
+
 function query_refsCount(context: ILogseqContext, page: PageContext | string = '') {
     let name = context.page.name!
     if (page instanceof PageContext)
@@ -563,6 +572,7 @@ export function getTemplateTagsContext(context: ILogseqContext) {
         layout: bindContext(layout, context),
 
         query: new Context({
+            pages: query_pages,
             refs: new Context({
                 count: bindContext(query_refsCount, context),
                 journals: bindContext(query_journalRefs, context),
