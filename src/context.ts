@@ -2,7 +2,7 @@ import '@logseq/libs'
 import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import {
-    cleanMacroArg, LogseqReference, p, Properties, PropertiesRefs, PropertiesUtils
+    cleanMacroArg, escape, LogseqReference, p, Properties, PropertiesRefs, PropertiesUtils
 } from './utils'
 import { ITemplate } from './template'
 
@@ -106,7 +106,10 @@ export class Context {
             if (field.startsWith('_'))
                 continue
 
-            if (value instanceof Context)
+            if (value === null || value === undefined) {
+                // do nothing
+            }
+            else if (value instanceof Context)
                 value = value.filterForDisplaying()
             else if (Array.isArray(value))
                 value = value.map(item => {
@@ -126,6 +129,8 @@ export class Context {
                 if (doc.startsWith('async'))
                     value = 'async ' + value
             }
+            else if (typeof value === 'object')
+                value = value.toString()
 
             result[field] = value
         }
@@ -167,7 +172,7 @@ export class PageContext extends Context {
     }
 
     static createFromEntity(page: PageEntity) {
-        const name = page.originalName
+        const name = page.originalName || page['original-name']
         const obj = new PageContext(page.id, name)
         obj._page = page
 
@@ -186,10 +191,12 @@ export class PageContext extends Context {
 
         obj.uuid = page.uuid
 
+        const nameID = escape(obj.name_!, ['"'])
+
         // @ts-expect-error
         const path = top!.logseq.api.datascript_query(`[:find ?path
          :where
-            [?p :block/name "${obj.name_}"]
+            [?p :block/name "${nameID}"]
             [?p :block/file ?f]
             [?f :file/path ?path]
         ]`)?.flat().at(0)
@@ -201,8 +208,9 @@ export class PageContext extends Context {
 
         obj.isJournal = page['journal?']
 
-        if (page.journalDay)
-            obj.day = PageContext.parseDay(page.journalDay)
+        const day = page.journalDay || page['journal-day']
+        if (day)
+            obj.day = PageContext.parseDay(day)
         return obj
     }
     static empty() {

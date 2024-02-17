@@ -324,7 +324,7 @@ function query_refsCount(context: ILogseqContext, page: PageContext | string = '
         name = page.name!
     else if (page)
         name = _asString(page)
-    name = name.toLowerCase()
+    name = escape(name.toLowerCase(), ['"'])
 
     // @ts-expect-error
     const refs = top!.logseq.api.datascript_query(`
@@ -351,7 +351,7 @@ function queryRefs(
         name = page.name!
     else if (page)
         name = _asString(page)
-    name = name.toLowerCase()
+    name = escape(name.toLowerCase(), ['"'])
 
     let filterOnly = ''
     if (only === 'journals')

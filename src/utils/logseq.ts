@@ -1,6 +1,6 @@
 import { IBatchBlock, BlockEntity, PageEntity, BlockIdentity, EntityID } from '@logseq/libs/dist/LSPlugin.user'
 
-import { escapeForRegExp, f, indexOfNth, p, sleep } from './other'
+import { escape, escapeForRegExp, f, indexOfNth, p, sleep } from './other'
 import { isEmptyString, isInteger, isUUID, unquote } from './parsing'
 
 
@@ -256,13 +256,15 @@ export async function getBlock(
         if (!byProperty)
             return [ null, 'name' ]
 
+        const name = escape(ref.value.toString(), ['"'])
+
         const query = `
             [:find (pull ?b [*])
              :where
                 [?b :block/properties ?props]
                 [?b :block/page]
                 [(get ?props :${byProperty}) ?name]
-                [(= ?name "${ref.value}")]
+                [(= ?name "${name}")]
             ]
         `.trim()
 
@@ -303,8 +305,10 @@ export async function getPageFirstBlock(
         return null
 
     let idValue = ref.value.toString().toLowerCase()
-    if (ref.type !== 'id')
+    if (ref.type !== 'id') {
+        idValue = escape(idValue, ['"'])
         idValue = `"${idValue}"`
+    }
 
     let idField = ':block/name'
     if (ref.type === 'uuid')
@@ -419,13 +423,14 @@ export class PropertiesUtils {
 
         let refs: string[] = []
         if (obj.properties) {
-            const val = obj.properties[nameCamelCased]
+            const val = obj.properties[nameCamelCased] ?? obj.properties[name]
             refs = Array.isArray(val) ? val : []
         }
 
         let text: string = ''
-        if (obj.propertiesTextValues)
-            text = obj.propertiesTextValues[nameCamelCased] ?? ''
+        const textContainer = obj.propertiesTextValues || obj['properties-text-values']
+        if (textContainer)
+            text = textContainer[nameCamelCased] ?? textContainer[name] ?? ''
 
         return {
             name: nameCamelCased,

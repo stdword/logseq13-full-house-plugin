@@ -94,6 +94,11 @@ export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))
  }
 
+export function escape(str: string, specials: string[]) {
+    const replacer = new RegExp('(\\' + specials.join('|\\') + ')', 'g')
+    return str.replaceAll(replacer, '\\$1')
+}
+
 export function escapeForRegExp(str: string) {
     const specials = [
         // '-', '^', '$',
@@ -101,8 +106,7 @@ export function escapeForRegExp(str: string) {
         '(', ')', '[', ']', '{', '}', '\\',
     ]
 
-    const replacer = new RegExp('(\\' + specials.join('|\\') + ')', 'g')
-    return str.replaceAll(replacer, '\\$1')
+    return escape(str, specials)
 
     // alternative from MDN
     // return str.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&')
