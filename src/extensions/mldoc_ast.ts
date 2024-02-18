@@ -2,7 +2,7 @@ import { Mldoc } from 'mldoc'
 
 import { ArgsContext, ILogseqContext } from '../context'
 import { cleanMacroArg, Macro, RendererMacro } from '../utils/logseq'
-import { html, p } from '../utils/other'
+import { escapeForHTML, html, p } from '../utils/other'
 
 
 const MLDOC_OPTIONS = {
@@ -274,7 +274,7 @@ class MldocASTtoHTMLCompiler {
                     >${uuidLabel}</span>
             `
 
-        label = label.trim()
+        label = escapeForHTML(label.trim())
         if (!label) {
             if (this.context.block.uuid === uuid)
                 label = `((...))`  // self reference
@@ -304,7 +304,8 @@ class MldocASTtoHTMLCompiler {
         `
     }
     createPageRef(name: string, label: string): string {
-        label = label.trim()
+        name = escapeForHTML(name)
+        label = escapeForHTML(label.trim())
         const nameID = name.toLowerCase()
 
         const { showBrackets } = this.context.config
@@ -327,6 +328,7 @@ class MldocASTtoHTMLCompiler {
         `
     }
     createTagRef(name: string): string {
+        name = escapeForHTML(name)
         const nameID = name.toLowerCase()
 
         return html`
@@ -339,9 +341,10 @@ class MldocASTtoHTMLCompiler {
         `
     }
     createLink(protocol: string, link: string, label: string): string {
-        label = label.trim()
+        label = escapeForHTML(label.trim())
         if (protocol)
             link = `${protocol}://${link}`
+        link = escapeForHTML(link)
 
         // data-on-click is empty to prevent click event bubbling
         return html`
@@ -362,10 +365,12 @@ class MldocASTtoHTMLCompiler {
         const argsMeta = ArgsContext.parse(argsMeta_)
         const { width, height } = Object.fromEntries(argsMeta)
 
-        label = label.trim()
+        label = escapeForHTML(label.trim())
         const link_ = link
         if (protocol)
             link = `${protocol}://${link}`
+
+        link = escapeForHTML(link)
 
         return html`
                 <div class="asset-container">
