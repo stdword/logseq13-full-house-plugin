@@ -73,6 +73,7 @@ const eta = new CustomizedEta({
         'function out(x){__eta.res+=__eta.f(x)}',
         'function outn(x){__eta.res+=__eta.f(x)+"\\n"}',
     ].join('\n') + '\n',
+    bodyHeader: '_.init()',
 
     autoEscape: false, /** Automatically XML-escape interpolations */
     // escapeFunction: eta.XMLEscape,
@@ -243,12 +244,14 @@ function compile(this: Eta, str: string, options?: Partial<Options>): TemplateFu
     }
 }
 function compileToString(this: Eta, str: string, options?: Partial<Options>): string {
-    const config = this.config;
-    const isAsync = options && options.async;
+    const config = this.config
+    // @ts-expect-error
+    const bodyHeader = config.bodyHeader
+    const isAsync = options && options.async
 
-    const compileBody = this.compileBody;
+    const compileBody = this.compileBody
 
-    const buffer: Array<AstObject> = this.parse.call(this, str);
+    const buffer: Array<AstObject> = this.parse.call(this, str)
 
     let res = `${config.functionHeader}
 let __eta = {res: "", e: this.config.escapeFunction, f: this.config.filterFunction${
@@ -259,6 +262,7 @@ let __eta = {res: "", e: this.config.escapeFunction, f: this.config.filterFuncti
       : ""
   }}
 ${config.debug ? "try {" : ""}${config.useWith ? "with(" + config.varName + "||{}){" : ""}
+${bodyHeader}
 ${compileBody.call(this, buffer)}
 ${config.useWith ? "}" : ""}${
     config.debug

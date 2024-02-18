@@ -156,8 +156,12 @@ But there are the special `out` & `outn` functions to output info within ` ``{..
 <!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Template***
-- ` ``{ for (const i of [1, 2, 3]) out(i) }`` `
-- ` ``{ for (const i of [1, 2, 3]) outn(i) }`` `
+- ```javascript
+  ``{ for (const i of [1, 2, 3]) out(i) }``
+  ```
+- ```javascript
+  ``{ for (const i of [1, 2, 3]) outn(i) }``
+  ```
 
 #### ***Rendered***
 - 123
@@ -167,7 +171,77 @@ But there are the special `out` & `outn` functions to output info within ` ``{..
 
 <!-- tabs:end -->
 
+
+<!-- div:left-panel -->
+Also the `Array` type extended with helpful functions:
+- `Array.zip`
+- `Array.unique`
+- `Array.sorted`
+- `Array.groupby`
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Template***
+- ```javascript
+  ``JSON.stringify(Array.zip([1, 2, 3], ['a', 'b']))``
+  ```
+- ```javascript
+  ``[1, 2, 2, 3, 2, 1, 1].unique()``
+  ```
+
+#### ***Rendered***
+- [[1,"a"],[2,"b"]]
+- 1,2,3
+
+<!-- tabs:end -->
+
 <!-- panels:end -->
+
+<!-- tabs:start -->
+#### ***Template***
+- ```javascript
+  var items = [
+    { type: "vegetables", quantity: 5  },
+    { type: "fruit",      quantity: 1  },
+    { type: "meat",       quantity: 23 },
+    { type: "fruit",      quantity: 5  },
+    { type: "meat",       quantity: 22 },
+  ]
+  ```
+- ```javascript
+  ``items.sorted((x) => [x.type, x.quantity]).map(JSON.stringify).join('\n')``
+  ```
+- ```javascript
+  ``JSON.stringify(items.groupby((x) => x.type), null, 4)``
+  ```
+
+#### ***Rendered***
+- ```javascript
+// .sorted
+{"type": "fruit",      "quantity": 1  }
+{"type": "fruit",      "quantity": 5  }
+{"type": "meat",       "quantity": 22 }
+{"type": "meat",       "quantity": 23 }
+{"type": "vegetables", "quantity": 5  }
+```
+- ```javascript
+// .groupby
+{
+    "vegetables": [
+        {"type": "vegetables", "quantity": 5 }
+    ],
+    "fruit": [
+        { "type": "fruit", "quantity": 1 },
+        { "type": "fruit", "quantity": 5 }
+    ],
+    "meat": [
+        { "type": "meat", "quantity": 23 },
+        { "type": "meat", "quantity": 22 }
+    ]
+}
+```
+
+<!-- tabs:end -->
 
 
 

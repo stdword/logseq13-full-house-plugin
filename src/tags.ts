@@ -526,11 +526,58 @@ async function links(
     return linksInBlock
 }
 
+
+/* internal */
+function array_zip(...arr: any[]) {
+    return Array(
+        Math.min(...arr.map(a => a.length))
+    )
+    .fill(undefined)
+    .map((_, i) => arr.map(a => a[i]))
+}
+function array_unique() {
+    // @ts-expect-error
+    return [...new Set(this)]
+}
+function array_groupby(key: Function) {
+    // @ts-expect-error
+    return Object.groupBy(this, key)
+}
+function array_sorted(key: Function) {
+    // @ts-expect-error
+    return this
+        .map((x) => [(key ? key(x) : x), x])
+        .sort((a, b) => {
+            a = a[0]; b = b[0];
+            if (!Array.isArray(a)) a = [a];
+            if (!Array.isArray(b)) b = [b];
+            for (let i = 0; i < a.length; i++) {
+                const xa = a[i].toString()
+                const xb = b[i].toString()
+                const d = xa.localeCompare(xb, 'en', {numeric: true})
+                if (d !== 0) return d;
+            }
+            return 0
+        })
+        .map((p) => p[1])
+}
+
+
 function bindContext(f, context) {
     const func = f.bind(null, context)
     const signature = f.toString().replace('context, ', '')
     func.toString = () => signature
     return func
+}
+function _initContext() {
+    // @ts-expect-error
+    Array.zip = array_zip
+    // @ts-expect-error
+    Array.prototype.unique = array_unique
+    // @ts-expect-error
+    Array.prototype.groupby = array_groupby
+    // @ts-expect-error
+    Array.prototype.sorted = array_sorted
 }
 
 export function getTemplateTagsDatesContext() {
@@ -560,6 +607,11 @@ export function getTemplateTagsContext(context: ILogseqContext) {
     const datesContext = getTemplateTagsDatesContext()
 
     return new Context({
+        _: {
+            init: _initContext,
+            array_zip,
+        },
+
         ref, bref, tag, embed,
         empty, bool, when, fill, zeros, spaces,
 
