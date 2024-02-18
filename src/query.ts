@@ -1,8 +1,8 @@
 import '@logseq/libs'
+import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 
-import { escape, f, p, unspace } from './utils'
+import { escape, f, p, randomRange, unspace } from './utils'
 import { PageContext } from './context'
-
 
 
 abstract class Filter {
@@ -353,7 +353,7 @@ export class PagesQueryBuilder {
         return this._filter(new ReferenceFilter(names, only ? 'includes only' : 'includes'), false)
     }
 
-    _get(namesOnly: boolean = true) {
+    _get(namesOnly: boolean = true): PageEntity[] {
         const filters = this.filters.join('\n\n')
         const query = unspace`
             [:find ${namesOnly ? '?original-name' : '(pull ?p [*])'}
@@ -371,7 +371,9 @@ export class PagesQueryBuilder {
 
         if (!results)
             return []
-        return results.flat()
+
+        // Array.from is required here to be able to call .uniue, .groupby and other utils
+        return Array.from(results.flat())
     }
     getNames() {
         return this._get(true)
@@ -390,7 +392,38 @@ export class PagesQueryBuilder {
     }
     getRandom(wrap: boolean = true) {
         const items = this._get(false)
+        if (items.length === 0)
+            return null
         const chosen = items[Math.floor((Math.random() * items.length))]
         return wrap ? PageContext.createFromEntity(chosen) : chosen
+    }
+    getSample(count: number, wrap: boolean = true) {
+        if (count < 1)
+            return []
+
+        if (count === 1) {
+            const chosen = this.getRandom(wrap)
+            if (chosen === null)
+                return []
+            return [chosen]
+        }
+
+        const items = this._get(false)
+
+        // Fisher-Yates shuffle
+        // source: underscore.sample
+        // url: https://github.com/jashkenas/underscore/blob/ffabcd443fd784e4bc743fff1d25456f7282d531/underscore.js#L361
+        const length = items.length
+        count = Math.min(count, length)
+        const last = length - 1
+        for (let index = 0; index < count; index++) {
+            const rand = randomRange(index, last)
+            const temp = items[index]
+            items[index] = items[rand]
+            items[rand] = temp
+        }
+
+        const sample = items.slice(0, count)
+        return wrap ? sample.map(PageContext.createFromEntity) : sample
     }
 }

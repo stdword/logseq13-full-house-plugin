@@ -165,3 +165,15 @@ export function loadThemeVars(vars) {
         style.setProperty(k, vals[i])
     })
 }
+
+/**
+ * source: underscore.random
+ * url: https://github.com/jashkenas/underscore/blob/ffabcd443fd784e4bc743fff1d25456f7282d531/underscore.js#L1393
+ */
+export function randomRange(min: number, max?: number) {
+    if (max === undefined) {
+        max = min
+        min = 0
+    }
+    return min + Math.floor(Math.random() * (max - min + 1))
+}

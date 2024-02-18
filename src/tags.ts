@@ -552,8 +552,8 @@ function array_sorted(key: Function) {
             if (!Array.isArray(a)) a = [a];
             if (!Array.isArray(b)) b = [b];
             for (let i = 0; i < a.length; i++) {
-                const xa = a[i].toString()
-                const xb = b[i].toString()
+                const xa = (a[i] ?? '').toString()
+                const xb = (b[i] ?? '').toString()
                 const d = xa.localeCompare(xb, 'en', {numeric: true})
                 if (d !== 0) return d;
             }
@@ -609,7 +609,6 @@ export function getTemplateTagsContext(context: ILogseqContext) {
     return new Context({
         _: {
             init: _initContext,
-            array_zip,
         },
 
         ref, bref, tag, embed,
