@@ -45,7 +45,25 @@ export function f(strings: any, ...values: any[]): Function {
 export function html(strings: any, ...values: any[]): string {
     const raw = String.raw({raw: strings}, ...values)
     return raw.trim().replaceAll(/^\s+/gm, '').replaceAll(/>\n</g, '><')
- }
+}
+
+/**
+ * Clear spaces from multi-line string
+ * @usage
+ *     unspace`
+ *          text
+ *            - line 1
+ *            - line 2
+ *     `
+ *     =>
+ *     `text
+ *        - line 1
+ *        - line 2`
+ **/
+export function unspace(strings: any, ...values: any[]): string {
+    const raw = String.raw({raw: strings}, ...values)
+    return raw.trim().replaceAll(/^\s+/gm, '')
+}
 
 /**
  * Count substrings in string

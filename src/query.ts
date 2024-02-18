@@ -1,6 +1,6 @@
 import '@logseq/libs'
 
-import { escape, f, p } from './utils'
+import { escape, f, p, unspace } from './utils'
 import { PageContext } from './context'
 
 
@@ -13,8 +13,8 @@ abstract class Filter {
         this.value = value.trim().toLowerCase()
     }
 
-    bindNewVars(bindedVars: string[]): [string[], string[]] {
-        const missedVars = Object.keys(this.requiredVarsRules).filter((v) => !bindedVars.includes(v))
+    bindNewVars(builder: PagesQueryBuilder): [string[], string[]] {
+        const missedVars = Object.keys(this.requiredVarsRules).filter((v) => !builder.bindedVars.includes(v))
         return [missedVars, missedVars.map((v) => this.requiredVarsRules[v])]
     }
     checkArgs(builder: PagesQueryBuilder): string | null {
@@ -27,14 +27,51 @@ abstract class Filter {
     }
 
     abstract getPredicate(builder: PagesQueryBuilder): string
+    getNotPredicate(builder: PagesQueryBuilder): string {
+        return `(not ${this.getPredicate(builder)})`
+    }
 }
 
 
-class PrefixFilter extends Filter {
+class TitleFilter extends Filter {
+    operation: string
+    allowedOperations = ['=', '!=', 'starts with', 'ends with', 'includes', 'regexp']
     requiredVarsRules = {'?name': '[?p :block/name ?name]'}
 
+    constructor(value: string, operation: string) {
+        super(value)
+        this.operation = operation.trim().toLowerCase()
+    }
     getPredicate(builder: PagesQueryBuilder): string {
-        return `[(clojure.string/starts-with? ?name "${this.value}")]`
+        if (this.operation === 'regexp') {
+            const uniqID = Math.random().toString(36).slice(2)
+            const tempVarName = `?re-name-${uniqID}`
+            const value = escape(this.value, ['"', '\\'])
+            return `
+                [(re-pattern "${value}") ${tempVarName}]
+                [(re-find ${tempVarName} ?name)]
+            `.trim()
+        }
+
+        const value = escape(this.value, ['"'])
+
+        let operation = this.operation
+        if (operation === 'includes')
+            operation = 'clojure.string/includes?'
+        else if (operation === 'starts with')
+            operation = 'clojure.string/starts-with?'
+        else if (operation === 'ends with')
+            operation = 'clojure.string/ends-with?'
+
+        return `[(${operation} ?name "${value}")]`
+    }
+    getNotPredicate(builder: PagesQueryBuilder): string {
+        if (this.operation === 'regexp') {
+            const [compilation, predicate] = this.getPredicate(builder).split('\n')
+            return `${compilation}\n(not ${predicate})`
+        }
+
+        return super.getNotPredicate(builder)
     }
 }
 
@@ -47,31 +84,41 @@ class PropertyFilter extends Filter {
 
     getPredicate(builder: PagesQueryBuilder): string {
         builder.lastState = this.value  // save last property name
+
+        const propVar = `?p-${this.value}`
+        const propTextVar = `?pt-${this.value}`
+        if (builder.bindedVars.includes(propVar))
+            return ''  // property var already bound
+
+        builder.bindedVars.push(...[propVar, propTextVar])
         return `
-            [(get ?properties :${this.value}) ?p-${this.value}]
-            [(get ?properties-text :${this.value}) ?pt-${this.value}]
+            [(get ?properties :${this.value}) ${propVar}]
+            [(get ?properties-text :${this.value}) ${propTextVar}]
         `.trim()
+    }
+    getNotPredicate(builder: PagesQueryBuilder): string {
+        builder.lastState = null  // reset last property name
+        return `(not [(get ?properties :${this.value})])`
     }
 }
 
 
 class EmptyFilter extends Filter {
-    allowedOperations = ['=', '!=']
-
+    constructor() {
+        super('')
+    }
     checkArgs(builder: PagesQueryBuilder): string | null {
         if (builder.lastState === null)
             return 'Preceding property filter is required'
-        if (!this.allowedOperations.includes(this.value))
-            return `Unknown operation: ${this.value}`
         return null
     }
     getPredicate(builder: PagesQueryBuilder): string {
         const propertyName = builder.lastState
-        if (this.value === '=')
-            return `[(= ?p-${propertyName} "")]`
-        else if (this.value === '!=')
-            return `[(!= ?p-${propertyName} "")]`
-        return ''
+        return `[(= ?p-${propertyName} "")]`
+    }
+    getNotPredicate(builder: PagesQueryBuilder): string {
+        const propertyName = builder.lastState
+        return `[(!= ?p-${propertyName} "")]`
     }
 }
 
@@ -130,11 +177,11 @@ class ValueFilter extends Filter {
 
         if (this.operation === 'regexp') {
             const uniqID = Math.random().toString(36).slice(2)
-            const tempVarName = `?re-${propertyName}-${uniqID}`
+            const tempVarName = `?re-p-${propertyName}-${uniqID}`
             const value = escape(this.value, ['"', '\\'])
             return `
                 [(re-pattern "${value}") ${tempVarName}]
-                [(re-find ${tempVarName} ?pt-${propertyName})]]
+                [(re-find ${tempVarName} ?pt-${propertyName})]
             `.trim()
         }
 
@@ -150,15 +197,21 @@ class ValueFilter extends Filter {
 
         return `[(${this.operation} ?pt-${propertyName} "${value}")]`
     }
+    getNotPredicate(builder: PagesQueryBuilder): string {
+        if (this.operation === 'regexp') {
+            const [compilation, predicate] = this.getPredicate(builder).split('\n')
+            return `${compilation}\n(not ${predicate})`
+        }
+
+        return super.getNotPredicate(builder)
+    }
 }
 
 
 class ReferenceFilter extends Filter {
     values: string[]
     operation: string
-    allowedOperations = [
-        'includes', 'excludes', 'includes only',
-    ]
+    allowedOperations = ['includes', 'includes only']
 
     constructor(values: string | string[], operation: string) {
         super('')
@@ -188,10 +241,6 @@ class ReferenceFilter extends Filter {
         let operation = this.operation
         if (operation === 'includes')
             return values.map((v) => `[(contains? ?p-${propertyName} "${v}")]`).join('\n')
-        else if (operation === 'excludes') {
-            const p = values.map((v) => `[(contains? ?p-${propertyName} "${v}")]`).join('\n')
-            return `(not ${p})`
-        }
         else if (operation === 'includes only') {
             const vs = values.map((v) => `"${v}"`).join(' ')
             return `[(= ?p-${propertyName} #{${vs}})]`
@@ -221,71 +270,101 @@ export class PagesQueryBuilder {
             structuredClone(this),
         )
     }
-    _filter(f: Filter): PagesQueryBuilder {
+    _filter(f: Filter, nonInverted: boolean = true): PagesQueryBuilder {
         const message = f.checkArgs(this)
         if (message)
             throw new Error(`${f}: ${message}`)
 
-        const [newVars, binders] = f.bindNewVars(this.bindedVars)
+        const [newVars, binders] = f.bindNewVars(this)
         this.bindedVars.push(...newVars)
 
-        const predicate = [...binders, f.getPredicate(this)].join('\n')
+        const predicate = [...binders]
+        const filterPredicate = nonInverted ? f.getPredicate(this) : f.getNotPredicate(this)
+        if (filterPredicate)
+            predicate.push(filterPredicate)
 
-        this.filters.push(predicate)
+        this.filters.push(predicate.join('\n'))
         return this.clone()
     }
 
-    prefix(value: string) {
-        return this._filter(new PrefixFilter(value))
+    title(operation: string, value: string = '', nonInverted: boolean = true) {
+        if (value === '') {
+            value = operation
+            operation = 'includes'
+        }
+        value = value.toString()
+        return this._filter(new TitleFilter(value, operation), nonInverted)
+    }
+    namespace(value: string, nonInverted: boolean = true) {
+        if (value.endsWith('/'))
+            value = value.slice(0, -1)
+        value = `^${value}(?=/|$)`
+        return this._filter(new TitleFilter(value, 'regexp'), nonInverted)
+    }
+    innerNamespace(value: string, nonInverted: boolean = true) {
+        if (!value.endsWith('/'))
+            value = value + '/'
+        value = `^${value}[^/]+$`
+        return this._filter(new TitleFilter(value, 'regexp'), nonInverted)
     }
 
     property(name: string) {
         return this._filter(new PropertyFilter(name))
     }
-
-    nonEmpty() {
-        return this._filter(new EmptyFilter('!='))
+    noProperty(name: string) {
+        return this._filter(new PropertyFilter(name), false)
     }
     empty() {
-        return this._filter(new EmptyFilter('='))
+        return this._filter(new EmptyFilter())
     }
-
-    integerValue(operation: string, value: string = '') {
+    nonEmpty() {
+        return this._filter(new EmptyFilter(), false)
+    }
+    integerValue(operation: string, value: string = '', nonInverted: boolean = true) {
         if (value === '') {
             value = operation
             operation = '='
         }
         value = value.toString()
-        return this._filter(new IntegerValueFilter(value, operation))
+        return this._filter(new IntegerValueFilter(value, operation), nonInverted)
     }
-    value(operation: string, value: string = '') {
+    value(operation: string, value: string = '', nonInverted: boolean = true) {
         if (value === '') {
             value = operation
             operation = '='
         }
         value = value.toString()
-        return this._filter(new ValueFilter(value, operation))
+        return this._filter(new ValueFilter(value, operation), nonInverted)
     }
-    references(operation: string, value: string | string[] = '') {
+    reference(operation: string, value: string | string[] = '', nonInverted: boolean = true) {
         if (value === '') {
             value = operation
             operation = 'includes'
         }
-        return this._filter(new ReferenceFilter(value, operation))
+        return this._filter(new ReferenceFilter(value, operation), nonInverted)
+    }
+
+    tags(names: string | string[] = '', only: boolean = false) {
+        this._filter(new PropertyFilter('tags'))
+        return this._filter(new ReferenceFilter(names, only ? 'includes only' : 'includes'))
+    }
+    noTags(names: string | string[] = '', only: boolean = false) {
+        this._filter(new PropertyFilter('tags'))
+        return this._filter(new ReferenceFilter(names, only ? 'includes only' : 'includes'), false)
     }
 
     _get(namesOnly: boolean = true) {
         const filters = this.filters.join('\n\n')
-        const query = `
+        const query = unspace`
             [:find ${namesOnly ? '?original-name' : '(pull ?p [*])'}
              :where
                 [?p :block/original-name ?original-name]
 
                 ${filters}
             ]
-        `.trim()
+        `
 
-        console.debug(p`PagesQueryBuilder:`, {query})
+        console.debug(p`PagesQueryBuilder:\n`, query)
 
         // @ts-expect-error
         const results = top!.logseq.api.datascript_query(query)
@@ -294,7 +373,7 @@ export class PagesQueryBuilder {
             return []
         return results.flat()
     }
-    names() {
+    getNames() {
         return this._get(true)
     }
     get(wrap: boolean = true) {
@@ -303,19 +382,15 @@ export class PagesQueryBuilder {
             return items.map(PageContext.createFromEntity)
         return items
     }
-    first(wrap: boolean = true) {
-        const first = this._get(false)[0]
+    getFirst(wrap: boolean = true) {
+        const first = this._get(false).at(0)
         if (!first)
             return null
-        if (wrap)
-            return PageContext.createFromEntity(first)
-        return first
+        return wrap ? PageContext.createFromEntity(first) : first
     }
-    random(wrap: boolean = true) {
+    getRandom(wrap: boolean = true) {
         const items = this._get(false)
         const chosen = items[Math.floor((Math.random() * items.length))]
-        if (wrap)
-            return PageContext.createFromEntity(chosen)
-        return chosen
+        return wrap ? PageContext.createFromEntity(chosen) : chosen
     }
 }
