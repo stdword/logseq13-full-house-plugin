@@ -1,3 +1,24 @@
+## v3.4.0
+!> Not released yet
+
+### New syntax
+TODO
+
+### Query language for pages
+TODO
+
+### New template tags
+TODO
+
+
+
+## v3.3.0
+### Support Radix UI colors
+<img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/3f871997-e21e-4305-8a06-70d2810b67c0"/>
+<img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/78e31cfc-4bb7-4a02-9ae3-19a5b009157e"/>
+
+
+
 ## v3.2.0
 ### Introduced UI for templates & views insertion :id=hello-ui
 ?> Stylized for any theme!
@@ -20,6 +41,7 @@
 ### Updated «Copy as ...» commands
 - To support [usage hint](reference__configuring.md#default-usage)
 - Added to [*page context menu*](reference__commands.md#indirect)
+
 
 
 ## v3.0.0
