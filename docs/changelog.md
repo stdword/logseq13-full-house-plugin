@@ -2,13 +2,62 @@
 !> Not released yet
 
 ### New syntax
-TODO
+- New syntax ` ``@...`` ` for `date.nlp` template tag
+- Coercing to bool in template args ended with «?»
+- `out` & `outn` functions to output info within ` ``{...}`` `
+- Array runtime functions: `.unique`, `.zip`, `.sorted`, `.groupby`
 
 ### Query language for pages
-TODO
+- `query.pages` template tag for simple pages query building
 
 ### New template tags
-TODO
+- `query.refs.*` namespace with `.count`, `.journals` and `.pages`
+- `include` & `layout`
+- `tag`
+- `bool`
+- `dev.uuid`
+- `dev.context.page` & `dev.context.block`
+- `dev.walkTree`
+
+### Engine changes
+- Usage of async/await (by [@dsarman](https://github.com/dsarman))
+- Improve rendering template errors readability
+
+### UI changes
+- Ordering templates in Insertion UI with respect to the numeric characters
+- Own CSS variables to customize adaptation for any theme. To fix colors for your theme add this CSS to `custom.css`:
+```css
+  :root {
+      --fht-footer-text: var(--ls-page-inline-code-color);
+      --fht-hightlight: var(--ls-page-mark-bg-color);
+      --fht-label-text: var(--ls-page-inline-code-color);
+      --fht-active: var(--ls-quaternary-background-color);
+      --fht-active-text: var(--ls-secondary-text-color);
+      --fht-scrollbar-thumb: color-mix(in srgb, var(--ls-scrollbar-thumb-hover-color) 50%, transparent);
+      --fht-scrollbar-thumb-hover: var(--ls-scrollbar-thumb-hover-color);
+  }
+```
+
+### New meta-info to get from context
+- `c.tags`: to get all available template tags
+- `c.page.path`: to get file path for page objects
+
+
+#### Changes
+- Removed protected mode for ` ``...`` `
+- Allowed to return value of any type from ` ``{...}`` ` code block
+- Added timezone plugin to `dayjs`
+- Added start-of-week setup for `dayjs`
+- Documentation: adapted toc & sidebar styles to fit more content and fix theme colors
+
+
+#### Fixed bugs
+- Hidden properties prepending
+- Rendering of tags in views
+- `date.nlp` corner cases
+- Displaying `c.tags.date` context
+- XSS while building views & internal queries
+- Bugs in `empty` & `when` template tags
 
 
 
