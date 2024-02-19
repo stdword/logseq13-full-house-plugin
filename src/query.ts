@@ -275,16 +275,18 @@ export class PagesQueryBuilder {
         if (message)
             throw new Error(`${f}: ${message}`)
 
-        const [newVars, binders] = f.bindNewVars(this)
-        this.bindedVars.push(...newVars)
+        const clone = this.clone()
+
+        const [newVars, binders] = f.bindNewVars(clone)
+        clone.bindedVars.push(...newVars)
 
         const predicate = [...binders]
-        const filterPredicate = nonInverted ? f.getPredicate(this) : f.getNotPredicate(this)
+        const filterPredicate = nonInverted ? f.getPredicate(clone) : f.getNotPredicate(clone)
         if (filterPredicate)
             predicate.push(filterPredicate)
 
-        this.filters.push(predicate.join('\n'))
-        return this.clone()
+        clone.filters.push(predicate.join('\n'))
+        return clone
     }
 
     title(operation: string, value: string = '', nonInverted: boolean = true) {
@@ -320,13 +322,13 @@ export class PagesQueryBuilder {
     nonEmpty() {
         return this._filter(new EmptyFilter(), false)
     }
-    integerValue(operation: string, value: string = '', nonInverted: boolean = true) {
+    integerValue(operation: string, value: string = '') {
         if (value === '') {
             value = operation
             operation = '='
         }
         value = value.toString()
-        return this._filter(new IntegerValueFilter(value, operation), nonInverted)
+        return this._filter(new IntegerValueFilter(value, operation))
     }
     value(operation: string, value: string = '', nonInverted: boolean = true) {
         if (value === '') {
@@ -343,14 +345,13 @@ export class PagesQueryBuilder {
         }
         return this._filter(new ReferenceFilter(value, operation), nonInverted)
     }
-
     tags(names: string | string[] = '', only: boolean = false) {
-        this._filter(new PropertyFilter('tags'))
-        return this._filter(new ReferenceFilter(names, only ? 'includes only' : 'includes'))
+        const cloned = this._filter(new PropertyFilter('tags'))
+        return cloned._filter(new ReferenceFilter(names, only ? 'includes only' : 'includes'))
     }
     noTags(names: string | string[] = '', only: boolean = false) {
-        this._filter(new PropertyFilter('tags'))
-        return this._filter(new ReferenceFilter(names, only ? 'includes only' : 'includes'), false)
+        const cloned = this._filter(new PropertyFilter('tags'))
+        return cloned._filter(new ReferenceFilter(names, only ? 'includes only' : 'includes'), false)
     }
 
     _get(namesOnly: boolean = true): PageEntity[] {
