@@ -522,6 +522,18 @@ Next journal page: [[2020-01-02 Thu]]
 
 
 
+## `query.pages`
+
+?> See the separate page for details: [Query language → Pages](reference__query_language.md#ql-pages)
+
+
+
+## `query.blocks`
+
+?> See the separate page for details: [Query language → Blocks](reference__query_language.md#ql-blocks)
+
+
+
 ## `query.refs`
 
 ### `.count` :id=query-refs-count

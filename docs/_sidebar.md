@@ -11,6 +11,7 @@
   - [Context variables](reference__context.md)
   - [Arguments](reference__args.md)
   - [Template tags](reference__tags.md)
+  - [Query language](reference__query_language.md)
 
 - Other
   - [FAQ](faq.md)
