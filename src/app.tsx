@@ -123,8 +123,8 @@ function notifyUser() {
             logseq.UI.showMsg(
                 `[:div
                     [:p [:code "🏛 Full House Templates"]]
-                    [:p [:b "New Syntax!"] [:br]
-                        "Introduced new syntax " [:code "\`\`@...\`\`"] " and various template tags." ]
+                    [:p [:b "New Syntax & Query Language!"] [:br]
+                        "Introduced new syntax " [:code "\`\`@...\`\`"] " and query language for pages." ]
                     [:p "See details "
                         [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v340"}
                             "here"] "."]
