@@ -63,7 +63,11 @@ See info about `glass-card` in [Showroom](https://github.com/stdword/logseq13-fu
 </p>
 
 ### Insert from lovely UI 🤗
-<img width="500px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/df132005-7c72-4470-8a80-52c98485ab76"/>
+<img width="500px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/47bd578b-1781-47ed-a0b8-267d7474101f"/>
+
+
+### Create complex data views 🪜
+<img width="350px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/cd77cdb8-9336-4a44-94ee-00fb87961633"/>
 
 <table><tr><td>
 
@@ -106,7 +110,7 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 </p>
 
-### Mix with standard templates syntax: Syntax power 💥
+### Mix with standard templates syntax 💥
 <p align="center">
   <b>template     →     rendered</b>
   <br>
