@@ -539,9 +539,20 @@ function array_unique() {
     // @ts-expect-error
     return [...new Set(this)]
 }
-function array_groupby(key: Function) {
+function array_groupby(key: Function, wrapToObject: boolean = false) {
     // @ts-expect-error
-    return Object.groupBy(this, key)
+    const grouped = Object.groupBy(this, key)
+    if (wrapToObject)
+        return grouped
+    return Object.entries(grouped)
+}
+function array_countby(key: Function, wrapToObject: boolean = false) {
+    // @ts-expect-error
+    const counted = this.groupby(key, false)
+        .map(([key, items]) => [key, (items as any[]).length])
+    if (wrapToObject)
+        return Object.fromEntries(counted)
+    return counted
 }
 function array_sorted(key: Function) {
     // @ts-expect-error
@@ -576,6 +587,8 @@ function _initContext() {
     Array.prototype.unique = array_unique
     // @ts-expect-error
     Array.prototype.groupby = array_groupby
+    // @ts-expect-error
+    Array.prototype.countby = array_countby
     // @ts-expect-error
     Array.prototype.sorted = array_sorted
 }

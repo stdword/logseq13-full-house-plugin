@@ -5,7 +5,7 @@
 - [New syntax](reference__syntax.md#dates-nlp-syntax) ` ``@...`` ` for `date.nlp` template tag
 - [Coercing to bool](reference__args.md#arg-properties) in template args ended with «?»
 - `out` & `outn` [functions](reference__syntax.md#statement-syntax) to output info within ` ``{...}`` `
-- Array [runtime functions](reference__syntax.md#statement-syntax): `.unique`, `.zip`, `.sorted`, `.groupby`
+- Array [runtime functions](reference__syntax.md#statement-syntax): `.unique`, `.zip`, `.sorted`, `.groupby`, `.countby`
 
 ### Query language for pages
 - `query.pages` template tag for simple [pages query building](reference__query_language.md#ql-pages)

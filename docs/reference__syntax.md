@@ -174,10 +174,11 @@ But there are the special `out` & `outn` functions to output info within ` ``{..
 
 <!-- div:left-panel -->
 Also the `Array` type extended with helpful functions:
-- `Array.zip`
-- `Array.unique`
-- `Array.sorted`
-- `Array.groupby`
+- `Array.zip(...arrays)`
+- `Array.unique()`
+- `Array.sorted(keyfunc)`
+- `Array.groupby(keyfunc, wrapToObject? = false)`
+- `Array.countby(keyfunc, wrapToObject? = false)`
 
 <!-- div:right-panel -->
 <!-- tabs:start -->
@@ -212,7 +213,10 @@ Also the `Array` type extended with helpful functions:
   ``items.sorted((x) => [x.type, x.quantity]).map(JSON.stringify).join('\n')``
   ```
 - ```javascript
-  ``JSON.stringify(items.groupby((x) => x.type), null, 4)``
+  ``JSON.stringify(items.groupby((x) => x.type, true), null, 4)``
+  ```
+- ```javascript
+  ``JSON.stringify(items.countby((x) => x.type), null, 4)``
   ```
 
 #### ***Rendered***
@@ -239,6 +243,10 @@ Also the `Array` type extended with helpful functions:
         { "type": "meat", "quantity": 22 }
     ]
 }
+```
+- ```javascript
+// .countby
+[ ["vegetables", 1], ["fruit", 2], ["meat", 2] ]
 ```
 
 <!-- tabs:end -->
