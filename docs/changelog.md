@@ -9,9 +9,9 @@
 
 ### Query language for pages
 - `query.pages` template tag for simple [pages query building](reference__query_language.md#ql-pages)
+- `query.refs.*` namespace with [`.count`](reference__tags.md#query-refs-count), [`.journals`](reference__tags.md#query-refs-journals) and [`.pages`](reference__tags.md#query-refs-pages) template tags
 
 ### New template tags
-- `query.refs.*` namespace with [`.count`](reference__tags.md#query-refs-count), [`.journals`](reference__tags.md#query-refs-journals) and [`.pages`](reference__tags.md#query-refs-pages)
 - A way to **inherit templates** with [`include`](reference__tags.md#nesting-include) & [`layout`](reference__tags.md#nesting-layout)
 - [`tag`](reference__tags.md#tag)
 - [`bool`](reference__tags.md#bool)
