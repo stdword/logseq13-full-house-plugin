@@ -255,13 +255,37 @@
       }
     }
 
-    function install (hook, vm) {
+    // adjust event click target due to docsify bug:
+    //    click event will be successful only if
+    //    event.target is «A» tag or the child of «A» tag
+    //    but it can bee deeper
+    function adjustClickEventTarget(event) {
+      if (event._adjusted ||
+          event.target.tagName === 'A' ||
+          event.target.parentNode.tagName === 'A'
+      )
+        return
+
+      var link = event.target.closest('a.anchor[data-id]')
+      if (!link)
+        return
+
+      event.preventDefault()
+      var adjustedEvent = document.createEvent('MouseEvent')
+      adjustedEvent.initEvent('click', true, true)
+      adjustedEvent._adjusted = true
+
+      link.dispatchEvent(adjustedEvent)
+    }
+
+    function install(hook, vm) {
       hook.mounted(function () {
         const content = window.Docsify.dom.find('.content')
         if (content) {
           const nav = window.Docsify.dom.create('aside', '')
           window.Docsify.dom.toggleClass(nav, 'add', 'toc-nav')
           window.Docsify.dom.before(content, nav)
+          nav.addEventListener('click', adjustClickEventTarget)
         }
       })
       hook.doneEach(function () {
