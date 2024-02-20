@@ -1,6 +1,4 @@
 ## v3.4.0
-!> Not released yet
-
 ### New syntax
 - [New syntax](reference__syntax.md#dates-nlp-syntax) ` ``@...`` ` for `date.nlp` template tag
 - [Coercing to bool](reference__args.md#arg-properties) in template args ended with «?»
