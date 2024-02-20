@@ -1,4 +1,4 @@
-## `c`: whole context variable
+## `c`: whole context variable :id=context
 The main variable to keep all context information.
 
 ?> You can always see whole context with `{{renderer :view, "c"}}`. \

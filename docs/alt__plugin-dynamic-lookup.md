@@ -1,5 +1,6 @@
-## [**Dynamic Lookup**](https://github.com/peanball/logseq-dynamic-lookup)
-### Plugin usage
+[Source link →](https://github.com/peanball/logseq-dynamic-lookup)
+
+## Plugin usage
 1) Create `:macro`
    ```
    :macros {
@@ -11,7 +12,7 @@
    {{page-desc PAGE}}
    ```
 
-### 🏛code for the same result
+## The same result with 🏛
 1) Just use «Inline View» feature (it works without creating a macro):
    ```
     {{renderer :view, "ref(c.page) + ': ' + (c.page.props.description || '—') ", :page PAGE}}
@@ -27,8 +28,9 @@
    {{page-desc PAGE}}
    ```
 
-### Pros & Cons for 🏛
-- ✅ Whole meta-info (not restricted to properties only)
-- ✅ JS env for smarter handling of properties values (or its absence)
-- ✅ Ability to make a clickable reference to property value:
+## Pros & Cons
+`🏛 Full House Templates` fully replaces the plugin:
+- ✅ It is not restricted to properties only: whole [meta-info](reference__context.md#context) is available
+- ✅ JavaScript [environment](reference__syntax.md#statement-syntax) for smarter handling logic
+- ✅ Ability to make a [clickable reference](reference__tags.md#ref) to property value:
   `{{renderer :view, "ref(c.page.props.related)", :page PAGE}}`
