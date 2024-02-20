@@ -191,6 +191,20 @@ See setup instructions in [Showroom](https://github.com/stdword/logseq13-full-ho
 
 
 ## FAQ
+### How to fix colors of plugin UI for custom Logseq theme?
+1. After the release of Logseq v0.10.5, some issues with plugin UI colors appeared
+2. To fix them add following CSS rules to `custom.css`:
+```css
+   :root {
+      --fht-footer-text: var(--ls-page-inline-code-color);
+      --fht-hightlight: var(--ls-page-mark-bg-color);
+      --fht-label-text: var(--ls-page-inline-code-color);
+      --fht-active: var(--ls-quaternary-background-color);
+      --fht-active-text: var(--ls-secondary-text-color);
+      --fht-scrollbar-thumb: color-mix(in srgb, var(--ls-scrollbar-thumb-hover-color) 50%, transparent);
+      --fht-scrollbar-thumb-hover: var(--ls-scrollbar-thumb-hover-color);
+   }
+```
 ### How to insert frequently used templates rapidly fast?
 1. Create the `:command` in `config.edn`.
    **Hint**: to perform fast searches, use any command name, but add a special character (e.g. the dot «.»)
