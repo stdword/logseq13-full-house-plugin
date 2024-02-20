@@ -232,7 +232,7 @@ versus
 ```
 But for that purpose it is better to use `:commands` to [make it faster](#how-to-insert-frequently-used-templates-rapidly-fast).
 
-**Long answer**:
+**Long answer** is [here](https://stdword.github.io/logseq13-full-house-plugin/#/alt__macros).
 
 ## Alternatives
 |Plugin|`🏛 Full House` support|Details|
