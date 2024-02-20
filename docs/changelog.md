@@ -25,7 +25,7 @@
 
 ### UI changes
 - Ordering templates in Insertion UI with respect to the *numeric characters*
-- Own CSS variables to customize adaptation for any theme. To fix colors for your theme add this CSS to `custom.css`:
+- Own CSS variables to customize adaptation for any theme. To fix colors for any custom theme add this CSS to `custom.css`:
 ```css
   :root {
       --fht-footer-text: var(--ls-page-inline-code-color);
