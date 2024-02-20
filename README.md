@@ -219,6 +219,21 @@ See setup instructions in [Showroom](https://github.com/stdword/logseq13-full-ho
 4. Use `/`-command to insert template with only 3 key presses (`/.↩︎`):
    <img width="600px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/9d5f4314-9c67-4e84-96c6-a45a08d7d8f0"/>
 
+### How to use plugin with `:macros`?
+**Short answer**: Use the more powerful [`:template-view`](https://stdword.github.io/logseq13-full-house-plugin/#/reference__commands?id=template-view-command) command instead, specially designed for this case.
+
+The only reason to use macros is to reduce the length of text to type-in:
+```
+{{mymacro ARG1, ARG2}}
+```
+versus
+```
+{{renderer :template-view mytemplate, ARG1, ARG2}}
+```
+But for that purpose it is better to use `:commands` to [make it faster](#how-to-insert-frequently-used-templates-rapidly-fast).
+
+**Long answer**:
+
 ## Alternatives
 |Plugin|`🏛 Full House` support|Details|
 |:-:|:-:|:--|
