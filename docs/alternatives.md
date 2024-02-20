@@ -1,5 +1,5 @@
-## [Dynamic Lookup](https://github.com/peanball/logseq-dynamic-lookup)
-### Plugin usage:
+## [**Dynamic Lookup**](https://github.com/peanball/logseq-dynamic-lookup)
+### Plugin usage
 1) Create `:macro`
    ```
    :macros {
@@ -11,25 +11,24 @@
    {{page-desc PAGE}}
    ```
 
-### `🏛 Full House` code for the same result
-1) No need to create macro, just use «Inline View» feature:
+### 🏛code for the same result
+1) Just use «Inline View» feature (it works without creating a macro):
    ```
     {{renderer :view, "ref(c.page) + ': ' + (c.page.props.description || '—') ", :page PAGE}}
    ```
-2) Create shortcut via `:commands` in *config.edn*
+2) To use macro, create it via `:macros` in *config.edn*
    ```
-   :commands [
-       ["page-desc" "{{renderer :template-view, page-desc, :page PAGE}}"],
-   ]
+   :macros {
+      "page-desc" "{{renderer :view, \"ref(c.page) + ': ' + (c.page.props.description || '—')\", :page $1}}"
+   }
    ```
-4) Or use «Template View» command instead (requires creation of template page-desc before):
+3) Use it for certain page:
    ```
-   {{renderer :template-view, page-desc, :page PAGE}}
+   {{page-desc PAGE}}
    ```
 
 ### Pros & Cons for 🏛
-
-- ❌ longer command usage
-- ✅ whole meta-info (not restricted to properties only)
-- ✅ JS env for smarter handling of properties values (or its abscence)
-- ✅ ability to make a reference to property value: `{{renderer :view, "ref(c.page.props.related)", :page PAGE}}`
+- ✅ Whole meta-info (not restricted to properties only)
+- ✅ JS env for smarter handling of properties values (or its absence)
+- ✅ Ability to make a clickable reference to property value:
+  `{{renderer :view, "ref(c.page.props.related)", :page PAGE}}`
