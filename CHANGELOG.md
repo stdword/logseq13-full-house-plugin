@@ -1,3 +1,48 @@
+# [3.4.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.3.0...v3.4.0) (2024-02-20)
+
+
+### Bug Fixes
+
+* allow return from code block ``{...}`` value of any type ([ab82608](https://github.com/stdword/logseq13-full-house-plugin/commit/ab82608cd3668ee94ad1c302fbfb81421c8ed6ea))
+* bug when logseq hidden properties prepend ([63d275c](https://github.com/stdword/logseq13-full-house-plugin/commit/63d275cd31429cddfbc474cb29ed7ca008cfb37e))
+* coercing property args to bool only with ? ending ([b5c2503](https://github.com/stdword/logseq13-full-house-plugin/commit/b5c2503841bc4229d7b37f6b568f5ecad00dc913))
+* dayjs timezone plugin ([aa94272](https://github.com/stdword/logseq13-full-house-plugin/commit/aa94272058395474d2f5cb2db2e34fe53179a64e))
+* displaying c.tags.date context ([ccfec09](https://github.com/stdword/logseq13-full-house-plugin/commit/ccfec09d1ed5db5d19989ae6cf7074c103b79ea8))
+* **query:** bug with query cloning ([af38b2a](https://github.com/stdword/logseq13-full-house-plugin/commit/af38b2a607bf961f877215230436d4e3dd161392))
+* remove old css var ([b01794f](https://github.com/stdword/logseq13-full-house-plugin/commit/b01794ff069dbb96a5dfc7c8ab61d902f064ffbe))
+* remove protected mode for ``...`` ([8becb07](https://github.com/stdword/logseq13-full-house-plugin/commit/8becb077a462020fce2c2ac95ae658abd09bf375))
+* **tags:** `empty` template tag & add docs ([9a3921e](https://github.com/stdword/logseq13-full-house-plugin/commit/9a3921e4115844e61ec8b0a3ab0dd8bd259e519b))
+* **tags:** `when` template tag & add docs ([3b83f1d](https://github.com/stdword/logseq13-full-house-plugin/commit/3b83f1d0036fdb2d58ac249704619f1096fff72b))
+* **views:** escaping values for views rendering ([985454f](https://github.com/stdword/logseq13-full-house-plugin/commit/985454f2ed359f30abca7c823e427a6d38fac333))
+* xss improvements while parsing ([089732b](https://github.com/stdword/logseq13-full-house-plugin/commit/089732b6a64d55de3cd52450924d5a53ee989758))
+
+
+### Features
+
+* add start of week setup for dayjs ([4b58b49](https://github.com/stdword/logseq13-full-house-plugin/commit/4b58b497d79f9713211061434ec3a54655418382))
+* added c.tags context to get all available tag utils and its signatures ([212e5ed](https://github.com/stdword/logseq13-full-house-plugin/commit/212e5edac3cc8093b87e7acc90d07107aa00a39a))
+* allow usage of async/await in custom JS templates ([0a860b7](https://github.com/stdword/logseq13-full-house-plugin/commit/0a860b77720421ef85614fe4c072dffc8cb2d4e5))
+* **args:** coercing arg-properties with «?» to bool ([444b2fc](https://github.com/stdword/logseq13-full-house-plugin/commit/444b2fc2a6397f8e0516d3134c8bff1a3cb96f18))
+* **context:** add file path for pages ([9853f8e](https://github.com/stdword/logseq13-full-house-plugin/commit/9853f8e6e3ab2892955bcc94a2fbb5ae9b75ecda))
+* **engine:** improve template errors readability ([35e2b60](https://github.com/stdword/logseq13-full-house-plugin/commit/35e2b60953e71d3f1b1b24e6fc89bef6dc095aaa))
+* **notifications:** replace release notification ([1fac518](https://github.com/stdword/logseq13-full-house-plugin/commit/1fac518a3874a674039489a925444aad5a713b03))
+* support coercing to bool in template args ([7405577](https://github.com/stdword/logseq13-full-house-plugin/commit/7405577497e555e3da929771f84a567e254b99b2))
+* **syntax:** `out` & `outn` functions to output info within ``{...}`` ([9b4ec63](https://github.com/stdword/logseq13-full-house-plugin/commit/9b4ec63c3f0f9a4796bec67a0c212902c06dfca1))
+* **syntax:** new syntax ``@...`` for date.nlp & fix date.nlp bug ([5b3d4b5](https://github.com/stdword/logseq13-full-house-plugin/commit/5b3d4b518f4cca899f9631e8a0b36b99cf9920f8))
+* **tags:** `bool` template tag ([5a72905](https://github.com/stdword/logseq13-full-house-plugin/commit/5a7290517e9d8186cc0864f8eea806e7f7d81fe3))
+* **tags:** `dev.uuid` template tag & docs ([5ce563f](https://github.com/stdword/logseq13-full-house-plugin/commit/5ce563f30f06566f0b30d8fe39328f75f80cff64))
+* **tags:** `include` & `layout` template tags ([ad452d9](https://github.com/stdword/logseq13-full-house-plugin/commit/ad452d93c573de492fdb65b85f8c6c8bf03756b5))
+* **tags:** `query.pages().getSample(n)` interface ([ca52289](https://github.com/stdword/logseq13-full-house-plugin/commit/ca5228994440245c2a78d885d59fe9fb8148b8d7))
+* **tags:** add dev.context.page & dev.context.block utils to transform API Entity to Context item ([ed942e2](https://github.com/stdword/logseq13-full-house-plugin/commit/ed942e2dfe213499d745c946a535ac13537b3e45))
+* **tags:** add query.refs namespace with .count, .journals, .pages ([4813da2](https://github.com/stdword/logseq13-full-house-plugin/commit/4813da245ceee63d1b915071f4bf7708ad2ae453))
+* **tags:** add walkTree template tag ([4be1437](https://github.com/stdword/logseq13-full-house-plugin/commit/4be143765d241f8d199b101caca52a85275b217d))
+* **tags:** dev.include template tag to include templates into each other ([7a031d8](https://github.com/stdword/logseq13-full-house-plugin/commit/7a031d8eb67f0b9b63c0472b0924a8110b490619)), closes [#18](https://github.com/stdword/logseq13-full-house-plugin/issues/18)
+* **tags:** helpful array functions: unique, zip, sorted, groupby ([e7b24ec](https://github.com/stdword/logseq13-full-house-plugin/commit/e7b24ec5add28ee2d3b323044d807941836ad316))
+* **tags:** query.pages template tag for simple query building (fix [#20](https://github.com/stdword/logseq13-full-house-plugin/issues/20)) ([2209481](https://github.com/stdword/logseq13-full-house-plugin/commit/22094815e59cfaa4d71e637b91ff36addd77d122))
+* **tags:** query.pages: inverted operations, shortcuts, title operations, prevent vars dublication ([aae442c](https://github.com/stdword/logseq13-full-house-plugin/commit/aae442c9a2c74ee1c9d8f29ca775922fd10fc9b4))
+* **tags:** template tag `tag` & propper rendering of tags in views ([57008ee](https://github.com/stdword/logseq13-full-house-plugin/commit/57008ee530762e4077e7ae0615e3f7fb32b100a8))
+* **ui:** order with respect the numeric characters ([379fdf9](https://github.com/stdword/logseq13-full-house-plugin/commit/379fdf972aa3d34f80d1b97bb960e9d1c31f2b7d))
+
 # [3.3.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.2.1...v3.3.0) (2023-11-29)
 
 
