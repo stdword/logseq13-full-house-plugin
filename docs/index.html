@@ -5,8 +5,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 
-  <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/buble.css"> -->
-
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@3/dist/docsify-themeable/style.min.css"/>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css" title="light"/>
@@ -66,30 +64,18 @@
   </style>
 </head>
 <body>
-<!--   <nav>
-    <a href="#/index">Eng</a>
-    <a href="#/ru/index">Rus</a>
-  </nav> -->
   <div id="app"></div>
   <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
   <script>
     window.$docsify = {
       name: '🏛<br/>Full House Templates',
       repo: 'stdword/logseq13-full-house-plugin#readme',
-      alias: { // doesn't work
-        // '/.*/navbar.md': '/navbar.md',
-        // '/ru/(.*)'   : './ru/$1',
-      },
       coverpage: true,
       onlyCover: true,
       loadSidebar: true,
       subMaxLevel: 1,
       autoHeader: true,
       nameLink: '#/index',
-      // nameLink: { → doesn't work
-      //   '/': '#/index',
-      //   '/ru/': '#/ru/index',
-      // },
       relativePath: true,
       search: {
         hideOtherSidebarContent: true,
@@ -140,6 +126,9 @@
         target: 'h2, h3, h4, h5, h6',
         ignoreHeaders:  []
       },
+      'flexible-alerts': {
+        style: 'flat'
+      },
       plugins: [
         EditOnGithubPlugin.create(
           'https://github.com/stdword/logseq13-full-house-plugin/tree/main/docs/',
@@ -161,8 +150,17 @@
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
   <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify-example-panels@1"></script>
+  <!-- <script src="https://unpkg.com/docsify-plugin-flexible-alerts"></script> -->
 
+  <script src="//cdn.jsdelivr.net/npm/docsify-example-panels@1"></script>
+  <style>
+    :root {
+      --docsify-example-panels-left-panel-width: 40%;
+      --docsify-example-panels-right-panel-width: 60%;
+    }
+  </style>
+
+  <!-- docsify-plugin-toc -->
   <script>
     // source: https://github.com/stdword/docsify-plugin-toc/blob/patch-3/src/toc.js
 
@@ -214,7 +212,7 @@
     }
 
     // To generate each ToC item
-    function generateToC (level, html) {
+    function generateToC(level, html) {
       if (level >= 1 && level <= window.$docsify.toc.tocMaxLevel) {
         const heading = ['<div class="lv' + level + '">', html, '</div>'].join('')
         return heading
@@ -311,16 +309,7 @@
     window.$docsify.plugins = (window.$docsify.plugins || []).concat(install)
   </script>
 
-  <style>
-    :root {
-      --docsify-example-panels-left-panel-width: 40%;
-      --docsify-example-panels-right-panel-width: 60%;
-    }
-  </style>
-
   <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@3/dist/docsify-themeable/main.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@3/dist/docsify-themeable/index.min.js"></script>
 </body>
 </html>
-
-<!-- TODO: https://github.com/fzankl/docsify-plugin-flexible-alerts -->
