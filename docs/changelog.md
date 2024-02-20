@@ -2,29 +2,29 @@
 !> Not released yet
 
 ### New syntax
-- New syntax ` ``@...`` ` for `date.nlp` template tag
-- Coercing to bool in template args ended with «?»
-- `out` & `outn` functions to output info within ` ``{...}`` `
-- Array runtime functions: `.unique`, `.zip`, `.sorted`, `.groupby`
+- [New syntax](reference__syntax.md#dates-nlp-syntax) ` ``@...`` ` for `date.nlp` template tag
+- [Coercing to bool](reference__args.md#arg-properties) in template args ended with «?»
+- `out` & `outn` [functions](reference__syntax.md#statement-syntax) to output info within ` ``{...}`` `
+- Array [runtime functions](reference__syntax.md#statement-syntax): `.unique`, `.zip`, `.sorted`, `.groupby`
 
 ### Query language for pages
-- `query.pages` template tag for simple pages query building
+- `query.pages` template tag for simple [pages query building](reference__query_language.md#ql-pages)
 
 ### New template tags
-- `query.refs.*` namespace with `.count`, `.journals` and `.pages`
-- `include` & `layout`
-- `tag`
-- `bool`
-- `dev.uuid`
-- `dev.context.page` & `dev.context.block`
-- `dev.walkTree`
+- `query.refs.*` namespace with [`.count`](reference__tags.md#query-refs-count), [`.journals`](reference__tags.md#query-refs-journals) and [`.pages`](reference__tags.md#query-refs-pages)
+- A way to **inherit templates** with [`include`](reference__tags.md#nesting-include) & [`layout`](reference__tags.md#nesting-layout)
+- [`tag`](reference__tags.md#tag)
+- [`bool`](reference__tags.md#bool)
+- [`dev.uuid`](reference__tags.md#dev-uuid)
+- [`dev.context.page`](reference__tags.md#dev-context-page) & [`dev.context.block`](reference__tags.md#dev-context-block)
+- [`dev.walkTree`](reference__tags.md#dev-walk-tree)
 
 ### Engine changes
-- Usage of async/await (by [@dsarman](https://github.com/dsarman))
+- Usage of `async / await` inside templates (by [@dsarman](https://github.com/dsarman))
 - Improve rendering template errors readability
 
 ### UI changes
-- Ordering templates in Insertion UI with respect to the numeric characters
+- Ordering templates in Insertion UI with respect to the *numeric characters*
 - Own CSS variables to customize adaptation for any theme. To fix colors for your theme add this CSS to `custom.css`:
 ```css
   :root {
@@ -39,11 +39,11 @@
 ```
 
 ### New meta-info to get from context
-- `c.tags`: to get all available template tags
-- `c.page.path`: to get file path for page objects
+- [`c.tags`](reference__context.md#tags-context): to get all available template tags
+- [`c.page.path`](reference__context.md#page-context): to get file path for page objects
 
 
-#### Changes
+### Other changes
 - Removed protected mode for ` ``...`` `
 - Allowed to return value of any type from ` ``{...}`` ` code block
 - Added timezone plugin to `dayjs`
@@ -51,7 +51,7 @@
 - Documentation: adapted toc & sidebar styles to fit more content and fix theme colors
 
 
-#### Fixed bugs
+### Fixed bugs
 - Hidden properties prepending
 - Rendering of tags in views
 - `date.nlp` corner cases

@@ -124,7 +124,7 @@ See detailed [Reference for arguments](reference__args.md).
 ```
 
 
-### `c.tags`
+### `c.tags` :id=tags-context
 Template tags context. Helpful utils for creating templates.
 Every item available in two ways: `c.tags.<item>` and `<item>`.
 

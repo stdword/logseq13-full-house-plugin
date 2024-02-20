@@ -218,6 +218,7 @@
 - To construct references to specific journal pages use `date.from` template tag
   - Documentation for date pattern [→](https://day.js.org/docs/en/parse/string-format#list-of-all-available-parsing-tokens)
   - Documentation of available units [→](https://day.js.org/docs/en/manipulate/add#list-of-all-available-units)
+
 <img width="60%" src="https://user-images.githubusercontent.com/1984175/224491397-360aba5e-ee22-4ed3-bf15-aaf00b0ec8b9.gif"/>
 
 <table><tr><td>
