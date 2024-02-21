@@ -5,9 +5,47 @@
 - `out` & `outn` [functions](reference__syntax.md#statement-syntax) to output info within ` ``{...}`` `
 - Array [runtime functions](reference__syntax.md#statement-syntax): `.unique`, `.zip`, `.sorted`, `.groupby`, `.countby`
 
+<img width="100%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/70fcdd38-41d6-4fb7-b577-bbc06903a77e"/>
+
 ### Query language for pages
 - `query.pages` template tag for simple [pages query building](reference__query_language.md#ql-pages)
 - `query.refs.*` namespace with [`.count`](reference__tags.md#query-refs-count), [`.journals`](reference__tags.md#query-refs-journals) and [`.pages`](reference__tags.md#query-refs-pages) template tags
+
+<table><tr><td>
+
+<details closed><summary>video demo</summary>
+  <video width="100%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/54bfe297-b852-4529-8ea5-865b2b0f9e57"></video>
+
+
+  ```javascript
+  ``{
+    var books = query.pages()
+      .property('likes')
+        .value('>', '👍👍')
+      .property('year')
+        .integerValue('>', 1994)
+        .nonEmpty()
+    var data = books.get()
+      .sorted((p) => [p.props.likes, -p.props.year])
+      .reverse()
+      .groupby((p) => p.props.likes)
+      .map(([likes, objs]) => likes + '\n   ' +
+        objs.map((p) => [
+                    p.props.year,
+                    ref(p.propsRefs.alias.at(-1))
+                    ].join(' '))
+           .join('\n   ')
+      )
+  _}``
+
+  Total: ``books.get().length``
+
+  ``data.join('\n')``
+  ```
+</details>
+
+</td></tr></table>
+
 
 ### New template tags
 - A way to **inherit templates** with [`include`](reference__tags.md#nesting-include) & [`layout`](reference__tags.md#nesting-layout)
