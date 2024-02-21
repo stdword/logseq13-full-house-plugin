@@ -11,12 +11,10 @@
 - `query.pages` template tag for simple [pages query building](reference__query_language.md#ql-pages)
 - `query.refs.*` namespace with [`.count`](reference__tags.md#query-refs-count), [`.journals`](reference__tags.md#query-refs-journals) and [`.pages`](reference__tags.md#query-refs-pages) template tags
 
+[video](https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/54bfe297-b852-4529-8ea5-865b2b0f9e57 ':include :type=video controls width=80%')
+
 <table><tr><td>
-
-<details closed><summary>video demo</summary>
-  <video width="100%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/54bfe297-b852-4529-8ea5-865b2b0f9e57"></video>
-
-
+<details closed><summary>code</summary>
   ```javascript
   ``{
     var books = query.pages()
@@ -42,9 +40,7 @@
 
   ``data.join('\n')``
   ```
-</details>
-
-</td></tr></table>
+</details></td></tr></table>
 
 
 ### New template tags
