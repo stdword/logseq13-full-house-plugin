@@ -62,8 +62,11 @@ See info about `glass-card` in [Showroom](https://github.com/stdword/logseq13-fu
 </td></tr></table>
 </p>
 
+
+
 ### Insert from lovely UI 🤗
 <img width="500px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/47bd578b-1781-47ed-a0b8-267d7474101f"/>
+
 
 
 ### Create complex data views 🪜
@@ -81,9 +84,11 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 </p>
 
-### Add logic to templates: Book page example 📖
+
+
+### Add logic to templates 📖
 <p align="center">
-  <b>                                                   template     →     rendered on page [[Tiago Forte — Building a Second Brain]]</b>
+  <b>                                                   template     →     rendered on page [[Tiago Forte — Building a Second Brain]]</b><br>
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/8fb8f5d0-c6d1-4759-98bd-891f9f6e5b51" width=49% />
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/28f29ada-13b4-485c-956f-667aa50c4d29" width=49% />
 
@@ -110,10 +115,50 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 </p>
 
+
+### Use query language for pages 📚
+<p align="center">
+  <b>template     →     rendered</b><br>
+  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/32bce2af-449e-439b-97cc-01c652d1ba7b" width=49% />
+	
+  <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/119ceed6-01f5-4f6c-b6bc-685d6f84ac28" width=49% />
+
+<table align="center"><tr><td>
+
+<details><summary>details</summary><p>
+
+```javascript
+``{
+var books = query.pages()
+  .tags('book')
+  .property('likes')
+    .value('>', '👍👍')
+  .property('year')
+    .value('>', 1994)
+  .get()
+  .sorted((p) => [p.props.likes, -p.props.year])
+  .reverse()
+  .groupby((p) => p.props.likes)
+  .forEach(([likes, objs]) => {
+     outn(likes)
+     objs.forEach((p) => {
+        out('   ' + p.props.year)
+        outn(ref(p.propsRefs.alias.at(-1)))
+     })
+  })
+}``
+```
+</p></details> 
+
+</td></tr></table>
+
+</p>
+
+
+
 ### Mix with standard templates syntax 💥
 <p align="center">
-  <b>template     →     rendered</b>
-  <br>
+  <b>template     →     rendered</b><br>
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/d1724a02-9cb4-464b-8269-c4a2695c94f3" width=49% />
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/06afde10-ca50-4b4c-9869-a638ee808e40" width=49% />
 
