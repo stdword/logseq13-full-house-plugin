@@ -15,32 +15,36 @@
 
 <table><tr><td>
 <details closed><summary>code</summary>
-  ```javascript
-  ``{
-    var books = query.pages()
-      .property('likes')
-        .value('>', '👍👍')
-      .property('year')
-        .integerValue('>', 1994)
-        .nonEmpty()
-    var data = books.get()
-      .sorted((p) => [p.props.likes, -p.props.year])
-      .reverse()
-      .groupby((p) => p.props.likes)
-      .map(([likes, objs]) => likes + '\n   ' +
-        objs.map((p) => [
-                    p.props.year,
-                    ref(p.propsRefs.alias.at(-1))
-                    ].join(' '))
-           .join('\n   ')
-      )
-  _}``
 
-  Total: ``books.get().length``
+```javascript
+``{
+  var books = query.pages()
+    .property('likes')
+      .value('>', '👍👍')
+    .property('year')
+      .integerValue('>', 1994)
+      .nonEmpty()
+  var data = books.get()
+    .sorted((p) => [p.props.likes, -p.props.year])
+    .reverse()
+    .groupby((p) => p.props.likes)
+    .map(([likes, objs]) => likes + '\n   ' +
+      objs.map((p) => [
+                  p.props.year,
+                  ref(p.propsRefs.alias.at(-1))
+                  ].join(' '))
+         .join('\n   ')
+    )
+_}``
 
-  ``data.join('\n')``
-  ```
-</details></td></tr></table>
+Total: ``books.get().length``
+
+``data.join('\n')``
+```
+
+</details>
+
+</td></tr></table>
 
 
 ### New template tags
