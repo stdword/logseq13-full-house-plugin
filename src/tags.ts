@@ -231,6 +231,45 @@ async function include(context: ILogseqContext, name: string, args?: string[] | 
 async function layout(context: ILogseqContext, name: string, args?: string[] | string) {
     return await _include(context, true, name, args)
 }
+layout.args = function(context: ILogseqContext, ...argNames) {
+    if (argNames.length === 0) {
+        let index = 1
+        argNames = context.args._args.map(([key, _]) => (key ? key : `$${index++}`))
+    }
+
+    const args = Object.fromEntries(context.args._args)
+    return argNames.map((n) => {
+        if (n.startsWith(':'))
+            n = n.slice(1)
+        const n_ = ':' + n
+
+        const positional = n.startsWith('$') ? Number(n.slice(1)) : null
+        if (positional !== null && positional < 1)
+            return null
+
+        let value: string | boolean | undefined
+        if (positional !== null)
+            value = context.args._args
+                .filter(([key, val]) => key === '')
+                .map(([key, val]) => val)
+                .at(positional - 1)
+        else
+            value = args[n]
+
+        if (value === undefined)
+            return null
+
+        if (typeof value === 'string') {
+            value = escapeMacroArg(value, {quote: true, escape: true})
+            return positional !== null ? value : `${n_} ${value}`
+        }
+
+        // assume boolean
+        return value ? n_ : n_ + ' ""'
+    })
+    .filter((v) => v !== null)
+    .join(', ')
+}
 
 function empty(obj: any, fallback: any = '') {
     if (obj === null || obj === undefined)
@@ -322,9 +361,6 @@ function date_nlp(context: ILogseqContext, query: string, now: Dayjs | string = 
 /* query */
 function query_pages() {
     return new PagesQueryBuilder()
-}
-function query_random_block() {
-
 }
 
 function query_refsCount(context: ILogseqContext, page: PageContext | string = '') {
@@ -455,13 +491,30 @@ function get(context: ILogseqContext, path: string): string {
 
     function getByPath(obj: any, parts: string[]) {
         while (parts.length)
-            if (typeof obj == 'object')
-                obj = obj[parts.shift() as string]
+            if (typeof obj == 'object') {
+                let attr = parts.shift() as string
+                if (attr === '@') {
+                    const token = parts.at(0) ?? ''
+                    const refs = obj['propsRefs'][token]
+                    if (refs !== undefined) {
+                        if (refs.length !== 0) {
+                            parts.shift()  // release token
+
+                            const nextToken = parts.shift() ?? '0'
+                            const index = Math.min(Number(nextToken), refs.length - 1)
+                            obj = `[[${refs[index]}]]`
+                            continue
+                        }
+                    }
+                    attr = 'props'
+                }
+                obj = obj[attr]
+            }
             else return undefined
         return obj
     }
 
-    path = path.replaceAll('@', '.props.')
+    path = path.replaceAll('@', '.@.')
     const parts = path.split('.')
 
     if (parts[0] === 'c')
@@ -619,6 +672,9 @@ export function getTemplateTagsDatesContext() {
 export function getTemplateTagsContext(context: ILogseqContext) {
     const datesContext = getTemplateTagsDatesContext()
 
+    const layout_ = bindContext(layout, context)
+    layout_.args = bindContext(layout.args, context)
+
     return new Context({
         _: {
             init: _initContext,
@@ -633,7 +689,7 @@ export function getTemplateTagsContext(context: ILogseqContext) {
         time: datesContext.time,
 
         include: bindContext(include, context),
-        layout: bindContext(layout, context),
+        layout: layout_,
 
         query: new Context({
             pages: query_pages,

@@ -318,7 +318,7 @@ export class ArgsContext extends Context {
     static propertyPrefix = 'arg-'
 
     public _obj?: ArgsContext
-    public _args: string[]
+    public _args: [string, string | boolean][]
 
     static parse(args: string[]): [string, string | boolean][] {
         const entries: [string, string | boolean][] = []
@@ -366,10 +366,11 @@ export class ArgsContext extends Context {
         return entries
     }
     static create(callSignature: string, args: string[]) {
+        const parsedArgs = ArgsContext.parse(args)
         const entries: [string, string | boolean][] = [['0', callSignature]]
 
         let positionalIndex = 1
-        for (const [ index, [name, value] ] of Object.entries(ArgsContext.parse(args))) {
+        for (const [ index, [name, value] ] of Object.entries(parsedArgs)) {
             if (name)
                 entries.push([ name, value ])
             else
@@ -377,7 +378,7 @@ export class ArgsContext extends Context {
             entries.push([ (+index + 1).toString(), value ])
         }
 
-        const instance = new ArgsContext(Object.fromEntries(entries), args)
+        const instance = new ArgsContext(Object.fromEntries(entries), parsedArgs)
         instance._obj = instance
         const hideUndefinedInstance = new Proxy(instance, {
             get(target, name, receiver) {
@@ -397,7 +398,7 @@ export class ArgsContext extends Context {
         })
         return hideUndefinedInstance
     }
-    constructor(data: {[index: string]: any}, args: string[]) {
+    constructor(data: {[index: string]: any}, args: [string, string | boolean][]) {
         super(data)
         this._args = args
         this._obj = undefined

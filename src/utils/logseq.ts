@@ -342,6 +342,9 @@ export function escapeMacroArg(
     if (opts.quote && arg.includes(',') && !(arg.startsWith('"') && arg.endsWith('"')))
         arg = `"${arg}"`
 
+    if (!opts.escape)
+        return arg
+
     // To deal with XSS: escape dangerous (for datascript raw queries) chars
     const escapeMap = {
         '"': '\\"',
@@ -372,7 +375,9 @@ export function cleanMacroArg(
 }
 export function splitMacroArgs(args: string) {
     // source: https://stackoverflow.com/a/53774647
-    return args.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+    return args
+        .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+        .map((arg) => arg.trim())
 }
 
 type LogseqProperty = { name: string, text: string, refs: string[] }

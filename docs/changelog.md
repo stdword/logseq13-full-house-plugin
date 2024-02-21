@@ -1,9 +1,16 @@
-## v3.4.0
+## v3.5 :id=v350
+### New syntax
+- Array [runtime functions](reference__syntax.md#statement-syntax): `.countby`
+- [`layout.args`](reference__tags.md#nesting-layout) template tag for usage in pair with `layout` to pass command arguments through inheritance call
+
+
+
+## v3.4 :id=v340
 ### New syntax
 - [New syntax](reference__syntax.md#dates-nlp-syntax) ` ``@...`` ` for `date.nlp` template tag
 - [Coercing to bool](reference__args.md#arg-properties) in template args ended with «?»
 - `out` & `outn` [functions](reference__syntax.md#statement-syntax) to output info within ` ``{...}`` `
-- Array [runtime functions](reference__syntax.md#statement-syntax): `.unique`, `.zip`, `.sorted`, `.groupby`, `.countby`
+- Array [runtime functions](reference__syntax.md#statement-syntax): `.unique`, `.zip`, `.sorted`, `.groupby`
 
 <img width="100%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/70fcdd38-41d6-4fb7-b577-bbc06903a77e"/>
 
@@ -97,14 +104,14 @@ Total: ``books.get().length``
 
 
 
-## v3.3.0
+## v3.3
 ### Support Radix UI colors
 <img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/3f871997-e21e-4305-8a06-70d2810b67c0"/>
 <img width="70%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/78e31cfc-4bb7-4a02-9ae3-19a5b009157e"/>
 
 
 
-## v3.2.0
+## v3.2
 ### Introduced UI for templates & views insertion :id=hello-ui
 ?> Stylized for any theme!
 - [Insert templates or views](reference__commands.md#insertion-ui) <br/>

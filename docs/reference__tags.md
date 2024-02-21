@@ -330,6 +330,9 @@ Buy list: \
 Include another template by name. Acts like [`include`](#include) with the only difference: it preserves template [arg-properties](reference__args.md#arg-properties). Use it to **inherit templates**.
 
 `async layout(name, ...args?)`
+`layout.args(...names)` — used to pass through current arguments to layout template
+    - `names`: the name of an argument or a positional link: `$1`, `$2`, etc.
+        - if unspecified: all arguments will be passed through
 
 <!-- tabs:start -->
 #### ***Template «parent»***
@@ -345,13 +348,17 @@ Include another template by name. Acts like [`include`](#include) with the only 
   arg-value:: OVERRIDED
   - ``await include('nested')``
   - ``await layout('nested')``
+  - ``await layout('nested', layout.args('value'))``
 ```
 
 #### ***Rendered***
 - ORIGINAL
 - OVERRIDED
+- USER
 
 <!-- tabs:end -->
+
+?> Another example is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks), in the section «🏛view for blocks»
 
 
 
