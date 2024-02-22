@@ -47,7 +47,8 @@ Super-configurable, JavaScript-based Logseq Templates for Humans ❤️ focused 
 
 
 ## Very quick overview
-### Create amazing views: `Glass Card` from Logseq.com landing page example
+
+### Create amazing views: `Glass Card` from Logseq.com landing page
 <p align="center">
     <img src="https://user-images.githubusercontent.com/1984175/229943053-82aea6fb-3cd1-497a-967c-d76533a6cff4.png" width=45% />
     <img src="https://user-images.githubusercontent.com/1984175/229949828-01222090-bdbc-4a52-b39e-30dc5f91e2ce.gif" width=45% />
@@ -64,12 +65,12 @@ See info about `glass-card` in [Showroom](https://github.com/stdword/logseq13-fu
 
 
 
-### Insert from lovely UI 🤗
+### Insert templates from lovely UI 🤗
 <img width="500px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/47bd578b-1781-47ed-a0b8-267d7474101f"/>
 
 
 
-### Create complex data views 🪜
+### Create parametrized data views 🪜
 <img width="350px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/cd77cdb8-9336-4a44-94ee-00fb87961633"/>
 
 <table><tr><td>
@@ -116,7 +117,7 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 </p>
 
 
-### Use query language for pages 📚
+### Use query language to get pages info 📚
 <p align="center">
   <b>template     →     rendered</b><br>
   <img src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/32bce2af-449e-439b-97cc-01c652d1ba7b" width=49% />
