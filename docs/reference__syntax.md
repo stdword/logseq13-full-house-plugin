@@ -178,7 +178,7 @@ Also the `Array` type extended with helpful functions:
 - `Array.unique()`
 - `Array.sorted(keyfunc)`
 - `Array.groupby(keyfunc, wrapToObject? = false)`
-- `Array.countby(keyfunc, wrapToObject? = false)`
+<!-- - `Array.countby(keyfunc, wrapToObject? = false)` -->
 
 <!-- div:right-panel -->
 <!-- tabs:start -->
@@ -215,9 +215,10 @@ Also the `Array` type extended with helpful functions:
 - ```javascript
   ``JSON.stringify(items.groupby((x) => x.type, true), null, 4)``
   ```
-- ```javascript
+
+<!-- - ```javascript
   ``JSON.stringify(items.countby((x) => x.type), null, 4)``
-  ```
+  ``` -->
 
 #### ***Rendered***
 - ```javascript
@@ -244,10 +245,11 @@ Also the `Array` type extended with helpful functions:
     ]
 }
 ```
-- ```javascript
+
+<!-- - ```javascript
 // .countby
 [ ["vegetables", 1], ["fruit", 2], ["meat", 2] ]
-```
+``` -->
 
 <!-- tabs:end -->
 
