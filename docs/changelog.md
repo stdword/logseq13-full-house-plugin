@@ -1,7 +1,7 @@
-<!-- ## v3.5 :id=v350
+## v3.5 :id=v350
 ### New syntax
 - Array [runtime functions](reference__syntax.md#statement-syntax): `.countby`
-- [`layout.args`](reference__tags.md#nesting-layout) template tag for usage in pair with `layout` to pass command arguments through inheritance call -->
+- [`layout.args`](reference__tags.md#nesting-layout) template tag for usage in pair with `layout` to pass command arguments through inheritance call
 
 
 
