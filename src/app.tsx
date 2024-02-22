@@ -126,7 +126,7 @@ function notifyUser() {
                     [:p [:b "New Syntax & Query Language!"] [:br]
                         "Introduced new syntax " [:code "\`\`@...\`\`"] " and query language for pages." ]
                     [:p "See details "
-                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v340"}
+                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v35"}
                             "here"] "."]
                 ]`,
                 'info', {timeout: 60000})
