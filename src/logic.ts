@@ -249,9 +249,9 @@ function showInsideMacroNotification() {
             [:p "The possible reason is you are using " [:code "🏛Full House Templates"]
                 " with " [:code ":macros"] "."]
             [:p "Please use the " [:code ":template-view"] "command " [:u "instead"]
-                [:code ":macros"] ", specially designed for this case." ]
+                ", specially designed for this case." ]
             [:p [:b "See details " [:a
-                {:href "https://stdword.github.io/logseq13-full-house-plugin/#/faq?id=using-with-macros"}
+                {:href "https://stdword.github.io/logseq13-full-house-plugin/#/alt__macros"}
                 "here"]]]
         ]`,
         'error', {timeout: 30000})

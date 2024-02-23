@@ -321,6 +321,15 @@ export class ArgsContext extends Context {
     public _args: [string, string | boolean][]
 
     static parse(args: string[]): [string, string | boolean][] {
+        function handleMacroMode(value: string) {
+            if (value.startsWith('$$'))
+                return value.slice(1)
+            else if (value.search(/^\$\d+$/) !== -1)
+                return ''
+            else
+                return value
+        }
+
         const entries: [string, string | boolean][] = []
         for (let value_ of args) {
             // Check whether it is named arg
@@ -332,10 +341,13 @@ export class ArgsContext extends Context {
 
             // # Rules for value of the arg
             //  - value can contain any characters (or no one)
-            //  - value can be quoted with `"` to preserve whitespaces before it
+            //  - value can be quoted with `"` to preserve whitespaces before & after it
+            //  - «$» sign at the beginning should be doubled to bypass macro-mode
 
             let name = ''
             let value: string | boolean = value_
+
+            value = handleMacroMode(value)
 
             if (value.startsWith('::')) {
                 // special case: user has disabled named-arg parsing
@@ -356,6 +368,8 @@ export class ArgsContext extends Context {
                         value = cleanMacroArg(value, {escape: false, unquote: true})
                         if (!value)
                             value = false
+                        else
+                            value = handleMacroMode(value)
                     }
                 }
             }

@@ -3,6 +3,7 @@ Used to tune and parametrize templates rendering process.
 ## Specifying
 ### Positional arguments
 Specify positional arguments separated by comma.
+
 <!-- tabs:start -->
 #### ***Command***
 `{{renderer :template, "test", 13}}` \
@@ -10,15 +11,60 @@ Specify positional arguments separated by comma.
 `{{renderer :template, "test", 13, value, "value,with,commas"}}`
 <!-- tabs:end -->
 
+
 ### Named arguments
-Specify named arguments in the form «:name value» (colon is required). \
-Could be mixed with positional ones.
+Specify named arguments in the form «:name value» (colon is required).
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+**Note**: names arguments could be mixed with positional ones
+
+<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Command***
 `{{renderer :template, "test", :arg 13}}` \
 `{{renderer :template, "test", :arg1 13, :arg2 value}}` \
-`{{renderer :template, "test", :firstArg "13", value, :last-arg "value,with,commas"}}`
+`{{renderer :template, "test", :firstArg "13", value, :last-arg "with,commas"}}`
 <!-- tabs:end -->
+
+<!-- div:left-panel -->
+Disable named arguments with «::» — it becomes positional
+
+<!-- div:right-panel -->
+<!-- tabs:start -->
+#### ***Command***
+`{{renderer :view, "c.args.$1", ::test 13}}`
+
+#### ***Rendered***
+:test 13
+<!-- tabs:end -->
+
+<!-- panels:end -->
+
+
+### Macro mode
+This is the special case when argument value (positional or named) is in the form `$1`, `$2`, ...
+
+- It is required to pass arguments from Logseq `:macros` to [`:template-view`](reference__commands.md#template-view-command) command to distinguish between passed and empty argument state.
+- It always turns on. To disable use double `$$`.
+
+<!-- tabs:start -->
+#### ***Command***
++ No value: `{{renderer :view, "c.args.$1", $1}}`
++ Value: `{{renderer :view, "c.args.$1", $$1}}`
+
+- No value: `{{renderer :view, "c.args.test", :test $1}}`
+- Value: `{{renderer :view, "c.args.test", :test $$1}}`
+
+#### ***Rendered***
++ No value:
++ Value: $1
+
+- No value:
+- Value: $1
+
+<!-- tabs:end -->
+
 
 
 ### `arg-`properties :id=arg-properties
@@ -160,18 +206,6 @@ By argument position, excluding named ones:
 #### ***Rendered***
 : no positional \
 2: second
-<!-- tabs:end -->
-
-<!-- div:left-panel -->
-Disable named arguments usage with «::»:
-
-<!-- div:right-panel -->
-<!-- tabs:start -->
-#### ***Command***
-`{{renderer :view, "c.args.$1", ::test 13}}`
-
-#### ***Rendered***
-:test 13
 <!-- tabs:end -->
 
 <!-- panels:end -->

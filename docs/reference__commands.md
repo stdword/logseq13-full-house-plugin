@@ -64,6 +64,7 @@ Use page reference to specify the page. Enter it manually or use [*Context Menu*
 See documentation [here](reference__configuring.md#configure-arguments).
 
 
+
 ## Render view :id=template-view-command
 Render existed template block, non-template block or page as 🏛view. For views rendering occurs every time the block becomes visible.
 
