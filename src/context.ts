@@ -322,12 +322,11 @@ export class ArgsContext extends Context {
 
     static parse(args: string[]): [string, string | boolean][] {
         function handleMacroMode(value: string) {
-            if (value.startsWith('$$'))
+            if (value.search(/^\$\$\d+$/) !== -1)
                 return value.slice(1)
-            else if (value.search(/^\$\d+$/) !== -1)
+            if (value.search(  /^\$\d+$/) !== -1)
                 return ''
-            else
-                return value
+            return value
         }
 
         const entries: [string, string | boolean][] = []

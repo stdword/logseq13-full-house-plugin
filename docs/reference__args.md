@@ -50,18 +50,14 @@ This is the special case when argument value (positional or named) is in the for
 
 <!-- tabs:start -->
 #### ***Command***
-+ No value: `{{renderer :view, "c.args.$1", $1}}`
-+ Value: `{{renderer :view, "c.args.$1", $$1}}`
-
-- No value: `{{renderer :view, "c.args.test", :test $1}}`
+- No value: `{{renderer :view, "c.args.$1", $1}}`
 - Value: `{{renderer :view, "c.args.test", :test $$1}}`
+- No macro mode: `{{renderer :view, "c.args.test", :test $1 with text}}`
 
 #### ***Rendered***
-+ No value:
-+ Value: $1
-
 - No value:
 - Value: $1
+- No macro mode: $1 with text
 
 <!-- tabs:end -->
 
