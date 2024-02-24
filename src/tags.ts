@@ -14,7 +14,7 @@ import {
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
     LogseqReference, p, parseReference, RendererMacro, splitMacroArgs, unquote, walkBlockTree
 } from './utils'
-import { compileTemplateView, getArgsContext, getTemplate, getTemplateBlock, templateMacroStringForBlock } from './logic'
+import { compileTemplateView, getArgsContext, getTemplate, getTemplateBlock, renderTemplate, templateMacroStringForBlock } from './logic'
 import { StateError } from './errors'
 import { ITemplate, Template } from './template'
 import { PagesQueryBuilder } from './query'
@@ -205,7 +205,28 @@ async function _include__view(context: ILogseqContext, layoutMode: boolean, ref:
         argsContext,
     )
 }
-async function _include(context: ILogseqContext, layoutMode: boolean, name: string, args?: string[] | string) {
+async function _include__template_raw(context: ILogseqContext, ref: LogseqReference, args?: string[]): Promise<string> {
+    let template: Template
+    try {
+        template = await getTemplate(ref)
+    } catch (error) {  // StateMessage
+        return ''
+    }
+
+    if (!args)
+        args = Template.getUsageArgs(template.block)
+
+    const [head, tail] = await renderTemplate(
+        // @ts-expect-error
+        context.identity.slot,
+        template,
+        args,
+        context as ILogseqCurrentContext,
+    )
+
+    return head.content
+}
+async function _include(context: ILogseqContext, layoutMode: boolean | undefined, name: string, args?: string[] | string) {
     const ref = parseReference(name ?? '')
     if (!ref)
         return ''
@@ -216,6 +237,9 @@ async function _include(context: ILogseqContext, layoutMode: boolean, name: stri
 
     if (args)  // runtime protection
         args = args.map((arg) => arg.toString())
+
+    if (layoutMode === undefined)
+        return await _include__template_raw(context, ref, args)
 
     if (context.mode === 'template')
         return await _include__template(context, layoutMode, ref, args)
@@ -230,6 +254,9 @@ async function include(context: ILogseqContext, name: string, args?: string[] | 
 }
 async function layout(context: ILogseqContext, name: string, args?: string[] | string) {
     return await _include(context, true, name, args)
+}
+async function call(context: ILogseqContext, name: string, args?: string[] | string) {
+    return await _include(context, undefined, name, args)
 }
 layout.args = function(context: ILogseqContext, ...argNames) {
     if (argNames.length === 0) {
@@ -690,6 +717,7 @@ export function getTemplateTagsContext(context: ILogseqContext) {
 
         include: bindContext(include, context),
         layout: layout_,
+        call: bindContext(call, context),
 
         query: new Context({
             pages: query_pages,

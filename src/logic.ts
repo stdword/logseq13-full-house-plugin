@@ -101,9 +101,10 @@ async function getCallContext(
     argsContext: ArgsContext,
 ): Promise<ILogseqCallContext> {
     // @ts-expect-error
-    const contextPageRef = parseReference(argsContext.page as string ?? '')
+    const pageRef = typeof argsContext.page === 'string' ? argsContext.page : ''
     let contextPage: PageEntity | null = null
-    if (contextPageRef) {
+    if (pageRef) {
+        const contextPageRef = parseReference(pageRef)!
         if (contextPageRef.type === 'block')
             throw new StateError(
                 `[:p "Argument " [:code ":page"] " should be a page reference"]`
@@ -119,9 +120,10 @@ async function getCallContext(
     }
 
     // @ts-expect-error
-    const contextBlockRef = parseReference(argsContext.block as string ?? '')
+    const blockRef = typeof argsContext.block === 'string' ? argsContext.block : ''
     let contextBlock: BlockEntity | null = null
-    if (contextBlockRef) {
+    if (blockRef) {
+        const contextBlockRef = parseReference(blockRef)!
         if (!['block', 'uuid'].includes(contextBlockRef.type))
             throw new StateError(
                 `[:p "Argument " [:code ":block"] " should be a block reference"]`
@@ -399,6 +401,51 @@ async (
             sibling: true,
         })
 })
+
+/**
+ * @raises StateError: template doesn't exist
+ * @raises StateMessage: template doesn't have any content (empty)
+ * @raises RenderError: template rendering error
+ */
+export async function renderTemplate(
+    slot: string,
+    template: ITemplate,
+    args: string[],
+    currentContext: ILogseqCurrentContext,
+): Promise<[IBatchBlock, IBatchBlock[]]> {
+    const argsContext = await getArgsContext(template, args)
+    const context = await assembleContext(
+        await getCallContext(slot, argsContext),
+        currentContext,
+        argsContext,
+    )
+
+    let rendered: IBlockNode
+    try {
+        rendered = await template.render(context)
+    }
+    catch (error) {
+        const message = (error as Error).message
+        throw new RenderError(
+            `[:p "Cannot render template "
+                [:i "${template.name}"] ": "
+                [:pre "${escapeForHiccup(message)}"]
+            ]`,
+            {template, error},
+        )
+    }
+
+    let head: IBatchBlock
+    let tail: IBatchBlock[]
+    if (template.includingParent)
+        [ head, tail ] = [ rendered, [] ]
+    else
+        [ head, ...tail ] = rendered.children
+
+    console.debug(p`Template rendered:`, {head, tail})
+
+    return [head, tail]
+}
 
 /**
  * @raises RenderError: template rendering error
