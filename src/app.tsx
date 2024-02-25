@@ -23,7 +23,6 @@ import {
     getPage,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
-import { isOldSyntax } from './extensions/customized_eta'
 import InsertUI, { isMacOS, shortcutToOpenInsertUI } from './ui/insert'
 
 
@@ -164,14 +163,6 @@ async function main() {
             const [ openTagRegexp, closeTagRegexp ] = [ escapeForRegExp(openTag), escapeForRegExp(closeTag) ]
             for (const uuid of uuids) {
                 const block = (await logseq.Editor.getBlock(uuid, {includeChildren: true}))!
-                if (!(await isOldSyntax(block as IBlockNode))) {
-                    logseq.UI.showMsg(
-                        `[:p "The block has already been written with the new syntax" [:pre "${block.content}"]]`,
-                        'warning',
-                        {timeout: 5000},
-                    )
-                    continue
-                }
 
                 await walkBlockTree(block as IBlockNode, async (b, lvl) => {
                     const content = b.content

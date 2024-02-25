@@ -6,7 +6,6 @@ import { TemplateFunction } from 'eta/dist/types/compile'
 import * as Sherlock from 'sherlockjs'
 
 import { dayjs } from '../context'
-import { IBlockNode, walkBlockTree } from '../utils'
 
 
 class CustomizedEta extends Eta {
@@ -21,50 +20,7 @@ class CustomizedEta extends Eta {
     }
 }
 
-const etaForCompatibility = new Eta({
-    useWith: true,  /** Make data available on the global object instead of `varName` */
-    varName: 'fh',  /** Name of the data object. Default "it" */
-    // functionHeader: 'const c = fh.c',  /** Raw JS code inserted in the template function. Useful for declaring global variables */
-
-    autoEscape: false, /** Automatically XML-escape interpolations */
-    // escapeFunction: eta.XMLEscape,
-
-    autoFilter: true,  /** Apply a `filterFunction` to every interpolation or raw interpolation */
-    filterFunction: function (value: any): string {
-        if (value instanceof dayjs)
-            // @ts-expect-error
-            return value.toPage()
-
-        if (typeof value === 'string')
-            return value
-
-        return String(value)
-    },
-
-    /** Configure automatic whitespace trimming: left & right */
-    /** values:
-     *    "nl" - trim new lines
-     *    "slurp" - trim whitespaces
-     *    false — no trimming
-     * */
-    autoTrim: [false, false],
-
-    tags: ['``{', '}``'],
-    parse: {
-        exec: '!',
-        interpolate: '',
-        raw: '~',
-    },
-
-    plugins: [], // [{processFnString: null, processAST: null, processTemplate: null}],
-
-    cache: false,  /** cache templates if `name` or `filename` is passed */
-    cacheFilepaths: false,  /** Holds cache of resolved filepaths */
-    views: '',  /** Directory that contains templates */
-    debug: false,  /** Pretty-format error messages (adds runtime penalties) */
-})
-
-const eta = new CustomizedEta({
+export const eta = new CustomizedEta({
     useWith: true,  /** Make data available on the global object instead of `varName` */
     varName: 'fh',  /** Name of the data object. Default "it" */
 
@@ -178,46 +134,6 @@ const eta = new CustomizedEta({
     debug: true,  /** Pretty-format error messages (adds runtime penalties) */
 })
 
-export async function isOldSyntax(block: IBlockNode) {
-    let useOldSyntax = false
-
-    const openTag_ = '``{'
-    const [ openTag, closeTag ] = [ escapeRegExp(openTag_), escapeRegExp('}``') ]
-    const prefix = escapeRegExp('!')
-    const openTagWithPrefixRegexp = new RegExp(openTag + '(-|_)?\\s*(' + prefix + ')\\s', 'g')
-    const statementsSignsRegexp = new RegExp(openTag + '(?<code>.*)(?<!.*\\b(=|var|let|const|return|if|switch|for|function|try|class|while)\\b.*)' + closeTag, 'gs')
-    const captureInsideRegexp = new RegExp(openTag + '(?<code>.*)' + closeTag, 'gs')
-
-
-    await walkBlockTree(block, async (b, lvl) => {
-        if (b.content.indexOf(openTag_) === -1)
-            return
-
-        let m = openTagWithPrefixRegexp.exec(b.content)
-        if (m) {
-            useOldSyntax = true
-            return
-        }
-
-        m = statementsSignsRegexp.exec(b.content)
-        if (m) {
-            m = captureInsideRegexp.exec(b.content)
-            // has no single «=»
-            if (!(m && m.groups && (m.groups.code.indexOf('=') !== -1 && m.groups.code.indexOf('==') === -1)))
-                useOldSyntax = true
-        }
-    })
-
-    return useOldSyntax
-}
-export class RenderingSyntax {
-    static latest(): Eta {
-        return eta
-    }
-    static async autoSelect(block: IBlockNode): Promise<Eta> {
-        return (await isOldSyntax(block)) ? etaForCompatibility : eta
-    }
-}
 
 const AsyncFunction = async function () {}.constructor
 function compile(this: Eta, str: string, options?: Partial<Options>): TemplateFunction {
