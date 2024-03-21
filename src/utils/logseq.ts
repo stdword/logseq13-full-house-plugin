@@ -339,19 +339,23 @@ export function escapeMacroArg(
     quote: true,
     escape: true,
 }): string {
+    let needQuote = false
     if (opts.quote && arg.includes(',') && !(arg.startsWith('"') && arg.endsWith('"')))
-        arg = `"${arg}"`
+        needQuote = true
 
-    if (!opts.escape)
-        return arg
+    if (opts.escape) {
+        // To deal with XSS: escape dangerous (for datascript raw queries) chars
+        const escapeMap = {
+            '"': '\\"',
+        }
 
-    // To deal with XSS: escape dangerous (for datascript raw queries) chars
-    const escapeMap = {
-        '"': '\\"',
+        const chars = Object.keys(escapeMap).join('')
+        arg = arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
     }
 
-    const chars = Object.keys(escapeMap).join('')
-    arg = arg.replaceAll(new RegExp(`[${chars}]`, 'g'), (ch) => escapeMap[ch])
+    if (needQuote)
+        arg = `"${arg}"`
+
     return arg
 }
 export function cleanMacroArg(
@@ -378,6 +382,7 @@ export function splitMacroArgs(args: string) {
     return args
         .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
         .map((arg) => arg.trim())
+        .map((arg) => cleanMacroArg(arg, {escape: false, unquote: false}))
 }
 
 type LogseqProperty = { name: string, text: string, refs: string[] }

@@ -287,8 +287,9 @@ layout.args = function(context: ILogseqContext, ...argNames) {
             return null
 
         if (typeof value === 'string') {
-            value = escapeMacroArg(value, {quote: true, escape: true})
-            return positional !== null ? value : `${n_} ${value}`
+            if (positional === null)
+                value = `${n_} ${value}`
+            return escapeMacroArg(value, {quote: true, escape: true})
         }
 
         // assume boolean
