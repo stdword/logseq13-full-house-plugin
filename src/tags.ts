@@ -528,9 +528,13 @@ function get(context: ILogseqContext, path: string): string {
                         if (refs.length !== 0) {
                             parts.shift()  // release token
 
-                            const nextToken = parts.shift() ?? '0'
-                            const index = Math.min(Number(nextToken), refs.length - 1)
-                            obj = `[[${refs[index]}]]`
+                            const nextToken = parts.shift() ?? ''
+                            if (nextToken === '')
+                                obj = refs.map((r) => `[[${r}]]`)
+                            else {
+                                const index = Math.min(Number(nextToken), refs.length - 1)
+                                obj = `[[${refs[index]}]]`
+                            }
                             continue
                         }
                     }
