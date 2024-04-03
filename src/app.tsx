@@ -59,8 +59,6 @@ async function onAppSettingsChanged() {
     const locale = locales_Logseq2DayJS[config.preferredLanguage] || 'en'
     dayjs.locale(locale)
 
-    console.log('TRACING', {p: config.preferredLanguage, locale})
-
     /*
     mon 0 1
     tue 1 2

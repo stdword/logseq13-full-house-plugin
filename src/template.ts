@@ -154,6 +154,8 @@ export class Template implements ITemplate {
         if (this.includingParent) {
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateProperty)
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.includingParentProperty)
+            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateListAsProperty)
+            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateUsageProperty)
             if (this.accessedVia === 'page') {
                 PropertiesUtils.deleteProperty(this.block, PropertiesUtils.titleProperty)
                 PropertiesUtils.deleteProperty(this.block, PropertiesUtils.filtersProperty)
