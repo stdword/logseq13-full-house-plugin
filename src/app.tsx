@@ -33,6 +33,34 @@ async function onAppSettingsChanged() {
     const config = await logseq.App.getUserConfigs()
     LogseqDayjsState.format = config.preferredDateFormat
 
+    const locales_Logseq2DayJS = {
+        'en': 'en',
+        'fr': 'fr',
+        'de': 'de',
+        'nl': 'nl',
+        'zh-CN': 'zh-cn',
+        'zh-Hant': 'zh-tw',
+        'af': 'af',
+        'es': 'es',
+        'nb-NO': 'nb',
+        'pl': 'pl',
+        'pt-BR': 'pt-br',
+        'pt-PT': 'pt',
+        'ru': 'ru',
+        'ja': 'ja',
+        'it': 'it',
+        'tr': 'tr',
+        'uk': 'uk',
+        'ko': 'ko',
+        'sk': 'sk',
+        'fa': 'fa',
+        'id': 'id',
+    }
+    const locale = locales_Logseq2DayJS[config.preferredLanguage] || 'en'
+    dayjs.locale(locale)
+
+    console.log('TRACING', {p: config.preferredLanguage, locale})
+
     /*
     mon 0 1
     tue 1 2
@@ -43,7 +71,7 @@ async function onAppSettingsChanged() {
     const weekStart = config.preferredStartOfWeek !== undefined
         ? (Number(config.preferredStartOfWeek) + 1) % 7
         : 0
-    dayjs.updateLocale('en', {weekStart})
+    dayjs.updateLocale(locale, {weekStart})
 }
 
 async function init() {

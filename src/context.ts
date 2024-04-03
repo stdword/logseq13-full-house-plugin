@@ -21,6 +21,7 @@ import { ITemplate } from './template'
 // import * as utc               from 'dayjs/plugin/utc'
 // import * as timezone          from 'dayjs/plugin/timezone'
 // import * as updateLocale      from 'dayjs/plugin/updateLocale'
+// import * as localeData        from 'dayjs/plugin/localeData'
 // import logseqPlugin           from './extensions/dayjs_logseq_plugin'
 //
 
@@ -39,8 +40,31 @@ import duration          from 'dayjs/plugin/duration'
 import utc               from 'dayjs/plugin/utc'
 import timezone          from 'dayjs/plugin/timezone'
 import updateLocale      from 'dayjs/plugin/updateLocale'
+import localeData        from 'dayjs/plugin/localeData'
 import logseqPlugin      from './extensions/dayjs_logseq_plugin'
 //
+
+import 'dayjs/locale/fr'
+import 'dayjs/locale/de'
+import 'dayjs/locale/nl'
+import 'dayjs/locale/zh-cn'
+import 'dayjs/locale/zh-tw'
+import 'dayjs/locale/af'
+import 'dayjs/locale/es'
+import 'dayjs/locale/nb'
+import 'dayjs/locale/pl'
+import 'dayjs/locale/pt-br'
+import 'dayjs/locale/pt-br'
+import 'dayjs/locale/pt'
+import 'dayjs/locale/ru'
+import 'dayjs/locale/ja'
+import 'dayjs/locale/it'
+import 'dayjs/locale/tr'
+import 'dayjs/locale/uk'
+import 'dayjs/locale/ko'
+import 'dayjs/locale/sk'
+import 'dayjs/locale/fa'
+import 'dayjs/locale/id'
 
 
 export { dayjs, Dayjs }
@@ -55,6 +79,7 @@ dayjs.extend(duration)
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(updateLocale)
+dayjs.extend(localeData)
 dayjs.extend(logseqPlugin)
 
 
