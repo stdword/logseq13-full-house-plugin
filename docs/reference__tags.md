@@ -573,13 +573,22 @@ For «books» page: 171
 
 
 ### `.journals` :id=query-refs-journals
-Get *descending-ordered* journal linked references for current or specified page.
+Get the linked *journal* references for current or specified page in **descending** order.
+Second boolean argument is for getting properties of reference block.
 
 `query.refs.journals(name?) → array of page journal days (dayjs objects)`
+`query.refs.journals(name, true) → array of objects with:` \
+    `.day (dayjs object)` \
+    `.name (journal name)` \
+    `.props (properties and its values)`
 
 <!-- tabs:start -->
 #### ***Template***
-` ``query.refs.journals('books').map((day) => day.toPage()).join('\n')`` `
+```javascript
+query.refs.journals('books')
+    .map((day) => day.toPage())
+    .join('\n')
+```
 
 #### ***Rendered***
 2024-01-31 Wed \
@@ -591,11 +600,14 @@ Get *descending-ordered* journal linked references for current or specified page
 
 
 
-
 ### `.pages` :id=query-refs-pages
-Get *unordered* non-journal linked references for current or specified page.
+Get the linked *non-journal* references for current or specified page.
+Second boolean argument is for getting properties of reference block.
 
 `query.refs.pages(name?) → array of page names`
+`query.refs.pages(name, true) → array of objects with:` \
+    `.name (page name)` \
+    `.props (properties and its values)`
 
 <!-- tabs:start -->
 #### ***Template***

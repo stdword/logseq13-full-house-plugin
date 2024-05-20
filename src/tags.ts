@@ -427,6 +427,7 @@ function queryRefs(
     context: ILogseqContext,
     page: PageContext | string = '',
     only: 'journals' | 'pages' | '' = '',
+    withProps: boolean = false,
 ) {
     let name = context.page.name!
     if (page instanceof PageContext)
@@ -443,9 +444,13 @@ function queryRefs(
 
     // @ts-expect-error
     let refs = top!.logseq.api.datascript_query(`
-      [:find (pull ?p [
-        [:block/journal-day :as :day]
-        [:block/original-name :as :name] ])
+      [:find (pull ?b [
+          {:block/page [
+            [:block/journal-day :as :day]
+            [:block/original-name :as :name]
+          ]}
+          ${withProps ? '[:block/properties :as :props]' : ''}
+        ])
           :where
             [?b :block/refs ?r]
             [?r :block/name ?rn]
@@ -460,24 +465,32 @@ function queryRefs(
     refs = refs.flat()
 
     if (only === 'journals')
-        refs.sort((a, b) => b['day'] - a['day'])
+        refs.sort((a, b) => b.page.day - a.page.day)
+
+    for (let r of refs) {
+        if (r.page && r.page.day)
+            r.page.day = PageContext.parseDay(r.page.day)
+    }
 
     return refs.map((r) => {
-        if (only === 'pages')
+        if (only === 'pages' && !withProps)
             return r.name
 
-        if (r.day)
-            r.day = PageContext.parseDay(r.day)
-        if (only === 'journals')
-            return r.day
-        return r
+        if (only === 'journals' && !withProps)
+            return r.page.day
+
+        return {
+            day: r.page.day,
+            name: r.page.name,
+            props: r.props,
+        }
     })
 }
-function query_journalRefs(context: ILogseqContext, page: PageContext | string = '') {
-    return queryRefs(context, page, 'journals')
+function query_journalRefs(context: ILogseqContext, page: PageContext | string = '', withProps: boolean = false) {
+    return queryRefs(context, page, 'journals', withProps)
 }
-function query_pageRefs(context: ILogseqContext, page: PageContext | string = '') {
-    return queryRefs(context, page, 'pages')
+function query_pageRefs(context: ILogseqContext, page: PageContext | string = '', withProps: boolean = false) {
+    return queryRefs(context, page, 'pages', withProps)
 }
 
 
