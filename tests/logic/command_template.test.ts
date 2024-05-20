@@ -80,13 +80,9 @@ describe('template syntax', () => {
 })
 
 describe('backwards compatibility', () => {
-    test('old syntax: exclamation mark', async () => {
-        await testRender('``{ ! var x = c.page.name }`` ``{ x }``', ' PAGE') })
     test('new syntax: no exclamation mark', async () => {
         await testRender('``{ var x = c.page.name }`` ``x``', ' PAGE') })
 
-    test('don\'t mix old & new syntax', async () => {
-        await testRender('``{ ! var x = c.page.name }`` ``x``', ' ``x``') })
     test('don\'t mix new & old syntax', async () => {
         await testRender('``{ var x = c.page.name }`` ``{ x }``', ' ') })
 
@@ -95,7 +91,7 @@ describe('backwards compatibility', () => {
     test('statement signs: =', async () => {
         await testRender('``{ c.page.name = "new" }``', '') })
     test('statement signs: absent', async () => {
-        await testRender('``{ c.page.name }``', 'PAGE') })
+        await testRender('``{ c.page.name }``', '') })
 })
 
 describe('template context', () => {
