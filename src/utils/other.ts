@@ -119,7 +119,8 @@ export function escape(str: string, specials: string[]) {
 
 export function escapeForRegExp(str: string) {
     const specials = [
-        // '-', '^', '$',
+        // TODO: «-» need to be escaped inside [ ]
+        // '^', '$',
         '/', '.', '*', '+', '?', '|',
         '(', ')', '[', ']', '{', '}', '\\',
     ]
