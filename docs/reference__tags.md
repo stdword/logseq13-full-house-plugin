@@ -444,7 +444,6 @@ Same as [`date.today`](#date-today), but for tomorrow date.
 
 
 
-
 ### `.from` :id=date-from
 [Day.js](https://day.js.org) object builder. See whole documentation section [here](https://day.js.org/docs/en/parse/parse) for details.
 
@@ -464,6 +463,18 @@ Europe/Minsk, GMT+3 \
 2024-08-12T20:00:00.000Z — escaping with `[]` for `h`
 <!-- tabs:end -->
 
+
+
+### `.fromJournal` :id=date-from-journal
+Conversion from Logseq internal date format (e.g. `20240820`) to [Day.js](https://day.js.org) object.
+
+<!-- tabs:start -->
+#### ***Template***
+` ``date.fromJournal(20240820).toISOString()`` `
+
+#### ***Rendered***
+2024-08-20T21:00:00.000Z
+<!-- tabs:end -->
 
 
 ### `.nlp` :id=date-nlp

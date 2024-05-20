@@ -384,6 +384,15 @@ function date_nlp(context: ILogseqContext, query: string, now: Dayjs | string = 
     }
     return null
 }
+function date_from_journal(day: number | string | Dayjs): Dayjs | null {
+    if (day instanceof dayjs)
+        return day
+    day = day.toString()
+    const obj = PageContext.parseDay(day)
+    if (!obj.isValid())
+        return null
+    return obj
+}
 
 
 /* query */
@@ -748,6 +757,7 @@ export function getTemplateTagsContext(context: ILogseqContext) {
         }),
         date: Object.assign(datesContext.date, {
             nlp: bindContext(date_nlp, context),
+            fromJournal: date_from_journal,
         }),
     })
 }
