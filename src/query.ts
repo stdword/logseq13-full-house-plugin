@@ -195,7 +195,7 @@ class ValueFilter extends Filter {
         else if (operation === 'ends with')
             operation = 'clojure.string/ends-with?'
 
-        return `[(${this.operation} ?pt-${propertyName} "${value}")]`
+        return `[(${operation} ?pt-${propertyName} "${value}")]`
     }
     getNotPredicate(builder: PagesQueryBuilder): string {
         if (this.operation === 'regexp') {
