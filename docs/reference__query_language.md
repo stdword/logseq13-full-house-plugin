@@ -381,10 +381,10 @@ Filter by page property value. *Note*: this filter treats properties values as a
 For `=` and `!=` operations, all string values (including empty strings) will be ignored. \
 For other comparison operations, all string values will be considered greater than integer values, and there is no way to filter out string values.
 
-- `.integerValue(value)` — shortcut for `.integerValue('=', value)`
-- `.integerValue(operation, value)`
+- `.integerValue(number)` — shortcut for `.integerValue('=', number)`
+- `.integerValue(operation, number)`
     - `operation`: `=`, `!=`, `>`, `>=`, `<`, `<=`
-    - `value`: value to compare to
+    - `number`: integer value to compare to
 
 <!-- tabs:start -->
 #### ***Template***
@@ -448,11 +448,11 @@ Filter by reference in page property value. *Note*: this filter searches referen
 - `.reference(operation, value)`
 - `.reference(operation, value, false)` — inversion form
     - `operation`: `includes` or `includes only`
-    - `value`: reference name to compare to or an array of names
+    - `value`: single reference name to compare to OR an array of names
 
 + `.tags(value, only?)` — shortcut for `.property('tags').reference(...)`
 + `.noTags(value, only?)` — inversion form
-    + `value`: reference name to compare to or an array of names
+    + `value`: single reference name to compare to OR an array of names
     + `only?`: use `includes only` operation instead of `includes` (default: false)
 
 <!-- tabs:start -->
@@ -475,6 +475,38 @@ best: ``best.get().length``
 books: 542 \
 finished: 62 \
 best: 13
+
+<!-- tabs:end -->
+
+
+#### `.referenceCount`
+Filter by references count in page property value. *Note*: this filter searches references within properties values. And ignores all other text content.
+
+?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
+
+- `.referenceCount(number)` — shortcut for `.referenceCount('=', number)`
+- `.referenceCount(operation, number)`
+- `.referenceCount(operation, number, false)` — inversion form
+    - `operation`: `=`, `!=`, `>`, `>=`, `<`, `<=`
+    - `number`: integer value to compare to
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+var books = query.pages().tags('book')
+var foreign = books
+    .property('alias')
+        .referenceCount(2)
+_}``
+
+books: ``books.get().length``
+foreign: ``foreign.get().length``
+```
+
+#### ***Rendered***
+books: 542 \
+foreign: 485
 
 <!-- tabs:end -->
 

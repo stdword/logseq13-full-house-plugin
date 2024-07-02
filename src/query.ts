@@ -6,7 +6,7 @@ import { PageContext } from './context'
 
 
 abstract class Filter {
-    public requiredVarsRules: {[varName: string]: string} = {}
+    public bindingVars: ((state) => string[][]) = (state) => []
     public value: string
 
     constructor(value: string) {
@@ -14,8 +14,12 @@ abstract class Filter {
     }
 
     bindNewVars(builder: PagesQueryBuilder): [string[], string[]] {
-        const missedVars = Object.keys(this.requiredVarsRules).filter((v) => !builder.bindedVars.includes(v))
-        return [missedVars, missedVars.map((v) => this.requiredVarsRules[v])]
+        const varsBinders = this.bindingVars(builder.lastState)
+        const missedVarsBinders = varsBinders.filter(([v, _]) => !builder.bindedVars.includes(v))
+        return [
+            missedVarsBinders.map(([v, b]) => v),
+            missedVarsBinders.map(([v, b]) => b),
+        ]
     }
     checkArgs(builder: PagesQueryBuilder): string | null {
         if (this.value === '')
@@ -36,7 +40,9 @@ abstract class Filter {
 class TitleFilter extends Filter {
     operation: string
     allowedOperations = ['=', '!=', 'starts with', 'ends with', 'includes', 'regexp']
-    requiredVarsRules = {'?name': '[?p :block/name ?name]'}
+    bindingVars = (state) => [
+        ['?name', '[?p :block/name ?name]']
+    ]
 
     constructor(value: string, operation: string) {
         super(value)
@@ -77,10 +83,10 @@ class TitleFilter extends Filter {
 
 
 class PropertyFilter extends Filter {
-    requiredVarsRules = {
-        '?properties': '[?p :block/properties ?properties]',
-        '?properties-text': '[?p :block/properties-text-values ?properties-text]',
-    }
+    bindingVars = (state) => [
+        ['?properties', '[?p :block/properties ?properties]'],
+        ['?properties-text', '[?p :block/properties-text-values ?properties-text]'],
+    ]
 
     getPredicate(builder: PagesQueryBuilder): string {
         builder.lastState = this.value  // save last property name
@@ -250,6 +256,36 @@ class ReferenceFilter extends Filter {
     }
 }
 
+class ReferenceCountFilter extends Filter {
+    number: number
+    operation: string
+    allowedOperations = ['=', '!=', '>', '>=', '<', '<=']
+
+    bindingVars = (prop) => [
+        [`?pc-${prop}`, `[(count ?p-${prop}) ?pc-${prop}]`]
+    ]
+
+    constructor(value: string, operation: string) {
+        super(value)
+        this.number = Number(this.value)
+        this.operation = operation.trim()
+    }
+    checkArgs(builder: PagesQueryBuilder): string | null {
+        if (builder.lastState === null)
+            return 'Preceding property filter is required'
+        if (!this.allowedOperations.includes(this.operation))
+            return `Unknown operation: ${this.operation}`
+        if (isNaN(this.number) || !Number.isInteger(this.number))
+            return `Value should be an integer number`
+
+        return null
+    }
+    getPredicate(builder: PagesQueryBuilder): string {
+        const propertyName = builder.lastState
+        return `[(${this.operation} ?pc-${propertyName} ${this.number})]`
+    }
+}
+
 
 export class PagesQueryBuilder {
     public filters: string[]
@@ -344,6 +380,14 @@ export class PagesQueryBuilder {
             operation = 'includes'
         }
         return this._filter(new ReferenceFilter(value, operation), nonInverted)
+    }
+    referenceCount(operation: string, value: string = '', nonInverted: boolean = true) {
+        if (value === '') {
+            value = operation
+            operation = '='
+        }
+        value = value.toString()
+        return this._filter(new ReferenceCountFilter(value, operation), nonInverted)
     }
     tags(names: string | string[] = '', only: boolean = false) {
         const cloned = this._filter(new PropertyFilter('tags'))
