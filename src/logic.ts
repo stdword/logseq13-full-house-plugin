@@ -412,8 +412,11 @@ export async function renderTemplate(
     template: ITemplate,
     args: string[],
     currentContext: ILogseqCurrentContext,
+    argsContext?: ArgsContext,
 ): Promise<[IBatchBlock, IBatchBlock[]]> {
-    const argsContext = await getArgsContext(template, args)
+    if (!argsContext)
+        argsContext = await getArgsContext(template, args)
+
     const context = await assembleContext(
         await getCallContext(slot, argsContext),
         currentContext,

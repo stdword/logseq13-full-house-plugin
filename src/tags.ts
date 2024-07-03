@@ -5,16 +5,25 @@ import * as Sherlock from 'sherlockjs'
 
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { LogseqMarkup, MLDOC_Node, resolveAssetsLink } from './extensions/mldoc_ast'
-import { ArgsContext, BlockContext, Context, dayjs, Dayjs, ILogseqContext, ILogseqCurrentContext, PageContext }  from './context'
+import {
+    ArgsContext, BlockContext, Context,
+    dayjs, Dayjs,
+    ILogseqContext as C, ILogseqCurrentContext,
+    PageContext,
+}  from './context'
 import {
     cleanMacroArg,
     coerceStringToBool,
     escape,
     escapeMacroArg,
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
-    LogseqReference, p, parseReference, RendererMacro, splitMacroArgs, unquote, walkBlockTree
+    LogseqReference, p, parseReference, RendererMacro,
+    splitMacroArgs, unquote, walkBlockTree,
 } from './utils'
-import { compileTemplateView, getArgsContext, getTemplate, getTemplateBlock, renderTemplate, templateMacroStringForBlock } from './logic'
+import {
+    getArgsContext, getTemplate, getTemplateBlock,
+    renderTemplate, compileTemplateView,
+} from './logic'
 import { StateError } from './errors'
 import { ITemplate, Template } from './template'
 import { PagesQueryBuilder } from './query'
@@ -163,7 +172,18 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
     return `{{embed ${r}}}`
 }
 
-async function _include__template(context: ILogseqContext, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
+
+async function _include__lazy(c: C, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
+    if (c.mode === 'view') {
+        console.warn(p`Lazy rendering mode is not supported for views`)
+        logseq.UI.showMsg(
+            '[:p "Lazy rendering mode is not supported for " [:b "views"] ". Please ' +
+            'use " [:code ":template"] " command instead or " [:i "disable"] " lazy mode."]',
+            'warning', {timeout: 5000}
+        )
+        return ''
+    }
+
     let block: BlockEntity
     try {
         [block, ] = await getTemplateBlock(ref)
@@ -171,17 +191,23 @@ async function _include__template(context: ILogseqContext, layoutMode: boolean, 
         return ''
     }
 
-    let command = RendererMacro.command('template').arg(ref.value as string)
+    let commandName
+    if (c.mode === 'template')
+        commandName = 'template'
+    if (!commandName)
+        return ''
+
+    let command = RendererMacro.command(commandName).arg(ref.value as string)
 
     if (!args)
         args = Template.getUsageArgs(block)
     if (layoutMode)
-        args.push(`:transcluded-from ${context.template!.block.id}`)
+        args.push(`:transcluded-from ${c.template!.block.id}`)
     command = command.args(args)
 
     return command.toString()
 }
-async function _include__view(context: ILogseqContext, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
+async function _include__runtime(c: C, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
     let template: Template
     try {
         template = await getTemplate(ref)
@@ -193,43 +219,35 @@ async function _include__view(context: ILogseqContext, layoutMode: boolean, ref:
         args = Template.getUsageArgs(template.block)
 
     const argsContext = layoutMode
-        ? await getArgsContext(template, args, context.template!._obj)
+        ? await getArgsContext(template, args, c.template!._obj)
         : undefined
 
-    return await compileTemplateView(
-        // @ts-expect-error
-        context.identity.slot,
-        template,
-        args,
-        context as ILogseqCurrentContext,
-        argsContext,
-    )
+    // @ts-expect-error
+    const slot = c.identity.slot
+    const renderArgs = [slot, template, args, c, argsContext
+        ] as [string, ITemplate, string[], ILogseqCurrentContext, ArgsContext | undefined]
+
+    if (c.mode === 'template') {
+        const [head, tail] = await renderTemplate(...renderArgs)
+        return head.content
+    } else if (c.mode === 'view')
+        return await compileTemplateView(...renderArgs)
+
+    console.debug(p`Unknown rendering mode: ${c.mode}`)
+    return ''
 }
-async function _include__template_raw(context: ILogseqContext, ref: LogseqReference, args?: string[]): Promise<string> {
-    let template: Template
-    try {
-        template = await getTemplate(ref)
-    } catch (error) {  // StateMessage
-        return ''
-    }
-
-    if (!args)
-        args = Template.getUsageArgs(template.block)
-
-    const [head, tail] = await renderTemplate(
-        // @ts-expect-error
-        context.identity.slot,
-        template,
-        args,
-        context as ILogseqCurrentContext,
-    )
-
-    return head.content
-}
-async function _include(context: ILogseqContext, layoutMode: boolean | undefined, name: string, args?: string[] | string) {
-    const ref = parseReference(name ?? '')
+async function _include(c: C, layoutMode: boolean, lazyMode: boolean, name: string, args_?: string[] | string) {
+    const {ref, args} = _clean_include_args(name, args_)
     if (!ref)
         return ''
+
+    if (lazyMode)
+        return await _include__lazy(c, layoutMode, ref, args)
+    else
+        return await _include__runtime(c, layoutMode, ref, args)
+}
+function _clean_include_args(name: string, args?: string[] | string) {
+    const ref = parseReference(name ?? '')
 
     if (args !== undefined && !Array.isArray(args))
         args = splitMacroArgs(args.toString())
@@ -238,34 +256,61 @@ async function _include(context: ILogseqContext, layoutMode: boolean | undefined
     if (args)  // runtime protection
         args = args.map((arg) => arg.toString())
 
-    if (layoutMode === undefined)
-        return await _include__template_raw(context, ref, args)
+    return {ref, args}
+}
 
-    if (context.mode === 'template')
-        return await _include__template(context, layoutMode, ref, args)
-    else if (context.mode === 'view')
-        return await _include__view(context, layoutMode, ref, args)
+async function include(c: C, name: string, args?: string[] | string, lazy: boolean = false) {
+    return await _include(c, false, lazy, name, args)
+}
+include.view = async function(c: C, name: string, args_?: string[] | string) {
+    let {ref, args} = _clean_include_args(name, args_)
+    if (!ref)
+        return ''
 
-    console.debug(p`Unknown rendering mode: ${context.mode}`)
-    return ''
+    let block: BlockEntity
+    try {
+        [block, ] = await getTemplateBlock(ref)
+    } catch (error) {  // StateError
+        return ''
+    }
+
+    let command = RendererMacro.command('template-view').arg(ref.value as string)
+
+    if (!args)
+        args = Template.getUsageArgs(block)
+    command = command.args(args)
+
+    return command.toString()
 }
-async function include(context: ILogseqContext, name: string, args?: string[] | string) {
-    return await _include(context, false, name, args)
+include.inlineView = function(body: string, args_?: string[]) {
+    const {args} = _clean_include_args('', args_)
+
+    // force usage of single quotes to avoid messing up with logseq escaping
+    body = body.replaceAll('"', "'")
+
+    body = escapeMacroArg(body, {quote: true, escape: false})
+
+    // inline view doesn't support curly brackets, but string
+    // characters need to be escaped to avoid messing up with logseq escaping
+    body = body.replaceAll('{', '\\u007B')
+    body = body.replaceAll('}', '\\u007D')
+
+    const command = RendererMacro.command('view')
+        .arg(body)
+        .args(args)
+    return command.toString()
 }
-async function layout(context: ILogseqContext, name: string, args?: string[] | string) {
-    return await _include(context, true, name, args)
+async function layout(c: C, name: string, args?: string[] | string, lazy: boolean = false) {
+    return await _include(c, true, lazy, name, args)
 }
-async function call(context: ILogseqContext, name: string, args?: string[] | string) {
-    return await _include(context, undefined, name, args)
-}
-layout.args = function(context: ILogseqContext, ...argNames: (string | [string, string | boolean] | {string: string | boolean})[]) {
+layout.args = function(c: C, ...argNames: (string | [string, string | boolean] | {string: string | boolean})[]) {
     if (argNames.length === 0) {
         // use all available (in context) args names
         let index = 1
-        argNames = context.args._args.map(([key, _]) => (key ? key : `$${index++}`))
+        argNames = c.args._args.map(([key, _]) => (key ? key : `$${index++}`))
     }
 
-    const args = Object.fromEntries(context.args._args)
+    const args = Object.fromEntries(c.args._args)
     return argNames
         // @ts-expect-error
         .flatMap(x => (isObject(x) ? Object.entries(x) : x))
@@ -294,7 +339,7 @@ layout.args = function(context: ILogseqContext, ...argNames: (string | [string, 
                     return null
 
                 if (positional !== undefined)
-                    value = context.args._args
+                    value = c.args._args
                         .filter(([key, val]) => key === '')
                         .map(([key, val]) => val)
                         .at(positional - 1)
@@ -317,6 +362,7 @@ layout.args = function(context: ILogseqContext, ...argNames: (string | [string, 
         .filter((v) => v !== null)
         .join(', ')
 }
+
 
 function empty(obj: any, fallback: any = '') {
     if (obj === null || obj === undefined)
@@ -385,7 +431,7 @@ function spaces(value: string | number, width: number, align: 'left' | 'right' |
 
 
 /* date */
-function date_nlp(context: ILogseqContext, query: string, now: Dayjs | string = 'now'): Dayjs | null {
+function date_nlp(context: C, query: string, now: Dayjs | string = 'now'): Dayjs | null {
     if (now === 'now')
         Sherlock._setNow(null)
     else if (now === 'page')
@@ -419,7 +465,7 @@ function query_pages() {
     return new PagesQueryBuilder()
 }
 
-function query_refsCount(context: ILogseqContext, page: PageContext | string = '') {
+function query_refsCount(context: C, page: PageContext | string = '') {
     let name = context.page.name!
     if (page instanceof PageContext)
         name = page.name!
@@ -443,7 +489,7 @@ function query_refsCount(context: ILogseqContext, page: PageContext | string = '
 }
 
 function queryRefs(
-    context: ILogseqContext,
+    context: C,
     page: PageContext | string = '',
     only: 'journals' | 'pages' | '' = '',
     withProps: boolean = false,
@@ -505,10 +551,10 @@ function queryRefs(
         }
     })
 }
-function query_journalRefs(context: ILogseqContext, page: PageContext | string = '', withProps: boolean = false) {
+function query_journalRefs(context: C, page: PageContext | string = '', withProps: boolean = false) {
     return queryRefs(context, page, 'journals', withProps)
 }
-function query_pageRefs(context: ILogseqContext, page: PageContext | string = '', withProps: boolean = false) {
+function query_pageRefs(context: C, page: PageContext | string = '', withProps: boolean = false) {
     return queryRefs(context, page, 'pages', withProps)
 }
 
@@ -523,15 +569,15 @@ function dev_uuid(shortForm: boolean = false) {
     }
     return crypto.randomUUID()
 }
-function parseMarkup(context: ILogseqContext, text: string): MLDOC_Node[] {
+function parseMarkup(context: C, text: string): MLDOC_Node[] {
     text = _asString(text)
     return new LogseqMarkup(context).parse(text)
  }
-function toHTML(context: ILogseqContext, text: string): string {
+function toHTML(context: C, text: string): string {
     text = _asString(text)
     return new LogseqMarkup(context).toHTML(text)
  }
-function asset(context: ILogseqContext, name: string): string {
+function asset(context: C, name: string): string {
     // TODO: expand '/test.png'
     name = _asString(name)
     let originalProtocol: string
@@ -555,7 +601,7 @@ function color(value: string): string {
         value = `#${value}`
     return value
  }
-function get(context: ILogseqContext, path: string): string {
+function get(context: C, path: string): string {
     path = _asString(path)
 
     function getByPath(obj: any, parts: string[]) {
@@ -599,7 +645,7 @@ function get(context: ILogseqContext, path: string): string {
     return getByPath(context, parts) ?? ''
 }
 
-function parseLinks(context: ILogseqContext, text: string): string[] {
+function parseLinks(context: C, text: string): string[] {
     const links: string[] = []
 
     const ast = new LogseqMarkup(context).parse(text)
@@ -616,7 +662,7 @@ function parseLinks(context: ILogseqContext, text: string): string[] {
 }
 
 async function links(
-    context: ILogseqContext,
+    context: C,
     source: string | PageContext | BlockContext,
     includeChildren: boolean = false,
 ): Promise<string[]> {
@@ -742,8 +788,12 @@ export function getTemplateTagsDatesContext() {
         }),
     }
 }
-export function getTemplateTagsContext(context: ILogseqContext) {
+export function getTemplateTagsContext(context: C) {
     const datesContext = getTemplateTagsDatesContext()
+
+    const include_ = bindContext(include, context)
+    include_.view = bindContext(include.view, context)
+    include_.inlineView = include.inlineView
 
     const layout_ = bindContext(layout, context)
     layout_.args = bindContext(layout.args, context)
@@ -761,9 +811,8 @@ export function getTemplateTagsContext(context: ILogseqContext) {
         tomorrow: datesContext.tomorrow,
         time: datesContext.time,
 
-        include: bindContext(include, context),
+        include: include_,
         layout: layout_,
-        call: bindContext(call, context),
 
         query: new Context({
             pages: query_pages,

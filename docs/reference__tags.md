@@ -263,13 +263,20 @@ Shortcut for [`fill`](#fill) with spaces.
 ## `Nesting templates` :id=section-nesting
 
 ### `include` :id=nesting-include
-Include another template by name.
+Include another template by it's name.
 
-`async include(name, ...args?)`
-- `name`: template name. Only templates with `template::` property can be included.
-- `args`: (optional) arguments for included template. Can be a string or an array.
-    - If not specified `template-usage::` property will be used to get default arguments' values.
-    - If you need to include template with no arguments: use empty value `[]` or `''`.
+- `async include(name, args?, lazy?)`
+    - `name`: template name. Only templates with `template::` property can be included.
+    - `args`: (optional) arguments for included template. Can be a string or an array of strings.
+        - If not specified `template-usage::` property will be used to get default arguments' values.
+        - If you need to include template with no arguments: use empty value `[]` or `''`.
+    - `lazy`: (optional, default: false) include template, but render it later.
+        - Useful for heavy templates. Could be slow for lots of lazy inclusions.
+        - Supported only with [render template](reference__commands.md#template-command) command.
+- `async include.view(name, args?)`
+    - Force inclusion as a view, regardless of the rendering command. It is always lazy.
+- `include.inlineView(body, args?)`
+    - Force inclusion as an inline view, regardless of the rendering command. It is always lazy.
 
 <!-- tabs:start -->
 #### ***Template***
@@ -327,9 +334,10 @@ Buy list: \
 
 
 ### `layout` :id=nesting-layout
-Include another template by name. Acts like [`include`](#include) with the only difference: it preserves template [arg-properties](reference__args.md#arg-properties). Use it to **inherit templates**.
+Include another template by it's name. Acts like [`include`](#nesting-include) with the only difference: it preserves outer-template [arg-properties](reference__args.md#arg-properties). Use it to **inherit templates**.
 
-- `async layout(name, ...args?)`
+- `async layout(name, args?, lazy?)`
+    - See parameters description in [`include`](#nesting-include) section.
 - `layout.args(...names)` — used to pass through current arguments to layout template
     - `names`: an array
         - every item could be:
@@ -351,15 +359,17 @@ Include another template by name. Acts like [`include`](#include) with the only 
 ```
 - template:: child
   arg-test:: OVERRIDED
-  - ``await include('nested')``
-  - ``await layout('nested')``
-  - ``await layout('nested', layout.args('test'))``
-  - ``await layout('nested', layout.args({test: 'COMPUTED'}))``
+  - ``await include('parent')``
+  - ``await layout('parent')``
+  - ``await layout('parent', layout.args('test'))``
+  - ``await layout('parent', layout.args(['test', c.args.test]))``
+  - ``await layout('parent', layout.args({test: 'COMPUTED'}))``
 ```
 
 #### ***Rendered***
 - ORIGINAL
 - OVERRIDED
+- USER
 - USER
 - COMPUTED
 
