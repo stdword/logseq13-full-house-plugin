@@ -45,7 +45,7 @@ const quotesValues = [
 export function isUUID(str: string) {
     const regex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
     return !!str.match(regex)
- }
+}
 
 export function isObject(item: any): boolean {
     return (item && typeof item === 'object' && !Array.isArray(item))

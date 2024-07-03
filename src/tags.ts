@@ -258,45 +258,64 @@ async function layout(context: ILogseqContext, name: string, args?: string[] | s
 async function call(context: ILogseqContext, name: string, args?: string[] | string) {
     return await _include(context, undefined, name, args)
 }
-layout.args = function(context: ILogseqContext, ...argNames) {
+layout.args = function(context: ILogseqContext, ...argNames: (string | [string, string | boolean] | {string: string | boolean})[]) {
     if (argNames.length === 0) {
+        // use all available (in context) args names
         let index = 1
         argNames = context.args._args.map(([key, _]) => (key ? key : `$${index++}`))
     }
 
     const args = Object.fromEntries(context.args._args)
-    return argNames.map((n) => {
-        if (n.startsWith(':'))
-            n = n.slice(1)
-        const n_ = ':' + n
+    return argNames
+        // @ts-expect-error
+        .flatMap(x => (isObject(x) ? Object.entries(x) : x))
+        .map((n) => {
+            let name: string
+            let value: string | boolean | undefined
+            let positional: number | undefined
 
-        const positional = n.startsWith('$') ? Number(n.slice(1)) : null
-        if (positional !== null && positional < 1)
-            return null
+            // every item could have from [name, value]
+            if (Array.isArray(n)) {
+                let val
+                [name, val] = n
+                // force value to be boolean or string
+                value = typeof val === 'boolean' ? val : val.toString()
+            } else
+                name = n as string
 
-        let value: string | boolean | undefined
-        if (positional !== null)
-            value = context.args._args
-                .filter(([key, val]) => key === '')
-                .map(([key, val]) => val)
-                .at(positional - 1)
-        else
-            value = args[n]
+            if (name.startsWith(':'))
+                name = name.slice(1)
+            const name_ = ':' + name
 
-        if (value === undefined)
-            return null
+            if (value === undefined) {
+                if (name.startsWith('$'))
+                    positional = Number(name.slice(1))
+                if (positional !== undefined && positional < 1)
+                    return null
 
-        if (typeof value === 'string') {
-            if (positional === null)
-                value = `${n_} ${value}`
-            return escapeMacroArg(value, {quote: true, escape: true})
-        }
+                if (positional !== undefined)
+                    value = context.args._args
+                        .filter(([key, val]) => key === '')
+                        .map(([key, val]) => val)
+                        .at(positional - 1)
+                else
+                    value = args[name]
 
-        // assume boolean
-        return value ? n_ : n_ + ' ""'
-    })
-    .filter((v) => v !== null)
-    .join(', ')
+                if (value === undefined)
+                    return null
+            }
+
+            if (typeof value === 'string') {
+                if (positional === undefined)
+                    value = `${name_} ${value}`
+                return escapeMacroArg(value, {quote: true, escape: true})
+            }
+
+            // assume value is boolean
+            return value ? name_ : name_ + ' ""'
+        })
+        .filter((v) => v !== null)
+        .join(', ')
 }
 
 function empty(obj: any, fallback: any = '') {

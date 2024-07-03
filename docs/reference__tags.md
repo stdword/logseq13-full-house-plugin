@@ -331,30 +331,37 @@ Include another template by name. Acts like [`include`](#include) with the only 
 
 - `async layout(name, ...args?)`
 - `layout.args(...names)` — used to pass through current arguments to layout template
-    - `names`: the name of an argument or a positional link: `$1`, `$2`, etc.
-        - if unspecified: all arguments will be passed through
+    - `names`: an array
+        - every item could be:
+            - the name of an argument
+            - positional link to an argument: `$1`, `$2`, etc.
+            - argument name and it's value: `[name, value]`
+            - object with arguments' names as key and values as values: `{name1: v1, name2: v2, ...}`
+        - if unspecified: all arguments will be passed through automatically
 
 <!-- tabs:start -->
 #### ***Template «parent»***
 ```
 - template:: parent
-  arg-value:: ORIGINAL
-  - ``c.args.value``
+  arg-test:: ORIGINAL
+  - ``c.args.test``
 ```
 
 #### ***Template «child»***
 ```
 - template:: child
-  arg-value:: OVERRIDED
+  arg-test:: OVERRIDED
   - ``await include('nested')``
   - ``await layout('nested')``
-  - ``await layout('nested', layout.args('value'))``
+  - ``await layout('nested', layout.args('test'))``
+  - ``await layout('nested', layout.args({test: 'COMPUTED'}))``
 ```
 
 #### ***Rendered***
 - ORIGINAL
 - OVERRIDED
 - USER
+- COMPUTED
 
 <!-- tabs:end -->
 
