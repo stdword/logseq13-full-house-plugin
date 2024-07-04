@@ -265,6 +265,12 @@ See setup instructions in [Showroom](https://github.com/stdword/logseq13-full-ho
 4. Use `/`-command to insert template with only 3 key presses (`/.↩︎`):
    <img width="600px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/9d5f4314-9c67-4e84-96c6-a45a08d7d8f0"/>
 
+### How to overcome the bug with new lines when using views?
+It's Logseq's issue. Just append additional space «␣» to the end of every middle line.
+
+<img width="200px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/8483a85a-6624-4dd0-8ccb-8a3856c566f7"/>
+
+
 ### How to use plugin with `:macros`?
 **Short answer**: Use the more powerful [`:template-view`](https://stdword.github.io/logseq13-full-house-plugin/#/reference__commands?id=template-view-command) command instead, specially designed for this case.
 
