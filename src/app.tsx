@@ -18,12 +18,12 @@ import {
     escapeForRegExp,
     getCSSVars,
     loadThemeVars,
-    getChosenBlock,
     getPageFirstBlock,
     getPage,
+    getChosenBlocks,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
-import InsertUI, { isMacOS, shortcutToOpenInsertUI } from './ui/insert'
+import InsertUI, { isMacOS, shortcutToOpenInsertUI, showInsertRestrictionMessage } from './ui/insert'
 
 
 const DEV = process.env.NODE_ENV === 'development'
@@ -209,9 +209,9 @@ async function main() {
     {
         const commandLabel = 'Insert 🏛template or 🏛️view'
 
-        function showInsertUI(uuid: string, isSelectedState = false) {
+        function showInsertUI(uuids: string[], isSelectedState) {
             render(
-                <InsertUI blockUUID={uuid} isSelectedState={isSelectedState} />,
+                <InsertUI blockUUIDs={uuids} isSelectedState={isSelectedState} />,
                 document.getElementById('app')!
             )
             logseq.showMainUI()
@@ -226,24 +226,15 @@ async function main() {
                 mode: 'global'
             }
         }, async (e) => {
-            const chosenBlock = await getChosenBlock()
-            if (!chosenBlock) {
-                logseq.UI.showMsg(
-                    `[:p "To insert " [:code "🏛️template"] "or" [:code "🏛️view"]
-                         " start editing block or select one"]`,
-                    'warning',
-                    {timeout: 15000},
-                )
-                return
-            }
-
-            const [ uuid, isSelectedState ] = chosenBlock
-            showInsertUI(uuid, isSelectedState)
+            const [chosenBlocks, isSelectedState] = await getChosenBlocks()
+            showInsertUI(chosenBlocks.map((b) => b.uuid), isSelectedState)
+            if (chosenBlocks.length === 0)
+                showInsertRestrictionMessage()
         })
 
         logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
             // here user always in editing mode, so no need to check insertion
-            showInsertUI(e.uuid)
+            showInsertUI([e.uuid], false)
         })
 
         registerBlockContextCopyCommand('Copy as 🏛template', false)

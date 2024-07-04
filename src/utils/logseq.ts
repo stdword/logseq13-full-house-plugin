@@ -25,7 +25,7 @@ export async function walkBlockTree(
  * @returns pair [UUID, true] in case of selected block (outside of editing mode)
  * @returns null in case of none of the blocks are selected (outside of editing mode)
  */
-export async function getChosenBlock(): Promise<[string, boolean] | null> {
+export async function getChosenBlockUUID(): Promise<[string, boolean] | null> {
     const selected = (await logseq.Editor.getSelectedBlocks()) ?? []
     const editing = await logseq.Editor.checkEditing()
     if (!editing && selected.length === 0)
@@ -34,6 +34,28 @@ export async function getChosenBlock(): Promise<[string, boolean] | null> {
     const isSelectedState = selected.length !== 0
     const uuid = isSelectedState ? selected[0].uuid : editing as string
     return [ uuid, isSelectedState ]
+}
+
+/**
+ * @returns pair [[BlockEntity obj], false] in case of currently editing block
+ * @returns pair [[BlockEntity objs], true] in case of selected block (outside of editing mode)
+ * @returns pair [[], false] in case of none of the blocks are selected (outside of editing mode)
+ */
+export async function getChosenBlocks(): Promise<[BlockEntity[], boolean]> {
+    const selected = await logseq.Editor.getSelectedBlocks()
+    if (selected)
+        return [selected, true]
+
+    const uuid = await logseq.Editor.checkEditing()
+    if (!uuid)
+        return [[], false]
+
+    const editingBlock = await logseq.Editor.getBlock(uuid as string) as BlockEntity
+
+    // to get ahead of Logseq block content saving process
+    editingBlock.content = await logseq.Editor.getEditingBlockContent()
+
+    return [ [editingBlock], false ]
 }
 
 export async function insertContent(
@@ -49,7 +71,7 @@ export async function insertContent(
     // Bug-or-feature with Command Palette modal: Logseq exits editing state when modal appears
     // To handle this: use selected blocks — the editing block turns to selected
 
-    const chosenBlock = await getChosenBlock()
+    const chosenBlock = await getChosenBlockUUID()
     if (!chosenBlock) {
         console.warn(p`Attempt to insert content while not in editing state and no one block is selected`)
         return false
