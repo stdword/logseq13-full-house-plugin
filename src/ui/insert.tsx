@@ -48,6 +48,7 @@ async function prepareDataLogic(): Promise<Data> {
             else if (lowerLabel === 'template')
                 item.label = 'Template'
 
+            // clean .usage
             item.usage = Template.cleanUsageString(item.usage, {cleanMarkers: false})
 
             return item
@@ -123,17 +124,16 @@ async function insertLogic(
     item: DataItem,
     blockUUID: string,
     isSelectedState: boolean,
-    itemsType: 'View' | 'Template',
+    insertAs: 'View' | 'Template',
 ) {
-    // force itemType
     if (['View', 'Template'].includes(item.label))
-        itemsType = item.label as 'View' | 'Template'
+        insertAs = item.label as 'View' | 'Template'  // force
 
     const typeToCommandMap = {
         'Template': 'template',
         'View': 'template-view',
     }
-    let content = RendererMacro.command(typeToCommandMap[itemsType])
+    let content = RendererMacro.command(typeToCommandMap[insertAs])
         .arg(item.name_)
         .arg(item.usage, {raw: true})
         .toString()
@@ -234,7 +234,7 @@ function InsertUI({ blockUUID, isSelectedState }) {
     }
 
     useEffect(() => {
-        console.debug('effect:VISIBLE', visible)
+        // console.debug('effect:VISIBLE', visible)
 
         if (visible) {
             setTimeout(showUI, 100)
@@ -244,7 +244,7 @@ function InsertUI({ blockUUID, isSelectedState }) {
     }, [visible])
 
     useEffect(() => {
-        console.debug('effect:INIT')
+        // console.debug('effect:INIT')
 
         logseq.on('ui:visible:changed', ({ visible }) => {
             if (visible)
@@ -333,7 +333,7 @@ function InsertUI({ blockUUID, isSelectedState }) {
         if (preparing)
             return
 
-        console.debug('effect:FILTER', `"${searchQuery}"`)
+        // console.debug('effect:FILTER', `"${searchQuery}"`)
 
         let items = data.current
 
@@ -348,7 +348,7 @@ function InsertUI({ blockUUID, isSelectedState }) {
 
     useEffect(() => {
         const length = results.length
-        console.debug('effect:RESULTS', length)
+        // console.debug('effect:RESULTS', length)
 
         if (length == 0) {
             setHighlightedIndex(null)
