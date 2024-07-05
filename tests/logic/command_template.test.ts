@@ -103,8 +103,8 @@ describe('template context', () => {
         await testRender('``c.identity.slot``, ``c.identity.key``', 'slot__test, test') })
     test('full context', async () => {
         const block = await testRender('``c``')
-        expect(block.content.slice(0, 9)).toBe('```json\n{')
-        expect(block.content.slice(-5)).toBe('}\n```')
+        expect(block.content.slice(0, 6)).toBe('<pre>{')
+        expect(block.content.slice(-7)).toBe('}</pre>')
     })
 })
 
@@ -205,7 +205,7 @@ describe('template structure', () => {
         expect(secondBlock.children[1].content).toBe('child text 2')
     })
     test('template inclusion', async () => {
-        await testRender('``await include("base")``', '{{renderer :template, base}}', undefined, (name, syntax) => {
+        await testRender('``await include("base")``', 'base:PAGE', undefined, (name, syntax) => {
             const blockBase = logseq._createTemplateBlock('base', 'base:``c.page.name``')
             const blockChild = logseq._createTemplateBlock(name, syntax)
             return [blockChild, blockBase]
