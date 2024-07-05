@@ -277,10 +277,17 @@ function InsertUI({ blockUUIDs, isSelectedState }) {
 
     const returnFocus = (event: FocusEvent) => {
         const input = event.target! as HTMLInputElement
+        // TODO: this doesn't work
         input.focus()
     }
 
     const actWithHighlightedItem = (event: KeyboardEvent) => {
+        if (event.key === 'Tab') {
+            event.preventDefault()
+            const input = event.target! as HTMLInputElement
+            input.focus()
+        }
+
         if (event.key === 'Alt') {
             setOptKeyPressed(true)
         }
