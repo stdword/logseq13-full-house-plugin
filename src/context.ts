@@ -2,7 +2,9 @@ import '@logseq/libs'
 import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import {
-    cleanMacroArg, escape, LogseqReference, p, Properties, PropertiesRefs, PropertiesUtils
+    cleanMacroArg, escape,
+    LogseqReference,
+    p, Properties, PropertiesRefs, PropertiesUtils,
 } from './utils'
 import { ITemplate } from './template'
 
@@ -154,8 +156,9 @@ export class Context {
                 if (doc.startsWith('async'))
                     value = 'async ' + value
             }
-            else if (typeof value === 'object')
-                value = value.toString()
+            else if (typeof value === 'object') {
+                // do nothing
+            }
 
             result[field] = value
         }
@@ -452,8 +455,6 @@ export class ConfigContext extends Context {
         name: string,
         path: string,
         data: any,
-        display: any,
-        settings: any,
     }
 
     public preferredWorkflow: 'now' | 'todo'
@@ -471,9 +472,7 @@ export class ConfigContext extends Context {
 
     public enabledTooltip: boolean
     public enabledTimetracking: boolean
-    public enabledLogicalOutdenting: boolean
 
-    public perferredPastingFile: boolean
     public showBrackets: boolean
 
     static async get() {
@@ -498,30 +497,7 @@ export class ConfigContext extends Context {
             path: currentGraph!.path,
             data: {
                 favorites: settings.favorites,
-                macros: settings.macros,
-                commands: settings.commands,
-                shortcuts: settings.shortcuts,
-                defaultTemplates: settings.defaultTemplates,
-                defaultHome: settings.defaultHome,
-                hiddenProperties: settings.blockHiddenProperties,
-            },
-            display: settings.settings,
-            settings: {
-                linkedReferencesCollapsedThreshold: settings['linkedReferencesCollapsedThreshold'],
-                defaultOpenBlocksLevel: settings['defaultOpenBlocksLevel'],
-                autoExpandBlockRefs: settings['autoExpandBlockRefs?'],
-
-                showEmptyBullets: settings['showEmptyBullets?'],
-                blockTitleCollapseEnabled: settings['blockTitleCollapseEnabled?'],
-
-                enableSearchRemoveAccents: settings['enableSearchRemoveAccents?'],
-                enableBlockTimestamps: settings['enableBlockTimestamps?'],
-
-                docModeEnterForNewBlock: settings['docModeEnterForNewBlock?'],
-                richPropertyValues: settings['richPropertyValues?'],
-                showCommandDoc: settings['showCommandDoc?'],
-
-                hidden: settings['hidden'],
+                defaultHome: settings['default-home'],
             },
         }
 
@@ -536,16 +512,13 @@ export class ConfigContext extends Context {
         this.preferredDateFormat = config.preferredDateFormat
         this.preferredStartOfWeek = config.preferredStartOfWeek as unknown as number
 
-        this.enabledTooltip = settings.enabledTooltip
-        this.enabledTimetracking = settings.enabledTimetracking
-        this.enabledLogicalOutdenting = settings.logicalOutdenting
-
+        this.enabledTooltip = settings['ui/enable-tooltip?']
+        this.enabledTimetracking = settings['feature/enable-timetracking?']
         this.enabledFlashcards = config.enabledFlashcards
         this.enabledJournals = config.enabledJournals
-        this.enabledWhiteboards = settings['enableWhiteboards?']
-        this.enabledPropertyPages = settings['enabled?']
+        this.enabledWhiteboards = settings['feature/enable-whiteboards?']
+        this.enabledPropertyPages = settings['property-pages/enabled?']
 
-        this.perferredPastingFile = settings.perferredPastingFile
         this.showBrackets = config.showBrackets
     }
  }
