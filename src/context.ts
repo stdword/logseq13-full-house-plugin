@@ -163,11 +163,9 @@ export class Context {
     }
     toString() {
         // pretty print whole context body
-        return (
-            '```json\n' +
-            JSON.stringify(this.filterForDisplaying(), null, 4) +
-            '\n```'
-        )
+        let obj = JSON.stringify(this.filterForDisplaying(), null, 2)
+        obj = obj.replaceAll(/\n( +)/g, (x) => ('\n' + '&nbsp;'.repeat(x.length)))
+        return '<pre>' + obj + '</pre>'
     }
 }
 
