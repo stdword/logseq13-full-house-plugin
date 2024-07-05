@@ -613,49 +613,72 @@ function color(value: string): string {
     if (!value.startsWith('#'))
         value = `#${value}`
     return value
- }
-function get(context: C, path: string): string {
+}
+function get(context: C, path: string, obj?: any): string {
     path = _asString(path)
 
     function getByPath(obj: any, parts: string[]) {
-        while (parts.length)
-            if (typeof obj == 'object') {
-                let attr = parts.shift() as string
-                if (attr === '@') {
-                    const token = parts.at(0) ?? ''
-                    const refs = obj['propsRefs'][token]
-                    if (refs !== undefined) {
-                        if (refs.length !== 0) {
-                            parts.shift()  // release token
+        while (parts.length) {
+            if (typeof obj !== 'object')
+                return undefined
 
-                            const nextToken = parts.shift() ?? ''
-                            if (nextToken === '')
-                                obj = refs.map((r) => `[[${r}]]`)
-                            else {
-                                const index = Math.min(Number(nextToken), refs.length - 1)
-                                obj = `[[${refs[index]}]]`
-                            }
-                            continue
-                        }
-                    }
-                    attr = 'props'
+            let attr = parts.shift() as string
+
+            if (attr === '@') {
+                if (!parts.length) {
+                    obj = obj['props']
+                    continue
                 }
-                obj = obj[attr]
+
+                let token = parts.at(0)  // @token1
+                const refs = obj['propsRefs'][token as string]
+
+                if (refs === undefined || refs.length === 0) {
+                    obj = obj['props']
+                    continue
+                }
+
+                token = parts.at(1)  // @token1.token2
+                if (token === undefined) {
+                    // fallback to props text values
+                    obj = obj['props']
+                    continue
+                }
+
+                parts.shift()  // release token1
+                parts.shift()  // release token2
+
+                let index = Number(token)
+                if (Number.isNaN(index)) {
+                    // get all refs
+                    obj = refs.map((r) => `[[${r}]]`)
+                    break
+                }
+
+                // get ref at index
+                index = Math.min(index, refs.length - 1)
+                obj = `[[${refs[index]}]]`
+
+                continue
             }
-            else return undefined
+
+            obj = obj[attr]
+        }
+
         return obj
     }
 
     path = path.replaceAll('@', '.@.')
-    const parts = path.split('.')
+    const parts = path.split('.').filter(p => p !== '')
 
-    if (parts[0] === 'c')
+    if (parts[0] === 'c' && obj === undefined)
         parts.shift()
 
     if (!parts.length)
         return ''
 
-    return getByPath(context, parts) ?? ''
+    obj = obj !== undefined ? obj : context
+    return getByPath(obj, parts) ?? ''
 }
 
 function parseLinks(context: C, text: string): string[] {

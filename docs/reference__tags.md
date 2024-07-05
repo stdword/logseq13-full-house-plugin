@@ -679,11 +679,56 @@ Dumps and prettifies any JavaScript value
 ```
 <!-- tabs:end -->
 
-### `.color TODO` :id=dev-color
-TODO
 
-### `.get TODO` :id=dev-get
-TODO
+### `.get` :id=dev-get
+Retrieves values by following a specified path in the provided object. Helpful for parametrizing templates.
+
+`dev.get(path, obj? = c)`
+- `path`: a string representing the path to access the value.
+    - Can contain attribute names separated by dots `.`.
+    - It can also include `@` followed by the property name to access the property value.
+    - After `@` and the property name, it can contain `.` followed by a numeric index to access the Nth reference inside the property value.
+- `obj`: (optional) an object to retrieve the value from (default: context variable `c`)
+
+<!-- tabs:start -->
+#### ***Template***
+```
+- template:: test
+    - ``dev.get('page.name')``
+    - ``dev.get('.name', c.page)``
+    - ``dev.get('.name', c.template)``
+```
+
+#### ***Rendered***
+```
+- Test Page
+- Test Page
+- test
+```
+<!-- tabs:end -->
+
+<!-- tabs:start -->
+#### ***Template***
+```
+- template:: test
+  arg-value:: VALUE
+  refs:: [[link]] to #page
+    - ``dev.get('@arg-value', c.template)``
+    - ``dev.get('@refs', c.template)``
+    - ``dev.get('@refs.all', c.template)``
+    - ``dev.get('@refs.1', c.template)``
+```
+
+#### ***Rendered***
+```
+- VALUE
+- [[link]] to #page
+- [[link]], [[page]]
+- [[page]]
+```
+<!-- tabs:end -->
+
+?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
 
 ### `.links TODO` :id=dev-links
 TODO
