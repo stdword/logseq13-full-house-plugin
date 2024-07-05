@@ -401,7 +401,7 @@ export function resolveAssetsLink(context: ILogseqContext, protocol: string, lin
         needExpand = false
     }
 
-    const prefix = '../assets'
+    const prefix = '../assets/'
     if (link.startsWith(prefix)) {
         link = link.slice(prefix.length)
         protocol = 'assets'

@@ -191,7 +191,7 @@ async function _include__lazy(c: C, layoutMode: boolean, ref: LogseqReference, a
         return ''
     }
 
-    let commandName
+    let commandName = ''
     if (c.mode === 'template')
         commandName = 'template'
     if (!commandName)
@@ -319,9 +319,9 @@ layout.args = function(c: C, ...argNames: (string | [string, string | boolean] |
             let value: string | boolean | undefined
             let positional: number | undefined
 
-            // every item could have from [name, value]
+            // every item could have form [name, value]
             if (Array.isArray(n)) {
-                let val
+                let val: any
                 [name, val] = n
                 // force value to be boolean or string
                 value = typeof val === 'boolean' ? val : val.toString()
@@ -578,7 +578,6 @@ function toHTML(context: C, text: string): string {
     return new LogseqMarkup(context).toHTML(text)
  }
 function asset(context: C, name: string): string {
-    // TODO: expand '/test.png'
     name = _asString(name)
     let originalProtocol: string
     try {

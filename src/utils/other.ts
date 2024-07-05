@@ -133,6 +133,9 @@ export function escapeForRegExp(str: string) {
 }
 
 export function escapeForHTML(unsafe: string) {
+    // source: https://stackoverflow.com/a/18750001
+    // return unsafe.replace(/[\u00A0-\u9999<>\&]/g, i => '&#' + i.charCodeAt(0) + ';')
+
     return unsafe
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
