@@ -676,3 +676,33 @@ export async function isRecursiveOrNestedTemplate(
     // parentResult === null
     return isInsideTemplate ? 'nested' : null
  }
+
+/**
+ * Given real page name or one of it's alias (empty pages) return a real page name
+ **/
+export async function resolvePageAliases(ref: string): Promise<string | null> {
+    const query = `
+        [:find (pull ?pa [:block/name])
+         :where
+            [?p :block/name "${ref.toLowerCase()}"]
+            (or-join [?p ?pa]
+                [?p :block/alias ?pa]
+                [?pa :block/alias ?p]
+                (and
+                    [?p :block/alias ?pb]
+                    [?pb :block/alias ?pa]
+                )
+                (and
+                    [?pa :block/alias ?pb]
+                    [?pb :block/alias ?p]
+                )
+            )
+            [?b :block/parent ?pa]
+         ]
+    `.trim()
+    const ret = await logseq.DB.datascriptQuery(query)
+    if (!ret || ret.length === 0)
+        return null
+
+    return ret.flat()[0].name
+}

@@ -21,6 +21,7 @@ import {
     getPageFirstBlock,
     getPage,
     getChosenBlocks,
+    resolvePageAliases,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import InsertUI, { isMacOS, shortcutToOpenInsertUI, showInsertRestrictionMessage } from './ui/insert'
@@ -376,7 +377,9 @@ function handleTemplateViewCommand(commandName: string) {
         },
 
         async clickRef(e: any) {
-            const { ref } = e.dataset
+            let { ref } = e.dataset
+
+            ref = (await resolvePageAliases(ref)) ?? ref
 
             const { activeKeystroke } = top!.document.body!.dataset
             if (activeKeystroke && activeKeystroke.indexOf('Shift') >= 0) {
