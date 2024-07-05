@@ -645,8 +645,8 @@ CS 501
 ### `.uuid` :id=dev-uuid
 Generate random UUID identifier.
 
-`dev.uuid(shortForm = false)`
-- `shortForm`: use 11-digit form instead of long 32-digit one
+`dev.uuid(shortForm? = false)`
+- `shortForm`: (optional) use 11-digit form instead of long 32-digit one (default: false)
 
 <!-- tabs:start -->
 #### ***Template***
@@ -660,14 +660,24 @@ ped5xte85rg
 <!-- tabs:end -->
 
 
-### `.parseMarkup TODO` :id=dev-parse-markup
-TODO
+### `.dump` :id=dev-dump
+Dumps and prettifies any JavaScript value
 
-### `.toHTML TODO` :id=dev-to-html
-TODO
+<!-- tabs:start -->
+#### ***Template***
+` ``dev.dump(["Emphasis", [["Bold"], [["Plain", "text"]]]])`` `
 
-### `.asset TODO` :id=dev-asset
-TODO
+#### ***Rendered***
+```javascript
+[
+  "Emphasis",
+  [
+    ["Bold"],
+    [["Plain", "text"]]
+  ]
+]
+```
+<!-- tabs:end -->
 
 ### `.color TODO` :id=dev-color
 TODO

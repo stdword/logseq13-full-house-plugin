@@ -2,6 +2,7 @@ import '@logseq/libs'
 import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import * as Sherlock from 'sherlockjs'
+import { neatJSON } from 'neatjson'
 
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { LogseqMarkup, MLDOC_Node, resolveAssetsLink } from './extensions/mldoc_ast'
@@ -15,6 +16,7 @@ import {
     cleanMacroArg,
     coerceStringToBool,
     escape,
+    escapeForHTML,
     escapeMacroArg,
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
     LogseqReference, p, parseReference, RendererMacro,
@@ -560,6 +562,18 @@ function query_pageRefs(context: C, page: PageContext | string = '', withProps: 
 
 
 /* dev */
+function dev_dump(obj: any) {
+    obj = neatJSON(obj, {
+        indent: '  ',
+        wrap: 30,
+        afterComma: 1,
+        afterColon: 1,
+        // short: true,
+    })
+    obj = escapeForHTML(obj)
+    obj = obj.replaceAll(/\n( +)/g, (x) => ('\n' + '&nbsp;'.repeat(x.length)))
+    return '<pre>' + obj + '</pre>'
+}
 function dev_uuid(shortForm: boolean = false) {
     if (shortForm) {
         let value = Math.random().toString(36).slice(2)
@@ -822,6 +836,7 @@ export function getTemplateTagsContext(context: C) {
         })}),
 
         dev: new Context({
+            dump: dev_dump,
             uuid: dev_uuid,
             parseMarkup: bindContext(parseMarkup, context),
             toHTML: bindContext(toHTML, context),
