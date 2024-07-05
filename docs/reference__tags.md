@@ -680,6 +680,114 @@ Dumps and prettifies any JavaScript value
 <!-- tabs:end -->
 
 
+### `.parseMarkup` :id=dev-parse-markup
+Parses any Logseq markup to special AST representation.
+
+`dev.parseMarkup(markup) → array of AST nodes`
+- `markup`: string with Logseq markup
+
+<!-- tabs:start -->
+#### ***Template***
+` ``dev.parseMarkup('*text* [[link]]')`` `
+
+#### ***Rendered***
+```javascript
+[
+  [
+    "Emphasis",
+    [
+      ["Italic"],
+      [["Plain", "text"]]
+    ]
+  ],
+  ["Plain", " "],
+  [
+    "Link",
+    {
+      "url": ["Page_ref", "link"],
+      "label": [["Plain", ""]],
+      "full_text": "[[link]]",
+      "metadata": "",
+      "interpolation": ""
+    }
+  ]
+]
+```
+<!-- tabs:end -->
+
+
+### `.toHTML` :id=dev-to-html
+Compiles any Logseq markup to HTML.
+
+`dev.toHTML(markup)`
+- `markup`: string with Logseq markup
+
+<!-- tabs:start -->
+#### ***Template***
+` ``dev.toHTML('*text* [[link]]')`` `
+
+#### ***Rendered***
+```html
+<i>text</i>
+<span data-ref="link" class="page-reference">
+    <span class="text-gray-500 bracket">[[</span>
+    <div style="display: inline;">
+        <a class="page-ref"
+           data-ref="link"
+           data-on-click="clickRef"
+        >link</a>
+    </div>
+    <span class="text-gray-500 bracket">]]</span>
+</span>
+```
+<!-- tabs:end -->
+
+?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
+
+
+### `.asset` :id=dev-asset
+Expands full file path to the asset.
+
+`dev.asset(name)`
+- `name`: the name of the asset or the logseq-like link to it
+
+
+<!-- tabs:start -->
+#### ***Template***
+- ` ``dev.asset('../assets/image.png')`` `
+- ` ``dev.asset('image.png')`` `
+- ` ``dev.asset('assets://image.png')`` `
+- ` ``dev.asset('file:///Users/<USER>/Documents/MyGraph/assets/image.png')`` `
+
+<!--  -->
+#### ***Rendered***
+- `file:///Users/<USER>/Documents/MyGraph/assets/image.png`
+- `file:///Users/<USER>/Documents/MyGraph/assets/image.png`
+- `file:///Users/<USER>/Documents/MyGraph/assets/image.png`
+- `file:///Users/<USER>/Documents/MyGraph/assets/image.png`
+<!-- tabs:end -->
+
+?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
+
+
+### `.color` :id=dev-color
+Convert color to CSS value. It is helpful for retrieving CSS color values from template properties.
+
+`dev.color(hex)`
+
+<!-- tabs:start -->
+#### ***Template***
+```
+- template:: test
+  arg-color:: fff
+    - `dev.color(c.args.color)`
+```
+
+#### ***Rendered***
+`#fff`
+<!-- tabs:end -->
+
+
 ### `.get` :id=dev-get
 Retrieves values by following a specified path in the provided object. Helpful for parametrizing templates.
 
@@ -730,14 +838,18 @@ Retrieves values by following a specified path in the provided object. Helpful f
 
 ?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
 
+
 ### `.links TODO` :id=dev-links
-TODO
+?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
+
 
 ### `.walkTree TODO` :id=dev-walk-tree
 TODO
 
+
 ### `.context.page TODO` :id=dev-context-page
 TODO
+
 
 ### `.context.block TODO` :id=dev-context-block
 TODO
