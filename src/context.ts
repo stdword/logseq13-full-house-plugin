@@ -195,7 +195,7 @@ export class PageContext extends Context {
     }
 
     static createFromEntity(page: PageEntity) {
-        const name = page.originalName || page['original-name']
+        const name = page.originalName || (page['original-name'] as string)
         const obj = new PageContext(page.id, name)
         obj._page = page
 
@@ -231,7 +231,7 @@ export class PageContext extends Context {
 
         obj.isJournal = page['journal?']
 
-        const day = page.journalDay || page['journal-day']
+        const day = page.journalDay || (page['journal-day'] as number | undefined)
         if (day)
             obj.day = PageContext.parseDay(day)
         return obj
@@ -277,13 +277,11 @@ export class BlockContext extends Context {
         level?: number,
     } = {}) {
         const obj = new BlockContext(block.id)
-        obj._block = block ;
+        obj._block = block
 
-        ({
-            uuid: obj.uuid,
-            content: obj.content,
-            refs: obj.refs,
-        } = block)
+        obj.uuid = block.uuid
+        obj.content = block.content
+        obj.refs = block.pathRefs as {id: number}[] | undefined
 
         const props = PropertiesUtils.getProperties(block)
         obj.props = (new Context(props.values)) as unknown as BlockContext['props']
@@ -526,8 +524,10 @@ export class ConfigContext extends Context {
                 hidden: settings['hidden'],
             },
         }
-        this.appVersion = other.version
+
+        // @ts-expect-error
         this.pluginVersion = logseq.baseInfo.version
+        this.appVersion = other.version
 
         this.preferredWorkflow = config.preferredWorkflow as 'now' | 'todo'
         this.preferredThemeMode = config.preferredThemeMode

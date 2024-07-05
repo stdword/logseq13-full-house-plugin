@@ -531,7 +531,7 @@ export class PropertiesUtils {
         const refs: PropertiesRefs = {}
 
         const names = !!obj.content
-            ? PropertiesUtils.getPropertyNames(obj.content)
+            ? PropertiesUtils.getPropertyNames(obj.content as string)
             : Object.keys(obj.properties ?? {})
 
         for (const name of names) {

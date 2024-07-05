@@ -139,12 +139,15 @@ function notifyUser() {
     logseq.updateSettings({notifications: {newTemplateSyntax: undefined}})
     logseq.updateSettings({notifications: {introducedUI: undefined}})
 
-    const previousPluginVersion = logseq.settings!.notifications.previousPluginVersion
+    const notifications: {[key: string]: any} = logseq.settings!.notifications as object
+
+    // @ts-expect-error
     const currentPluginVersion = logseq.baseInfo.version
+    const previousPluginVersion = notifications.previousPluginVersion
 
     // Notify only old users
     if (previousPluginVersion && currentPluginVersion !== previousPluginVersion) {
-        if (!logseq.settings!.notifications.introducedNLPSyntax) {
+        if (!notifications.introducedNLPSyntax) {
             logseq.UI.showMsg(
                 `[:div
                     [:p [:code "🏛 Full House Templates"]]

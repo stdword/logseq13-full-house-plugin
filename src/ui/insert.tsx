@@ -97,7 +97,7 @@ function searchLogic(items: Data, searchQuery: string) {
         .go(searchQuery.toLowerCase(), items, {keys: ['name', 'page', 'label']})
         .map((r) => {
             const highlight = (r, original) => {
-                const highlighted = fuzzysort.highlight(r, '<mark>', '</mark>')
+                const highlighted = r.highlight('<mark>', '</mark>')
                 if (!highlighted)
                     return original
 
@@ -467,7 +467,7 @@ function InsertUI({ blockUUIDs, isSelectedState }) {
                                 onKeyDown={actWithHighlightedItem}
                                 onKeyUp={handleEscapeKey}
                                 onInput={saveInputValue}
-                                onfocusout={returnFocus}
+                                onFocusOut={returnFocus}
                             />
                         </div>
                         <div id="results-wrap">

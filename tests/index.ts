@@ -31,6 +31,7 @@ export async function LogseqMock(
         on: jest.fn(),
 
         App: {
+            getInfo: jest.fn(),
             async getCurrentGraphConfigs() { return {} },
             async getCurrentGraph() { return {} },
             async getUserConfigs() {
