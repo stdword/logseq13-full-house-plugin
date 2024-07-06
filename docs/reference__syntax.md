@@ -107,12 +107,12 @@ Start from current journal page or any date:
 #### ***Template***
 - Current journal: ` ``c.page.name.italics()`` `
 - ` ``@in two days, page`` `
-- ` ``@in two days, 2020-01-01`` `
+- ` ``@in two days, 2020-01-02`` `
 
 #### ***Rendered***
 - Current journal: *2020-01-01 Wed*
 - [[2020-01-03 Fri]]
-- [[2020-01-03 Fri]]
+- [[2020-01-04 Sat]]
 
 <!-- tabs:end -->
 <!-- panels:end -->
@@ -170,7 +170,7 @@ But there are the special `out` & `outn` functions to output info within ` ``{..
 <!-- tabs:end -->
 
 ### Cursor positioning with ` ``{|}`` `
-This special syntax positions cursor after template insertion.
+This special syntax positions the cursor after template insertion.
 
 - Use ` ``{|}`` ` once to position cursor at the specified place.
 - Use ` ``{|}`` ` twice to make a selection between two cursor positions.

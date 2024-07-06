@@ -3,7 +3,7 @@
 `🏛 Full House` can do *exactly* the same with [`:template-view`](reference__commands.md#template-view-command) command. Just use [UI](reference__commands.md#view-insertion-ui) to insert any template as `🏛️view`.
 
 ### 2) To use arguments `$1`, `$2`, ...
-`🏛 Full House` supports [arguments](reference__args.md) too. And they can be _named_ and have _default values_! \
+`🏛 Full House` supports [arguments](reference__args.md) too. And they can be _named_, optional (with [macro mode](reference__args.md#macro-mode)) and have _default values_! \
 See [wiki template](https://github.com/stdword/logseq13-full-house-plugin/discussions/8) showcase as an example.
 
 ### 3) To use Logseq dynamic variables

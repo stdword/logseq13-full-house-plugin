@@ -15,11 +15,8 @@ Specify positional arguments separated by comma.
 ### Named arguments
 Specify named arguments in the form «:name value» (colon is required).
 
-<!-- panels:start -->
-<!-- div:left-panel -->
-**Note**: names arguments could be mixed with positional ones
+- **Note**: names arguments could be mixed with positional ones
 
-<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Command***
 `{{renderer :template, "test", :arg 13}}` \
@@ -27,10 +24,8 @@ Specify named arguments in the form «:name value» (colon is required).
 `{{renderer :template, "test", :firstArg "13", value, :last-arg "with,commas"}}`
 <!-- tabs:end -->
 
-<!-- div:left-panel -->
-Disable named arguments with «::» — it becomes positional
+- Disable named arguments with «::» — it becomes positional
 
-<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Command***
 `{{renderer :view, "c.args.$1", ::test 13}}`
@@ -39,25 +34,53 @@ Disable named arguments with «::» — it becomes positional
 :test 13
 <!-- tabs:end -->
 
-<!-- panels:end -->
 
 
-### Macro mode
+### Macro mode :id=macro-mode
 This is the special case when argument value (positional or named) is in the form `$1`, `$2`, ...
+The macro mode makes these values **empty**.
 
-- It is required to pass arguments from Logseq `:macros` to [`:template-view`](reference__commands.md#template-view-command) command to distinguish between passed and empty argument state.
-- It always turns on. To disable use double `$$`.
+- It is required to pass arguments from Logseq `:macros` to [`:template-view`](reference__commands.md#template-view-command) command to distinguish between empty and non-empty arguments. Logseq `:macros` doesn't support optional arguments. The macro mode adds it.
+
+<!-- tabs:start -->
+#### ***`config.edn`***
+```clojure
+:commands [
+  ["macro1" "arg $1"],
+  ["macro2" "{{renderer :view, 'arg ' + c.args[1], $1}}"],
+]
+```
+
+#### ***Usage***
+- `{{macro1 13}}`
+- `{{macro2 13}}`
+
++ `{{macro1}}`
++ `{{macro2}}`
+
+#### ***Rendered***
+- arg 13
+- arg 13
+
++ arg $1
++ arg
+
+<!-- tabs:end -->
+
+- It is always turned on automatically. To disable use double `$$`.
 
 <!-- tabs:start -->
 #### ***Command***
-- No value: `{{renderer :view, "c.args.$1", $1}}`
-- Value: `{{renderer :view, "c.args.test", :test $$1}}`
-- No macro mode: `{{renderer :view, "c.args.test", :test $1 with text}}`
+- `{{renderer :view, "c.args.$1", $1}}` No value — with macro mode
+- `{{renderer :view, "c.args.$1", $1 with text}}` — no macro mode (value form is different)
+- `{{renderer :view, "c.args.$1", $$1}}` — disabled macro mode
+- `{{renderer :view, "c.args.test", :test $$1}}` — disabled macro mode
 
 #### ***Rendered***
-- No value:
-- Value: $1
-- No macro mode: $1 with text
+- No value — with macro mode
+- $1 with text — no macro mode (value form is different)
+- $1 — disabled macro mode
+- $1 — disabled macro mode
 
 <!-- tabs:end -->
 
