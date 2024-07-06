@@ -160,7 +160,62 @@
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
   <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
+
   <script src="//cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+  <script>
+    function fixTabs() {
+      const uriComponent = window.location.hash || window.location.search;
+      const anchorID = (uriComponent.match(/(?:id=)([^&]+)/) || [])[1]
+      if (!anchorID)
+        return
+
+      const anchorElement = document.querySelector('#' + decodeURIComponent(anchorID));
+
+      function adjust(treshold = 3, interval = 20, pixelDelta = 4) {
+        if (adjust.state !== null) {
+          if (window.pageYOffset == adjust.state) {
+            adjust.settledCount++
+            if (adjust.settledCount > treshold) {
+              if (Math.abs(window.pageYOffset - anchorElement.offsetTop) > pixelDelta)
+                window.scrollTo({top: anchorElement.offsetTop, behavior: 'smooth'});
+              else return
+            }
+          }
+        }
+
+        if (adjust.state === null || adjust.settledCount <= treshold)
+          setTimeout(adjust, interval)
+        adjust.state = window.pageYOffset
+      }
+      adjust.settledCount = 0
+      adjust.state = null
+
+      if (anchorElement)
+        adjust()
+    }
+
+    function docsifyTabsFix(hook, vm) {
+      hook.doneEach(function () {
+        const hasTabs = document.querySelector(`.docsify-tabs__tab`);
+        if (hasTabs)
+          fixTabs()
+      });
+    }
+
+    window.$docsify = window.$docsify || {};
+    window.$docsify.plugins = [].concat(window.$docsify.plugins || [], docsifyTabsFix);
+  </script>
+  <style>
+    .docsify-tabs:not(:has(> button.docsify-tabs__tab--active)) > .docsify-tabs__content[class]:nth-child(2) {
+      visibility: visible;
+      position: relative;
+      overflow: auto;
+      height: auto;
+
+      padding: var(--docsifytabs-content-padding);
+    }
+  </style>
+
   <!-- <script src="https://unpkg.com/docsify-plugin-flexible-alerts"></script> -->
 
   <script src="//cdn.jsdelivr.net/npm/docsify-example-panels@1"></script>
