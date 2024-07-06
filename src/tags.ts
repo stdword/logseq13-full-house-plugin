@@ -19,7 +19,6 @@ import {
     escapeForHTML,
     escapeMacroArg,
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
-    locks,
     LogseqReference, p, parseReference, RendererMacro,
     splitMacroArgs, unquote, walkBlockTree, walkBlockTreeAsync,
 } from './utils'
@@ -174,6 +173,19 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
     const r = ref(item)
     return `{{embed ${r}}}`
 }
+
+// async function cursor(c: C) {
+//     function _cursor() {
+//         // @ts-expect-error
+//         c.tags._.cursorPositionState = true
+//         return Template.carriagePositionMarker
+//     }
+
+//     if (locks)
+//         return await locks.request('cursor-positioning', async (lock) => { _cursor() })
+
+//     return _cursor()
+// }
 
 
 async function _include__lazy(c: C, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
@@ -424,7 +436,7 @@ function fill(
     const half = Math.floor(count / 2)
     const remainder = count % 2
     return char.repeat(half + remainder) + value + char.repeat(half)
- }
+}
 function zeros(value: string | number, width: number) {
     return fill(value, '0', width)
 }
@@ -587,11 +599,11 @@ function dev_uuid(shortForm: boolean = false) {
 function parseMarkup(context: C, text: string): MLDOC_Node[] {
     text = _asString(text)
     return new LogseqMarkup(context).parse(text)
- }
+}
 function toHTML(context: C, text: string): string {
     text = _asString(text)
     return new LogseqMarkup(context).toHTML(text)
- }
+}
 function asset(context: C, name: string): string {
     name = _asString(name)
     let originalProtocol: string
@@ -606,7 +618,7 @@ function asset(context: C, name: string): string {
 
     const [ protocol, link ] = resolveAssetsLink(context, originalProtocol || 'assets', name)
     return `${protocol}://${link}`
- }
+}
 function color(value: string): string {
     // TODO: rgb(r, g, b) & others support
     value = _asString(value)

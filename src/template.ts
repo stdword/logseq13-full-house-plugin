@@ -11,36 +11,6 @@ import {
 } from './utils'
 
 
-// export enum VariableType {
-//     string,
-//     choices,
-//     queryChoices,
-//     queryPages,
-//     queryBlocks,
-//     queryProperties,
-//  }
-
-// export class TemplateVariable {
-//     name: string
-//     type: VariableType
-//     options: {[index: string]: string}
-//     value: string
-
-//     // @ts-nocheck
-//     constructor(
-//         name: string,
-//         type = VariableType.string,
-//         options = {},
-//         value = "",
-//     ) {
-//         this.name = name
-//         this.type = type
-//         this.options = options
-//         this.value = value
-//     }
-//  }
-
-
 export interface ITemplate {
     name: string
     includingParent: boolean

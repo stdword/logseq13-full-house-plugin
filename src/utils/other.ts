@@ -1,7 +1,7 @@
 import { logseq as packageInfo } from '../../package.json'
 
 
-let locks: LockManager | null = null
+export let locks: LockManager | null = null
 try {
     locks = navigator.locks
 }
@@ -20,7 +20,7 @@ export function p(strings: any, ...values: any[]): string {
     const raw = String.raw({raw: strings}, ...values)
     const space = raw ? ' ' : ''
     return `#${packageInfo.id}:${space}${raw}`
- }
+}
 
 /**
  * Format-string
@@ -31,7 +31,7 @@ export function p(strings: any, ...values: any[]): string {
  **/
 export function f(strings: any, ...values: any[]): Function {
     return (format: {[i: string]: any}) => String.raw({raw: strings}, ...values.map(v => format[v]))
- }
+}
 
 /**
  * Clear spaces from HTML-string
