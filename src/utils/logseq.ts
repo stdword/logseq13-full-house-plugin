@@ -4,21 +4,83 @@ import { escape, escapeForRegExp, f, indexOfNth, p, sleep } from './other'
 import { isEmptyString, isInteger, isUUID, unquote } from './parsing'
 
 
-export type IBlockNode = { content: string, children: IBlockNode[] }
+export type IBlockNode = {
+    content: string,
+    children: IBlockNode[],
+    data?: {
+        selectionPositions?: number[],
+    },
+}
 
-export async function walkBlockTree(
-    root: IBatchBlock,
-    callback: (b: IBatchBlock, lvl: number) => Promise<string | void>,
+export async function mapBlockTree(
+    root: IBlockNode,
+    callback: (b: IBlockNode, lvl: number, data?: any) => Promise<string | void>,
     level: number = 0,
 ): Promise<IBlockNode> {
+    const data = {}
     return {
-        content: (await callback(root, level)) ?? '',
+        data,
+        content: (await callback(root, level, data)) ?? '',
         children: await Promise.all(
             (root.children || []).map(
-                async (b) => await walkBlockTree(b as IBlockNode, callback, level + 1)
+                async (b) => await mapBlockTree(b as IBlockNode, callback, level + 1)
         ))
     }
- }
+}
+
+
+export async function walkBlockTreeAsync(
+    root: IBlockNode,
+    callback: (b: IBlockNode, lvl: number, path: number[]) => Promise<void>,
+    level: number = 0,
+    path: number[] = [],
+): Promise<void> {
+    path = path.length !== 0 ? path : []
+    await callback(root, level, path)
+
+    await Promise.all(
+        (root.children ?? []).map(async (b, i) => {
+            const childPath = Array.from(path)
+            childPath.push(i)
+            return await walkBlockTreeAsync(b, callback, level + 1, childPath)
+        })
+    )
+}
+
+export function walkBlockTree(
+    root: IBlockNode,
+    callback: (b: IBlockNode, lvl: number, path: number[]) => boolean | void,
+    level: number = 0,
+    path: number[] = [],
+): boolean | void {
+    path = path.length !== 0 ? path : []
+    const stop = callback(root, level, path)
+    if (stop)
+        return stop
+
+    for (const [i, node] of (root.children ?? []).entries()) {
+        const childPath = Array.from(path)
+        childPath.push(i)
+        const stop = walkBlockTree(node, callback, level + 1, childPath)
+        if (stop)
+            break
+    }
+}
+
+
+export function getTreeNode(root: BlockEntity, path: number[]): BlockEntity | null {
+    path = Array.from(path)
+    let node = root
+    while (path.length) {
+        const index = path.shift()!
+        const children = node.children ?? []
+        if (index < 0 || index >= children.length)
+            return null
+
+        node = children[index] as BlockEntity
+    }
+    return node
+}
 
 /**
  * @returns pair [UUID, false] in case of currently editing block
@@ -191,6 +253,20 @@ export function setEditingCursorSelection(start: number, end: number) {
     textAreaElement.selectionEnd = end
     return true
 }
+
+export async function editBlockWithSelection(uuid: string, selectionPositions: number[]) {
+    if (selectionPositions.length === 0)
+        return
+
+    if (selectionPositions.length === 1 || selectionPositions[0] === selectionPositions[1])
+        await logseq.Editor.editBlock(uuid, { pos: selectionPositions[0] })
+    else {
+        await logseq.Editor.editBlock(uuid, { pos: selectionPositions[0] })
+        await sleep(20)
+        setEditingCursorSelection(...selectionPositions as [number, number])
+    }
+}
+
 
 export type LogseqReference = {
     type:

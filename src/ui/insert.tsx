@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'preact/hooks'
 import fuzzysort from 'fuzzysort'
 
 import './insert.css'
-import { PropertiesUtils, RendererMacro, setEditingCursorSelection, sleep, unquote } from '../utils'
+import { editBlockWithSelection, PropertiesUtils, RendererMacro, setEditingCursorSelection, sleep, unquote } from '../utils'
 import { Template } from '../template'
 
 
@@ -151,45 +151,23 @@ async function insertLogic(
         .toString()
 
     const selectionPositions = [] as number[]
-    for (const marker of [
-        Template.carriagePositionMarker,
-        Template.carriagePositionMarker,
-    ]) {
-        const position = content.indexOf(marker)
-        if (position !== -1) {
-            content = content.replace(marker, '')
-            selectionPositions.push(position)
-        }
-    }
+    content = Template.getSelectionPositions(content, selectionPositions)
 
     const blockUUID = blockUUIDs[0]
     if (isSelectedState) {
         await logseq.Editor.updateBlock(blockUUID, content)
-
-        if (selectionPositions.length === 0)
-            return
-
-        if (selectionPositions.length === 1)
-            await logseq.Editor.editBlock(blockUUID, { pos: selectionPositions[0] })
-        else {
-            await logseq.Editor.editBlock(blockUUID)
-            await sleep(20)
-            setEditingCursorSelection(...selectionPositions as [number, number])
-        }
-
+        editBlockWithSelection(blockUUID, selectionPositions)
         return
     }
 
-    if (selectionPositions.length === 0) {
-        await logseq.Editor.insertAtEditingCursor(content)
+    const currentPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
+    await logseq.Editor.insertAtEditingCursor(content)
+    if (selectionPositions.length === 0)
         return
-    }
 
     if (selectionPositions.length === 1)
         selectionPositions.push(selectionPositions[0])
 
-    const currentPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
-    await logseq.Editor.insertAtEditingCursor(content)
     setEditingCursorSelection(
         currentPosition + selectionPositions[0],
         currentPosition + selectionPositions[1],

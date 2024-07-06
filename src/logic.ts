@@ -10,9 +10,14 @@ import {
 import {
     p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock,
     LogseqReferenceAccessType, getPageFirstBlock, PropertiesUtils, RendererMacro,
-    parseReference, walkBlockTree, isUUID, html, isRecursiveOrNestedTemplate,
+    parseReference, isUUID, html, isRecursiveOrNestedTemplate,
     escapeForHiccup,
     coerceStringToBool,
+    mapBlockTree,
+    getTreeNode,
+    editBlockWithSelection,
+    setEditingCursorSelection,
+    walkBlockTree,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
@@ -318,7 +323,7 @@ function provideHTML(blockUUID: string, htmlCode: string, slot: string) {
  * @raises RenderError: template rendering error
  */
 export const renderTemplateInBlock =
-    lockOn( ([uuid, ..._]) => uuid ) (
+    lockOn( ([__, uuid, ..._]) => uuid ) (
 async (
     slot: string,
     uuid: string,
@@ -358,13 +363,13 @@ async (
     }
 
     let head: IBatchBlock
-    let children: IBatchBlock[]
+    let tail: IBatchBlock[]
     if (template.includingParent)
-        [ head, children ] = [ rendered, [] ]
+        [ head, tail ] = [ rendered, [] ]
     else
-        [ head, ...children ] = rendered.children
+        [ head, ...tail ] = rendered.children
 
-    console.debug(p`Template rendered:`, {head, children})
+    console.debug(p`Template rendered:`, {head, tail})
 
     const toInsert = head.content
     const oldContent = context.currentBlock.content!
@@ -375,31 +380,99 @@ async (
             showInsideMacroNotification()
 
         console.warn(p`Cannot find renderer macro to replace it`, {
-            uuid,
-            oldContent,
-            toReplace,
-            toInsert,
-        })
+            uuid, oldContent, toReplace, toInsert})
         return
     }
 
     // WARNING: it is important to call `.insertBatchBlock` before `.updateBlock`
     // due to @logseq/lib bug on batch inserting to empty block (content == '')
     if (head.children && head.children.length)
-        await logseq.Editor.insertBatchBlock(
-            uuid,
-            head.children, {
-            sibling: false,
-        })
+        await logseq.Editor.insertBatchBlock(uuid, head.children, { sibling: false })
 
     await logseq.Editor.updateBlock(uuid, newContent)
 
-    if (children.length)
-        await logseq.Editor.insertBatchBlock(
-            uuid,
-            children, {
-            sibling: true,
-        })
+    if (tail.length)
+        await logseq.Editor.insertBatchBlock(uuid, tail, { sibling: true })
+
+
+    /////
+    // Set cursor position after insertion
+    ///
+
+    // 1) find block with cursor position
+
+    let cursorPath: number[] | undefined
+    let selectionPositions: number[] = []
+    walkBlockTree(rendered, (b, lvl, path) => {
+        const data = b.data ?? {}
+        if (data.selectionPositions) {
+            cursorPath = Array.from(path)
+            selectionPositions = data.selectionPositions
+            return true
+        }
+        return false
+    })
+
+    if (!cursorPath)
+        return
+
+
+    // 2) find the appropriate inserted block
+
+    let blockTree: BlockEntity
+    let currentUUID = uuid  // head
+
+    // the root of cursor block can be the head block or any block from the tail
+    const headTailIndex = cursorPath.shift()!
+    if (!template.includingParent && headTailIndex !== 0) {
+        for (let i = 0; i < headTailIndex; i++) {
+            const next = await logseq.Editor.getNextSiblingBlock(currentUUID)
+            if (!next) {
+                console.warn('(Assertion Error) Cannot find just inserted block')
+                return
+            }
+
+            currentUUID = next.uuid
+        }
+    }
+
+    // retrieve appropriate inserted block with all children
+    blockTree = (await logseq.Editor.getBlock(currentUUID, {includeChildren: true}))!
+
+    // get the cursor block
+    const cursorBlock = getTreeNode(blockTree, cursorPath)
+    if (!cursorBlock) {
+        console.warn('(Assertion Error) Cannot find cursor block that is exist')
+        return
+    }
+
+
+    // 3) position cursor
+
+    // cursor is positioned to head block
+    if (cursorBlock.uuid === uuid) {
+        const shiftPosition = oldContent.search(toReplace)
+        selectionPositions = selectionPositions.map(p => shiftPosition + p)
+
+        // head block is the only one
+        // NOTE: this is future case for instant template insertions
+        // if (!tail.length && !(head.children && head.children.length)) {
+        //     const currentPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
+
+        //     if (selectionPositions.length === 1)
+        //         selectionPositions.push(selectionPositions[0])
+
+        //     setEditingCursorSelection(
+        //         currentPosition + selectionPositions[0],
+        //         currentPosition + selectionPositions[1],
+        //     )
+
+        //     return
+        // }
+    }
+
+    // await sleep(1500)
+    editBlockWithSelection(cursorBlock.uuid, selectionPositions)
 })
 
 /**
@@ -485,7 +558,7 @@ export async function compileTemplateView(
         )
     }
 
-    let compiled = await walkBlockTree(rendered, async (b, lvl) => {
+    let compiled = await mapBlockTree(rendered, async (b, lvl) => {
         const content = (b.content || '').toString()
         if (!content.trim())
             return ''

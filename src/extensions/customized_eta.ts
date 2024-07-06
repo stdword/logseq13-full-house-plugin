@@ -8,15 +8,27 @@ import * as Sherlock from 'sherlockjs'
 import { dayjs } from '../context'
 
 
+interface CustomizedOptions extends Options {
+    returnState?: boolean
+}
+
+
 class CustomizedEta extends Eta {
     constructor(customConfig?: object) {
         super(customConfig)
+
         // @ts-expect-error
         this.compile = compile
         // @ts-expect-error
         this.compileToString = compileToString
         this.compileBody = compileBody
         this.parse = parse
+    }
+
+    renderStringStateAsync(template, data) {
+        const templateFn = this.compile(template, { async: true, returnState: true } as Options)
+        return this.renderAsync.call(this, templateFn, data
+            ) as unknown as Promise<{result: string, state: {[key: string]: any}}>
     }
 }
 
@@ -28,6 +40,7 @@ export const eta = new CustomizedEta({
     functionHeader: [
         'function out(x){__eta.res+=__eta.f(x)}',
         'function outn(x){__eta.res+=__eta.f(x)+"\\n"}',
+        'function state(o){return Object.assign(__eta.s,o)}',
     ].join('\n') + '\n',
     bodyHeader: '_.init()',
 
@@ -65,7 +78,11 @@ export const eta = new CustomizedEta({
             trimRight: 'nl',
             autoFilter: false,
             parseFunction: (content) => ({isStatement: true}),
-            compileFunction: (meta, content) => (content + '\n'),
+            compileFunction: (meta, content) => {
+                if (content === '|')  // special case for cursor positioning
+                    content = 'state({cursorPosition: true}); out("{|}")'
+                return content + '\n'
+            },
         },
         '``[...]``': {
             trimRight: false,
@@ -134,9 +151,8 @@ export const eta = new CustomizedEta({
     debug: true,  /** Pretty-format error messages (adds runtime penalties) */
 })
 
-
 const AsyncFunction = async function () {}.constructor
-function compile(this: Eta, str: string, options?: Partial<Options>): TemplateFunction {
+function compile(this: Eta, str: string, options?: Partial<CustomizedOptions>): TemplateFunction {
     const config: EtaConfig = this.config
 
     const ctor = options && options.async ? (AsyncFunction as FunctionConstructor) : Function
@@ -159,18 +175,19 @@ function compile(this: Eta, str: string, options?: Partial<Options>): TemplateFu
         } else throw e
     }
 }
-function compileToString(this: Eta, str: string, options?: Partial<Options>): string {
+function compileToString(this: Eta, str: string, options?: Partial<CustomizedOptions>): string {
     const config = this.config
     // @ts-expect-error
     const bodyHeader = config.bodyHeader
     const isAsync = options && options.async
+    const returnState = options && options.returnState
 
     const compileBody = this.compileBody
 
     const buffer: Array<AstObject> = this.parse.call(this, str)
 
     let res = `${config.functionHeader}
-let __eta = {res: "", e: this.config.escapeFunction, f: this.config.filterFunction${
+let __eta = {res: "", s: {}, e: this.config.escapeFunction, f: this.config.filterFunction${
     config.debug
       ? ', line: 1, templateStr: "' +
         str.replace(/\\|"/g, "\\$&").replace(/\r\n|\n|\r/g, "\\n") +
@@ -185,7 +202,7 @@ ${config.useWith ? "}" : ""}${
       ? "} catch (e) { this.RuntimeErr(e, __eta.templateStr, __eta.line, options.filepath) }"
       : ""
   }
-return __eta.res
+${returnState ? "return {result: __eta.res, state: __eta.s}" : "return __eta.res"}
 `.trim()
 
     if (config.plugins) {

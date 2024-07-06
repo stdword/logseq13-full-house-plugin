@@ -6,8 +6,8 @@ import { ILogseqContext, BlockContext, Context, ArgsContext } from './context'
 import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'
 import {
-    p, IBlockNode, walkBlockTree, coerceToBool, LogseqReferenceAccessType,
-    PropertiesUtils, Properties, unquote, splitMacroArgs
+    p, IBlockNode, walkBlockTreeAsync, mapBlockTree, coerceToBool, LogseqReferenceAccessType,
+    PropertiesUtils, Properties, unquote, splitMacroArgs,
 } from './utils'
 
 
@@ -97,6 +97,19 @@ export class Template implements ITemplate {
 
         return value
     }
+    static getSelectionPositions(content: string, selectionPositions: number[]): string {
+        for (const marker of [
+            Template.carriagePositionMarker,
+            Template.carriagePositionMarker,
+        ]) {
+            const position = content.indexOf(marker)
+            if (position !== -1) {
+                content = content.replace(marker, '')
+                selectionPositions.push(position)
+            }
+        }
+        return content
+    }
     static getArgProperties(block: BlockEntity) {
         return PropertiesUtils.getProperties(block, ArgsContext.propertyPrefix).values
     }
@@ -139,7 +152,7 @@ export class Template implements ITemplate {
         if (this._initialized)
             return
 
-        await walkBlockTree(this.block as IBlockNode, async (b) => {
+        await walkBlockTreeAsync(this.block as IBlockNode, async (b) => {
             // remove id prop from every block
             PropertiesUtils.deleteProperty(b as BlockEntity, PropertiesUtils.idProperty)
 
@@ -202,7 +215,7 @@ export class Template implements ITemplate {
 
         const renderContext = {c: contextObj, ...tags}
 
-        return await walkBlockTree(this.block as IBlockNode, async (b, lvl) => {
+        return await mapBlockTree(this.block as IBlockNode, async (b, lvl, data) => {
             if (lvl === 0 && !this.includingParent)
                 return ''
 
@@ -212,7 +225,16 @@ export class Template implements ITemplate {
                 page: context.block.page,
                 level: lvl,
             })
-            return eta.renderStringAsync(b.content, renderContext)
+
+            let {result, state} = await eta.renderStringStateAsync(b.content, renderContext)
+
+            // check for cursor positioning
+            if (state.cursorPosition) {
+                data.selectionPositions = [] as number[]
+                result = Template.getSelectionPositions(result, data.selectionPositions)
+            }
+
+            return result
         })
     }
     getArgProperties() {

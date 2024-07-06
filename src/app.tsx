@@ -13,7 +13,7 @@ import {
     cleanMacroArg, parseReference, isEmptyString,
     insertContent, PropertiesUtils, RendererMacro,
     LogseqReference,
-    walkBlockTree,
+    walkBlockTreeAsync,
     IBlockNode,
     escapeForRegExp,
     getCSSVars,
@@ -194,7 +194,7 @@ async function main() {
             for (const uuid of uuids) {
                 const block = (await logseq.Editor.getBlock(uuid, {includeChildren: true}))!
 
-                await walkBlockTree(block as IBlockNode, async (b, lvl) => {
+                await walkBlockTreeAsync(block as IBlockNode, async (b, lvl) => {
                     const content = b.content
                         .replaceAll(
                             new RegExp(openTagRegexp + '(?!(?:-|_)?\\s*!)\\s*(.*?)\\s*' + closeTagRegexp, 'gs'),

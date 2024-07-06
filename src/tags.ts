@@ -19,8 +19,9 @@ import {
     escapeForHTML,
     escapeMacroArg,
     getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
+    locks,
     LogseqReference, p, parseReference, RendererMacro,
-    splitMacroArgs, unquote, walkBlockTree,
+    splitMacroArgs, unquote, walkBlockTree, walkBlockTreeAsync,
 } from './utils'
 import {
     getArgsContext, getTemplate, getTemplateBlock,
@@ -726,7 +727,7 @@ async function links(
 
     const linksInBlock: string[] = []
     for (const block of blocks)
-        await walkBlockTree(block as IBlockNode, async (b, lvl) => {
+        walkBlockTree(block as IBlockNode, (b, lvl) => {
             for (const link of parseLinks(context, b.content))
                 linksInBlock.push(link)
         })
@@ -867,7 +868,8 @@ export function getTemplateTagsContext(context: C) {
             color,
             get: bindContext(get, context),
             links: bindContext(parseLinks, context),
-            walkTree: async function (root, callback, level) { return walkBlockTree(root, callback, level) },
+            walkTree: function (root, callback) { return walkBlockTree(root, callback) },
+            walkTreeAsync: async function (root, callback) { return walkBlockTreeAsync(root, callback) },
             context: new Context({
                 page: function (entity) { return PageContext.createFromEntity(entity) },
                 block: function (entity) { return BlockContext.createFromEntity(entity) },
