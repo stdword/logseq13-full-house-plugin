@@ -148,12 +148,10 @@ No result: ` ``{ c.page.name }`` `
 #### ***Rendered***
 No result:
 <!-- tabs:end -->
+<!-- panels:end -->
 
-
-<!-- div:left-panel -->
 But there are the special `out` & `outn` functions to output info within ` ``{...}`` `:
 
-<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Template***
 - ```javascript
@@ -171,32 +169,69 @@ But there are the special `out` & `outn` functions to output info within ` ``{..
 
 <!-- tabs:end -->
 
+### Cursor positioning with ` ``{|}`` `
+This special syntax positions cursor after template insertion.
 
-<!-- div:left-panel -->
-Also the `Array` type extended with helpful functions:
+- Use ` ``{|}`` ` once to position cursor at the specified place.
+- Use ` ``{|}`` ` twice to make a selection between two cursor positions.
+
+?> This will activate edit mode. However, due to Logseq restrictions, only one block can be edited at a time. Therefore, you can only use this syntax once in the entire template."
+
+<!-- tabs:start -->
+#### ***Template***
+- The cursor is before this ``{|}``word
+- And this ``{|}``word``{|}`` will be selected
+
+#### ***Rendered***
+- The cursor is before this   **|** word
+- And this <mark>word</mark> will be selected
+
+<!-- tabs:end -->
+
+To position the cursor inside curly brackets, use this long form:
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+    // In text, use the same cursor mark: {|}
+    var sentence = 'Hello, {|}user{|}!'
+    // Output text with the help of out / outn functions
+    out(sentence)
+    // The important step: mark this block with special flag
+    state({cursorPosition: true})
+}``
+```
+
+#### ***Rendered***
+Hello, <mark>user</mark>!
+
+<!-- tabs:end -->
+
+
+### Extended `Array` type
+The `Array` type is extended with helpful functions:
 - `Array.zip(...arrays)`
 - `Array.unique()`
 - `Array.sorted(keyfunc)`
 - `Array.groupby(keyfunc, wrapToObject? = false)`
 - `Array.countby(keyfunc, wrapToObject? = false)`
 
-<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Template***
 - ```javascript
-  ``JSON.stringify(Array.zip([1, 2, 3], ['a', 'b']))``
+  ``Array.zip([1, 2, 3], ['a', 'b'])``
   ```
 - ```javascript
   ``[1, 2, 2, 3, 2, 1, 1].unique()``
   ```
 
 #### ***Rendered***
-- [[1,"a"],[2,"b"]]
+- [[1,"a"], [2,"b"]]
 - 1,2,3
 
 <!-- tabs:end -->
 
-<!-- panels:end -->
 
 <!-- tabs:start -->
 #### ***Template***
@@ -210,13 +245,13 @@ Also the `Array` type extended with helpful functions:
   ]
   ```
 - ```javascript
-  ``items.sorted((x) => [x.type, x.quantity]).map(JSON.stringify).join('\n')``
+  ``items.sorted((x) => [x.type, x.quantity]).join('\n')``
   ```
 - ```javascript
-  ``JSON.stringify(items.groupby((x) => x.type, true), null, 4)``
+  ``items.groupby((x) => x.type, true)``
   ```
 - ```javascript
-  ``JSON.stringify(items.countby((x) => x.type), null, 4)``
+  ``items.countby((x) => x.type)``
   ```
 
 #### ***Rendered***
