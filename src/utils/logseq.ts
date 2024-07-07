@@ -18,14 +18,15 @@ export async function mapBlockTree(
     level: number = 0,
 ): Promise<IBlockNode> {
     const data = {}
-    return {
-        data,
-        content: (await callback(root, level, data)) ?? '',
-        children: await Promise.all(
-            (root.children || []).map(
-                async (b) => await mapBlockTree(b as IBlockNode, callback, level + 1)
-        ))
-    }
+    const content = ( await callback(root, level, data) ) ?? ''
+
+    const children = [] as IBlockNode[]
+    for (let child of root.children || [])
+        children.push(
+            await mapBlockTree(child, callback, level + 1)
+        )
+
+    return { data, content, children }
 }
 
 
