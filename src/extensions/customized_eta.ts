@@ -36,13 +36,25 @@ export const eta = new CustomizedEta({
     useWith: true,  /** Make data available on the global object instead of `varName` */
     varName: 'fh',  /** Name of the data object. Default "it" */
 
-    /** Raw JS code inserted in the template function. Useful for declaring global variables */
-    functionHeader: [
-        'function out(x){__eta.res+=__eta.f(x)}',
-        'function outn(x){__eta.res+=__eta.f(x)+"\\n"}',
-        'function state(o){return Object.assign(__eta.s,o)}',
-    ].join('\n') + '\n',
-    bodyHeader: '_.init()',
+    // Raw JS code inserted in the template function. Useful for declaring global variables
+    //  source of `storeVars`: https://stackoverflow.com/a/41704827
+    functionHeader: `
+        function storeVars(target) {
+          return new Proxy(target, {
+            has(target, prop) { return true; },
+            get(target, prop) { return (prop in target ? target : window)[prop]; }
+          })
+        }
+    `.trim(),
+
+    // Raw JS code inserted after with (if `useWith` = true) and inside try block (if `debug` = true)
+    bodyHeader: [
+        '__init()',  // call initialization of context (ex: extend Array.prototype)
+
+        'out = function(x){__eta.res+=__eta.f(x)}',
+        'outn = function(x){__eta.res+=__eta.f(x)+"\\n"}',
+        'state = function(o){return Object.assign(__eta.s,o)}',
+    ].join('\n'),
 
     autoEscape: false, /** Automatically XML-escape interpolations */
     // escapeFunction: eta.XMLEscape,
@@ -186,7 +198,11 @@ function compileToString(this: Eta, str: string, options?: Partial<CustomizedOpt
 
     const buffer: Array<AstObject> = this.parse.call(this, str)
 
+    // NOTE: with(storeVars(...)) hides (`options`: Options) variable in compiled function
+    //      this is not an issue: `options` is unnecessary inside
+
     let res = `${config.functionHeader}
+${config.useWith ? "with(storeVars(" + config.varName + "||{})){" : ""}
 let __eta = {res: "", s: {}, e: this.config.escapeFunction, f: this.config.filterFunction${
     config.debug
       ? ', line: 1, templateStr: "' +
@@ -194,15 +210,14 @@ let __eta = {res: "", s: {}, e: this.config.escapeFunction, f: this.config.filte
         '"'
       : ""
   }}
-${config.debug ? "try {" : ""}${config.useWith ? "with(" + config.varName + "||{}){" : ""}
+${config.debug ? "try {" : ""}
 ${bodyHeader}
 ${compileBody.call(this, buffer)}
-${config.useWith ? "}" : ""}${
-    config.debug
-      ? "} catch (e) { this.RuntimeErr(e, __eta.templateStr, __eta.line, options.filepath) }"
-      : ""
-  }
+${config.debug
+    ? "} catch (e) { this.RuntimeErr(e, __eta.templateStr, __eta.line) }"
+    : ""}
 ${returnState ? "return {result: __eta.res, state: __eta.s}" : "return __eta.res"}
+${config.useWith ? "}" : ""}
 `.trim()
 
     if (config.plugins) {

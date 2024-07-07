@@ -848,9 +848,9 @@ export function getTemplateTagsContext(context: C) {
     layout_.args = bindContext(layout.args, context)
 
     return new Context({
-        _: {
-            init: _initContext,
-        },
+        __init: _initContext,
+
+        cursor: bindContext(cursor, context),
 
         ref, bref, tag, embed,
         empty, bool, when, fill, zeros, spaces,
