@@ -44,7 +44,7 @@ export function f(strings: any, ...values: any[]): Function {
  **/
 export function html(strings: any, ...values: any[]): string {
     const raw = String.raw({raw: strings}, ...values)
-    return raw.trim().replaceAll(/^\s+/gm, '').replaceAll(/>\n</g, '><')
+    return raw.trim().replaceAll(/^ +/gm, '').replaceAll(/>\n</g, '><')
 }
 
 /**

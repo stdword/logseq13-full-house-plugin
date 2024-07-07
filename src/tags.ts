@@ -564,14 +564,12 @@ function query_pageRefs(context: C, page: PageContext | string = '', withProps: 
 /* dev */
 function dev_dump(obj: any) {
     obj = neatJSON(obj, {
-        indent: '  ',
+        indent: '\t',
         wrap: 30,
         afterComma: 1,
         afterColon: 1,
         // short: true,
     })
-    obj = escapeForHTML(obj)
-    obj = obj.replaceAll(/\n( +)/g, (x) => ('\n' + '&nbsp;'.repeat(x.length)))
     return '<pre>' + obj + '</pre>'
 }
 function dev_uuid(shortForm: boolean = false) {
