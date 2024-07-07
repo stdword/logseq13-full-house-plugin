@@ -16,7 +16,7 @@ Used for complex 🏛view development. See example [here](https://github.com/std
 
 #### Schema
 <!-- {docsify-ignore} -->
-```
+```javascript
 {
     slot: (string) 'slot__34emiluj'
     key: (string) '34emiluj'
@@ -31,7 +31,7 @@ See detailed [Reference for arguments](reference__args.md).
 
 #### Schema
 <!-- {docsify-ignore} -->
-```
+```javascript
 {
     (string) arg name: (string or boolean) arg value
 }
@@ -45,7 +45,7 @@ Page contexts:
 
 #### Schema
 <!-- {docsify-ignore} -->
-```
+```javascript
 {
     id: (number) 11320,
     uuid: (string) '64d7d3a2-b635-487b-8aa9-0a44ad21e142',
@@ -78,7 +78,7 @@ Block contexts:
 
 #### Schema
 <!-- {docsify-ignore} -->
-```
+```javascript
 {
     id: (number) 25686,
     uuid: (string) '64d8c048-37dd-4666-a653-15fb14eda201',
@@ -108,7 +108,7 @@ Template block context.
 
 #### Schema
 <!-- {docsify-ignore} -->
-```
+```javascript
 {
     name: (string) template name, page name or block UUID
     includingParent: (boolean) true
@@ -146,7 +146,7 @@ Configuration context.
 
 #### Schema
 <!-- {docsify-ignore} -->
-```
+```javascript
 {
     appVersion: (string) '0.9.13',
     pluginVersion: (string) '3.0.0',
@@ -192,7 +192,7 @@ See detailed [Reference for tags](reference__tags.md).
 
 #### Schema
 <!-- {docsify-ignore} -->
-```
+```javascript
 {
     (string) tag name: (function) signature
 }

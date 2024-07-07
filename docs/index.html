@@ -126,8 +126,8 @@
         tabHeadings: true,
       },
       toc: {
-        tocMaxLevel: 5,
-        target: 'h2, h3, h4, h5, h6',
+        tocMaxLevel: 4,
+        target: 'h2, h3, h4',
         ignoreHeaders:  []
       },
       'flexible-alerts': {
@@ -288,35 +288,53 @@
 
     // scroll listener
     const scrollHandler = () => {
-      const clientHeight = window.innerHeight
-      const titleBlocks = document.querySelectorAll(`#main ${window.$docsify.toc.target}`)
-      let insightBlocks = []
-      titleBlocks.forEach((titleBlock, index) => {
-        const rect = titleBlock.getBoundingClientRect()
-        // still in sight
-        if (rect.top <= clientHeight && rect.height + rect.top > 0) {
-          insightBlocks.push(index)
-        }
+      const toc = {}
+      const tocList = []
+      document.querySelectorAll('.page_toc > div').forEach((el) => {
+        const ref = el.firstElementChild.attributes['data-id'].value
+        toc[ref] = el
+        tocList.push(ref)
       })
+
+      if (tocList.length === 0)
+        return
+
+      const clientHeight = window.innerHeight
+      const visibleHeadings = []
+      const headings = document.querySelectorAll(`#main ${window.$docsify.toc.target}`)
+
+      headings.forEach((h) => {
+        const ref = h.attributes['id'].value
+        if (!toc[ref])
+          return
+
+        const rect = h.getBoundingClientRect()
+        if (rect.top <= clientHeight && rect.top + rect.height > 0)
+          visibleHeadings.push(ref)
+      })
+
+      let hightlighted = null
       const scrollingElement = document.scrollingElement || document.body
-      // scroll to top, choose the first one
-      if (scrollingElement.scrollTop === 0) {
-        insightBlocks = [0]
-      } else if (scrollingElement.offsetHeight - window.innerHeight - scrollingElement.scrollTop < 5 &&
-        insightBlocks.length > 0) {
-        // scroll to bottom and still multi title in sight, choose the first one
-        insightBlocks = [insightBlocks[0]]
+      const maxOffset = scrollingElement.scrollHeight - window.innerHeight
+
+      // scrolled to top, choose the first one
+      if (window.pageYOffset === 0)
+        hightlighted = tocList[0]
+      else if (Math.abs(window.pageYOffset - maxOffset) < 5) {
+        // scrolled to bottom, choose the last one
+        hightlighted = tocList.at(-1)
       }
-      if (insightBlocks.length) {
-        const tocList = document.querySelectorAll('.page_toc>div')
-        tocList.forEach((t, index) => {
-          if (index === insightBlocks[0]) {
-            t.classList.add('active')
-          } else {
-            t.classList.remove('active')
-          }
+      else if (visibleHeadings.length > 0)
+        hightlighted = visibleHeadings[0]
+
+      if (hightlighted)
+        tocList.forEach((h) => {
+          const el = toc[h]
+          if (h === hightlighted)
+            el.classList.add('active')
+          else
+            el.classList.remove('active')
         })
-      }
     }
 
     // adjust event click target due to docsify bug:
