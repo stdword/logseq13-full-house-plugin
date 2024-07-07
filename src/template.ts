@@ -195,25 +195,34 @@ export class Template implements ITemplate {
         // @ts-expect-error
         contextObj.tags = new Context(tags)
 
-        const renderContext = {c: contextObj, ...tags}
+        const finalContext = {c: contextObj, ...tags}
 
-        // __env is a way to access variables environment from outer code (while executing
-        //      template code)
+        // this is the way to access variables environment from outer code
         // @ts-expect-error
-        contextObj.__env = renderContext
+        contextObj.__env = finalContext
 
         return await mapBlockTree(this.block as IBlockNode, async (b, lvl, data) => {
             if (lvl === 0 && !this.includingParent)
                 return ''
 
             // @ts-expect-error
-            renderContext.c.self = BlockContext.createFromEntity(
+            finalContext.c.self = BlockContext.createFromEntity(
                 b as BlockEntity, {
                 page: context.block.page,
                 level: lvl,
             })
 
-            let {result, state} = await eta.renderStringStateAsync(b.content, renderContext)
+            const resultObj: any = await eta.renderStringStateAsync(b.content, finalContext)
+
+            // this destruction can be failed, because any object of any type could
+            // be returned by user code
+            let {result, state} = resultObj as Awaited<ReturnType<typeof eta.renderStringStateAsync>>
+            // so check the success
+            if (result === undefined && state === undefined) {
+                result = resultObj.toString()
+                // @ts-expect-error
+                state = contextObj.__env.state()
+            }
 
             // check for cursor positioning
             if (state.cursorPosition) {
