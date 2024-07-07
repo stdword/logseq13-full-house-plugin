@@ -639,6 +639,9 @@ CS 501
 <!-- tabs:end -->
 
 
+## `cursor`
+?> See the separate page for details: [Cursor positioning](reference__syntax.md#cursor-positioning)
+
 
 ## `dev`
 

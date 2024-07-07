@@ -169,7 +169,7 @@ But there are the special `out` & `outn` functions to output info within ` ``{..
 
 <!-- tabs:end -->
 
-### Cursor positioning with ` ``{|}`` `
+### Cursor positioning with ` ``{|}`` ` :id=cursor-positioning
 This special syntax positions the cursor after template insertion.
 
 - Use ` ``{|}`` ` once to position cursor at the specified place.
@@ -188,19 +188,16 @@ This special syntax positions the cursor after template insertion.
 
 <!-- tabs:end -->
 
-To position the cursor inside curly brackets, use this long form:
+To position the cursor from code inside curly brackets, use `cursor()` template tag:
 
 <!-- tabs:start -->
 #### ***Template***
 ```javascript
 ``{
-    // In text, use the same cursor mark: {|}
-    var sentence = 'Hello, {|}user{|}!'
-    // Output text with the help of out / outn functions
-    out(sentence)
-    // The important step: mark this block with special flag
-    state({cursorPosition: true})
-}``
+    var sentence = `Hello, ${cursor()}user${cursor()}!`
+  }``
+
+``sentence``
 ```
 
 #### ***Rendered***

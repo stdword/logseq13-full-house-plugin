@@ -795,6 +795,12 @@ function array_sorted(key: Function) {
 }
 
 
+function cursor(c: C) {
+    const env = _env(c)
+    env.state({cursorPosition: true})
+    return Template.carriagePositionMarker
+}
+
 
 function _env(c: C) {
     // @ts-expect-error
