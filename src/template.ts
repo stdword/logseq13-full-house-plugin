@@ -68,6 +68,8 @@ export class Template implements ITemplate {
         return value
     }
     static getSelectionPositions(content: string, selectionPositions: number[]): string {
+        content = content.trim()
+
         for (const marker of [
             Template.carriagePositionMarker,
             Template.carriagePositionMarker,
@@ -78,6 +80,16 @@ export class Template implements ITemplate {
                 selectionPositions.push(position)
             }
         }
+
+        // check spaces near cursor that will be trimmed after insertion to Logseq
+        const trimmed = content.trimStart()
+        if (content !== trimmed) {
+            const delta = content.length - trimmed.length
+            const newSelectionPositions = selectionPositions.map(p => Math.max(0, p - delta))
+            selectionPositions.length = 0
+            selectionPositions.push(...newSelectionPositions)
+        }
+
         return content
     }
     static getArgProperties(block: BlockEntity) {
