@@ -795,6 +795,11 @@ function array_sorted(key: Function) {
 }
 
 
+
+function _env(c: C) {
+    // @ts-expect-error
+    return c.__env
+}
 function bindContext(f, context) {
     const func = f.bind(null, context)
     const signature = f.toString().replace('context, ', '')

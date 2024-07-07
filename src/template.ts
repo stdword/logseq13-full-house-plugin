@@ -197,6 +197,11 @@ export class Template implements ITemplate {
 
         const renderContext = {c: contextObj, ...tags}
 
+        // __env is a way to access variables environment from outer code (while executing
+        //      template code)
+        // @ts-expect-error
+        contextObj.__env = renderContext
+
         return await mapBlockTree(this.block as IBlockNode, async (b, lvl, data) => {
             if (lvl === 0 && !this.includingParent)
                 return ''
