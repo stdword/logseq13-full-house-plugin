@@ -424,8 +424,9 @@ export class ArgsContext extends Context {
                 if (typeof name === 'symbol')
                     return value
 
-                if (typeof value !== 'function' && !name.startsWith('_'))
-                    console.debug(p`Get args.${name.toString()} :: ${value}`)
+                if (typeof value !== 'function' && !name.startsWith('_')) {
+                    // console.debug(p`Get args.${name.toString()} :: ${value}`)
+                }
 
                 if (value === undefined)
                     return ''
@@ -444,6 +445,9 @@ export class ArgsContext extends Context {
         // to pass through hide undefined proxy
         if (this._obj)
             return this._obj[name]
+    }
+    toCallString() {
+        return this._args.map(([name, value]) => `:${name} → ${value}`).join(', ')
     }
 }
 

@@ -354,7 +354,7 @@ function handleTemplateCommand(commandName: string) {
             return
 
         const raw = rawCommand.arg(templateRef_).args(args)
-        console.debug(p`Parsing:`, {macro: raw.toString()})
+        // console.debug(p`Parsing:`, {macro: raw.toString()})
 
         const templateRef = await handleRequiredRef(templateRef_, 'Template')
         if (!templateRef)
@@ -362,7 +362,7 @@ function handleTemplateCommand(commandName: string) {
 
         args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
 
-        console.debug(p`Rendering template`, {uuid, templateRef, args})
+        // console.debug(p`Rendering template`, {uuid, templateRef, args})
         await handleLogicErrors(async () => {
             await renderTemplateInBlock(slot, uuid, templateRef, raw, args)
         })
@@ -429,7 +429,7 @@ function handleTemplateViewCommand(commandName: string) {
             return
 
         const raw = rawCommand.arg(templateRef_).args(args)
-        console.debug(p`Parsing:`, {macro: raw.toString()})
+        // console.debug(p`Parsing:`, {macro: raw.toString()})
 
         const templateRef = await handleRequiredRef(templateRef_, 'Template')
         if (!templateRef)
@@ -437,7 +437,7 @@ function handleTemplateViewCommand(commandName: string) {
 
         args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
 
-        console.debug(p`Rendering template view`, {slot, uuid, templateRef, args})
+        // console.debug(p`Rendering template view`, {slot, uuid, templateRef, args})
         await handleLogicErrors(async () => {
             await renderTemplateView(slot, uuid, templateRef, raw, args)
         })
@@ -454,7 +454,7 @@ function handleViewCommand(commandName: string) {
             return
 
         const raw = rawCommand.arg(viewBody_).args(args)
-        console.debug(p`Parsing:`, {macro: raw.toString()})
+        // console.debug(p`Parsing:`, {macro: raw.toString()})
 
         const viewBody = cleanMacroArg(viewBody_, { escape: false, unquote: true })
         if (!viewBody) {
@@ -464,7 +464,7 @@ function handleViewCommand(commandName: string) {
 
         args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
 
-        console.debug(p`Rendering view`, {slot, uuid, viewBody, args})
+        // console.debug(p`Rendering view`, {slot, uuid, viewBody, args})
         await handleLogicErrors(async () => {
             await renderView(slot, uuid, viewBody, args)
         })

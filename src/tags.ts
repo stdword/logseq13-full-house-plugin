@@ -174,19 +174,6 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
     return `{{embed ${r}}}`
 }
 
-// async function cursor(c: C) {
-//     function _cursor() {
-//         // @ts-expect-error
-//         c.tags._.cursorPositionState = true
-//         return Template.carriagePositionMarker
-//     }
-
-//     if (locks)
-//         return await locks.request('cursor-positioning', async (lock) => { _cursor() })
-
-//     return _cursor()
-// }
-
 
 async function _include__lazy(c: C, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
     if (c.mode === 'view') {

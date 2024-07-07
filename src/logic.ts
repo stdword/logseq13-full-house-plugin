@@ -545,7 +545,7 @@ export async function compileTemplateView(
     let rendered: IBlockNode
     try {
         rendered = await template.render(context)
-        console.debug(p`Template rendered:`, {data: rendered})
+        // console.debug(p`Template rendered:`, {data: rendered})
     }
     catch (error) {
         const message = (error as Error).message
@@ -565,7 +565,7 @@ export async function compileTemplateView(
 
         return new LogseqMarkup(context).toHTML(content)
     })
-    console.debug(p`Markup compiled:`, {data: compiled})
+    // console.debug(p`Markup compiled:`, {data: compiled})
 
     if (!template.includingParent && compiled.children.length === 1)
         compiled = compiled.children[0]
@@ -606,7 +606,7 @@ export async function compileTemplateView(
     }
 
     const view = htmlFold(compiled)
-    console.debug(p`View folded:`, {view})
+    // console.debug(p`View folded:`, {view})
 
     return view
 }

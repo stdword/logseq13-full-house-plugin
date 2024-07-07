@@ -149,7 +149,7 @@ export class LogseqMarkup {
     }
     toHTML(text: string, nestingLevel: number = 0): string {
         const nodes: MLDOC_Node[] = this.parse(text)
-        console.debug(p`Markup parsed`, {nodes})
+        // console.debug(p`Markup parsed`, {nodes})
         return new MldocASTtoHTMLCompiler(this.context, nestingLevel).compile(nodes)
     }
 }

@@ -177,7 +177,7 @@ export class Template implements ITemplate {
     }
     async render(context: ILogseqContext): Promise<IBlockNode> {
         this.checkInit()
-        console.info(p`Rendering ${this}`)
+        console.info(p`Rendering ${this} ${context.args._args.length ? 'with args ' + context.args.toCallString() : ''}`)
 
         const blockContext = BlockContext.createFromEntity(this.block)
         context.template = new Context({
@@ -244,7 +244,7 @@ export class InlineTemplate implements ITemplate {
         return `InlineTemplate("${this.body}")`
     }
     async render(context: ILogseqContext): Promise<IBlockNode> {
-        console.info(p`Rendering ${this}`)
+        console.info(p`Rendering ${this} ${context.args._args.length ? 'with args ' + context.args.toCallString() : ''}`)
 
         context.template = new Context({
             name: this.name,
