@@ -369,7 +369,7 @@ async (
     else
         [ head, ...tail ] = rendered.children
 
-    console.debug(p`Template rendered:`, {head, tail})
+    // console.debug(p`Template rendered:`, {head, tail})
 
     const toInsert = head.content
     const oldContent = context.currentBlock.content!
@@ -518,7 +518,7 @@ export async function renderTemplate(
     else
         [ head, ...tail ] = rendered.children
 
-    console.debug(p`Template rendered:`, {head, tail})
+    // console.debug(p`Template rendered:`, {head, tail})
 
     return [head, tail]
 }

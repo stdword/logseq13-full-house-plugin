@@ -27,7 +27,7 @@ import {
     renderTemplate, compileTemplateView,
 } from './logic'
 import { StateError } from './errors'
-import { ITemplate, Template } from './template'
+import { ITemplate, prepareRenderedNode, Template } from './template'
 import { PagesQueryBuilder } from './query'
 
 
@@ -432,7 +432,7 @@ function spaces(value: string | number, width: number, align: 'left' | 'right' |
 }
 
 
-/* date */
+/* «date» namespace  */
 function date_nlp(context: C, query: string, now: Dayjs | string = 'now'): Dayjs | null {
     if (now === 'now')
         Sherlock._setNow(null)
@@ -462,7 +462,7 @@ function date_from_journal(day: number | string | Dayjs): Dayjs | null {
 }
 
 
-/* query */
+/* «query» namespace  */
 function query_pages() {
     return new PagesQueryBuilder()
 }
@@ -561,7 +561,7 @@ function query_pageRefs(context: C, page: PageContext | string = '', withProps: 
 }
 
 
-/* dev */
+/* «dev» namespace  */
 function dev_dump(obj: any) {
     obj = neatJSON(obj, {
         indent: '\t',
@@ -785,6 +785,8 @@ function cursor(c: C) {
     env.state({cursorPosition: true})
     return Template.carriagePositionMarker
 }
+
+/* «blocks» namespace */
 function _blocks_insert_single(c: C, isSibling: boolean, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
     const env = _env(c)
     const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
@@ -794,23 +796,37 @@ function _blocks_insert_single(c: C, isSibling: boolean, content: string, proper
     if (properties && Object.keys(properties).length)
         node.properties = properties
 
-    if (opts && opts.cursorPosition) {
-        node.data = node.data ?? {}
-        const selectionPositions = [] as number[]
-        node.content = Template.getSelectionPositions(node.content, selectionPositions)
-        if (selectionPositions.length)
-            node.data.selectionPositions = selectionPositions
-    }
+    prepareRenderedNode(node, opts)
 
     blocks.push(node)
+    env.state({[attr]: blocks})
+}
+function _blocks_insert_multiple(c: C, isSibling: boolean, root: IBlockNode) {
+    const env = _env(c)
+    const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
+    const blocks = env.state()[attr] ?? []
+
+    walkBlockTree(root, (node) => {
+        prepareRenderedNode(node)
+    })
+
+    blocks.push(root)
     env.state({[attr]: blocks})
 }
 function blocks_spawn(c: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
     _blocks_insert_single(c, false, content, properties, opts)
 }
+function blocks_spawn_tree(c: C, root: IBlockNode) {
+    _blocks_insert_multiple(c, false, root)
+}
+blocks_spawn.tree = blocks_spawn_tree
 function blocks_append(c: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
     _blocks_insert_single(c, true, content, properties, opts)
 }
+function blocks_append_tree(c: C, root: IBlockNode) {
+    _blocks_insert_multiple(c, true, root)
+}
+blocks_append.tree = blocks_append_tree
 
 
 function _env(c: C) {
@@ -869,6 +885,12 @@ export function getTemplateTagsContext(context: C) {
     const layout_ = bindContext(layout, context)
     layout_.args = bindContext(layout.args, context)
 
+    const blocks_spawn_ = bindContext(blocks_spawn, context)
+    blocks_spawn_.tree = bindContext(blocks_spawn.tree, context)
+
+    const blocks_append_ = bindContext(blocks_append, context)
+    blocks_append_.tree = bindContext(blocks_append.tree, context)
+
     return new Context({
         __init: _initContext,
 
@@ -891,8 +913,8 @@ export function getTemplateTagsContext(context: C) {
         cursor: bindContext(cursor, context),
 
         blocks: new Context({
-            spawn: bindContext(blocks_spawn, context),
-            append: bindContext(blocks_append, context),
+            spawn: blocks_spawn_,
+            append: blocks_append_,
         }),
 
         query: new Context({

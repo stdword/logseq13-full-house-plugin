@@ -9,6 +9,7 @@ export type IBlockNode = {
     children: IBlockNode[],
     properties?: Record<string, any>
     data?: {
+        cursorPosition?: true,
         selectionPositions?: number[],
         spawnedBlocks?: IBlockNode[],
         appendedBlocks?: IBlockNode[],

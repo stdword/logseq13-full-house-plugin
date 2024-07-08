@@ -227,20 +227,18 @@ export class Template implements ITemplate {
             }
 
             // check for cursor positioning
-            if (state.cursorPosition) {
-                data.selectionPositions = [] as number[]
-                result = Template.getSelectionPositions(result, data.selectionPositions)
-            }
+            if (state.cursorPosition)
+                data.cursorPosition = true
 
             // check creating new blocks
             if (state.spawnedBlocks)
                 data.spawnedBlocks = state.spawnedBlocks as IBlockNode[]
-            if (state.appendedBlocks) {
+            if (state.appendedBlocks)
                 data.appendedBlocks = state.appendedBlocks as IBlockNode[]
-            }
 
             return result
         })
+
 
         // spread the tree: add new blocks
         const insertAfter = [] as [number[], IBlockNode[]][]
@@ -257,10 +255,29 @@ export class Template implements ITemplate {
         for (const [path, blocks] of insertAfter)
             insertTreeNodes(tree, path, blocks)
 
+
+        // find blocks with cursor positioning
+        walkBlockTree(tree, (b, lvl, path) => {
+            prepareRenderedNode(b)
+        })
+
         return tree
     }
     getArgProperties() {
         return Template.getArgProperties(this.block)
+    }
+}
+
+export function prepareRenderedNode(node: IBlockNode, opts?: {cursorPosition?: true}) {
+    if (opts?.cursorPosition || node.data?.cursorPosition) {
+        node.data = node.data ?? {}
+
+        const selectionPositions = [] as number[]
+        node.content = Template.getSelectionPositions(node.content, selectionPositions)
+
+        if (selectionPositions.length)
+            node.data.selectionPositions = selectionPositions
+        delete node.data.cursorPosition
     }
 }
 
