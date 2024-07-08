@@ -247,15 +247,38 @@ async function _include__runtime(c: C, layoutMode: boolean, name: string, args_?
     const renderArgs = [slot, template, args, c, argsContext
         ] as [string, ITemplate, string[], ILogseqCurrentContext, ArgsContext | undefined]
 
-    if (c.mode === 'template') {
-        const [head, tail] = await renderTemplate(...renderArgs)
-        console.log('TRACING', head, tail)
-        return head.content
-    } else if (c.mode === 'view')
+    if (c.mode === 'view')
         return await compileTemplateView(...renderArgs)
 
-    console.debug(p`Unknown rendering mode: ${c.mode}`)
-    return ''
+    if (c.mode !== 'template') {
+        console.debug(p`Unknown rendering mode: ${c.mode}`)
+        return ''
+    }
+
+    // handling template inclusion
+    const {headTail: [head, tail]} = await renderTemplate(...renderArgs)
+
+    // if included template head contains cursor positions
+    const selectedPositions = (head as IBlockNode).data?.selectionPositions
+    if (selectedPositions) {
+        // return them back to be handled again by outer template
+        while (selectedPositions.length) {
+            const pos = selectedPositions.pop()
+            head.content = head.content.slice(0, pos)
+                + Template.carriagePositionMarker
+                + head.content.slice(pos)
+
+            cursor(c)  // mark block with cursor position flag
+        }
+    }
+
+    // spawn possible blocks around head
+    for (const block of head.children ?? [])
+        blocks_spawn_tree(c, block as IBlockNode)
+    for (const block of tail)
+        blocks_append_tree(c, block as IBlockNode)
+
+    return head.content
 }
 
 async function include(c: C, name: string, args?: string[] | string) {
