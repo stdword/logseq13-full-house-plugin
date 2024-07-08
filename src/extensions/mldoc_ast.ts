@@ -43,7 +43,7 @@ async function walkNodes_async<T>(
     return (
         await Promise.all(nodes.map(processNode))
     ).filter((item) => item !== null) as T[]
- }
+}
 
 function walkNodes<T>(
     nodes: MLDOC_Node[],
@@ -61,7 +61,7 @@ function walkNodes<T>(
         return callback(type, data, node, processNode)
     }
     return nodes.map(processNode).filter((item) => item !== null) as T[]
- }
+}
 
 
 export class LogseqMarkup {
@@ -198,6 +198,7 @@ class MldocASTtoHTMLCompiler {
                         case 'Strike_through': return `<s>${compiledValue}</s>`
                         case 'Italic':         return `<i>${compiledValue}</i>`
                         case 'Bold':           return `<b>${compiledValue}</b>`
+                        case 'Highlight':      return `<mark>${compiledValue}</mark>`
                         default:
                             console.warn(p`Unknown emphasis type:`, {emphasis, subNode, compiledValue, data})
                     }
@@ -416,4 +417,4 @@ export function resolveAssetsLink(context: ILogseqContext, protocol: string, lin
     }
 
     return [protocol, link]
- }
+}
