@@ -175,16 +175,36 @@ function embed(item: string | BlockContext | PageContext | Dayjs): string {
 }
 
 
-async function _include__lazy(c: C, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
+function _clean_include_args(name: string, args?: string[] | string) {
+    const ref = parseReference(name ?? '')
+
+    if (args !== undefined && !Array.isArray(args))
+        args = splitMacroArgs(args.toString())
+    args = args as string[] | undefined
+
+    if (args)  // runtime protection
+        args = args.map((arg) => arg.toString())
+
+    return {ref, args}
+}
+async function _show_lazy_mode_restriction_message_for_views() {
+    console.warn(p`Lazy inclusion is not supported for views`)
+    await logseq.UI.showMsg(
+        '[:p "Lazy inclusion is not supported for " [:b "views"] ". Please ' +
+        'use " [:code ":template"] " command instead or " [:code "include"] " template tag."]',
+        'warning', {timeout: 5000}
+    )
+}
+
+async function _include__lazy(c: C, commandName: string, layoutMode: boolean, name: string, args_?: string[] | string): Promise<string> {
     if (c.mode === 'view') {
-        console.warn(p`Lazy rendering mode is not supported for views`)
-        logseq.UI.showMsg(
-            '[:p "Lazy rendering mode is not supported for " [:b "views"] ". Please ' +
-            'use " [:code ":template"] " command instead or " [:i "disable"] " lazy mode."]',
-            'warning', {timeout: 5000}
-        )
+        await _show_lazy_mode_restriction_message_for_views()
         return ''
     }
+
+    let {ref, args} = _clean_include_args(name, args_)
+    if (!ref)
+        return ''
 
     let block: BlockEntity
     try {
@@ -192,12 +212,6 @@ async function _include__lazy(c: C, layoutMode: boolean, ref: LogseqReference, a
     } catch (error) {  // StateError
         return ''
     }
-
-    let commandName = ''
-    if (c.mode === 'template')
-        commandName = 'template'
-    if (!commandName)
-        return ''
 
     let command = RendererMacro.command(commandName).arg(ref.value as string)
 
@@ -209,7 +223,11 @@ async function _include__lazy(c: C, layoutMode: boolean, ref: LogseqReference, a
 
     return command.toString()
 }
-async function _include__runtime(c: C, layoutMode: boolean, ref: LogseqReference, args?: string[]): Promise<string> {
+async function _include__runtime(c: C, layoutMode: boolean, name: string, args_?: string[] | string): Promise<string> {
+    let {ref, args} = _clean_include_args(name, args_)
+    if (!ref)
+        return ''
+
     let template: Template
     try {
         template = await getTemplate(ref)
@@ -231,6 +249,7 @@ async function _include__runtime(c: C, layoutMode: boolean, ref: LogseqReference
 
     if (c.mode === 'template') {
         const [head, tail] = await renderTemplate(...renderArgs)
+        console.log('TRACING', head, tail)
         return head.content
     } else if (c.mode === 'view')
         return await compileTemplateView(...renderArgs)
@@ -238,53 +257,22 @@ async function _include__runtime(c: C, layoutMode: boolean, ref: LogseqReference
     console.debug(p`Unknown rendering mode: ${c.mode}`)
     return ''
 }
-async function _include(c: C, layoutMode: boolean, lazyMode: boolean, name: string, args_?: string[] | string) {
-    const {ref, args} = _clean_include_args(name, args_)
-    if (!ref)
-        return ''
 
-    if (lazyMode)
-        return await _include__lazy(c, layoutMode, ref, args)
-    else
-        return await _include__runtime(c, layoutMode, ref, args)
+async function include(c: C, name: string, args?: string[] | string) {
+    return await _include__runtime(c, false, name, args)
 }
-function _clean_include_args(name: string, args?: string[] | string) {
-    const ref = parseReference(name ?? '')
-
-    if (args !== undefined && !Array.isArray(args))
-        args = splitMacroArgs(args.toString())
-    args = args as string[] | undefined
-
-    if (args)  // runtime protection
-        args = args.map((arg) => arg.toString())
-
-    return {ref, args}
-}
-
-async function include(c: C, name: string, args?: string[] | string, lazy: boolean = false) {
-    return await _include(c, false, lazy, name, args)
+include.template = async function(c: C, name: string, args_?: string[] | string) {
+    return await _include__lazy(c, 'template', false, name, args_)
 }
 include.view = async function(c: C, name: string, args_?: string[] | string) {
-    let {ref, args} = _clean_include_args(name, args_)
-    if (!ref)
-        return ''
-
-    let block: BlockEntity
-    try {
-        [block, ] = await getTemplateBlock(ref)
-    } catch (error) {  // StateError
+    return await _include__lazy(c, 'template-view', false, name, args_)
+}
+include.inlineView = async function(c: C, body: string, args_?: string[]) {
+    if (c.mode === 'view') {
+        await _show_lazy_mode_restriction_message_for_views()
         return ''
     }
 
-    let command = RendererMacro.command('template-view').arg(ref.value as string)
-
-    if (!args)
-        args = Template.getUsageArgs(block)
-    command = command.args(args)
-
-    return command.toString()
-}
-include.inlineView = function(body: string, args_?: string[]) {
     const {args} = _clean_include_args('', args_)
 
     // force usage of single quotes to avoid messing up with logseq escaping
@@ -302,8 +290,12 @@ include.inlineView = function(body: string, args_?: string[]) {
         .args(args)
     return command.toString()
 }
-async function layout(c: C, name: string, args?: string[] | string, lazy: boolean = false) {
-    return await _include(c, true, lazy, name, args)
+
+async function layout(c: C, name: string, args?: string[] | string) {
+    return await _include__runtime(c, true, name, args)
+}
+layout.template = async function(c: C, name: string, args_?: string[] | string) {
+    return await _include__lazy(c, 'template', true, name, args_)
 }
 layout.args = function(c: C, ...argNames: (string | [string, string | boolean] | {string: string | boolean})[]) {
     if (argNames.length === 0) {
@@ -879,10 +871,12 @@ export function getTemplateTagsContext(context: C) {
     const datesContext = getTemplateTagsDatesContext()
 
     const include_ = bindContext(include, context)
+    include_.template = bindContext(include.template, context)
     include_.view = bindContext(include.view, context)
-    include_.inlineView = include.inlineView
+    include_.inlineView = bindContext(include.inlineView, context)
 
     const layout_ = bindContext(layout, context)
+    layout_.template = bindContext(layout.template, context)
     layout_.args = bindContext(layout.args, context)
 
     const blocks_spawn_ = bindContext(blocks_spawn, context)

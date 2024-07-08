@@ -1,20 +1,31 @@
 
-
-### `include` :id=nesting-include
+## `include` :id=nesting-include
 Include another template by it's name.
 
-- `async include(name, args?, lazy?)`
+There are different ways and different situations around inclusion:
+- **Runtime** inclusion renders an included template or view at the moment of current template rendering.
+- **Lazy** inclusion relies on the renderer macro (`{{renderer ...}}`) to render an included template or view at a later time, after the current template rendering is finished.
+
+Use the table to select the appropriate template tag:
+
+| intention ↓       rendering as → | [`template`](reference__commands.md#template-command) | [`view`](reference__commands.md#template-view-command) |
+| :--                          | :--                                     | :--:      |
+| Include (*runtime*)          | `include`                               | `include` |
+| Include (*lazy*) as template | `include.template`                      | —         |
+| Include (*lazy*) as view     | `include.view`<br/>`include.inlineView` | —         |
+
+---
+
+- `async include(name, args?)`
     - `name`: template name. Only templates with `template::` property can be included.
     - `args`: (optional) arguments for included template. Can be a string or an array of strings.
         - If not specified `template-usage::` property will be used to get default arguments' values.
-        - If you need to include template with no arguments: use empty value `[]` or `''`.
-    - `lazy`: (optional, default: false) include template, but render it later.
-        - Useful for heavy templates. Could be slow for lots of lazy inclusions.
-        - Supported only with [render template](reference__commands.md#template-command) command.
-- `async include.view(name, args?)`
-    - Force inclusion as a view, regardless of the rendering command. It is always lazy.
-- `include.inlineView(body, args?)`
-    - Force inclusion as an inline view, regardless of the rendering command. It is always lazy.
+        - If you need to ignore `template-usage::` and include template with no arguments: use explicit empty value `[]` or `''`.
+- `async include.template(name, args?)` - lazy inclusion as template
+- `async include.view(name, args?)` - lazy inclusion as a view
+- `async include.inlineView(body, args?)` - lazy inclusion as an inline view
+    - `body`: A string with JavaScript code for inline view. See details [here](reference__commands.md#inline-view-command).
+
 
 <!-- tabs:start -->
 #### ***Template***
@@ -69,21 +80,35 @@ Buy list: \
     → **lemon**
 <!-- tabs:end -->
 
+?> Note: if you need to place buy list items in child blocks, use [blocks spawning](reference__tags_advanced.md#blocks-spawn)
 
 
-### `layout` :id=nesting-layout
+## `layout` :id=nesting-layout
 Include another template by it's name. Acts like [`include`](#nesting-include) with the only difference: it preserves outer-template [arg-properties](reference__args.md#arg-properties). Use it to **inherit templates**.
 
-- `async layout(name, args?, lazy?)`
+Read the difference between lazy & runtime inclusion in [`include`](#nesting-include) section.
+
+Use the table to select the appropriate template tag:
+
+| intention ↓       rendering as → | [`template`](reference__commands.md#template-command) | [`view`](reference__commands.md#template-view-command) |
+| :--                         | :--               | :--:     |
+| Layout (*runtime*)          | `layout`          | `layout` |
+| Layout (*lazy*) as template | `layout.template` | —        |
+| Layout (*lazy*) as view     | not supported     | —        |
+
+---
+
+- `async layout(name, args?)`
     - See parameters description in [`include`](#nesting-include) section.
-- `layout.args(...names)` — used to pass through current arguments to layout template
-    - `names`: an array
-        - every item could be:
+- `async layout.template(name, args?)` - lazy layout as template
+- `layout.args(...args?)` — used to pass through current arguments to layout template
+    - `args`: (optional) an array or string
+        - if unspecified: all arguments will be passed through automatically
+        - if specified, every item could be:
             - the name of an argument
             - positional link to an argument: `$1`, `$2`, etc.
-            - argument name and it's value: `[name, value]`
-            - object with arguments' names as key and values as values: `{name1: v1, name2: v2, ...}`
-        - if unspecified: all arguments will be passed through automatically
+            - the pair of argument name and it's value: `[name, value]`
+            - object with arguments' names as keys and values as values: `{name1: v1, name2: v2, ...}`
 
 <!-- tabs:start -->
 #### ***Template «parent»***
@@ -113,4 +138,4 @@ Include another template by it's name. Acts like [`include`](#nesting-include) w
 
 <!-- tabs:end -->
 
-?> Another example is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks), in the section «🏛view for blocks»
+?> Real life example is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks), in the section «🏛view for blocks»
