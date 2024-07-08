@@ -8,6 +8,8 @@ import { getTemplateTagsContext } from './tags'
 import {
     p, IBlockNode, walkBlockTreeAsync, mapBlockTree, coerceToBool, LogseqReferenceAccessType,
     PropertiesUtils, Properties, unquote, splitMacroArgs,
+    walkBlockTree,
+    insertTreeNodes,
 } from './utils'
 
 
@@ -201,7 +203,7 @@ export class Template implements ITemplate {
         // @ts-expect-error
         contextObj.__env = finalContext
 
-        return await mapBlockTree(this.block as IBlockNode, async (b, lvl, data) => {
+        const tree = await mapBlockTree(this.block as IBlockNode, async (b, lvl, data) => {
             if (lvl === 0 && !this.includingParent)
                 return ''
 
@@ -230,8 +232,32 @@ export class Template implements ITemplate {
                 result = Template.getSelectionPositions(result, data.selectionPositions)
             }
 
+            // check creating new blocks
+            if (state.spawnedBlocks)
+                data.spawnedBlocks = state.spawnedBlocks as IBlockNode[]
+            if (state.appendedBlocks) {
+                data.appendedBlocks = state.appendedBlocks as IBlockNode[]
+            }
+
             return result
         })
+
+        // spread the tree: add new blocks
+        const insertAfter = [] as [number[], IBlockNode[]][]
+        walkBlockTree(tree, (b, lvl, path) => {
+            if (b.data && b.data.spawnedBlocks) {
+                b.children = [...b.data.spawnedBlocks, ...b.children]
+                delete b.data.spawnedBlocks
+            }
+            if (b.data && b.data.appendedBlocks) {
+                insertAfter.push([path, b.data.appendedBlocks])
+                delete b.data.appendedBlocks
+            }
+        })
+        for (const [path, blocks] of insertAfter)
+            insertTreeNodes(tree, path, blocks)
+
+        return tree
     }
     getArgProperties() {
         return Template.getArgProperties(this.block)

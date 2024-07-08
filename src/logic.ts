@@ -440,7 +440,7 @@ async (
     blockTree = (await logseq.Editor.getBlock(currentUUID, {includeChildren: true}))!
 
     // get the cursor block
-    const cursorBlock = getTreeNode(blockTree, cursorPath)
+    const cursorBlock = getTreeNode(blockTree as IBlockNode, cursorPath) as BlockEntity
     if (!cursorBlock) {
         console.warn('(Assertion Error) Cannot find cursor block that is exist')
         return

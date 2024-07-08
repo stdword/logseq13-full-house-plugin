@@ -785,6 +785,32 @@ function cursor(c: C) {
     env.state({cursorPosition: true})
     return Template.carriagePositionMarker
 }
+function _blocks_insert_single(c: C, isSibling: boolean, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
+    const env = _env(c)
+    const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
+    const blocks = env.state()[attr] ?? []
+
+    const node: IBlockNode = { content, children: [] }
+    if (properties && Object.keys(properties).length)
+        node.properties = properties
+
+    if (opts && opts.cursorPosition) {
+        node.data = node.data ?? {}
+        const selectionPositions = [] as number[]
+        node.content = Template.getSelectionPositions(node.content, selectionPositions)
+        if (selectionPositions.length)
+            node.data.selectionPositions = selectionPositions
+    }
+
+    blocks.push(node)
+    env.state({[attr]: blocks})
+}
+function blocks_spawn(c: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
+    _blocks_insert_single(c, false, content, properties, opts)
+}
+function blocks_append(c: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
+    _blocks_insert_single(c, true, content, properties, opts)
+}
 
 
 function _env(c: C) {
@@ -846,8 +872,6 @@ export function getTemplateTagsContext(context: C) {
     return new Context({
         __init: _initContext,
 
-        cursor: bindContext(cursor, context),
-
         ref, bref, tag, embed,
         empty, bool, when, fill, zeros, spaces,
 
@@ -856,8 +880,20 @@ export function getTemplateTagsContext(context: C) {
         tomorrow: datesContext.tomorrow,
         time: datesContext.time,
 
+        date: Object.assign(datesContext.date, {
+            nlp: bindContext(date_nlp, context),
+            fromJournal: date_from_journal,
+        }),
+
         include: include_,
         layout: layout_,
+
+        cursor: bindContext(cursor, context),
+
+        blocks: new Context({
+            spawn: bindContext(blocks_spawn, context),
+            append: bindContext(blocks_append, context),
+        }),
 
         query: new Context({
             pages: query_pages,
@@ -882,10 +918,6 @@ export function getTemplateTagsContext(context: C) {
                 page: function (entity) { return PageContext.createFromEntity(entity) },
                 block: function (entity) { return BlockContext.createFromEntity(entity) },
             }),
-        }),
-        date: Object.assign(datesContext.date, {
-            nlp: bindContext(date_nlp, context),
-            fromJournal: date_from_journal,
         }),
     })
 }

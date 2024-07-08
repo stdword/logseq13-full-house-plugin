@@ -7,8 +7,11 @@ import { isEmptyString, isInteger, isUUID, unquote } from './parsing'
 export type IBlockNode = {
     content: string,
     children: IBlockNode[],
+    properties?: Record<string, any>
     data?: {
         selectionPositions?: number[],
+        spawnedBlocks?: IBlockNode[],
+        appendedBlocks?: IBlockNode[],
     },
 }
 
@@ -17,7 +20,7 @@ export async function mapBlockTree(
     callback: (b: IBlockNode, lvl: number, data?: any) => Promise<string | void>,
     level: number = 0,
 ): Promise<IBlockNode> {
-    const data = {}
+    const data = root.data ?? {}
     const content = ( await callback(root, level, data) ) ?? ''
 
     const children = [] as IBlockNode[]
@@ -69,7 +72,7 @@ export function walkBlockTree(
 }
 
 
-export function getTreeNode(root: BlockEntity, path: number[]): BlockEntity | null {
+export function getTreeNode(root: IBlockNode, path: number[]): IBlockNode | null {
     path = Array.from(path)
     let node = root
     while (path.length) {
@@ -78,9 +81,21 @@ export function getTreeNode(root: BlockEntity, path: number[]): BlockEntity | nu
         if (index < 0 || index >= children.length)
             return null
 
-        node = children[index] as BlockEntity
+        node = children[index]
     }
     return node
+}
+
+export function insertTreeNodes(root: IBlockNode, path: number[], nodes: IBlockNode[]): boolean {
+    if (!path.length)
+        return false
+
+    const parent = getTreeNode(root, path.slice(0, -1))
+    if (!parent)
+        return false
+
+    parent.children.splice(path.at(-1)! + 1, 0, ...nodes)
+    return true
 }
 
 /**
