@@ -16,15 +16,14 @@ Use the table to select the appropriate template tag:
 
 ---
 
-- `async include(name, args?)`
+
+- `async include(name, args?)` → string
     - `name`: template name. Only templates with `template::` property can be included.
     - `args`: (optional) arguments for included template. Can be a string or an array of strings.
         - If not specified `template-usage::` property will be used to get default arguments' values.
         - If you need to ignore `template-usage::` and include template with no arguments: use explicit empty value `[]` or `''`.
-- `async include.template(name, args?)` - lazy inclusion as template
-- `async include.view(name, args?)` - lazy inclusion as a view
-- `async include.inlineView(body, args?)` - lazy inclusion as an inline view
-    - `body`: A string with JavaScript code for inline view. See details [here](reference__commands.md#inline-view-command).
+
+!> **Returns only template head as a string!** Head children nodes and tail nodes will be spawned automatically. This template tag is not intended to access whole included template blocks tree!
 
 
 <!-- tabs:start -->
@@ -83,6 +82,52 @@ Buy list: \
 ?> Note: if you need to place buy list items in child blocks, use [blocks spawning](reference__tags_advanced.md#blocks-spawn)
 
 
+### `.template`
+Lazy inclusion as template.
+
+- `async include.template(name, args?)`
+
+<!-- tabs:start -->
+#### ***Template***
+` ``await include.template('test', ':arg 13')`` `
+
+#### ***Rendered***
+`{{renderer :template, test, :arg 13}}`
+
+<!-- tabs:end -->
+
+
+### `.view`
+Lazy inclusion as a view
+
+- `async include.view(name, args?)`
+
+<!-- tabs:start -->
+#### ***Template***
+` ``await include.view('test', ':arg 13')`` `
+
+#### ***Rendered***
+`{{renderer :template-view, test, :arg 13}}`
+
+<!-- tabs:end -->
+
+
+### `.inlineView`
+Lazy inclusion as an inline view
+
+- `async include.inlineView(body, args?)`
+    - `body`: A string with JavaScript code for inline view. See details [here](reference__commands.md#inline-view-command).
+
+<!-- tabs:start -->
+#### ***Template***
+` ``await include.inlineView('c.args.arg', ':arg 13')`` `
+
+#### ***Rendered***
+`{{renderer :view, "c.args.arg", :arg 13}}`
+
+<!-- tabs:end -->
+
+
 ## `layout` :id=nesting-layout
 Include another template by it's name. Acts like [`include`](#nesting-include) with the only difference: it preserves outer-template [arg-properties](reference__args.md#arg-properties). Use it to **inherit templates**.
 
@@ -100,33 +145,24 @@ Use the table to select the appropriate template tag:
 
 - `async layout(name, args?)`
     - See parameters description in [`include`](#nesting-include) section.
-- `async layout.template(name, args?)` - lazy layout as template
-- `layout.args(...args?)` — used to pass through current arguments to layout template
-    - `args`: (optional) an array or string
-        - if unspecified: all arguments will be passed through automatically
-        - if specified, every item could be:
-            - the name of an argument
-            - positional link to an argument: `$1`, `$2`, etc.
-            - the pair of argument name and it's value: `[name, value]`
-            - object with arguments' names as keys and values as values: `{name1: v1, name2: v2, ...}`
 
 <!-- tabs:start -->
-#### ***Template «parent»***
+#### ***Template «included»***
 ```
-- template:: parent
+- template:: included
   arg-test:: ORIGINAL
   - ``c.args.test``
 ```
 
-#### ***Template «child»***
+#### ***Template «main»***
 ```
-- template:: child
+- template:: main
   arg-test:: OVERRIDED
-  - ``await include('parent')``
-  - ``await layout('parent')``
-  - ``await layout('parent', layout.args('test'))``
-  - ``await layout('parent', layout.args(['test', c.args.test]))``
-  - ``await layout('parent', layout.args({test: 'COMPUTED'}))``
+  - ``await include('included')``
+  - ``await layout('included')``
+  - ``await layout('included', layout.args('test'))``
+  - ``await layout('included', layout.args(['test', c.args.test]))``
+  - ``await layout('included', layout.args({test: 'COMPUTED'}))``
 ```
 
 #### ***Rendered***
@@ -139,3 +175,33 @@ Use the table to select the appropriate template tag:
 <!-- tabs:end -->
 
 ?> Real life example is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks), in the section «🏛view for blocks»
+
+
+### `.template`
+Lazy layout as template.
+
+- `async layout.template(name, args?)`
+
+<!-- tabs:start -->
+#### ***Template***
+` ``await layout.template('test', ':arg 13')`` `
+
+#### ***Rendered***
+`{{renderer :template, test, :arg 13}}`
+
+<!-- tabs:end -->
+
+
+### `.args`
+Used to pass-through current arguments to layout template.
+
+- `layout.args(...args?)`
+    - `args`: (optional) an array or string
+        - if unspecified: all arguments will be passed through automatically
+        - if specified, every item could be:
+            - the name of an argument
+            - positional link to an argument: `$1`, `$2`, etc.
+            - the pair of argument name and it's value: `[name, value]`
+            - object with arguments' names as keys and values as values: `{name1: v1, name2: v2, ...}`
+
+> See example of usage in [`layout`](#nesting-layout) section

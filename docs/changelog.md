@@ -3,8 +3,10 @@
 - Array [runtime functions](reference__syntax.md#statement-syntax): `.countby`
 - [`layout.args`](reference__tags_nesting.md#nesting-layout) template tag for usage in pair with `layout` to pass command arguments through inheritance call
 - `include & layout` become fully runtime with optional lazy mode
+  - breaking change: works differently
 - set cursor position
-
+- cross-block variables
+  - restriction: window.fetch instead of fetch
 
 
 ## v3.4 :id=v340
@@ -138,7 +140,7 @@ Total: ``books.get().length``
 
 
 
-## v3.0.0
+## v3.0 :id=v300
 ### New template syntax :id=new-syntax
 !> Breaking change!
 
