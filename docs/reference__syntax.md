@@ -205,7 +205,7 @@ Hello, <mark>user</mark>!
 
 <!-- tabs:end -->
 
-To position cursor inside [spawned blocks](reference__tags.md#blocks-spawn), use `cursorPosition` parameter:
+To position cursor inside [spawned blocks](reference__tags_advanced.md#blocks-spawn), use *cursorPosition* parameter:
 
 <!-- tabs:start -->
 #### ***Template***

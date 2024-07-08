@@ -1,7 +1,7 @@
 ## v3.5 :id=v35
 ### New syntax
 - Array [runtime functions](reference__syntax.md#statement-syntax): `.countby`
-- [`layout.args`](reference__tags.md#nesting-layout) template tag for usage in pair with `layout` to pass command arguments through inheritance call
+- [`layout.args`](reference__tags_nesting.md#nesting-layout) template tag for usage in pair with `layout` to pass command arguments through inheritance call
 - `include & layout` become fully runtime with optional lazy mode
 - set cursor position
 
@@ -18,7 +18,7 @@
 
 ### Query language for pages
 - `query.pages` template tag for simple [pages query building](reference__query_language.md#ql-pages)
-- `query.refs.*` namespace with [`.count`](reference__tags.md#query-refs-count), [`.journals`](reference__tags.md#query-refs-journals) and [`.pages`](reference__tags.md#query-refs-pages) template tags
+- `query.refs.*` namespace with [`.count`](reference__tags_advanced.md#query-refs-count), [`.journals`](reference__tags_advanced.md#query-refs-journals) and [`.pages`](reference__tags_advanced.md#query-refs-pages) template tags
 
 [video](https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/54bfe297-b852-4529-8ea5-865b2b0f9e57 ':include :type=video controls width=80%')
 
@@ -57,12 +57,12 @@ Total: ``books.get().length``
 
 
 ### New template tags
-- A way to **inherit templates** with [`include`](reference__tags.md#nesting-include) & [`layout`](reference__tags.md#nesting-layout)
+- A way to **inherit templates** with [`include`](reference__tags_nesting.md#nesting-include) & [`layout`](reference__tags_nesting.md#nesting-layout)
 - [`tag`](reference__tags.md#tag)
 - [`bool`](reference__tags.md#bool)
-- [`dev.uuid`](reference__tags.md#dev-uuid)
-- [`dev.context.page`](reference__tags.md#dev-context-page) & [`dev.context.block`](reference__tags.md#dev-context-block)
-- [`dev.walkTree`](reference__tags.md#dev-walk-tree)
+- [`dev.uuid`](reference__tags_dev.md#dev-uuid)
+- [`dev.context.page`](reference__tags_dev.md#dev-context-page) & [`dev.context.block`](reference__tags_dev.md#dev-context-block)
+- [`dev.walkTree`](reference__tags_dev.md#dev-walk-tree)
 
 ### Engine changes
 - Usage of `async / await` inside templates (by [@dsarman](https://github.com/dsarman))

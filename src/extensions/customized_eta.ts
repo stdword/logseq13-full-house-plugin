@@ -42,9 +42,7 @@ export const eta = new CustomizedEta({
         function storeVars(target) {
           return new Proxy(target, {
             has(target, prop) { return true; },
-            get(target, prop) { return (prop in target ? target : window)[prop]; }
-          })
-        }
+            get(target, prop) { return (prop in target ? target : window)[prop]; } }) }
     `.trim(),
 
     // Raw JS code inserted after with (if `useWith` = true) and inside try block (if `debug` = true)

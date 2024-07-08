@@ -11,6 +11,9 @@
   - [Context variables](reference__context.md)
   - [Arguments](reference__args.md)
   - [Template tags](reference__tags.md)
+    - [Nesting templates](reference__tags_nesting.md)
+    - [Advanced](reference__tags_advanced.md)
+    - [Dev](reference__tags_dev.md)
   - [Query language](reference__query_language.md)
 
 - *Alternatives*

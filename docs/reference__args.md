@@ -90,7 +90,7 @@ The macro mode makes these values **empty**.
 Arguments can have *default values* specified in template properties.
 - Property name should start with prefix `arg-`.
 
-?> You can **inherit templates** with the help of *arg-properties* and [`layout`](reference__tags.md#nesting-layout) template tag
+?> You can **inherit templates** with the help of *arg-properties* and [`layout`](reference__tags_nesting.md#nesting-layout) template tag
 
 <!-- panels:start -->
 <!-- div:left-panel -->
