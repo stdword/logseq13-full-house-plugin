@@ -300,9 +300,10 @@ But for that purpose it is better to use `:commands` to [make it faster](#how-to
   - [Logseq SmartBlocks](https://github.com/sawhney17/logseq-smartblocks) by sawhney17
   - [Logseq Assets Plus](https://github.com/xyhp915/logseq-assets-plus) by xyhp915
 - *Tech*:
-  - Based on lightweight embedded JS templating engine: [Eta](https://github.com/eta-dev/eta)
-  - [Day.js](https://day.js.org): a minimalist JavaScript library for dates and times work
+  - [Eta](https://github.com/eta-dev/eta): Lightweight embedded JS templating engine
+  - [Day.js](https://day.js.org): A minimalist JavaScript library for dates and times work
   - [fuzzysort](https://github.com/farzher/fuzzysort): SublimeText-like fuzzy search
+  - [NeatJSON](https://github.com/Phrogz/NeatJSON): Pretty-print JS-objects
 - Icon created by <a href="https://www.flaticon.com/free-icon/web-design_1085802" title="Flaticon">monkik</a>
 
 
