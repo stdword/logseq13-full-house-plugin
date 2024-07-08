@@ -67,7 +67,7 @@ export function walkBlockTree(
         childPath.push(i)
         const stop = walkBlockTree(node, callback, level + 1, childPath)
         if (stop)
-            break
+            return stop
     }
 }
 
