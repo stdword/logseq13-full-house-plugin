@@ -205,6 +205,30 @@ Hello, <mark>user</mark>!
 
 <!-- tabs:end -->
 
+To position cursor inside [spawned blocks](reference__tags.md#blocks-spawn), use `cursorPosition` parameter:
+
+<!-- tabs:start -->
+#### ***Template***
+- ```javascript
+  ``{
+      blocks.spawn('Hello, {|}Logseq{|}!', null, {cursorPosition: true})
+  }``
+  ```
+- ```javascript
+  ``{
+      blocks.spawn.tree({
+        content: 'Hello, {|}Full House Templates{|}!',
+        data: {cursorPosition: true},
+      })
+  }``
+  ```
+
+#### ***Rendered***
+- Hello, <mark>Logseq</mark>!
+- Hello, <mark>Full House Templates</mark>!
+
+<!-- tabs:end -->
+
 
 ### Extended `Array` type
 The `Array` type is extended with helpful functions:

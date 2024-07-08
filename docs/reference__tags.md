@@ -643,6 +643,68 @@ CS 501
 ?> See the separate page for details: [Cursor positioning](reference__syntax.md#cursor-positioning)
 
 
+## `blocks`
+### `.spawn` & `.append` :id=blocks-spawn
+Creates blocks related to current at runtime. There could be child blocks (*spawned*) and sibling blocks (*appended*).
+
+`blocks.spawn(content, properties?, data?)` — create child block
+`blocks.append(content, properties?, data?)` — create sibling block
+- `content`: string with block's content
+- `properties`: (optional) object with block's properties and it's values
+- `data`: (optional) additional setup for the block
+    - Currently the only value could be `{cursorPosition: true}`. See example [here](reference__syntax.md#cursor-positioning) for additional details.
+
+
+`blocks.spawn.tree(node)` — create child tree <br/>
+`blocks.append.tree(node)` — create sibling tree
+- `node`: object with block's structure representation
+    - `content`, `properties`, `data` — same meaning as for [single blocks](#blocks-spawn)
+    - `children`: (optional) an array of objects, representing child nodes (with the same structure)
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  blocks.spawn('Hello, Logseq!')
+  blocks.spawn('Hello, plugin!', {plugin: 'Full House Templates'})
+  blocks.append('The End')
+}``
+«Hello» block:
+```
+
+#### ***Rendered***
+- «Hello» block:
+    - Hello, Logseq!
+    - Hello, plugin! \
+      plugin:: Full House Templates
+- The End
+
+<!-- tabs:end -->
+
+<!-- tabs:start -->
+#### ***Template***
+- ```javascript
+  ``{
+      blocks.spawn.tree({
+        content: 'Hello, Logseq!',
+        children: [{
+            content: 'Hello, plugin!',
+            properties: {plugin: 'Full House Templates'},
+        }]
+      })
+  }``
+  «Hello» block:
+  ```
+
+#### ***Rendered***
+- «Hello» block:
+    - Hello, Logseq!
+        - Hello, plugin! \
+          plugin:: Full House Templates
+
+<!-- tabs:end -->
+
+
 ## `dev`
 
 ### `.uuid` :id=dev-uuid
