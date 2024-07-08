@@ -1,6 +1,8 @@
 import '@logseq/libs'
 import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 
+import { neatJSON } from 'neatjson'
+
 import { eta } from './extensions/customized_eta'
 import { ILogseqContext, BlockContext, Context, ArgsContext } from './context'
 import { RenderError } from './errors'
@@ -236,7 +238,16 @@ export class Template implements ITemplate {
             if (state.appendedBlocks)
                 data.appendedBlocks = state.appendedBlocks as IBlockNode[]
 
-            return result
+            // make arrays and objects looks pretty
+            if (typeof result === 'object')
+                return neatJSON(result, {
+                    wrap: false,
+                    afterComma: 1,
+                    afterColon: 1,
+                    short: true,
+                })
+
+            return result.toString()
         })
 
 
