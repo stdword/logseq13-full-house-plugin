@@ -330,8 +330,14 @@
       if (hightlighted)
         tocList.forEach((h) => {
           const el = toc[h]
-          if (h === hightlighted)
+          if (h === hightlighted) {
             el.classList.add('active')
+            const item = el.getBoundingClientRect()
+            const box = el.parentElement.parentElement.getBoundingClientRect()
+            const visibleFully = item.top > box.top && item.bottom < box.bottom
+            if (!visibleFully)
+              el.scrollIntoView({behavior: 'smooth'})
+          }
           else
             el.classList.remove('active')
         })
