@@ -216,17 +216,11 @@ export class Template implements ITemplate {
                 level: lvl,
             })
 
-            const resultObj: any = await eta.renderStringStateAsync(b.content, finalContext)
+            const result = await eta.renderStringAsync(b.content, finalContext)
 
-            // this destruction can be failed, because any object of any type could
-            // be returned by user code
-            let {result, state} = resultObj as Awaited<ReturnType<typeof eta.renderStringStateAsync>>
-            // so check the success
-            if (result === undefined && state === undefined) {
-                result = resultObj.toString()
-                // @ts-expect-error
-                state = contextObj.__env.state()
-            }
+            // get the execution state after code execution
+            // @ts-expect-error
+            const state = contextObj.__env.state()
 
             // check for cursor positioning
             if (state.cursorPosition)
