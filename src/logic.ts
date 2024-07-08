@@ -340,36 +340,8 @@ async (
     if (!currentContext)
         return
 
-    const argsContext = await getArgsContext(template, args)
-    const context = await assembleContext(
-        await getCallContext(slot, argsContext),
-        currentContext,
-        argsContext,
-    )
-
-    let rendered: IBlockNode
-    try {
-        rendered = await template.render(context)
-    }
-    catch (error) {
-        const message = (error as Error).message
-        throw new RenderError(
-            `[:p "Cannot render template "
-                [:i "${template.name || templateRef.original}"] ": "
-                [:pre "${escapeForHiccup(message)}"]
-            ]`,
-            {template, error},
-        )
-    }
-
-    let head: IBatchBlock
-    let tail: IBatchBlock[]
-    if (template.includingParent)
-        [ head, tail ] = [ rendered, [] ]
-    else
-        [ head, ...tail ] = rendered.children
-
-    // console.debug(p`Template rendered:`, {head, tail})
+    const result = await renderTemplate(slot, template, args, currentContext)
+    const {rendered, headTail: [head, tail], context} = result
 
     const toInsert = head.content
     const oldContent = context.currentBlock.content!
@@ -486,7 +458,7 @@ export async function renderTemplate(
     args: string[],
     currentContext: ILogseqCurrentContext,
     argsContext?: ArgsContext,
-): Promise<[IBatchBlock, IBatchBlock[]]> {
+): Promise<{rendered: IBlockNode, headTail: [IBatchBlock, IBatchBlock[]], context: ILogseqContext}> {
     if (!argsContext)
         argsContext = await getArgsContext(template, args)
 
@@ -520,7 +492,7 @@ export async function renderTemplate(
 
     // console.debug(p`Template rendered:`, {head, tail})
 
-    return [head, tail]
+    return {rendered, headTail: [head, tail], context}
 }
 
 /**
