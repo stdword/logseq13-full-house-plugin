@@ -270,7 +270,7 @@ export class MldocASTtoHTMLCompiler {
     compile(ast: MLDOC_Node[]) {
         // Logseq Markup parsing: https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs#L3102
         // Mldoc AST schema: https://github.com/logseq/logseq/pull/8829/files
-        return (walkNodes(ast, (type, data, node, process): string => {
+        return (walkNodes<string>(ast, (type, data, node, process): string => {
             switch (type) {
                 case 'Break_Line':         return '<br/>'
                 case 'Plain':              return data as string
@@ -294,15 +294,15 @@ export class MldocASTtoHTMLCompiler {
                     return (code ?? '') as string
                 }
                 case 'Emphasis': {
-                    const [ [emphasis], [subNode] ] = data
-                    const compiledValue = process(subNode) as (string | null)
+                    const [ [emphasis], subNodes ] = data
+                    const compiledValue = subNodes.map(process).join('') as string
                     switch (emphasis) {
                         case 'Strike_through': return `<s>${compiledValue}</s>`
                         case 'Italic':         return `<i>${compiledValue}</i>`
                         case 'Bold':           return `<b>${compiledValue}</b>`
                         case 'Highlight':      return `<mark>${compiledValue}</mark>`
                         default:
-                            console.warn(p`Unknown emphasis type:`, {emphasis, subNode, compiledValue, data})
+                            console.warn(p`Unknown emphasis type:`, {emphasis, data})
                     }
                     return compiledValue ?? ''
                 }
@@ -314,9 +314,9 @@ export class MldocASTtoHTMLCompiler {
                     let tag = ''
                     if (node[0] === 'Plain')  // tag doesn't include spaces
                         tag = node.at(1) ?? ''
-                    else if (node[0] === 'Link') { // tag includes spaces
-                        const refNode = node.at(1)?.url
-                        if (refNode && refNode.length && refNode[0] === 'Page_ref')
+                    else if (node[0] === 'Link') {  // tag includes spaces
+                        const refNode = node.at(1)?.url ?? []
+                        if (refNode.at(0) === 'Page_ref')
                             tag = refNode.at(1) ?? ''
                     }
                     return this.createTagRef(tag)
@@ -325,13 +325,13 @@ export class MldocASTtoHTMLCompiler {
                     const meta: string = data.metadata ?? ''
 
                     let label = ''
-                    if (data.label && data.label.length) {
-                        const node = data.label[0]
+                    if (data.label?.length) {
                         // handle case when label is plain text: to reduce `process` call
+                        const node = data.label[0]
                         if (node && node.length && node[0] === 'Plain')
                             label = node.at(1) ?? ''
                         else
-                            label = process(node) as string
+                            label = data.label.map(process).join('')
                     }
 
                     if (data.url && data.url.length) {
