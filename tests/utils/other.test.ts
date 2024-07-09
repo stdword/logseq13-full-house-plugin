@@ -37,7 +37,7 @@ test('removing spaces from html code with html-template literal', () => {
             </div>
 
         `
-    ).toBe('<div><p>Text</p></div>')
+    ).toBe('<div>\n\n<p>Text</p>\n\n</div>')
  })
 
 test('counting of substring in string', () => {
