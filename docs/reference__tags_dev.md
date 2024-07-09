@@ -302,7 +302,10 @@ Retrieves links from the text.
 ?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
 
 
-### `.walkTree` & `.walkTreeAsync` :id=dev-walk-tree
+
+### **.tree**
+
+#### `.walkTree` & `.walkTreeAsync` :id=dev-walk-tree
 Walks through whole tree structure. Helpful for working with Logseq API.
 
 Every node in blocks tree should contain two attributes:
@@ -311,7 +314,7 @@ Every node in blocks tree should contain two attributes:
 
 ---
 
-- `dev.walkTree(root, callback)`
+- `dev.tree.walk(root, callback)`
   - Works synchronously in Top-to-Bottom traversal order
   - `root`: the start node of tree
   - `callback(node, level, path)`: function returning boolean or void
@@ -320,7 +323,7 @@ Every node in blocks tree should contain two attributes:
     - `path`: (array of numbers) current path to node
     - The returning boolean value controls whether walking should be stopped (true) or not (false or no value returned)
 
-- `async dev.walkTreeAsync(root, callback)`
+- `async dev.tree.walkAsync(root, callback)`
   - Asynchronous version with concurrent traversal order
   - There is no way to stop execution
   - Arguments are the same as in synchronous version
@@ -331,7 +334,7 @@ Every node in blocks tree should contain two attributes:
 ``{
     var tree = await logseq.Editor.getBlock(c.template.block.uuid, {includeChildren: true})
     let count = 0
-    dev.walkTree(tree, (b) => count++)
+    dev.tree.walk(tree, (b) => count++)
 }``
 Total blocks: ``count``
 ```
@@ -341,7 +344,44 @@ Total blocks: 2
 <!-- tabs:end -->
 
 
-### `.context.page` :id=dev-context-page
+
+#### `.getNode` :id=dev-tree-get-node
+Walks through whole tree structure. Helpful for working with Logseq API.
+
+- `dev.tree.getNode(root, path)` → node object according to `path` or null
+  - `root`: the start node of tree
+  - `path`: array of numbers representing path to certain tree node
+
+<!-- tabs:start -->
+#### ***Template***
+````javascript
+- template:: test
+  - ```javascript
+    ``{
+        var tree = await logseq.Editor.getBlock(c.template.block.uuid, {includeChildren: true})
+        dev.tree.getNode(tree, [0, 1])
+    }``
+    ```
+    - Some text
+    - the Node
+````
+
+#### ***Rendered***
+```javascript
+{
+  "uuid": "668c593f-9b...",
+  "content": "the Node",
+  ...
+}
+```
+
+<!-- tabs:end -->
+
+
+
+### **`.context`**
+
+#### `.page` :id=dev-context-page
 Conversion from Logseq API page format to plugin's format. Helpful for working with [queries](reference__query_language.md#ql-pages).
 
 `dev.context.page(entity)`
@@ -382,7 +422,8 @@ Conversion from Logseq API page format to plugin's format. Helpful for working w
 <!-- tabs:end -->
 
 
-### `.context.block` :id=dev-context-block
+
+#### `.block` :id=dev-context-block
 Conversion from Logseq API block format to plugin's format. Helpful for working with [queries](reference__query_language.md#ql-blocks).
 
 `dev.context.block(entity)`

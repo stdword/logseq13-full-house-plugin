@@ -18,7 +18,7 @@ import {
     escape,
     escapeForHTML,
     escapeMacroArg,
-    getBlock, getPage, IBlockNode, isEmptyString, isObject, isUUID,
+    getBlock, getPage, getTreeNode, IBlockNode, isEmptyString, isObject, isUUID,
     LogseqReference, p, parseReference, RendererMacro,
     splitMacroArgs, unquote, walkBlockTree, walkBlockTreeAsync,
 } from './utils'
@@ -922,6 +922,10 @@ export function getTemplateTagsContext(context: C) {
     const blocks_append_ = bindContext(blocks_append, context)
     blocks_append_.tree = bindContext(blocks_append.tree, context)
 
+    const dev_tree_walk = function (root, callback) { return walkBlockTree(root, callback) }
+    const dev_tree_walkAsync = async function (root, callback) { return walkBlockTreeAsync(root, callback) }
+    const dev_tree_getNode = function (root, path) { return getTreeNode(root, path) }
+
     return new Context({
         __init: _initContext,
 
@@ -967,8 +971,21 @@ export function getTemplateTagsContext(context: C) {
             color: dev_color,
             get: bindContext(dev_get, context),
             links: bindContext(dev_links, context),
-            walkTree: function (root, callback) { return walkBlockTree(root, callback) },
-            walkTreeAsync: async function (root, callback) { return walkBlockTreeAsync(root, callback) },
+
+            walkTree: async function (root, callback) {
+                logseq.UI.showMsg(
+                    '"dev.walkTree" is deprecated. Please use "dev.tree.walkAsync" instead',
+                    'warning', {timeout: 15000}
+                )
+                console.warn(p`"dev.walkTree" is deprecated. Please use "dev.tree.walkAsync" instead`)
+
+                return dev_tree_walkAsync(root, callback)
+            },
+            tree: new Context({
+                walk: dev_tree_walk,
+                walkAsync: dev_tree_walkAsync,
+                getNode: dev_tree_getNode,
+            }),
             context: new Context({
                 page: function (entity) { return PageContext.createFromEntity(entity) },
                 block: function (entity) { return BlockContext.createFromEntity(entity) },

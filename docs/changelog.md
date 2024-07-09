@@ -8,6 +8,7 @@
 - cross-block variables
   - restriction: window.fetch instead of fetch
   - restriction: window.alert instead of alert
+- breaking change: dev.walkTree → dev.tree.walkAsync
 
 
 ## v3.4 :id=v340
