@@ -223,6 +223,7 @@ Convert color to CSS value. It is helpful for retrieving CSS color values from t
 <!-- tabs:end -->
 
 
+
 ### `.get` :id=dev-get
 Retrieves values by following a specified path in the provided object. Helpful for parametrizing templates.
 
@@ -274,6 +275,7 @@ Retrieves values by following a specified path in the provided object. Helpful f
 ?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
 
 
+
 ### `.links` :id=dev-links
 Retrieves links from the text.
 
@@ -300,6 +302,158 @@ Retrieves links from the text.
 <!-- tabs:end -->
 
 ?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
+
+
+
+### **`.refs`** :id=dev-refs
+Retrieves references from the text. There are several types of references:
+- `((44563ff-6467-...))` or `[label](((44563ff-6467-...)))` — **block** references
+- `[[research papers]]` or `[label]([[research papers]])` — **page** references
+- `#note` — **tag** references (logseq doesn't support labels for tags)
+
+`dev.refs(text, withLabels?, only?)` → array of references or array of pairs [ref, label]
+- `text`: text string with references
+- `withLabels`: (optional) should labels be included to returned array or not? (default: false)
+- `only`: (optional) an array with references types to include to result (default: [] — include all)
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
+
+  out(dev.refs(text))
+  out(dev.refs(text, true))
+  out(dev.refs(text, false, ['tag']))
+}``
+```
+
+#### ***Rendered***
+- ```javascript
+[
+    ['tag', 'note'],
+    ['block', '44563ff-6467-...'],
+    ['page', 'research papers'],
+]
+```
+- ```javascript
+[
+    ['tag', 'note', ''],
+    ['block', '44563ff-6467-...', 'current'],
+    ['page', 'research papers', ''],
+]
+```
+- ```javascript
+[ ['tag', 'note'] ]
+```
+<!-- tabs:end -->
+
+
+
+#### `.blocks` :id=dev-refs-blocks
+
+`dev.refs.blocks(text, withLabels?)`
+- Returns the same data as `dev.refs(text, withLabels?, ['block'])`.
+- Except for the redundant reference type.
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
+
+  out(dev.refs.blocks(text))
+  out(dev.refs.blocks(text, true))
+}``
+```
+
+#### ***Rendered***
+- ```javascript
+[ '44563ff-6467-...' ]
+```
+- ```javascript
+[ ['44563ff-6467-...', 'current'] ]
+```
+<!-- tabs:end -->
+
+
+
+#### `.pages` :id=dev-refs-pages
+
+`dev.refs.pages(text, withLabels?)`
+- Returns the same data as `dev.refs(text, withLabels?, ['page', 'tag'])`.
+- Except for the redundant reference type.
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
+
+  out(dev.refs.pages(text))
+  out(dev.refs.pages(text, true))
+}``
+```
+
+#### ***Rendered***
+- ```javascript
+[ 'note', 'research papers' ]
+```
+- ```javascript
+[
+    ['note', ''],
+    ['research papers', ''],
+]
+```
+<!-- tabs:end -->
+
+
+
+#### `.pagesOnly` :id=dev-refs-pages-only
+
+`dev.refs.pagesOnly(text, withLabels?)`
+- Returns the same data as `dev.refs(text, withLabels?, ['page'])`.
+- Except for the redundant reference type.
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
+
+  out(dev.refs.pagesOnly(text))
+  out(dev.refs.pagesOnly(text, true))
+}``
+```
+
+#### ***Rendered***
+- ```javascript
+[ 'research papers' ]
+```
+- ```javascript
+[
+    ['research papers', ''],
+]
+```
+<!-- tabs:end -->
+
+
+
+#### `.tagsOnly` :id=dev-refs-tags-only
+
+`dev.refs.tagsOnly(text)`
+- Returns the same data as `dev.refs(text, false, ['tag'])`.
+- Except for the redundant reference type.
+
+<!-- tabs:start -->
+#### ***Template***
+` ``dev.refs.tagsOnly('#note for [current](((44563ff-6467-...))) [[research papers]]'))`` `
+
+#### ***Rendered***
+- ```javascript
+[ 'note' ]
+```
+<!-- tabs:end -->
 
 
 

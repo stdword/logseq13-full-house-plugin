@@ -9,6 +9,7 @@
   - restriction: window.fetch instead of fetch
   - restriction: window.alert instead of alert
 - breaking change: dev.walkTree → dev.tree.walkAsync
+- dev.links: fixed bug with deep links
 
 
 ## v3.4 :id=v340
