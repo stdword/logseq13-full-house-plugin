@@ -302,13 +302,125 @@ Retrieves links from the text.
 ?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
 
 
-### `.walkTree TODO` :id=dev-walk-tree
-TODO
+### `.walkTree` & `.walkTreeAsync` :id=dev-walk-tree
+Walks through whole tree structure. Helpful for working with Logseq API.
+
+Every node in blocks tree should contain two attributes:
+- `content`: string with block's content
+- `children`: array of child nodes with it's own `content` and `children`
+
+---
+
+- `dev.walkTree(root, callback)`
+  - Works synchronously in Top-to-Bottom traversal order
+  - `root`: the start node of tree
+  - `callback(node, level, path)`: function returning boolean or void
+    - `node`: (object) current visiting node of tree
+    - `level`: (number) current level of blocks (root is always at the zero level)
+    - `path`: (array of numbers) current path to node
+    - The returning boolean value controls whether walking should be stopped (true) or not (false or no value returned)
+
+- `async dev.walkTreeAsync(root, callback)`
+  - Asynchronous version with concurrent traversal order
+  - There is no way to stop execution
+  - Arguments are the same as in synchronous version
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+    var tree = await logseq.Editor.getBlock(c.template.block.uuid, {includeChildren: true})
+    let count = 0
+    dev.walkTree(tree, (b) => count++)
+}``
+Total blocks: ``count``
+```
+
+#### ***Rendered***
+Total blocks: 2
+<!-- tabs:end -->
 
 
-### `.context.page TODO` :id=dev-context-page
-TODO
+### `.context.page` :id=dev-context-page
+Conversion from Logseq API page format to plugin's format. Helpful for working with [queries](reference__query_language.md#ql-pages).
+
+`dev.context.page(entity)`
+- `entity`: page object from Logseq API
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+    const page = await logseq.Editor.getPage(c.page.uuid)
+    out(dev.context.page(page))
+  }``
+```
+
+#### ***Rendered***
+```javascript
+{
+  "id": 33271,
+  "uuid": "668d19fe-0df5-4224-9a4f-d2eb67c44237",
+  "name": "logseq/plugins/Full House Templates",
+  "name_": "logseq/plugins/full house templates",
+  "namespace": {
+    "parts": [ "logseq", "plugins", "Full House Templates" ],
+    "prefix": "logseq/plugins",
+    "suffix": "Full House Templates",
+    "pages": [ "logseq", "logseq/plugins" ]
+  },
+  "isJournal": false,
+  "file": "pages/logseq___plugins___Full House Templates.md",
+  "props": {
+    "icon": "🏛"
+  },
+  "propsRefs": {
+    "icon": []
+  }
+}
+```
+<!-- tabs:end -->
 
 
-### `.context.block TODO` :id=dev-context-block
-TODO
+### `.context.block` :id=dev-context-block
+Conversion from Logseq API block format to plugin's format. Helpful for working with [queries](reference__query_language.md#ql-blocks).
+
+`dev.context.block(entity)`
+- `entity`: block object from Logseq API
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+    const block = await logseq.Editor.getBlock(c.block.uuid)
+    out(dev.context.block(block))
+  }``
+```
+
+#### ***Rendered***
+```javascript
+{
+  "id": 67915,
+  "uuid": "668d19fe-e299-435c-a163-4724c708cd3c",
+  "content": "{{renderer :template, test}}",
+  "props": {},
+  "propsRefs": {},
+  "page": {
+    "id": 33271
+  },
+  "parentBlock": {
+    "id": 40072
+  },
+  "prevBlock": null,
+  "level": 0,
+  "children": [
+    {}
+  ],
+  "refs": [
+    {
+      "id": 33271
+    }
+  ]
+}
+```
+<!-- tabs:end -->
