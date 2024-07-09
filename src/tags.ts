@@ -5,7 +5,7 @@ import * as Sherlock from 'sherlockjs'
 import { neatJSON } from 'neatjson'
 
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
-import { LogseqMarkup, MLDOC_Node, resolveAssetsLink } from './extensions/mldoc_ast'
+import { LogseqMarkup, MLDOC_Node, MldocASTtoHTMLCompiler, resolveAssetsLink } from './extensions/mldoc_ast'
 import {
     ArgsContext, BlockContext, Context,
     dayjs, Dayjs,
@@ -596,15 +596,23 @@ function dev_uuid(shortForm: boolean = false) {
     }
     return crypto.randomUUID()
 }
-function parseMarkup(context: C, text: string): MLDOC_Node[] {
+function dev_parseMarkup(context: C, text: string): MLDOC_Node[] {
     text = _asString(text)
     return new LogseqMarkup(context).parse(text)
 }
-function toHTML(context: C, text: string): string {
+function dev_compileMarkup(context: C, nodes: MLDOC_Node[]) {
+    return new MldocASTtoHTMLCompiler(context).compile(nodes)
+}
+function dev_cleanMarkup(context: C, obj: string | MLDOC_Node[], opts?: {cleanRefs?: boolean, cleanLabels?: boolean}) {
+    if (Array.isArray(obj))
+        return (new LogseqMarkup(context).cleanAST(obj, opts)).join('')
+    return new LogseqMarkup(context).clean(obj, opts)
+}
+function dev_toHTML(context: C, text: string): string {
     text = _asString(text)
     return new LogseqMarkup(context).toHTML(text)
 }
-function asset(context: C, name: string): string {
+function dev_asset(context: C, name: string): string {
     name = _asString(name)
     let originalProtocol: string
     try {
@@ -619,7 +627,7 @@ function asset(context: C, name: string): string {
     const [ protocol, link ] = resolveAssetsLink(context, originalProtocol || 'assets', name)
     return `${protocol}://${link}`
 }
-function color(value: string): string {
+function dev_color(value: string): string {
     // TODO: rgb(r, g, b) & others support
     value = _asString(value)
     value = unquote(value)
@@ -627,7 +635,7 @@ function color(value: string): string {
         value = `#${value}`
     return value
 }
-function get(context: C, path: string, obj?: any): string {
+function dev_get(context: C, path: string, obj?: any): string {
     path = _asString(path)
 
     function getByPath(obj: any, parts: string[]) {
@@ -693,59 +701,65 @@ function get(context: C, path: string, obj?: any): string {
     obj = obj !== undefined ? obj : context
     return getByPath(obj, parts) ?? ''
 }
-
-function parseLinks(context: C, text: string): string[] {
-    const links: string[] = []
+function dev_links(context: C, text: string, withLabels: boolean = false): (string | [string, string])[] {
+    const links: (string | [string, string])[] = []
 
     const ast = new LogseqMarkup(context).parse(text)
     for (const [ type, node ] of ast)
         if (type === 'Link') {
+            let label = node.label
             const [ type, url ] = node.url
             if (type === 'Complex') {
                 const { protocol, link } = url
-                links.push(`${protocol}://${link}`)
+                const result = `${protocol}://${link}`
+                if (withLabels)
+                    links.push([result, dev_cleanMarkup(context, label)])
+                else
+                    links.push(result)
             }
         }
 
     return links
 }
 
-async function links(
-    context: C,
-    source: string | PageContext | BlockContext,
-    includeChildren: boolean = false,
-): Promise<string[]> {
-    if (typeof source === 'string')
-        return parseLinks(context, source)
+// async function links(
+//     context: C,
+//     source: string | PageContext | BlockContext,
+//     includeChildren: boolean = false,
+// ): Promise<string[]> {
+//     if (typeof source === 'string')
+//         return dev_links(context, source)
 
-    if (source instanceof PageContext)
-        source = source.name_!
+//     if (source instanceof PageContext)
+//         source = `[[${source.name_!}]]`
 
-    if (source instanceof BlockContext)
-        source = source.uuid!
+//     if (source instanceof BlockContext)
+//         source = `((${source.uuid!}))`
 
-    source = _asString(source)
-    const sourceRef = parseReference(source)
-    if (!sourceRef)
-        return []
+//     console.log('TRACING2', source)
 
-    let blocks: BlockEntity[] = []
-    if (['uuid', 'block'].includes(sourceRef.type)) {
-        const [ block ] = await getBlock(sourceRef, { includeChildren })
-        if (block)
-            blocks = [ block ]
-    } else
-        blocks = await logseq.Editor.getPageBlocksTree(sourceRef.value as string) ?? []
+//     source = _asString(source)
+//     const sourceRef = parseReference(source)
+//     if (!sourceRef)
+//         return []
 
-    const linksInBlock: string[] = []
-    for (const block of blocks)
-        walkBlockTree(block as IBlockNode, (b, lvl) => {
-            for (const link of parseLinks(context, b.content))
-                linksInBlock.push(link)
-        })
+//     let blocks: BlockEntity[] = []
+//     if (['uuid', 'block'].includes(sourceRef.type)) {
+//         const [ block ] = await getBlock(sourceRef, { includeChildren })
+//         if (block)
+//             blocks = [ block ]
+//     } else
+//         blocks = await logseq.Editor.getPageBlocksTree(sourceRef.value as string) ?? []
 
-    return linksInBlock
-}
+//     const linksInBlock: string[] = []
+//     for (const block of blocks)
+//         walkBlockTree(block as IBlockNode, (b, lvl) => {
+//             for (const link of dev_links(context, b.content))
+//                 linksInBlock.push(link)
+//         })
+
+//     return linksInBlock
+// }
 
 
 /* internal */
@@ -945,12 +959,14 @@ export function getTemplateTagsContext(context: C) {
         dev: new Context({
             dump: dev_dump,
             uuid: dev_uuid,
-            parseMarkup: bindContext(parseMarkup, context),
-            toHTML: bindContext(toHTML, context),
-            asset: bindContext(asset, context),
-            color,
-            get: bindContext(get, context),
-            links: bindContext(parseLinks, context),
+            parseMarkup: bindContext(dev_parseMarkup, context),
+            compileMarkup: bindContext(dev_compileMarkup, context),
+            cleanMarkup: bindContext(dev_cleanMarkup, context),
+            toHTML: bindContext(dev_toHTML, context),
+            asset: bindContext(dev_asset, context),
+            color: dev_color,
+            get: bindContext(dev_get, context),
+            links: bindContext(dev_links, context),
             walkTree: function (root, callback) { return walkBlockTree(root, callback) },
             walkTreeAsync: async function (root, callback) { return walkBlockTreeAsync(root, callback) },
             context: new Context({

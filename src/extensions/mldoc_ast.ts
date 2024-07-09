@@ -70,6 +70,108 @@ export class LogseqMarkup {
     constructor(context: ILogseqContext) {
         this.context = context
     }
+    clean(text: string, opts?: {cleanRefs?: boolean, cleanLabels?: boolean}) {
+        const nodes = this.parse(text)
+        return this.cleanAST(nodes, opts).join('')
+    }
+    cleanAST(nodes: MLDOC_Node[], opts?: {cleanRefs?: boolean, cleanLabels?: boolean}) {
+        const {cleanRefs, cleanLabels} = opts ?? {}
+        return walkNodes<string>(nodes, (type, data, node, process): string => {
+            switch (type) {
+                case 'Break_Line':         return '\n'
+                case 'Plain':              return data as string
+                case 'Inline_Html':        return data as string
+                case 'Inline_Hiccup':      return data as string
+                case 'Footnote_Reference': return data.name || data.id as string
+                case 'Code':               return data as string
+                case 'Code_Block':         return data.body as string
+                case 'Macro': {
+                    const { name, arguments: args } = data
+                    const macro = new Macro(name).args(args).toString()
+                    return macro
+                }
+                case 'Export_Snippet': {
+                    const [ _, snippet, code ] = node
+                    switch (snippet) {
+                        case 'html': return code as string
+                        default:
+                            console.warn(p`Unknown export snippet type:`, {snippet, code})
+                    }
+                    return (code ?? '') as string
+                }
+                case 'Emphasis': {
+                    const [ [emphasis], subNodes ] = data
+                    return subNodes.map(process).join('') as string
+                }
+                case 'Tag': {
+                    const node = data.length ? data[0] : []
+                    if (node.length === 0)
+                        return ''
+
+                    let tag = ''
+                    let tag_ = ''
+                    if (node[0] === 'Plain')  // tag doesn't include spaces
+                        tag = tag_ = node.at(1) ?? ''
+                    else if (node[0] === 'Link') {  // tag includes spaces
+                        const refNode = node.at(1)?.url ?? []
+                        if (refNode.at(0) === 'Page_ref') {
+                            tag = refNode.at(1) ?? ''
+                            tag_ = `[[${tag}]]`
+                        }
+                    }
+
+                    if (cleanRefs)
+                        return tag
+
+                    return tag_ ? '#' + tag_ : ''
+                }
+                case 'Link': {
+                    // return data.full_text ?? ''
+                    let label = ''
+                    if (data.label?.length)
+                        label = data.label.map(process).join('') as string
+
+                    if (data.url?.length) {
+                        const [ type, url ] = data.url
+                        switch (type)
+                            { case 'Search': {  // acts like Page_ref
+                                const term = url ?? ''
+                                if (cleanLabels || !label)
+                                    return cleanRefs ? term : `[[${term}]]`
+                                return cleanRefs ? label : `[[${label}]]`
+                            } case 'Page_ref': {
+                                const name = url ?? ''
+                                if (cleanLabels || !label)
+                                    return cleanRefs ? name : `[[${name}]]`
+                                return cleanRefs ? label : `[[${label}]]`
+                            } case 'Block_ref': {
+                                const uuid = url ?? ''
+                                if (cleanLabels || !label)
+                                    return cleanRefs ? uuid : `((${uuid}))`
+                                return cleanRefs ? label : `((${label}))`
+                            } case 'Complex': {
+                                const protocol = (url ?? {}).protocol ?? ''
+                                const link = (url ?? {}).link ?? ''
+                                const full = `${protocol}://${link}`
+
+                                if (label === full)
+                                    label = ''
+
+                                if (cleanLabels || !label)
+                                    return cleanRefs ? full : `[${full}](${full})`
+                                return cleanRefs ? label : `[${label}](${full})`
+                            }
+                        }
+                        console.warn(p`Unknown link type:`, {type, url})
+                    }
+                    return ''
+                }
+                default:
+                    console.warn(p`Unknown node type:`, {type, node})
+            }
+            return (data ?? '').toString()
+        })
+    }
     parse(text: string): MLDOC_Node[] {
         if (!text.trim())
             return []
@@ -155,7 +257,7 @@ export class LogseqMarkup {
 }
 
 
-class MldocASTtoHTMLCompiler {
+export class MldocASTtoHTMLCompiler {
     static maxNestingLevelForInlineBlockRefs = 6  // value from Logseq
 
     context: ILogseqContext
