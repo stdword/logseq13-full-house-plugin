@@ -5,7 +5,7 @@ import * as Sherlock from 'sherlockjs'
 import { neatJSON } from 'neatjson'
 
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
-import { LogseqMarkup, MLDOC_Node, MldocASTtoHTMLCompiler, resolveAssetsLink } from './extensions/mldoc_ast'
+import { LogseqMarkup, MLDOC_Node, MldocASTtoHTMLCompiler, resolveAssetsLink, walkNodes } from './extensions/mldoc_ast'
 import {
     ArgsContext, BlockContext, Context,
     dayjs, Dayjs,
@@ -505,7 +505,7 @@ function query_refsCount(context: C, page: PageContext | string = '') {
     return refs.length
 }
 
-function queryRefs(
+function _queryRefs(
     context: C,
     page: PageContext | string = '',
     only: 'journals' | 'pages' | '' = '',
@@ -569,10 +569,10 @@ function queryRefs(
     })
 }
 function query_journalRefs(context: C, page: PageContext | string = '', withProps: boolean = false) {
-    return queryRefs(context, page, 'journals', withProps)
+    return _queryRefs(context, page, 'journals', withProps)
 }
 function query_pageRefs(context: C, page: PageContext | string = '', withProps: boolean = false) {
-    return queryRefs(context, page, 'pages', withProps)
+    return _queryRefs(context, page, 'pages', withProps)
 }
 
 
@@ -701,65 +701,136 @@ function dev_get(context: C, path: string, obj?: any): string {
     obj = obj !== undefined ? obj : context
     return getByPath(obj, parts) ?? ''
 }
-function dev_links(context: C, text: string, withLabels: boolean = false): (string | [string, string])[] {
-    const links: (string | [string, string])[] = []
 
-    const ast = new LogseqMarkup(context).parse(text)
-    for (const [ type, node ] of ast)
+function dev_links(context: C, text: string, withLabels: boolean = false): any[] {
+    const links: any[] = []
+
+    const nodes = new LogseqMarkup(context).parse(text)
+    walkNodes(nodes, (type, data, node, process) => {
         if (type === 'Link') {
-            let label = node.label
-            const [ type, url ] = node.url
+            let label = data.label
+            const [ type, url ] = data.url
             if (type === 'Complex') {
                 const { protocol, link } = url
                 const result = `${protocol}://${link}`
-                if (withLabels)
-                    links.push([result, dev_cleanMarkup(context, label)])
-                else
-                    links.push(result)
+                links.push([result, dev_cleanMarkup(context, label)])
             }
         }
+        else if (type === 'Emphasis') {
+            const [ [emphasis], subNodes ] = data
+            subNodes.map(process)
+        }
+    })
 
-    return links
+    if (withLabels)
+        return links
+    return links.map(([x, l]) => x)
+}
+function dev_refs(context: C, text: string, withLabels: boolean = false,
+    filterItems: ('page' | 'tag' | 'block')[] = [],
+): any[] {
+    let refs: any[] = []
+
+    const nodes = new LogseqMarkup(context).parse(text)
+    walkNodes(nodes, (type, data, node, process) => {
+        if (type === 'Tag') {
+            const ref = dev_cleanMarkup(context, [[type, data]], {cleanRefs: true})
+            refs.push(['tag', ref, ''])
+        }
+        else if (type === 'Link') {
+            const labelNode = data.label ?? ''
+            const label = labelNode.length ? dev_cleanMarkup(context, labelNode) : ''
+
+            const [ type, url ] = data.url
+            if (type === 'Page_ref')
+                refs.push(['page', url, label])
+            else if (type === 'Block_ref')
+                refs.push(['block', url, label])
+        }
+        else if (type === 'Emphasis') {
+            const [ [emphasis], subNodes ] = data
+            subNodes.map(process)
+        }
+    })
+
+    if (filterItems.length)
+        refs = refs.filter(([t]) => filterItems.includes(t))
+    if (withLabels)
+        return refs
+    return refs.map(([t, r, l]) => [t, r])
+}
+dev_refs.blocks    = function (context: C, text: string, withLabels?: boolean) {
+    return dev_refs(context, text, withLabels, ['block'])
+        .map(([t, ...xs]) => withLabels ? xs : xs[0])
+}
+dev_refs.pages     = function (context: C, text: string, withLabels?: boolean) {
+    return dev_refs(context, text, withLabels, ['page', 'tag'])
+        .map(([t, ...xs]) => withLabels ? xs : xs[0])
+}
+dev_refs.pagesOnly = function (context: C, text: string, withLabels?: boolean) {
+    return dev_refs(context, text, withLabels, ['page'])
+        .map(([t, ...xs]) => withLabels ? xs : xs[0])
+}
+dev_refs.tagsOnly  = function (context: C, text: string, withLabels?: boolean) {
+    return dev_refs(context, text, withLabels, ['tag'])
+        .map(([t, ...xs]) => withLabels ? xs : xs[0])
 }
 
-// async function links(
-//     context: C,
-//     source: string | PageContext | BlockContext,
-//     includeChildren: boolean = false,
-// ): Promise<string[]> {
-//     if (typeof source === 'string')
-//         return dev_links(context, source)
 
-//     if (source instanceof PageContext)
-//         source = `[[${source.name_!}]]`
+/* «parse» namespace */
+type ParseSource = string | PageContext | PageEntity | BlockContext | BlockEntity
+type Parser = (context: C, text: string, withLabels?: boolean) => any[]
+async function _parse_items(context: C, parser: Parser, source: ParseSource, withLabels: boolean): Promise<any[]> {
+    if (typeof source === 'string')
+        return parser(context, source, withLabels)
 
-//     if (source instanceof BlockContext)
-//         source = `((${source.uuid!}))`
+    if (source['name'])  // PageContext or PageEntity
+        source = `[[${source['name']}]]`
 
-//     console.log('TRACING2', source)
+    if (source['content'])  // BlockContext or BlockEntity
+        source = `((${source['uuid']}))`
 
-//     source = _asString(source)
-//     const sourceRef = parseReference(source)
-//     if (!sourceRef)
-//         return []
+    const sourceRef = parseReference(source as string)
+    if (!sourceRef)
+        return []
 
-//     let blocks: BlockEntity[] = []
-//     if (['uuid', 'block'].includes(sourceRef.type)) {
-//         const [ block ] = await getBlock(sourceRef, { includeChildren })
-//         if (block)
-//             blocks = [ block ]
-//     } else
-//         blocks = await logseq.Editor.getPageBlocksTree(sourceRef.value as string) ?? []
+    let blocks: BlockEntity[] = []
+    if (['uuid', 'block'].includes(sourceRef.type)) {
+        const [ block ] = await getBlock(sourceRef, { includeChildren: true })
+        if (block)
+            blocks = [ block ]
+    } else
+        blocks = await logseq.Editor.getPageBlocksTree(sourceRef.value as string) ?? []
 
-//     const linksInBlock: string[] = []
-//     for (const block of blocks)
-//         walkBlockTree(block as IBlockNode, (b, lvl) => {
-//             for (const link of dev_links(context, b.content))
-//                 linksInBlock.push(link)
-//         })
+    const items: ReturnType<typeof parser> = []
+    for (const block of blocks) {
+        walkBlockTree(block as IBlockNode, (b) => {
+            for (const item of parser(context, b.content, withLabels))
+                items.push(item)
+        })
+    }
 
-//     return linksInBlock
-// }
+    return items
+}
+
+async function parse_links(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(c, dev_links, source, withLabels)
+}
+async function parse_refs(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(c, dev_refs, source, withLabels)
+}
+parse_refs.blocks = async function(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(c, dev_refs.blocks, source, withLabels)
+}
+parse_refs.pages = async function(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(c, dev_refs.pages, source, withLabels)
+}
+parse_refs.pagesOnly = async function(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(c, dev_refs.pagesOnly, source, withLabels)
+}
+parse_refs.tagsOnly = async function(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(c, dev_refs.tagsOnly, source, withLabels)
+}
 
 
 /* internal */
@@ -814,6 +885,7 @@ function cursor(c: C) {
     env.state({cursorPosition: true})
     return Template.carriagePositionMarker
 }
+
 
 /* «blocks» namespace */
 function _blocks_insert_single(c: C, isSibling: boolean, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
@@ -926,6 +998,12 @@ export function getTemplateTagsContext(context: C) {
     const dev_tree_walkAsync = async function (root, callback) { return walkBlockTreeAsync(root, callback) }
     const dev_tree_getNode = function (root, path) { return getTreeNode(root, path) }
 
+    const parse_refs_ = bindContext(parse_refs, context)
+    parse_refs_.blocks = bindContext(parse_refs.blocks, context)
+    parse_refs_.pages = bindContext(parse_refs.pages, context)
+    parse_refs_.pagesOnly = bindContext(parse_refs.pagesOnly, context)
+    parse_refs_.tagsOnly = bindContext(parse_refs.tagsOnly, context)
+
     return new Context({
         __init: _initContext,
 
@@ -952,6 +1030,11 @@ export function getTemplateTagsContext(context: C) {
             append: blocks_append_,
         }),
 
+        parse: new Context({
+            links: bindContext(parse_links, context),
+            refs: parse_refs_,
+        }),
+
         query: new Context({
             pages: query_pages,
             refs: new Context({
@@ -971,6 +1054,7 @@ export function getTemplateTagsContext(context: C) {
             color: dev_color,
             get: bindContext(dev_get, context),
             links: bindContext(dev_links, context),
+            refs: bindContext(dev_refs, context),
 
             walkTree: async function (root, callback) {
                 logseq.UI.showMsg(

@@ -45,7 +45,7 @@ async function walkNodes_async<T>(
     ).filter((item) => item !== null) as T[]
 }
 
-function walkNodes<T>(
+export function walkNodes<T>(
     nodes: MLDOC_Node[],
     callback: (
         type: MLDOC_Node['0'],
