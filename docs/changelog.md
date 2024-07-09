@@ -7,6 +7,7 @@
 - set cursor position
 - cross-block variables
   - restriction: window.fetch instead of fetch
+  - restriction: window.alert instead of alert
 
 
 ## v3.4 :id=v340

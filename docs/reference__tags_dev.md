@@ -41,7 +41,7 @@ Dumps and prettifies any JavaScript value
 ### `.parseMarkup` :id=dev-parse-markup
 Parses any Logseq markup to special AST representation.
 
-`dev.parseMarkup(markup) → array of AST nodes`
+`dev.parseMarkup(markup)` → array of AST nodes
 - `markup`: string with Logseq markup
 
 <!-- tabs:start -->
@@ -71,6 +71,83 @@ Parses any Logseq markup to special AST representation.
   ]
 ]
 ```
+<!-- tabs:end -->
+
+
+### `.compileMarkup` :id=dev-compile-markup
+Compiles Logseq AST representation to HTML.
+
+`dev.compileMarkup(nodes)` → HTML string
+- `nodes`: array of AST nodes
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+// AST for "*text* [[link]]"
+dev.compileMarkup([
+  [
+    "Emphasis",
+    [
+      ["Italic"],
+      [["Plain", "text"]]
+    ]
+  ],
+  ["Plain", " "],
+  [
+    "Link",
+    {
+      "url": ["Page_ref", "link"],
+      "label": [["Plain", ""]],
+      "full_text": "[[link]]",
+      "metadata": "",
+      "interpolation": ""
+    }
+  ]
+])
+```
+
+#### ***Rendered***
+```html
+<i>text</i> <span data-ref="link" class="page-reference">
+  <span class="text-gray-500 bracket">[[</span>
+  <div style="display: inline;">
+    <a class="page-ref" data-ref="link" data-on-click="clickRef">link</a>
+  </div>
+  <span class="text-gray-500 bracket">]]</span>
+</span>
+```
+<!-- tabs:end -->
+
+
+### `.cleanMarkup` :id=dev-clean-markup
+Clean any Logseq markup to leave only text.
+
+`dev.cleanMarkup(markup, options?)` → cleaned text string
+- `markup`: string with Logseq markup
+- `options`: (optional) object with options:
+  - `cleanRefs`: should brackets be cleaned for page references and hash signs for tags and link syntax for links, or should they be left as they are? (default: false)
+  - `cleanLabels`: should labels be cleaned, or should references be replaced by them? (default: false)
+
+<!-- tabs:start -->
+#### ***Template***
+- ` ``dev.cleanMarkup('*text* [[link]]')`` `
+- ` ``dev.cleanMarkup('*text* [[link]]', {cleanRefs: true})`` `
+
+#### ***Rendered***
+- `text [[link]]`
+- `text link`
+<!-- tabs:end -->
+
+<!-- tabs:start -->
+#### ***Template***
+- ` ``dev.cleanMarkup('[**label**](https://google.com)')`` `
+- ` ``dev.cleanMarkup('[**label**](https://google.com)', {cleanLabels: true})`` `
+- ` ``dev.cleanMarkup('[**label**](https://google.com)', {cleanLabels: true, cleanRefs: true})`` `
+
+#### ***Rendered***
+- `[label](https://google.com)`
+- `[https://google.com](https://google.com)`
+- `https://google.com`
 <!-- tabs:end -->
 
 
@@ -197,7 +274,31 @@ Retrieves values by following a specified path in the provided object. Helpful f
 ?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
 
 
-### `.links TODO` :id=dev-links
+### `.links` :id=dev-links
+Retrieves links from the text.
+
+`dev.links(text, withLabels?)` → array of links or array of pairs [link, label]
+- `text`: text string with links in form `http://site.com` or `[Label](http://site.com)`
+- `withLabels`: (optional) should labels be included to returned array or not? (default: false)
+
+<!-- tabs:start -->
+#### ***Template***
+- ` ``dev.links('Which one to use: https://google.com or https://duckduckgo.com?')`` `
+- ` ``dev.links('May be [Google](https://google.com)?', true)`` `
+- ` ``dev.links('No! https://duckduckgo.com', true)`` `
+
+#### ***Rendered***
+- ```javascript
+['https://google.com', 'https://duckduckgo.com']
+```
+- ```javascript
+[ ['https://google.com', 'Google'] ]
+```
+- ```javascript
+[ ['https://duckduckgo.com', 'https://duckduckgo.com'] ]
+```
+<!-- tabs:end -->
+
 ?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
 
 
