@@ -1,83 +1,6 @@
-## `query.pages`
-?> See the separate page for details: [Query language → Pages](reference__query_language.md#ql-pages)
-
-
-## `query.blocks`
-?> See the separate page for details: [Query language → Blocks](reference__query_language.md#ql-blocks)
-
-
-## `query.refs`
-
-### `.count` :id=query-refs-count
-Count the linked references for current or specified page.
-
-`query.refs.count(name?) → number`
-
-<!-- tabs:start -->
-#### ***Template***
-For current page: ` ``query.refs.count()`` ` \
-For «books» page: ` ``query.refs.count('books')`` `
-
-#### ***Rendered***
-For current page: 13 \
-For «books» page: 171
-
-<!-- tabs:end -->
-
-
-
-### `.journals` :id=query-refs-journals
-Get the linked *journal* references for current or specified page in **descending** order.
-Second boolean argument is for getting properties of reference block.
-
-`query.refs.journals(name?) → array of page journal days (dayjs objects)`
-`query.refs.journals(name, true) → array of objects with:` \
-    `.day (dayjs object)` \
-    `.name (journal name)` \
-    `.props (properties and its values)`
-
-<!-- tabs:start -->
-#### ***Template***
-```javascript
-query.refs.journals('books')
-  .map((day) => day.toPage())
- .join('\n')
-```
-
-#### ***Rendered***
-2024-01-31 Wed \
-2023-12-09 Sat \
-2023-06-26 Mon \
-2022-12-28 Wed
-
-<!-- tabs:end -->
-
-
-
-### `.pages` :id=query-refs-pages
-Get the linked *non-journal* references for current or specified page.
-Second boolean argument is for getting properties of reference block.
-
-`query.refs.pages(name?) → array of page names`
-`query.refs.pages(name, true) → array of objects with:` \
-    `.name (page name)` \
-    `.props (properties and its values)`
-
-<!-- tabs:start -->
-#### ***Template***
-` ``query.refs.pages('books').join('\n')`` `
-
-#### ***Rendered***
-Library \
-My Books \
-UX Crash Course \
-CS 501
-
-<!-- tabs:end -->
-
-
 ## `cursor`
 ?> See the separate page for details: [Cursor positioning](reference__syntax.md#cursor-positioning)
+
 
 
 ## `blocks`
@@ -138,5 +61,274 @@ Creates blocks related to current at runtime. There could be child blocks (*spaw
     - Hello, Logseq!
         - Hello, plugin! \
           plugin:: Full House Templates
+
+<!-- tabs:end -->
+
+
+
+## `parse`
+### `.links` :id=parse-links
+Retrieves links from the page or the particular block structure.
+
+`async parse.links(text, withLabels?)` → array of links or array of pairs [link, label]
+- `text`: text string with links in form `http://site.com` or `[Label](http://site.com)`
+- `withLabels`: (optional) should labels be included to returned array or not? (default: false)
+
+<!-- tabs:start -->
+#### ***Template***
+- ` ``await parse.links('Which one to use: https://google.com or https://duckduckgo.com?')`` `
+- ` ``await parse.links('May be [Google](https://google.com)?', true)`` `
+- ` ``await parse.links('No! https://duckduckgo.com', true)`` `
+
+#### ***Rendered***
+- ```javascript
+['https://google.com', 'https://duckduckgo.com']
+```
+- ```javascript
+[ ['https://google.com', 'Google'] ]
+```
+- ```javascript
+[ ['https://duckduckgo.com', 'https://duckduckgo.com'] ]
+```
+<!-- tabs:end -->
+
+
+
+### <span style="font-weight: 550">`.refs`</span> :id=parse-refs
+Retrieves references from the page or the particular block structure.
+
+There are several types of references:
+- **block** references: `((44563ff-6467-...))` or `[label](((44563ff-6467-...)))`
+- **page** references: `[[research papers]]` or `[label]([[research papers]])`
+- **tag** references: `#note` (logseq doesn't support labels for tags)
+
+`async parse.refs(text, withLabels?, only?)` → array of references or pairs [ref, label]
+- `text`: text string with references
+- `withLabels`: (optional) should labels be included to returned array or not? (default: false)
+- `only`: (optional) an array with references types to include to result (default: [] — include all)
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
+
+  out(await parse.refs(text))
+  out(await parse.refs(text, true))
+  out(await parse.refs(text, false, ['tag']))
+}``
+```
+
+#### ***Rendered***
+- ```javascript
+[
+    ['tag', 'note'],
+    ['block', '44563ff-6467-...'],
+    ['page', 'research papers'],
+]
+```
+- ```javascript
+[
+    ['tag', 'note', ''],
+    ['block', '44563ff-6467-...', 'current'],
+    ['page', 'research papers', ''],
+]
+```
+- ```javascript
+[ ['tag', 'note'] ]
+```
+<!-- tabs:end -->
+
+
+
+#### `.blocks` :id=parse-refs-blocks
+Retrieves **blocks** references from the text.
+
+`async parse.refs.blocks(text, withLabels?)`
+- Returns the same data as `parse.refs(text, withLabels?, ['block'])`.
+- Except for the redundant reference type.
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
+
+  out(await parse.refs.blocks(text))
+  out(await parse.refs.blocks(text, true))
+}``
+```
+
+#### ***Rendered***
+- ```javascript
+[ '44563ff-6467-...' ]
+```
+- ```javascript
+[ ['44563ff-6467-...', 'current'] ]
+```
+<!-- tabs:end -->
+
+
+
+#### `.pages` :id=parse-refs-pages
+Retrieves **pages** and **tags** references from the text.
+
+`async parse.refs.pages(text, withLabels?)`
+- Returns the same data as `parse.refs(text, withLabels?, ['page', 'tag'])`.
+- Except for the redundant reference type.
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
+
+  out(await parse.refs.pages(text))
+  out(await parse.refs.pages(text, true))
+}``
+```
+
+#### ***Rendered***
+- ```javascript
+[ 'note', 'research papers' ]
+```
+- ```javascript
+[
+    ['note', ''],
+    ['research papers', ''],
+]
+```
+<!-- tabs:end -->
+
+
+
+#### `.pagesOnly` :id=parse-refs-pages-only
+Retrieves **pages** references from the text.
+
+`async parse.refs.pagesOnly(text, withLabels?)`
+- Returns the same data as `parse.refs(text, withLabels?, ['page'])`.
+- Except for the redundant reference type.
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
+
+  out(await parse.refs.pagesOnly(text))
+  out(await parse.refs.pagesOnly(text, true))
+}``
+```
+
+#### ***Rendered***
+- ```javascript
+[ 'research papers' ]
+```
+- ```javascript
+[
+    ['research papers', ''],
+]
+```
+<!-- tabs:end -->
+
+
+
+#### `.tagsOnly` :id=parse-refs-tags-only
+Retrieves **tags** references from the text.
+
+`async parse.refs.tagsOnly(text)`
+- Returns the same data as `parse.refs(text, false, ['tag'])`.
+- Except for the redundant reference type.
+
+<!-- tabs:start -->
+#### ***Template***
+` ``await parse.refs.tagsOnly('#note for [current](((44563ff-6467-...))) [[research papers]]'))`` `
+
+#### ***Rendered***
+- ```javascript
+[ 'note' ]
+```
+<!-- tabs:end -->
+
+
+
+## `query`
+
+### `.pages`
+?> See the separate page for details: [Query language → Pages](reference__query_language.md#ql-pages)
+
+
+
+### `.blocks`
+?> See the separate page for details: [Query language → Blocks](reference__query_language.md#ql-blocks)
+
+
+
+### <span style="font-weight: 550">`.refs`</span>
+
+#### `.count` :id=query-refs-count
+Count the linked references for current or specified page.
+
+`query.refs.count(name?) → number`
+
+<!-- tabs:start -->
+#### ***Template***
+For current page: ` ``query.refs.count()`` ` \
+For «books» page: ` ``query.refs.count('books')`` `
+
+#### ***Rendered***
+For current page: 13 \
+For «books» page: 171
+
+<!-- tabs:end -->
+
+
+
+#### `.journals` :id=query-refs-journals
+Get the linked *journal* references for current or specified page in **descending** order.
+Second boolean argument is for getting properties of reference block.
+
+`query.refs.journals(name?) → array of page journal days (dayjs objects)`
+`query.refs.journals(name, true) → array of objects with:` \
+    `.day (dayjs object)` \
+    `.name (journal name)` \
+    `.props (properties and its values)`
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+query.refs.journals('books')
+  .map((day) => day.toPage())
+ .join('\n')
+```
+
+#### ***Rendered***
+2024-01-31 Wed \
+2023-12-09 Sat \
+2023-06-26 Mon \
+2022-12-28 Wed
+
+<!-- tabs:end -->
+
+
+
+#### `.pages` :id=query-refs-pages
+Get the linked *non-journal* references for current or specified page.
+Second boolean argument is for getting properties of reference block.
+
+`query.refs.pages(name?) → array of page names`
+`query.refs.pages(name, true) → array of objects with:` \
+    `.name (page name)` \
+    `.props (properties and its values)`
+
+<!-- tabs:start -->
+#### ***Template***
+` ``query.refs.pages('books').join('\n')`` `
+
+#### ***Rendered***
+Library \
+My Books \
+UX Crash Course \
+CS 501
 
 <!-- tabs:end -->

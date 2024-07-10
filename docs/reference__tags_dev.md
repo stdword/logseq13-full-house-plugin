@@ -277,187 +277,32 @@ Retrieves values by following a specified path in the provided object. Helpful f
 
 
 ### `.links` :id=dev-links
-Retrieves links from the text.
-
-`dev.links(text, withLabels?)` → array of links or array of pairs [link, label]
-- `text`: text string with links in form `http://site.com` or `[Label](http://site.com)`
-- `withLabels`: (optional) should labels be included to returned array or not? (default: false)
-
-<!-- tabs:start -->
-#### ***Template***
-- ` ``dev.links('Which one to use: https://google.com or https://duckduckgo.com?')`` `
-- ` ``dev.links('May be [Google](https://google.com)?', true)`` `
-- ` ``dev.links('No! https://duckduckgo.com', true)`` `
-
-#### ***Rendered***
-- ```javascript
-['https://google.com', 'https://duckduckgo.com']
-```
-- ```javascript
-[ ['https://google.com', 'Google'] ]
-```
-- ```javascript
-[ ['https://duckduckgo.com', 'https://duckduckgo.com'] ]
-```
-<!-- tabs:end -->
-
-?> Another example of usage is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks)
+This is synchronous text-only version of the [`parse.links`](reference__tags_advanced.md#parse-links) template tag. Use it instead.
 
 
 
-### **`.refs`** :id=dev-refs
-Retrieves references from the text. There are several types of references:
-- `((44563ff-6467-...))` or `[label](((44563ff-6467-...)))` — **block** references
-- `[[research papers]]` or `[label]([[research papers]])` — **page** references
-- `#note` — **tag** references (logseq doesn't support labels for tags)
+### <span style="font-weight: 550">`.refs`</span> :id=dev-refs
+This is synchronous text-only version of the [`parse.refs`](reference__tags_advanced.md#parse-refs) template tag. Use it instead.
 
-`dev.refs(text, withLabels?, only?)` → array of references or array of pairs [ref, label]
-- `text`: text string with references
-- `withLabels`: (optional) should labels be included to returned array or not? (default: false)
-- `only`: (optional) an array with references types to include to result (default: [] — include all)
 
-<!-- tabs:start -->
-#### ***Template***
-```javascript
-``{
-  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
+#### `.blocks`
+This is synchronous text-only version of the [`parse.refs.blocks`](reference__tags_advanced.md#parse-refs-blocks) template tag. Use it instead.
 
-  out(dev.refs(text))
-  out(dev.refs(text, true))
-  out(dev.refs(text, false, ['tag']))
-}``
-```
 
-#### ***Rendered***
-- ```javascript
-[
-    ['tag', 'note'],
-    ['block', '44563ff-6467-...'],
-    ['page', 'research papers'],
-]
-```
-- ```javascript
-[
-    ['tag', 'note', ''],
-    ['block', '44563ff-6467-...', 'current'],
-    ['page', 'research papers', ''],
-]
-```
-- ```javascript
-[ ['tag', 'note'] ]
-```
-<!-- tabs:end -->
+#### `.pages`
+This is synchronous text-only version of the [`parse.refs.pages`](reference__tags_advanced.md#parse-refs-pages) template tag. Use it instead.
+
+
+#### `.pagesOnly`
+This is synchronous text-only version of the [`parse.refs.pagesOnly`](reference__tags_advanced.md#parse-refs-pages-only) template tag. Use it instead.
+
+
+#### `.tagsOnly`
+This is synchronous text-only version of the [`parse.refs.tagsOnly`](reference__tags_advanced.md#parse-refs-tags-only) template tag. Use it instead.
 
 
 
-#### `.blocks` :id=dev-refs-blocks
-
-`dev.refs.blocks(text, withLabels?)`
-- Returns the same data as `dev.refs(text, withLabels?, ['block'])`.
-- Except for the redundant reference type.
-
-<!-- tabs:start -->
-#### ***Template***
-```javascript
-``{
-  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
-
-  out(dev.refs.blocks(text))
-  out(dev.refs.blocks(text, true))
-}``
-```
-
-#### ***Rendered***
-- ```javascript
-[ '44563ff-6467-...' ]
-```
-- ```javascript
-[ ['44563ff-6467-...', 'current'] ]
-```
-<!-- tabs:end -->
-
-
-
-#### `.pages` :id=dev-refs-pages
-
-`dev.refs.pages(text, withLabels?)`
-- Returns the same data as `dev.refs(text, withLabels?, ['page', 'tag'])`.
-- Except for the redundant reference type.
-
-<!-- tabs:start -->
-#### ***Template***
-```javascript
-``{
-  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
-
-  out(dev.refs.pages(text))
-  out(dev.refs.pages(text, true))
-}``
-```
-
-#### ***Rendered***
-- ```javascript
-[ 'note', 'research papers' ]
-```
-- ```javascript
-[
-    ['note', ''],
-    ['research papers', ''],
-]
-```
-<!-- tabs:end -->
-
-
-
-#### `.pagesOnly` :id=dev-refs-pages-only
-
-`dev.refs.pagesOnly(text, withLabels?)`
-- Returns the same data as `dev.refs(text, withLabels?, ['page'])`.
-- Except for the redundant reference type.
-
-<!-- tabs:start -->
-#### ***Template***
-```javascript
-``{
-  var text = '#note for [current](((44563ff-6467-...))) [[research papers]]'
-
-  out(dev.refs.pagesOnly(text))
-  out(dev.refs.pagesOnly(text, true))
-}``
-```
-
-#### ***Rendered***
-- ```javascript
-[ 'research papers' ]
-```
-- ```javascript
-[
-    ['research papers', ''],
-]
-```
-<!-- tabs:end -->
-
-
-
-#### `.tagsOnly` :id=dev-refs-tags-only
-
-`dev.refs.tagsOnly(text)`
-- Returns the same data as `dev.refs(text, false, ['tag'])`.
-- Except for the redundant reference type.
-
-<!-- tabs:start -->
-#### ***Template***
-` ``dev.refs.tagsOnly('#note for [current](((44563ff-6467-...))) [[research papers]]'))`` `
-
-#### ***Rendered***
-- ```javascript
-[ 'note' ]
-```
-<!-- tabs:end -->
-
-
-
-### **.tree**
+### <span style="font-weight: 550">`.tree`</span>
 
 #### `.walkTree` & `.walkTreeAsync` :id=dev-walk-tree
 Walks through whole tree structure. Helpful for working with Logseq API.
@@ -533,7 +378,7 @@ Walks through whole tree structure. Helpful for working with Logseq API.
 
 
 
-### **`.context`**
+### <span style="font-weight: 550">`.context`</span>
 
 #### `.page` :id=dev-context-page
 Conversion from Logseq API page format to plugin's format. Helpful for working with [queries](reference__query_language.md#ql-pages).
