@@ -4,7 +4,7 @@ import { IBatchBlock, BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 import { neatJSON } from 'neatjson'
 
 import { eta } from './extensions/customized_eta'
-import { ILogseqContext, BlockContext, Context, ArgsContext } from './context'
+import { ILogseqContext, BlockContext, Context, ArgsContext, dayjs } from './context'
 import { RenderError } from './errors'
 import { getTemplateTagsContext } from './tags'
 import {
@@ -98,6 +98,42 @@ export class Template implements ITemplate {
     }
     static getArgProperties(block: BlockEntity) {
         return PropertiesUtils.getProperties(block, ArgsContext.propertyPrefix).values
+    }
+    static convertValueToPretty(obj: any) {
+        function prepare(obj) {
+            if (typeof obj !== 'object')
+                return obj
+
+            if (obj instanceof dayjs) {
+                console.log('DAY',)
+                // @ts-expect-error
+                return obj.toISOString()
+            }
+
+            if (Array.isArray(obj)) {
+                console.log('ARRAY',)
+                return Array.from(
+                    obj.map(prepare)
+                )
+            }
+
+            // a class instance (not a simple object)
+            if (obj.__proto__.constructor !== Object) {
+                return obj.toString()
+            }
+
+            return Object.fromEntries(
+                Object.entries(obj)
+                    .map(([key, value]) => [key, prepare(value)])
+            )
+        }
+
+        return neatJSON(prepare(obj), {
+            wrap: false,
+            short: true,
+            afterComma: 1,
+            afterColon: 1,
+        })
     }
 
     constructor(
@@ -216,7 +252,7 @@ export class Template implements ITemplate {
                 level: lvl,
             })
 
-            const result = await eta.renderStringAsync(b.content, finalContext)
+            const result: any = await eta.renderStringAsync(b.content, finalContext)
 
             // get the execution state after code execution
             // @ts-expect-error
@@ -234,16 +270,10 @@ export class Template implements ITemplate {
 
             // make arrays and objects looks pretty
             if (typeof result === 'object')
-                return neatJSON(result, {
-                    wrap: false,
-                    afterComma: 1,
-                    afterColon: 1,
-                    short: true,
-                })
+                return Template.convertValueToPretty(result)
 
             return result.toString()
         })
-
 
         // spread the tree: add new blocks
         const insertAfter = [] as [number[], IBlockNode[]][]
