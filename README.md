@@ -64,12 +64,13 @@ See info about `glass-card` in [Showroom](https://github.com/stdword/logseq13-fu
 </p>
 
 
-
 ### Insert templates from lovely UI 🤗
 <img width="500px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/47bd578b-1781-47ed-a0b8-267d7474101f"/>
 
+
 ### Set cursor position after template insertion 🔱
 <img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/82dd6aa4-b268-4ee6-af95-94b778da565d" />
+
 
 ### Create parametrized data views 🪜
 <img width="350px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/cd77cdb8-9336-4a44-94ee-00fb87961633"/>
@@ -85,7 +86,6 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 </td></tr></table>
 
 </p>
-
 
 
 ### Add logic to templates 📖
@@ -116,6 +116,8 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 </td></tr></table>
 
 </p>
+
+<img width="700px" src="https://github.com/user-attachments/assets/b6d0bbaf-0577-4fb4-a295-c931ad0d6948" />
 
 
 ### Use query language to get pages info 📚
