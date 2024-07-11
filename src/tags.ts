@@ -845,14 +845,14 @@ function array_unique() {
     // @ts-expect-error
     return [...new Set(this)]
 }
-function array_groupby(key: Function, wrapToObject: boolean = false) {
+function array_groupby(key: Function, wrapToObject: boolean = true) {
     // @ts-expect-error
     const grouped = Object.groupBy(this, key)
     if (wrapToObject)
         return grouped
     return Object.entries(grouped)
 }
-function array_countby(key: Function, wrapToObject: boolean = false) {
+function array_countby(key: Function, wrapToObject: boolean = true) {
     // @ts-expect-error
     const counted = this.groupby(key, false)
         .map(([key, items]) => [key, (items as any[]).length])
