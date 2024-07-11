@@ -139,6 +139,7 @@ function notifyUser() {
     logseq.updateSettings({notifications: {namedContextPageArg: undefined}})
     logseq.updateSettings({notifications: {newTemplateSyntax: undefined}})
     logseq.updateSettings({notifications: {introducedUI: undefined}})
+    logseq.updateSettings({notifications: {introducedNLPSyntax: undefined}})
 
     const notifications: {[key: string]: any} = logseq.settings!.notifications as object
 
@@ -148,18 +149,17 @@ function notifyUser() {
 
     // Notify only old users
     if (previousPluginVersion && currentPluginVersion !== previousPluginVersion) {
-        if (!notifications.introducedNLPSyntax) {
+        if (!notifications.introducedSetCursorPosition) {
             logseq.UI.showMsg(
                 `[:div
                     [:p [:code "🏛 Full House Templates"]]
-                    [:p [:b "New Syntax & Query Language!"] [:br]
-                        "Introduced new syntax " [:code "\`\`@...\`\`"] " and query language for pages." ]
-                    [:p "See details "
-                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v35"}
+                    [:p [:b "Set cursor position & Core engine changes!"] [:br]
+                        "The new plugin version has introduced lots of stuff. See details "
+                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v40"}
                             "here"] "."]
                 ]`,
                 'info', {timeout: 60000})
-            logseq.updateSettings({notifications: {introducedNLPSyntax: true}})
+            logseq.updateSettings({notifications: {introducedSetCursorPosition: true}})
         }
     }
 
