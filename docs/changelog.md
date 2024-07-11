@@ -1,23 +1,81 @@
-## v3.5 :id=v35
-### New syntax
-- Array [runtime functions](reference__syntax.md#statement-syntax): `.countby`
-- [`layout.args`](reference__tags_nesting.md#nesting-layout) template tag for usage in pair with `layout` to pass command arguments through inheritance call
-- `include & layout` become fully runtime with optional lazy mode
-  - breaking change: works differently
-- set cursor position
-- cross-block variables
-  - restriction: window.fetch instead of fetch
-  - restriction: window.alert instead of alert
-- breaking change: dev.walkTree → dev.tree.walkAsync
-- dev.links: fixed bug with deep links
+## v4.0 :id=v40
+
+### Set cursor position
+It's exciting to announce that one of the most awaited features, [Cursor Positioning](reference__syntax.md#cursor-positioning), is now available! Set cursor position after template insertion with a new syntax ` ``{|}`` ` or the template tag ``cursor()``.
+
+
+### Cross-block variables
+!> **Breaking change**: \
+*Blocks can now share created variables*: the one created in the first block is available in any child block and any sibling one. So it has become extremely important to execute code in the order that blocks are visible in Logseq.
+- What exactly works differently?
+  - Execution has become synchronous-like: async/await syntax is still available, but every next block waits for the previous one to finish.
+  - Execution order is strictly top-to-bottom (depth-first search traversal, pre-order, NLR).
+  - Global functions like `fetch` now need to be prefixed with `window`: `window.fetch`, `window.alert`, etc.
+  - There may be other unintended differences. It is better to test your templates.
+
+
+### Templates inclusion reviewed & refined
+!> **Breaking change**: \
+*[`include`](reference__tags_nesting.md#nesting-include) & [`layout`](reference__tags_nesting.md#nesting-layout) have become fully runtime*. Previous versions worked in lazy mode via the `renderer` macro. This has led to their execution being delayed and starting only after the current template execution. Now, the execution order is strictly top-to-bottom: included template renders just at the moment of inclusion. Read more about different types of inclusion [here](reference__tags_nesting.md#nesting-include).
+- New [`include.template`](reference__tags_nesting.md#include-template), [`layout.template`](reference__tags_nesting.md#layout-template), [`include.view`](reference__tags_nesting.md#include-view) & [`include.inlineView`](reference__tags_nesting.md#include-inline-view) template tags for **lazy** inclusion.
+- New [`layout.args`](reference__tags_nesting.md#layout-args) template tag to use in pair with `layout` or `include` to pass-through current command arguments.
+
+
+### Core runtime environment
+- 🔥 A way to [dynamically create new blocks](reference__tags_advanced.md#blocks-spawn) from current one: `blocks.spawn`, `blocks.spawn.tree`, `blocks.append`, `blocks.append.tree`.
+- Added automatic [Macro Mode](reference__args.md#macro-mode) to combine `🏛️ views` with Logseq `:macros`.
+- **Views**: added resolution of page's aliases when clicking on page reference.
+- **Views**: added support of `==highlighting==` markdown syntax and improved overall compilation to HTML.
+- New array [runtime function](reference__syntax.md#extended-array-type): `.countby`.
+  - Also `.groupby` function now has the second argument: `wrapToObject?`.
+- Array, simple objects and dayjs object returning from template now formatted with pretty printing.
+
+!> **Breaking change**: say goodbye to auto selection of `🏛️syntax` (old prior to [v3.0](#v3-new-syntax) / new one, current) — it is removed now. All templates and views only support new syntax. To convert from old syntax use [special command](reference__commands.md#convert-syntax-command).
+
+
+### Template tags
+!> **Breaking change**: template tag `dev.walkTree` renamed to [`dev.tree.walkAsync`](reference__tags_dev.md#dev-walk-tree).
+- New template tag [`dev.tree.walk`](reference__tags_dev.md#dev-walk-tree) — synchronous version of `dev.tree.walkAsync`.
+- New template tag [`dev.tree.getNode`](reference__tags_dev.md#dev-walk-tree) for retrieving nodes by path in tree.
+- 🔥 New set of template tags [`parse.refs`](reference__tags_advanced.md#parse-refs) to get *page*, *tag* & *block* references from any block or page:
+  - [`parse.refs.blocks`](reference__tags_advanced.md#parse-refs-blocks)
+  - [`parse.refs.pages`](reference__tags_advanced.md#parse-refs-pages)
+  - [`parse.refs.pagesOnly`](reference__tags_advanced.md#parse-refs-pages-only)
+  - [`parse.refs.tagsOnly`](reference__tags_advanced.md#parse-refs-tags-only)
+- 🔥 New template tag [`parse.cleanMarkup`](reference__tags_advanced.md#clean-markup) to remove all Logseq markup from text.
+- New template tag [`date.fromJournal`](reference__tags.md#date-from-journal) to convert Logseq journal dates (e.g. `20240614`) to `dayjs` objects.
+- [`query.refs.journals`](reference__tags_advanced.md#query-refs-journals) and [`query.refs.pages`](reference__tags_advanced.md#query-refs-pages) now supports the additional return format with extended &eta-information about references.
+- [`dev.links`](reference__tags_dev.md#dev-links) is replaced by new template tag [`parse.links`](reference__tags_advanced.md#parse-links) and it can catch links hidden deeply in markup.
+- [`dev.get`](reference__tags_dev.md#dev-get) reviewed and now could return an array of references for property value with `@prop.all`. See examples in documentation.
+- New template tag [`dev.dump`](reference__tags_dev.md#dev-dump) for pretty printing any JS objects.
+- New template tag [`dev.compileMarkup`](reference__tags_dev.md#dev-compile-markup) to compile Logseq AST to HTML.
+
+
+### Other changes
+- **UI**: The Insertion UI now opens regardless of selected blocks or editing mode, to cover the case when you just need to jump to the template without inserting it.
+- 🔥 **Documentation**: The reference section has been fully completed! It now covers all plugin features and details.
+- **Query Language**: Added filter [`.referenceCount`](reference__query_language.md#filter-reference-count) to count references inside property value.
+- **Core**: Date locale sets for internal `dayjs` library, based on user settings.
+
+!> **Breaking change**! \
+**Context**: Reviewed [`c.config`](reference__context.md#context-config) context variable's content.
+
+
+### Fixed bugs
+- Bug with views and redundant new lines is not a bug: here is [details](https://github.com/stdword/logseq13-full-house-plugin?tab=readme-ov-file#how-to-overcome-the-bug-with-new-lines-when-using-views).
+- **Documentation**: fixed page scroll positioning while jumping on links.
+- **Documentation**: fixed highlighting of current section in left & right sidebars.
+- **Query Language**: fixed operations `starts with`, `ends with`, `includes` for property filter [`.value`](reference__query_language.md#filter-value).
+- `template-list-as` and `template-usage` properties are now being removed when `template-including-parent` is set to YES.
+
 
 
 ## v3.4 :id=v340
-### New syntax
-- [New syntax](reference__syntax.md#dates-nlp-syntax) ` ``@...`` ` for `date.nlp` template tag
+### Core runtime environment
+- New syntax [` ``@...`` `](reference__syntax.md#dates-nlp-syntax) for `date.nlp` template tag
 - [Coercing to bool](reference__args.md#arg-properties) in template args ended with «?»
 - `out` & `outn` [functions](reference__syntax.md#statement-syntax) to output info within ` ``{...}`` `
-- Array [runtime functions](reference__syntax.md#statement-syntax): `.unique`, `.zip`, `.sorted`, `.groupby`
+- Array [runtime functions](reference__syntax.md#extended-array-type): `.unique`, `.zip`, `.sorted`, `.groupby`
 
 <img width="100%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/70fcdd38-41d6-4fb7-b577-bbc06903a77e"/>
 
@@ -144,7 +202,7 @@ Total: ``books.get().length``
 
 
 ## v3.0 :id=v300
-### New template syntax :id=new-syntax
+### New template syntax :id=v3-new-syntax
 !> Breaking change!
 
 This version introduces the [new template syntax](reference__syntax.md) to support agile syntax expansion and to make it more simple.

@@ -273,7 +273,7 @@ This is synchronous text-only version of the [`parse.refs.tagsOnly`](reference__
 
 ### <span style="font-weight: 550">`.tree`</span>
 
-#### `.walkTree` & `.walkTreeAsync` :id=dev-walk-tree
+#### `.walk` & `.walkAsync` :id=dev-walk-tree
 Walks through whole tree structure. Helpful for working with Logseq API.
 
 Every node in blocks tree should contain two attributes:

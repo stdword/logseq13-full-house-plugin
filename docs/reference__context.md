@@ -141,7 +141,7 @@ It is handy if you need to access properties of child template block.
 ```
 
 
-### `c.config`
+### `c.config` :id=context-config
 Configuration context.
 
 #### Schema

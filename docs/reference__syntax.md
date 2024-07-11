@@ -169,6 +169,8 @@ But there are the special `out` & `outn` functions to output info within ` ``{..
 
 <!-- tabs:end -->
 
+
+
 ### Cursor positioning with ` ``{|}`` ` :id=cursor-positioning
 This special syntax positions the cursor after template insertion.
 
@@ -230,13 +232,14 @@ To position cursor inside [spawned blocks](reference__tags_advanced.md#blocks-sp
 <!-- tabs:end -->
 
 
-### Extended `Array` type
+
+### Extended `Array` type :id=extended-array-type
 The `Array` type is extended with helpful functions:
 - `Array.zip(...arrays)`
 - `Array.unique()`
 - `Array.sorted(keyfunc)`
-- `Array.groupby(keyfunc, wrapToObject? = false)`
-- `Array.countby(keyfunc, wrapToObject? = false)`
+- `Array.groupby(keyfunc, wrapToObject? = true)`
+- `Array.countby(keyfunc, wrapToObject? = true)`
 
 <!-- tabs:start -->
 #### ***Template***
@@ -269,10 +272,11 @@ The `Array` type is extended with helpful functions:
   ``items.sorted((x) => [x.type, x.quantity]).join('\n')``
   ```
 - ```javascript
-  ``items.groupby((x) => x.type, true)``
+  ``items.groupby((x) => x.type)``
   ```
 - ```javascript
   ``items.countby((x) => x.type)``
+  ``items.countby((x) => x.type, false)``
   ```
 
 #### ***Rendered***
@@ -301,9 +305,15 @@ The `Array` type is extended with helpful functions:
 }
 ```
 - ```javascript
-// .countby
-[ ["vegetables", 1], ["fruit", 2], ["meat", 2] ]
-```
+  // .countby
+  {
+      "vegetables": 1,
+      "fruit": 2,
+      "meat": 2
+  }
+
+  [ ["vegetables", 1], ["fruit", 2], ["meat", 2] ]
+  ```
 
 <!-- tabs:end -->
 

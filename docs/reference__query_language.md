@@ -479,7 +479,7 @@ best: 13
 <!-- tabs:end -->
 
 
-#### `.referenceCount`
+#### `.referenceCount` :id=filter-reference-count
 Filter by references count in page property value. *Note*: this filter searches references within properties values. And ignores all other text content.
 
 ?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value

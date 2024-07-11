@@ -320,40 +320,59 @@ For «books» page: 171
 
 #### `.journals` :id=query-refs-journals
 Get the linked *journal* references for current or specified page in **descending** order.
-Second boolean argument is for getting properties of reference block.
 
-`query.refs.journals(name?) → array of page journal days (dayjs objects)`
-`query.refs.journals(name, true) → array of objects with:` \
-    `.day (dayjs object)` \
-    `.name (journal name)` \
-    `.props (properties and its values)`
+- `query.refs.journals(name?)` → array of journal days (dayjs objects)
+- `query.refs.journals(name, true)` → array of objects:
+    - `.day`: dayjs object
+    - `.name`: journal name
+    - `.props`: properties of referencing block
 
 <!-- tabs:start -->
 #### ***Template***
-```javascript
-query.refs.journals('books')
-  .map((day) => day.toPage())
- .join('\n')
-```
+- ```javascript
+  query.refs.journals('books')
+    .map((day) => day.toPage())
+    .join('\n')
+  ```
+- ```javascript
+  dev.dump(
+    query.refs.journals('books', true)
+  )
+  ```
 
 #### ***Rendered***
-2024-01-31 Wed \
-2023-12-09 Sat \
-2023-06-26 Mon \
-2022-12-28 Wed
-
+- 2024-01-31 Wed \
+  2023-12-09 Sat \
+  2023-06-26 Mon \
+  2022-12-28 Wed
+- ```javascript
+  [
+    {
+        "day": "2024-01-30T21:00:00.000Z",
+        "name": "2024-01-31 Wed",
+        "props": {
+            "source": "https://..."
+        }
+    },
+    {
+        "day": "2023-12-08T21:00:00.000Z",
+        "name": "2023-12-09 Sat",
+        "props": {}
+    },
+    ...
+  ]
+  ```
 <!-- tabs:end -->
 
 
 
 #### `.pages` :id=query-refs-pages
 Get the linked *non-journal* references for current or specified page.
-Second boolean argument is for getting properties of reference block.
 
-`query.refs.pages(name?) → array of page names`
-`query.refs.pages(name, true) → array of objects with:` \
-    `.name (page name)` \
-    `.props (properties and its values)`
+- `query.refs.pages(name?)` → array of page names
+- `query.refs.pages(name, true)` → array of objects:
+    - `.name`: page name
+    - `.props`: properties of referencing block (see the example for [`query.refs.journals`](#query-refs-journals))
 
 <!-- tabs:start -->
 #### ***Template***

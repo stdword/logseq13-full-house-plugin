@@ -82,7 +82,7 @@ Buy list: \
 ?> Note: if you need to place buy list items in child blocks, use [blocks spawning](reference__tags_advanced.md#blocks-spawn)
 
 
-### `.template`
+### `.template` :id=include-template
 Lazy inclusion as template.
 
 - `async include.template(name, args?)`
@@ -97,7 +97,7 @@ Lazy inclusion as template.
 <!-- tabs:end -->
 
 
-### `.view`
+### `.view` :id=include-view
 Lazy inclusion as a view
 
 - `async include.view(name, args?)`
@@ -112,7 +112,7 @@ Lazy inclusion as a view
 <!-- tabs:end -->
 
 
-### `.inlineView`
+### `.inlineView` :id=include-inline-view
 Lazy inclusion as an inline view
 
 - `async include.inlineView(body, args?)`
@@ -177,7 +177,7 @@ Use the table to select the appropriate template tag:
 ?> Real life example is [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/9#view-for-blocks), in the section «🏛view for blocks»
 
 
-### `.template`
+### `.template` :id=layout-template
 Lazy layout as template.
 
 - `async layout.template(name, args?)`
@@ -192,7 +192,7 @@ Lazy layout as template.
 <!-- tabs:end -->
 
 
-### `.args`
+### `.args` :id=layout-args
 Used to pass-through current arguments to layout template.
 
 - `layout.args(...args?)`

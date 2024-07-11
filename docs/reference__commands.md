@@ -193,7 +193,7 @@ There is no need to use back-tick «\`» quotes:
 
 
 ## Convert template to new syntax style :id=convert-syntax-command
-This command converts old template syntax style (used before `v3.0.0`) to new one. See details [here](changelog.md#new-syntax).
+This command converts old template syntax style (used before `v3.0.0`) to new one. See details [here](changelog.md#v3-new-syntax).
 
 #### Usage
 <!-- {docsify-ignore} -->
