@@ -26,6 +26,7 @@
 
 
 ### Core runtime environment
+
 <img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/3f480c08-4267-4e1f-b7a9-fe44af11b5be" />
 
 - 🔥 A way to [dynamically create new blocks](reference__tags_advanced.md#blocks-spawn) from the current one: `blocks.spawn`, `blocks.spawn.tree`, `blocks.append`, `blocks.append.tree`.
