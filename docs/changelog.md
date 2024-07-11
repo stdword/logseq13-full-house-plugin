@@ -1,28 +1,34 @@
 ## v4.0 :id=v40
 
 ### Set cursor position
-It's exciting to announce that one of the most awaited features, [Cursor Positioning](reference__syntax.md#cursor-positioning), is now available! Set cursor position after template insertion with a new syntax ` ``{|}`` ` or the template tag ``cursor()``.
+🔥 It's exciting to announce that one of the most awaited features, [Cursor Positioning](reference__syntax.md#cursor-positioning), is now available! Set the cursor position after template insertion with the help of new syntax ` ``{|}`` ` or the template tag ``cursor()``.
+
+<img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/82dd6aa4-b268-4ee6-af95-94b778da565d" />
 
 
 ### Cross-block variables
 !> **Breaking change**: \
-*Blocks can now share created variables*: the one created in the first block is available in any child block and any sibling one. So it has become extremely important to execute code in the order that blocks are visible in Logseq.
+🔥 *Blocks can now share created variables*: the ones created in the first block are available in any child block and any sibling block. Therefore, it has become extremely important to execute code in the order that blocks are visible in Logseq. See details [here](reference__syntax.md#js-env).
 - What exactly works differently?
   - Execution has become synchronous-like: async/await syntax is still available, but every next block waits for the previous one to finish.
-  - Execution order is strictly top-to-bottom (depth-first search traversal, pre-order, NLR).
+  - The execution order is strictly top-to-bottom (depth-first search traversal, pre-order, NLR).
   - Global functions like `fetch` now need to be prefixed with `window`: `window.fetch`, `window.alert`, etc.
-  - There may be other unintended differences. It is better to test your templates.
+  - There may be other unintended differences, so it's better to test your templates.
+
+<img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/ec57a12e-690c-45a9-8397-036b1643a323" />
 
 
 ### Templates inclusion reviewed & refined
 !> **Breaking change**: \
-*[`include`](reference__tags_nesting.md#nesting-include) & [`layout`](reference__tags_nesting.md#nesting-layout) have become fully runtime*. Previous versions worked in lazy mode via the `renderer` macro. This has led to their execution being delayed and starting only after the current template execution. Now, the execution order is strictly top-to-bottom: included template renders just at the moment of inclusion. Read more about different types of inclusion [here](reference__tags_nesting.md#nesting-include).
+*[`include`](reference__tags_nesting.md#nesting-include) & [`layout`](reference__tags_nesting.md#nesting-layout) have become fully runtime*. Previous versions worked in lazy mode via the `renderer` macro. This led to their execution being delayed and starting only after the current template execution. Now, the execution order is strictly top-to-bottom: the included template renders just at the moment of inclusion. Read more about different types of inclusion [here](reference__tags_nesting.md#nesting-include).
 - New [`include.template`](reference__tags_nesting.md#include-template), [`layout.template`](reference__tags_nesting.md#layout-template), [`include.view`](reference__tags_nesting.md#include-view) & [`include.inlineView`](reference__tags_nesting.md#include-inline-view) template tags for **lazy** inclusion.
 - New [`layout.args`](reference__tags_nesting.md#layout-args) template tag to use in pair with `layout` or `include` to pass-through current command arguments.
 
 
 ### Core runtime environment
-- 🔥 A way to [dynamically create new blocks](reference__tags_advanced.md#blocks-spawn) from current one: `blocks.spawn`, `blocks.spawn.tree`, `blocks.append`, `blocks.append.tree`.
+<img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/3f480c08-4267-4e1f-b7a9-fe44af11b5be" />
+
+- 🔥 A way to [dynamically create new blocks](reference__tags_advanced.md#blocks-spawn) from the current one: `blocks.spawn`, `blocks.spawn.tree`, `blocks.append`, `blocks.append.tree`.
 - Added automatic [Macro Mode](reference__args.md#macro-mode) to combine `🏛️ views` with Logseq `:macros`.
 - **Views**: added resolution of page's aliases when clicking on page reference.
 - **Views**: added support of `==highlighting==` markdown syntax and improved overall compilation to HTML.
@@ -34,7 +40,7 @@ It's exciting to announce that one of the most awaited features, [Cursor Positio
 
 
 ### Template tags
-!> **Breaking change**: template tag `dev.walkTree` renamed to [`dev.tree.walkAsync`](reference__tags_dev.md#dev-walk-tree).
+!> **Breaking change**: template tag `dev.walkTree` has been renamed to [`dev.tree.walkAsync`](reference__tags_dev.md#dev-walk-tree).
 - New template tag [`dev.tree.walk`](reference__tags_dev.md#dev-walk-tree) — synchronous version of `dev.tree.walkAsync`.
 - New template tag [`dev.tree.getNode`](reference__tags_dev.md#dev-walk-tree) for retrieving nodes by path in tree.
 - 🔥 New set of template tags [`parse.refs`](reference__tags_advanced.md#parse-refs) to get *page*, *tag* & *block* references from any block or page:
@@ -54,19 +60,19 @@ It's exciting to announce that one of the most awaited features, [Cursor Positio
 ### Other changes
 - **UI**: The Insertion UI now opens regardless of selected blocks or editing mode, to cover the case when you just need to jump to the template without inserting it.
 - 🔥 **Documentation**: The reference section has been fully completed! It now covers all plugin features and details.
-- **Query Language**: Added filter [`.referenceCount`](reference__query_language.md#filter-reference-count) to count references inside property value.
-- **Core**: Date locale sets for internal `dayjs` library, based on user settings.
+- **Query Language**: The filter [`.referenceCount`](reference__query_language.md#filter-reference-count) has been added to count references inside property value.
+- **Core**: Plugin sets the date locale for internal `dayjs` library, based on user settings.
 
 !> **Breaking change**! \
-**Context**: Reviewed [`c.config`](reference__context.md#context-config) context variable's content.
+**Context**: Reviewed the content of the [`c.config`](reference__context.md#context-config) context variable.
 
 
 ### Fixed bugs
-- Bug with views and redundant new lines is not a bug: here is [details](https://github.com/stdword/logseq13-full-house-plugin?tab=readme-ov-file#how-to-overcome-the-bug-with-new-lines-when-using-views).
-- **Documentation**: fixed page scroll positioning while jumping on links.
-- **Documentation**: fixed highlighting of current section in left & right sidebars.
-- **Query Language**: fixed operations `starts with`, `ends with`, `includes` for property filter [`.value`](reference__query_language.md#filter-value).
-- `template-list-as` and `template-usage` properties are now being removed when `template-including-parent` is set to YES.
+- The issue with views and redundant new lines is not a bug: here are the [details](https://github.com/stdword/logseq13-full-house-plugin?tab=readme-ov-file#how-to-overcome-the-bug-with-new-lines-when-using-views).
+- **Documentation**: Fixed page scroll positioning while jumping on links.
+- **Documentation**: Fixed highlighting of the current section in left & right sidebars.
+- **Query Language**: Fixed operations `starts with`, `ends with`, `includes` for property filter [`.value`](reference__query_language.md#filter-value).
+- The properties `template-list-as` and `template-usage` are now being removed when `template-including-parent` is set to YES.
 
 
 

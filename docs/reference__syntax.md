@@ -1,3 +1,14 @@
+Inside template you can write any text you want. But there is special syntax to access JavaScript environment.
+
+## JavaScript environment :id=js-env
+Has some particular qualities:
+- Logseq blocks can share variables created in JS environment. The ones created in the first block are available in any child block and any sibling block.
+  - Only `var` variables can be shared, not `let` & `const`.
+  - To share a function or a class assign it to `var` variable.
+- JS code execution runs in the order that blocks are visible in Logseq. And it is synchronous-like: async/await syntax is available, but every next block waits for the previous one to finish.
+- Global functions like `fetch` need to be prefixed with `window`: `window.fetch`, `window.alert`, etc.
+
+
 ##  \`\`...\`\` :id=interpolation-syntax
 Use double back-tick «` `` `» to *start* and *finish* JavaScript expression.
 
