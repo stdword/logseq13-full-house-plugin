@@ -603,11 +603,6 @@ function dev_parseMarkup(context: C, text: string): MLDOC_Node[] {
 function dev_compileMarkup(context: C, nodes: MLDOC_Node[]) {
     return new MldocASTtoHTMLCompiler(context).compile(nodes)
 }
-function dev_cleanMarkup(context: C, obj: string | MLDOC_Node[], opts?: {cleanRefs?: boolean, cleanLabels?: boolean}) {
-    if (Array.isArray(obj))
-        return (new LogseqMarkup(context).cleanAST(obj, opts)).join('')
-    return new LogseqMarkup(context).clean(obj, opts)
-}
 function dev_toHTML(context: C, text: string): string {
     text = _asString(text)
     return new LogseqMarkup(context).toHTML(text)
@@ -832,6 +827,12 @@ parse_refs.tagsOnly = async function(c: C, source: ParseSource, withLabels: bool
     return await _parse_items(c, dev_refs.tagsOnly, source, withLabels)
 }
 
+function parse_cleanMarkup(context: C, obj: string | MLDOC_Node[], opts?: {cleanRefs?: boolean, cleanLabels?: boolean}) {
+    if (Array.isArray(obj))
+        return (new LogseqMarkup(context).cleanAST(obj, opts)).join('')
+    return new LogseqMarkup(context).clean(obj, opts)
+}
+
 
 /* internal */
 function array_zip(...arr: any[]) {
@@ -1031,6 +1032,7 @@ export function getTemplateTagsContext(context: C) {
         }),
 
         parse: new Context({
+            cleanMarkup: bindContext(parse_cleanMarkup, context),
             links: bindContext(parse_links, context),
             refs: parse_refs_,
         }),
@@ -1048,7 +1050,6 @@ export function getTemplateTagsContext(context: C) {
             uuid: dev_uuid,
             parseMarkup: bindContext(dev_parseMarkup, context),
             compileMarkup: bindContext(dev_compileMarkup, context),
-            cleanMarkup: bindContext(dev_cleanMarkup, context),
             toHTML: bindContext(dev_toHTML, context),
             asset: bindContext(dev_asset, context),
             color: dev_color,

@@ -119,37 +119,6 @@ dev.compileMarkup([
 <!-- tabs:end -->
 
 
-### `.cleanMarkup` :id=dev-clean-markup
-Clean any Logseq markup to leave only text.
-
-`dev.cleanMarkup(markup, options?)` → cleaned text string
-- `markup`: string with Logseq markup
-- `options`: (optional) object with options:
-  - `cleanRefs`: should brackets be cleaned for page references and hash signs for tags and link syntax for links, or should they be left as they are? (default: false)
-  - `cleanLabels`: should labels be cleaned, or should references be replaced by them? (default: false)
-
-<!-- tabs:start -->
-#### ***Template***
-- ` ``dev.cleanMarkup('*text* [[link]]')`` `
-- ` ``dev.cleanMarkup('*text* [[link]]', {cleanRefs: true})`` `
-
-#### ***Rendered***
-- `text [[link]]`
-- `text link`
-<!-- tabs:end -->
-
-<!-- tabs:start -->
-#### ***Template***
-- ` ``dev.cleanMarkup('[**label**](https://google.com)')`` `
-- ` ``dev.cleanMarkup('[**label**](https://google.com)', {cleanLabels: true})`` `
-- ` ``dev.cleanMarkup('[**label**](https://google.com)', {cleanLabels: true, cleanRefs: true})`` `
-
-#### ***Rendered***
-- `[label](https://google.com)`
-- `[https://google.com](https://google.com)`
-- `https://google.com`
-<!-- tabs:end -->
-
 
 ### `.toHTML` :id=dev-to-html
 Compiles any Logseq markup to HTML.

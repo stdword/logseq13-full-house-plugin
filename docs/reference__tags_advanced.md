@@ -67,6 +67,40 @@ Creates blocks related to current at runtime. There could be child blocks (*spaw
 
 
 ## `parse`
+
+### `.cleanMarkup` :id=clean-markup
+Clean any Logseq markup to leave only text.
+
+`parse.cleanMarkup(markup, options?)` → cleaned text string
+- `markup`: string with Logseq markup
+- `options`: (optional) object with options:
+  - `cleanRefs`: should brackets be cleaned for page references and hash signs for tags and link syntax for links, or should they be left as they are? (default: false)
+  - `cleanLabels`: should labels be cleaned, or should references be replaced by them? (default: false)
+
+<!-- tabs:start -->
+#### ***Template***
+- ` ``parse.cleanMarkup('*text* [[link]]')`` `
+- ` ``parse.cleanMarkup('*text* [[link]]', {cleanRefs: true})`` `
+
+#### ***Rendered***
+- `text [[link]]`
+- `text link`
+<!-- tabs:end -->
+
+<!-- tabs:start -->
+#### ***Template***
+- ` ``parse.cleanMarkup('[**label**](https://google.com)')`` `
+- ` ``parse.cleanMarkup('[**label**](https://google.com)', {cleanLabels: true})`` `
+- ` ``parse.cleanMarkup('[**label**](https://google.com)', {cleanLabels: true, cleanRefs: true})`` `
+
+#### ***Rendered***
+- `[label](https://google.com)`
+- `[https://google.com](https://google.com)`
+- `https://google.com`
+<!-- tabs:end -->
+
+
+
 ### `.links` :id=parse-links
 Retrieves links from the page or the particular block structure.
 
