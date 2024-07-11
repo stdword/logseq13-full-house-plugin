@@ -708,7 +708,7 @@ function dev_links(context: C, text: string, withLabels: boolean = false): any[]
             if (type === 'Complex') {
                 const { protocol, link } = url
                 const result = `${protocol}://${link}`
-                links.push([result, dev_cleanMarkup(context, label)])
+                links.push([result, parse_cleanMarkup(context, label)])
             }
         }
         else if (type === 'Emphasis') {
@@ -729,12 +729,12 @@ function dev_refs(context: C, text: string, withLabels: boolean = false,
     const nodes = new LogseqMarkup(context).parse(text)
     walkNodes(nodes, (type, data, node, process) => {
         if (type === 'Tag') {
-            const ref = dev_cleanMarkup(context, [[type, data]], {cleanRefs: true})
+            const ref = parse_cleanMarkup(context, [[type, data]], {cleanRefs: true})
             refs.push(['tag', ref, ''])
         }
         else if (type === 'Link') {
             const labelNode = data.label ?? ''
-            const label = labelNode.length ? dev_cleanMarkup(context, labelNode) : ''
+            const label = labelNode.length ? parse_cleanMarkup(context, labelNode) : ''
 
             const [ type, url ] = data.url
             if (type === 'Page_ref')
