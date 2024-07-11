@@ -1,3 +1,71 @@
+# [4.0.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.4.0...v4.0.0) (2024-07-11)
+
+
+### Bug Fixes
+
+* **context:** review c.config contents ([4938926](https://github.com/stdword/logseq13-full-house-plugin/commit/493892677352e4871b7374a88cf312df5c69ace2))
+* **core:** cursor positioning bug with empty spaces before and after cursor marker ([969cb87](https://github.com/stdword/logseq13-full-house-plugin/commit/969cb87cdf9301a2dbce24ca56fe1a12e2505bef))
+* **core:** cursor positioning find order ([61d572c](https://github.com/stdword/logseq13-full-house-plugin/commit/61d572cdf53760d74a0b439d70dd44f08c05579a))
+* **core:** cursor positioning when including templates: corner case for head ([9832fa1](https://github.com/stdword/logseq13-full-house-plugin/commit/9832fa17da91a501d64bf4ebaac3ea6ad12548de))
+* **core:** order of code execution: as block follows ([a753c9d](https://github.com/stdword/logseq13-full-house-plugin/commit/a753c9d4d9b7f33e2474c5489e68b8ded8433fd5))
+* **docs:** scrolling to anchor bug ([334fa2d](https://github.com/stdword/logseq13-full-house-plugin/commit/334fa2d72c3e2e8404b9d42aee8e55232c1b8950))
+* **docs:** toc scroll highlighting bug ([51a694d](https://github.com/stdword/logseq13-full-house-plugin/commit/51a694d7eadf7683c812be0e8a179ab9f19ff6a4))
+* escaping named args while transcluding templates ([1482583](https://github.com/stdword/logseq13-full-house-plugin/commit/1482583063e6609b5dd5002860ca36cbdb891135))
+* improve nacro mode pattern matching ([5ea6083](https://github.com/stdword/logseq13-full-house-plugin/commit/5ea60834be4474165c588cef1a41e52d61811075))
+* insertion ui: losing focus on tab key ([d6bf556](https://github.com/stdword/logseq13-full-house-plugin/commit/d6bf55670aa4daa3ee98885942a430690ce39209))
+* propper work of escaping regex ([55792b2](https://github.com/stdword/logseq13-full-house-plugin/commit/55792b2ff672c107ba2095e5f7ed975e35cc855c))
+* **query:** filtering by value for includes, starts with & ends with operations ([7f253ce](https://github.com/stdword/logseq13-full-house-plugin/commit/7f253ce8c96bab7b6cbc2c348343f7e4a03fac48))
+* remove autoselection of syntax ([76499f7](https://github.com/stdword/logseq13-full-house-plugin/commit/76499f74f598aa1b8ed91569657c660c972a6924))
+* remove template-list-as and template-usage properties when template-including-parent is YES ([1ae4566](https://github.com/stdword/logseq13-full-house-plugin/commit/1ae4566f95725f06b5a824ded7ebd49d2f43f684)), closes [#39](https://github.com/stdword/logseq13-full-house-plugin/issues/39)
+* rendering template when user return custom value within template ([68e1f74](https://github.com/stdword/logseq13-full-house-plugin/commit/68e1f74b60c9e290da5ec8dd1ba328aac2b34275))
+* sometimes dumping context variables fails to render in logseq ([fba29f1](https://github.com/stdword/logseq13-full-house-plugin/commit/fba29f17b8ec92bb0637ea1da9fcc62884080cf1))
+* **tags:** changing default value for .countby & .groupby ([b3d8262](https://github.com/stdword/logseq13-full-house-plugin/commit/b3d8262a4cdbbfbd6ce34b5082f575e36fc9c7ef))
+* **tags:** complete review of include and layout template tags + docs ([26dd906](https://github.com/stdword/logseq13-full-house-plugin/commit/26dd906efa2bb5563fcb6764341355244755c49e))
+* **tags:** dev.dump and context objects displaying issues with spaces ([26fea51](https://github.com/stdword/logseq13-full-house-plugin/commit/26fea519f52c34aad25b88be33d8f2e0bd082f29))
+* **tags:** dev.get now could return an array of strings ([041851d](https://github.com/stdword/logseq13-full-house-plugin/commit/041851d27d1e1d4fd1e8d86ac34c8304d09a99ce))
+* **views:** fix support of highlighting text ([2ea6445](https://github.com/stdword/logseq13-full-house-plugin/commit/2ea6445873490e52c89884d14b6b662f354ee8c0))
+* **views:** improve compilation of logseq markup to HTML ([7d55f87](https://github.com/stdword/logseq13-full-house-plugin/commit/7d55f870d61779924795cbde6b456f94700fb2fd))
+
+
+### Build System
+
+* make version increment ([3918f27](https://github.com/stdword/logseq13-full-house-plugin/commit/3918f2702b55084eeb9a99eed45fa6ef7c222676))
+
+
+### Features
+
+* change ui appearence according to sellected blocks ([991b7e6](https://github.com/stdword/logseq13-full-house-plugin/commit/991b7e6993f0c6d8f33cdee344bb4a757f0ea60a))
+* **core:** cross-block scoped js vars ([446c413](https://github.com/stdword/logseq13-full-house-plugin/commit/446c413f14d8dbc6c6aaae87ef0349f422f07c79))
+* **core:** inserting new blocks at runtime ([31b0bad](https://github.com/stdword/logseq13-full-house-plugin/commit/31b0bad2c2d97ad0bba26e2a07a707be234c4231))
+* **core:** make returnin values from templates look pretty ([0200fbe](https://github.com/stdword/logseq13-full-house-plugin/commit/0200fbeaf07ea7fc5b4ebbd5be4964a9689210ca))
+* **core:** passing execution environment back to template tags ([b27cc05](https://github.com/stdword/logseq13-full-house-plugin/commit/b27cc05681690c94b1db742c3917e52716f29c64))
+* **core:** pretty printing values returning from templates ([955c66e](https://github.com/stdword/logseq13-full-house-plugin/commit/955c66ee4f3ce4d260acdf2c2ac51135acaed77a))
+* **core:** set cursor position ([16a9b36](https://github.com/stdword/logseq13-full-house-plugin/commit/16a9b366f33d13890776599a654e34889f1ec878)), closes [#13](https://github.com/stdword/logseq13-full-house-plugin/issues/13)
+* **docs:** scroll rigth toc sidebar according to current view ([c076344](https://github.com/stdword/logseq13-full-house-plugin/commit/c076344d6c4850d303a44c4d5dcbcb4bd12e567e))
+* macro mode ([f258c02](https://github.com/stdword/logseq13-full-house-plugin/commit/f258c023d82726cc46dec8d78cdfbefc02e07d47))
+* prototype of Action template ([6de9754](https://github.com/stdword/logseq13-full-house-plugin/commit/6de9754c24cda724297b742cf607fbb097729ba8))
+* **query:** .referenceCount filter ([c49e89c](https://github.com/stdword/logseq13-full-house-plugin/commit/c49e89ccaed1831825c383b0c66ccd4eb94ce5c0))
+* support locales based on logseq settings ([cc90aba](https://github.com/stdword/logseq13-full-house-plugin/commit/cc90aba9ae8956b0ae2ec36ecf5a6cb56f1a9279)), closes [#40](https://github.com/stdword/logseq13-full-house-plugin/issues/40)
+* **tags:** `array.countby` & wrap to object option ([c1f62af](https://github.com/stdword/logseq13-full-house-plugin/commit/c1f62af457b085e972fb43e264fa4d1b53101407))
+* **tags:** add dev.tree.* namespace & dev.tree.getNode template tags with docs ([bf3588d](https://github.com/stdword/logseq13-full-house-plugin/commit/bf3588d36d5e7508883616eaf7b3c6ab3a2a8d05))
+* **tags:** added cursor() template tag to position cursor from ``{...}`` ([4c83f2c](https://github.com/stdword/logseq13-full-house-plugin/commit/4c83f2c7d8be0b95616f6530e3dd35107df83999))
+* **tags:** dev.compileMarkup, dev.cleanMarkup template tags ([a4a33d3](https://github.com/stdword/logseq13-full-house-plugin/commit/a4a33d36f8997ef0b5ec1c03e021154c61109668))
+* **tags:** dev.dump template tag ([d51fbeb](https://github.com/stdword/logseq13-full-house-plugin/commit/d51fbeb33ba9a2eea29809fe5757bb70ffe56ceb))
+* **tags:** improve `query.refs.pages` & `query.refs.journals` to retrieve block props ([5858a4d](https://github.com/stdword/logseq13-full-house-plugin/commit/5858a4dc33e467145688268b7f18f71fa435dcf1))
+* **tags:** include.veiw, include,inlineView and lazy param for include & layout ([b315c6c](https://github.com/stdword/logseq13-full-house-plugin/commit/b315c6cf49fad15cb7a88109f37ee2fbfa9ed368))
+* **tags:** layout.args ([ced84e1](https://github.com/stdword/logseq13-full-house-plugin/commit/ced84e14623c5a62ddbf652243d1a616f69ee873))
+* **tags:** new template tag `date.fromJournal` ([5d43b87](https://github.com/stdword/logseq13-full-house-plugin/commit/5d43b870a8dcec2090c36306e7d13bfce92701eb))
+* **tags:** now `layout.args` could have specified values for arguments ([58b5a8f](https://github.com/stdword/logseq13-full-house-plugin/commit/58b5a8f42f483d87008ffee6cad68019174298fe))
+* **tags:** parse.links, parse.refs, dev.refs template tags ([f9b75f6](https://github.com/stdword/logseq13-full-house-plugin/commit/f9b75f6f0643e7f5f961f8b32bdc2be201bffa4a))
+* **tags:** review dev.get template tag ([c95fe4e](https://github.com/stdword/logseq13-full-house-plugin/commit/c95fe4ea11dc782c83e07622e342e7270425ed28))
+* **tags:** spawn and append whole tree template tags ([d8b5857](https://github.com/stdword/logseq13-full-house-plugin/commit/d8b58570d5657226dcee2abbb731e83746272135))
+* **views:** resolve page aliases when clicking on refs ([c2eeff8](https://github.com/stdword/logseq13-full-house-plugin/commit/c2eeff821bfe8cba686ed04a3f361ff8fe6485bd))
+
+
+### BREAKING CHANGES
+
+* see change log for details
+
 # [3.4.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.3.0...v3.4.0) (2024-02-20)
 
 
