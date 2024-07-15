@@ -1,3 +1,9 @@
+## NEXT
+
+- **Query language for pages**: [`.valueType`](reference__query_language.md#filter-value-type) filter with `.onlyStrings` & `.onlyNumbers` shortcuts to filter properties values by type.
+
+
+
 ## v4.0 :id=v40
 
 ### Set cursor position

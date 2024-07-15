@@ -208,7 +208,7 @@ export class PageContext extends Context {
                 prefix: parts.slice(0, -1).join('/'),
                 suffix: parts.at(-1),
                 pages: parts.slice(0, -1).reduce(
-                    (r, i) => r.concat(parts.slice(0, r.length + 1).join('/')),
+                    (r) => r.concat(parts.slice(0, r.length + 1).join('/')),
                     [] as Array<string>
                 ),
             }) as unknown as PageContext['namespace']

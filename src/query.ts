@@ -214,6 +214,58 @@ class ValueFilter extends Filter {
 }
 
 
+class ValueTypeFilter extends Filter {
+    choices: ('number' | 'string' | 'set')[]
+
+    bindingVars = (prop) => [
+        [`?ptype-${prop}`, `[(type ?p-${prop}) ?ptype-${prop}]`],
+
+        [`?type-number`, `[(type 1) ?type-number]`],
+        [`?type-string`, `[(type "x") ?type-string]`],
+        [`?type-set`,    `[(type #{}) ?type-set]`],
+    ]
+
+    constructor(choices: ('number' | 'string' | 'set')[]) {
+        super('')
+        this.choices = choices
+    }
+    checkArgs(builder: PagesQueryBuilder): string | null {
+        if (builder.lastState === null)
+            return 'Preceding property filter is required'
+        if (this.choices.length === 0)
+            return 'At least one type is required'
+
+        const unknown = this.choices.filter((t) => !['number', 'string', 'set'].includes(t))
+        if (unknown.length !== 0)
+            return `Unknown property types: ${unknown.join(', ')}`
+
+        return null
+    }
+    getPredicate(builder: PagesQueryBuilder): string {
+        const propertyName = builder.lastState
+
+        const lines: string[] = []
+        for (const choice of this.choices) {
+            let predicate: string
+
+            if (choice === 'string')
+                predicate = `[(= ?ptype-${propertyName} ?type-string)]`
+            else if (choice === 'number')
+                predicate = `[(= ?ptype-${propertyName} ?type-number)]`
+            else if (choice === 'set')
+                predicate = `[(= ?ptype-${propertyName} ?type-set)]`
+            else return ''
+
+            lines.push(predicate)
+        }
+
+        if (lines.length === 1)
+            return lines[0]
+        return `(or ${lines.join('\n')} )`
+    }
+}
+
+
 class ReferenceFilter extends Filter {
     values: string[]
     operation: string
@@ -352,12 +404,14 @@ export class PagesQueryBuilder {
     noProperty(name: string) {
         return this._filter(new PropertyFilter(name), false)
     }
+
     empty() {
         return this._filter(new EmptyFilter())
     }
     nonEmpty() {
         return this._filter(new EmptyFilter(), false)
     }
+
     integerValue(operation: string, value: string = '') {
         if (value === '') {
             value = operation
@@ -374,6 +428,20 @@ export class PagesQueryBuilder {
         value = value.toString()
         return this._filter(new ValueFilter(value, operation), nonInverted)
     }
+
+    valueType(choices: ('number' | 'string' | 'set')[] = [], nonInverted: boolean = true) {
+        choices = choices.map(x => x.toString() as ('number' | 'string' | 'set'))
+        if (choices.length === 0)
+            return this
+        return this._filter(new ValueTypeFilter(choices), nonInverted)
+    }
+    onlyStrings(nonInverted: boolean = true) {
+        return this.valueType(['string'], nonInverted)
+    }
+    onlyNumbers(nonInverted: boolean = true) {
+        return this.valueType(['number'], nonInverted)
+    }
+
     reference(operation: string, value: string | string[] = '', nonInverted: boolean = true) {
         if (value === '') {
             value = operation
@@ -389,6 +457,7 @@ export class PagesQueryBuilder {
         value = value.toString()
         return this._filter(new ReferenceCountFilter(value, operation), nonInverted)
     }
+
     tags(names: string | string[] = '', only: boolean = false) {
         const cloned = this._filter(new PropertyFilter('tags'))
         return cloned._filter(new ReferenceFilter(names, only ? 'includes only' : 'includes'))

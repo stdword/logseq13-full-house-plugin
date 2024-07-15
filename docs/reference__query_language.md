@@ -373,13 +373,13 @@ Filter by page empty (or non-empty) property value. *Note*: the page may have no
 
 
 #### `.integerValue`
-Filter by page property value. *Note*: this filter treats properties values as an integer numbers.
+Filter by page property **integer** value.
 
 ?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
 
-!> Property values could be a mix of integers and strings, which introduces some caveats: \
-For `=` and `!=` operations, all string values (including empty strings) will be ignored. \
-For other comparison operations, all string values will be considered greater than integer values, and there is no way to filter out string values.
+!> Property values could be a mix of integers or strings (or sets of references), which introduces comparison caveat: **any string values will be considered greater than integer values**. \
+\
+If you need to filter out some values types, use [`.valueType`](#filter-value-type) filter.
 
 - `.integerValue(number)` — shortcut for `.integerValue('=', number)`
 - `.integerValue(operation, number)`
@@ -405,9 +405,13 @@ For other comparison operations, all string values will be considered greater th
 
 
 #### `.value` :id=filter-value
-Filter by page property value. *Note*: this filter treats properties values as strings.
+Filter by page property **string** value.
 
 ?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
+
+!> Property values could be a mix of integers or strings (or sets of references), which introduces comparison caveat: **any string values will be considered greater than integer values**. \
+\
+If you need to filter out some values types, use [`.valueType`](#filter-value-type) filter.
 
 !> Note for comparison operations: empty string value is less than any other string
 
@@ -437,6 +441,41 @@ before 2020: 315 (241 empty) \
 after 2020: 10 (0 empty)
 
 <!-- tabs:end -->
+
+
+
+#### `.valueType` & `.string` & `.number` :id=filter-value-type
+Filter by page property value type.
+
+?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
+
+- `.onlyStrings()` — shortcut for `.valueType(['string'])`
+- `.onlyNumbers()` — shortcut for `.valueType(['number'])`
+- `.valueType(choices)`
+- `.valueType(choices, false)` — inversion form
+    - `choices`: array of strings: `string`, `number` or `set`
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+var all = query.pages()
+    .property('year')
+    .nonEmpty()
+var withNumberYear = all.onlyNumbers().get()
+var withStringYear = all.onlyStrings().get()
+_}``
+
+year as number count: ``withNumberYear.length``
+year as string: ``withStringYear.map(p => p.props.year)``
+```
+
+#### ***Rendered***
+number years count: 92
+string years: 1947-1977 (набор эссе), 1955-1963, 1991 & 2017
+
+<!-- tabs:end -->
+
 
 
 #### `.reference` & `.tags` & `.noTags`
