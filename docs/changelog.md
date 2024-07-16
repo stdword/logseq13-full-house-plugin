@@ -1,6 +1,8 @@
 ## NEXT
 
-- **Query language for pages**: [`.valueType`](reference__query_language.md#filter-value-type) filter with `.onlyStrings` & `.onlyNumbers` shortcuts to filter properties values by type.
+- **Query language for pages**:
+  - [`.valueType`](reference__query_language.md#filter-value-type) filter with `.onlyStrings` & `.onlyNumbers` shortcuts to filter properties by values' type.
+  - [`.journals` & `.day`](reference__query_language.md#filter-journals) filter deal with journal pages.
 
 
 

@@ -2,7 +2,7 @@ import '@logseq/libs'
 import { PageEntity } from '@logseq/libs/dist/LSPlugin'
 
 import { escape, f, p, randomRange, unspace } from './utils'
-import { PageContext } from './context'
+import { Dayjs, dayjs, PageContext } from './context'
 
 
 abstract class Filter {
@@ -48,6 +48,11 @@ class TitleFilter extends Filter {
         super(value)
         this.operation = operation.trim().toLowerCase()
     }
+    checkArgs(builder: PagesQueryBuilder): string | null {
+        if (!this.allowedOperations.includes(this.operation))
+            return `Unknown operation: ${this.operation}`
+        return null
+    }
     getPredicate(builder: PagesQueryBuilder): string {
         if (this.operation === 'regexp') {
             const uniqID = Math.random().toString(36).slice(2)
@@ -78,6 +83,72 @@ class TitleFilter extends Filter {
         }
 
         return super.getNotPredicate(builder)
+    }
+}
+
+
+class JournalFilter extends Filter {
+    constructor() {
+        super('')
+    }
+    checkArgs(builder: PagesQueryBuilder): string | null {
+        return null
+    }
+    getPredicate(builder: PagesQueryBuilder): string {
+        return '[?p :block/journal? true]'
+    }
+    getNotPredicate(builder: PagesQueryBuilder): string {
+        return '[?p :block/journal? false]'
+    }
+}
+
+
+class JournalDayFilter extends Filter {
+    day: Dayjs
+    operation: string
+    allowedOperations = ['=', '!=', '>', '>=', '<', '<=']
+    bindingVars = (state) => [
+        ['?day', '[?p :block/journal-day ?day]']
+    ]
+
+    constructor(day: Dayjs | string, operation: string) {
+        super('')
+        this.operation = operation.trim().toLowerCase()
+
+        // @ts-expect-error
+        this.day = dayjs(day).toLogseqInternalFormat()
+    }
+    checkArgs(builder: PagesQueryBuilder): string | null {
+        if (!this.allowedOperations.includes(this.operation))
+            return `Unknown operation: ${this.operation}`
+        return null
+    }
+    getPredicate(builder: PagesQueryBuilder): string {
+        return `[(${this.operation} ?day ${this.day})]`
+    }
+}
+
+
+class JournalDayBetweenFilter extends Filter {
+    left: Dayjs
+    right: Dayjs
+
+    bindingVars = (state) => [
+        ['?day', '[?p :block/journal-day ?day]']
+    ]
+
+    constructor(left: Dayjs, right: Dayjs) {
+        super('')
+        // @ts-expect-error
+        this.left = dayjs(left).toLogseqInternalFormat()
+        // @ts-expect-error
+        this.right = dayjs(right).toLogseqInternalFormat()
+    }
+    checkArgs(builder: PagesQueryBuilder): string | null {
+        return null
+    }
+    getPredicate(builder: PagesQueryBuilder): string {
+        return `[(>= ?day ${this.left})]` + '\n' + `[(<= ?day ${this.right})]`
     }
 }
 
@@ -396,6 +467,53 @@ export class PagesQueryBuilder {
             value = value + '/'
         value = `^${value}[^/]+$`
         return this._filter(new TitleFilter(value, 'regexp'), nonInverted)
+    }
+
+    journals(nonInverted: boolean = true) {
+        return this._filter(new JournalFilter(), nonInverted)
+    }
+    day(operation: string, value: Dayjs | string, thirdArg?: Dayjs | string | boolean, nonInverted: boolean = true) {
+        value = dayjs(value)
+
+        if (operation === 'between') {
+            if (!thirdArg || !['object', 'string'].includes(typeof thirdArg))
+                throw new Error('Journal filter: Third argument must be a date')
+
+            if (typeof thirdArg === 'string')
+                thirdArg = dayjs(thirdArg)
+
+            const a = value
+            const b = thirdArg as Dayjs
+            return this._filter(new JournalDayBetweenFilter(a, b), nonInverted)
+        }
+        else if (operation === 'in') {
+            if (!thirdArg || typeof thirdArg !== 'string')
+                throw new Error('Journal filter: Third argument must be a string')
+
+            const allowed = ['year', 'quarter', 'month', 'week', 'isoweek'] as const
+            type Mode = typeof allowed[number]
+            const mode = thirdArg.toLowerCase() as Mode
+            if (!allowed.includes(mode))
+                throw new Error(
+                    `Journal filter: Wrong value ("${mode}") — use one of: ${allowed.join(', ')}`
+                )
+
+            // @ts-expect-error
+            const a = value.startOf(mode)
+            // @ts-expect-error
+            const b = value.endOf(mode)
+
+            return this._filter(new JournalDayBetweenFilter(a, b), nonInverted)
+        }
+
+        if (thirdArg !== undefined) {
+            if (typeof thirdArg !== 'boolean')
+                throw new Error('Journal filter: Third argument must be a boolean')
+
+            nonInverted = thirdArg as boolean
+        }
+
+        return this._filter(new JournalDayFilter(value, operation), nonInverted)
     }
 
     property(name: string) {

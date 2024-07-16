@@ -64,6 +64,9 @@ export default (option, dayjsClass, dayjsFactory) => {
     dayjsClass.prototype.toPage = function(args) {
         return formatLikeJournalPage(this)
     }
+    dayjsClass.prototype.toLogseqInternalFormat = function(args) {
+        return Number(this.format('YYYYMMDD'))
+    }
 
     // extend dayjs
     Object.defineProperty(

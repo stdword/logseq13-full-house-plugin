@@ -293,6 +293,48 @@ Filter by page title.
 
 
 
+#### `.journals` & `.day` :id=filter-journals
+Filter by journal pages.
+
+- `.journals()` — filter only journals
+- `.journals(false)` — inversion form (only non-journal pages)
+
++ `.day(operation, value)` — filter by specified date
++ `.day(operation, value, false)` — inversion form
+    - `operation`: `=`, `!=`, `>`, `>=`, `<`, `<=`
+    - `value`: date value (dayjs object or string representing date)
+
+- `.day('between', left, right)` — filter between: `left <= DAY <= right`
+- `.day('between', left, right, false)` — inversion form
+    - `left` & `right`: date value (dayjs object or string representing date)
+
++ `.day('in', value, interval)` — filter in time interval
++ `.day('in', value, interval, false)` — inversion form
+    - `interval`: `year`, `quarter`, `month`, `week`, `isoWeek` (according to [`Dayjs`](https://day.js.org/docs/en/manipulate/start-of#docsNav))
+    - `value`: date value (dayjs object or string representing date)
+
+?> Any `.day(...)` filter implies `.journals()`, even with inversion form:
+`.day('=', today, false)` — means all **journal** pages (except of today), **without non-journal pages**
+
+<!-- tabs:start -->
+#### ***Template***
+- `.journals().get().length` — all journals
+- `.day('>=', '2024').get().length` — journals for 2024 year
+- `.day('in', today, 'year').get().length` — journals for 2024 year
+- `.day('in', date.today.subtract(1, 'month'), 'month').get().length` — journals for the last month
+- `.day('between', '2024-07-07', '2024-08-08').get().length` — journals for specified date range
+
+#### ***Rendered***
+- 475 — all journals
+- 87 — journals for 2024 year
+- 87 — journals for 2024 year
+- 9 — journals for the last month
+- 2 — journals for specified date range
+
+<!-- tabs:end -->
+
+
+
 #### `.namespace` & `.innerNamespace`
 Filter by page namespace.
 
@@ -327,6 +369,7 @@ Filter by page namespace.
   logseq/themes
 
 <!-- tabs:end -->
+
 
 
 #### `.property` & `.noProperty` :id=filter-property
@@ -372,6 +415,7 @@ Filter by page empty (or non-empty) property value. *Note*: the page may have no
 <!-- tabs:end -->
 
 
+
 #### `.integerValue`
 Filter by page property **integer** value.
 
@@ -402,6 +446,7 @@ If you need to filter out some values types, use [`.valueType`](#filter-value-ty
     - 241 of them with empty year
 
 <!-- tabs:end -->
+
 
 
 #### `.value` :id=filter-value
@@ -516,6 +561,7 @@ finished: 62 \
 best: 13
 
 <!-- tabs:end -->
+
 
 
 #### `.referenceCount` :id=filter-reference-count
