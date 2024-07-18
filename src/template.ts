@@ -260,7 +260,11 @@ export class Template implements ITemplate {
 
             // check for cursor positioning
             if (state.cursorPosition)
-                data.cursorPosition = true
+                data.selectionPositions = []  // just make a mark for cursor
+
+            // specify the UUID for block
+            if (state.setUUID)
+                data.setUUID = state.setUUID
 
             // check creating new blocks
             if (state.spawnedBlocks)
@@ -274,6 +278,7 @@ export class Template implements ITemplate {
 
             return result.toString()
         })
+
 
         // spread the tree: add new blocks
         const insertAfter = [] as [number[], IBlockNode[]][]
@@ -290,8 +295,7 @@ export class Template implements ITemplate {
         for (const [path, blocks] of insertAfter)
             insertTreeNodes(tree, path, blocks)
 
-
-        // find blocks with cursor positioning
+        // setup every new node
         walkBlockTree(tree, (b, lvl, path) => {
             prepareRenderedNode(b)
         })
@@ -304,7 +308,8 @@ export class Template implements ITemplate {
 }
 
 export function prepareRenderedNode(node: IBlockNode, opts?: {cursorPosition?: true}) {
-    if (opts?.cursorPosition || node.data?.cursorPosition) {
+    // find blocks with cursor positioning
+    if (opts?.cursorPosition || node.data?.selectionPositions) {
         node.data = node.data ?? {}
 
         const selectionPositions = [] as number[]
@@ -312,7 +317,13 @@ export function prepareRenderedNode(node: IBlockNode, opts?: {cursorPosition?: t
 
         if (selectionPositions.length)
             node.data.selectionPositions = selectionPositions
-        delete node.data.cursorPosition
+    }
+
+    // set the specified uuid
+    if (node.data?.setUUID) {
+        const uuid = node.data?.setUUID
+        node.properties = node.properties ?? {}
+        Object.assign(node.properties, {id: uuid})
     }
 }
 

@@ -4,6 +4,30 @@
 
 
 ## `blocks`
+### `.uuid` :id=blocks-uuid
+Gets the UUID of future block (after template insertion).
+
+`blocks.uuid()` — return UUID string
+
+<!-- tabs:start -->
+#### ***Template***
+```
+- template:: test
+  - A ``{ var uuid = blocks.uuid() }``
+  - B with ref to A: ``[uuid]``
+```
+
+#### ***Rendered***
+```
+- A
+  id:: 66995bfb-1891-47fa-95a6-39d9539ad42d
+- B with ref to A: ((66995bfb-1891-47fa-95a6-39d9539ad42d))
+```
+
+<!-- tabs:end -->
+
+
+
 ### `.spawn` & `.append` :id=blocks-spawn
 Creates blocks related to current at runtime. There could be child blocks (*spawned*) and sibling blocks (*appended*).
 

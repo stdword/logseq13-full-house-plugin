@@ -889,6 +889,31 @@ function cursor(c: C) {
 
 
 /* «blocks» namespace */
+function blocks_uuid(c: C) {
+    const env = _env(c)
+
+    let uuid: string
+    // prevent uuid collisions
+    while (true) {
+        uuid = dev_uuid()
+
+        // @ts-expect-error
+        const block = top!.logseq.api.get_block(uuid)
+        if (block)
+            continue
+
+        // @ts-expect-error
+        const page = top!.logseq.api.get_page(uuid)
+        if (page)
+            continue
+
+        break
+    }
+
+    env.state({setUUID: uuid})
+    return uuid
+}
+
 function _blocks_insert_single(c: C, isSibling: boolean, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
     const env = _env(c)
     const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
@@ -1027,6 +1052,7 @@ export function getTemplateTagsContext(context: C) {
         cursor: bindContext(cursor, context),
 
         blocks: new Context({
+            uuid: bindContext(blocks_uuid, context),
             spawn: blocks_spawn_,
             append: blocks_append_,
         }),
