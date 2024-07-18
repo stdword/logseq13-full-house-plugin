@@ -343,9 +343,12 @@ async (
     const result = await renderTemplate(slot, template, args, currentContext)
     const {rendered, headTail: [head, tail], context} = result
 
-    const toInsert = head.content
+    const headProps = PropertiesUtils.getPropertiesFromString(head.content)
+    Object.assign(headProps, head.properties)
+
     const oldContent = context.currentBlock.content!
     const toReplace = rawCode.toPattern()
+    const toInsert = PropertiesUtils.deleteAllProperties(head.content)
     const newContent = oldContent.replace(toReplace, toInsert)
     if (newContent === oldContent) {
         if (oldContent.search(/\{\{\s*\w+\s*.*?\}\}/g) !== -1)
@@ -361,7 +364,7 @@ async (
     if (head.children && head.children.length)
         await logseq.Editor.insertBatchBlock(uuid, head.children, { sibling: false })
 
-    await logseq.Editor.updateBlock(uuid, newContent)
+    await logseq.Editor.updateBlock(uuid, newContent, {properties: headProps})
 
     if (tail.length)
         await logseq.Editor.insertBatchBlock(uuid, tail, { sibling: true })

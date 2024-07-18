@@ -517,7 +517,7 @@ export class PropertiesUtils {
     static readonly templateUsageProperty = 'template-usage'
     static readonly includingParentProperty = 'template-including-parent'
 
-    static propertyContentFormat = f`\n?^[^\\S]*${'name'}::.*$`
+    static propertyContentFormat = f`\n?^[^\\S]*${'name'}::(.*)$`
     static propertyRestrictedChars = '\\s:;,^@#~"`/|\\(){}[\\]'
 
     static toCamelCase(text: string): string {
@@ -648,6 +648,14 @@ export class PropertiesUtils {
         }
 
         return {values, refs}
+    }
+    static getPropertiesFromString(text: string): Record<string, any> {
+        const props: Record<string, any> = {}
+        const propertyLine = new RegExp(PropertiesUtils.propertyContentFormat({
+            name: `([^${PropertiesUtils.propertyRestrictedChars}]+)`
+        }), 'gim')
+        text.replaceAll(propertyLine, (m, name, value) => {props[name] = value.trim(); return m})
+        return props
     }
 }
 
