@@ -3,6 +3,7 @@ import { Mldoc } from 'mldoc'
 import { ArgsContext, ILogseqContext } from '../context'
 import { cleanMacroArg, Macro, RendererMacro } from '../utils/logseq'
 import { escapeForHTML, html, p } from '../utils/other'
+import { isUUID } from '../utils/parsing'
 
 
 const MLDOC_OPTIONS = {
@@ -367,14 +368,15 @@ export class MldocASTtoHTMLCompiler {
     }
 
     createBlockRef(uuid: string, label: string): string {
-        const uuidLabel = `((${uuid}))`
+        uuid = uuid.toString()
+
         // @ts-expect-error
-        const block = top!.logseq.api.get_block(uuid)
+        const block = isUUID(uuid) ? top!.logseq.api.get_block(uuid) : null
         if (!block)
             return html`
                 <span title="Reference to non-existent block"
                       class="warning mr-1"
-                    >${uuidLabel}</span>
+                    >((${uuid}))</span>
             `
 
         label = escapeForHTML(label.trim())
