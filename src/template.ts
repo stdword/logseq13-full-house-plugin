@@ -307,7 +307,7 @@ export class Template implements ITemplate {
     }
 }
 
-export function prepareRenderedNode(node: IBlockNode, opts?: {cursorPosition?: true}) {
+export function prepareRenderedNode(node: IBlockNode, opts?: {cursorPosition?: true, setUUID?: string}) {
     // find blocks with cursor positioning
     if (opts?.cursorPosition || node.data?.selectionPositions) {
         node.data = node.data ?? {}
@@ -320,8 +320,8 @@ export function prepareRenderedNode(node: IBlockNode, opts?: {cursorPosition?: t
     }
 
     // set the specified uuid
-    if (node.data?.setUUID) {
-        const uuid = node.data?.setUUID
+    if (opts?.setUUID || node.data?.setUUID) {
+        const uuid = opts?.setUUID || node.data?.setUUID
         node.properties = node.properties ?? {}
         Object.assign(node.properties, {id: uuid})
     }

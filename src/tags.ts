@@ -918,8 +918,11 @@ function blocks_uuid(c: C) {
     return uuid
 }
 
-function _blocks_insert_single(c: C, isSibling: boolean, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
-    const env = _env(c)
+function _blocks_insert_single(
+    context: C, isSibling: boolean, content: string, properties?: Record<string, any>,
+    opts?: {cursorPosition?: true, setUUID?: string},
+) {
+    const env = _env(context)
     const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
     const blocks = env.state()[attr] ?? []
 

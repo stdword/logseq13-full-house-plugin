@@ -4,29 +4,6 @@
 
 
 ## `blocks`
-### `.uuid` :id=blocks-uuid
-Gets the UUID of future block (after template insertion).
-
-`blocks.uuid()` — return UUID string
-
-<!-- tabs:start -->
-#### ***Template***
-```
-- template:: test
-  - A ``{ var uuid = blocks.uuid() }``
-  - B with ref to A: ``[uuid]``
-```
-
-#### ***Rendered***
-```
-- A
-  id:: 66995bfb-1891-47fa-95a6-39d9539ad42d
-- B with ref to A: ((66995bfb-1891-47fa-95a6-39d9539ad42d))
-```
-
-<!-- tabs:end -->
-
-
 
 ### `.spawn` & `.append` :id=blocks-spawn
 Creates blocks related to current at runtime. There could be child blocks (*spawned*) and sibling blocks (*appended*).
@@ -35,8 +12,9 @@ Creates blocks related to current at runtime. There could be child blocks (*spaw
 `blocks.append(content, properties?, data?)` — create sibling block
 - `content`: string with block's content
 - `properties`: (optional) object with block's properties and it's values
-- `data`: (optional) additional setup for the block
-    - Currently the only value could be `{cursorPosition: true}`. See example [here](reference__syntax.md#cursor-positioning) for additional details.
+- `data`: (optional) additional setup for the block. Object with keys:
+    - `cursorPosition: true` to set cursor position. See example [here](reference__syntax.md#cursor-positioning) for additional details.
+    - `setUUID: '669958b1-ade...'` to set UUID for the future block. See example [here](#blocks-uuid) for additional details.
 
 
 `blocks.spawn.tree(node)` — create child tree <br/>
@@ -85,6 +63,52 @@ Creates blocks related to current at runtime. There could be child blocks (*spaw
     - Hello, Logseq!
         - Hello, plugin! \
           plugin:: Full House Templates
+
+<!-- tabs:end -->
+
+
+
+### `.uuid` :id=blocks-uuid
+Gets the UUID of future block (after template insertion).
+
+`blocks.uuid()` — return UUID string
+
+<!-- tabs:start -->
+#### ***Template***
+```
+- template:: test
+  - A ``{ var uuid = blocks.uuid() }``
+  - B with ref to A: ``[uuid]``
+```
+
+#### ***Rendered***
+```
+- A
+  id:: 66995bfb-1891-47fa-95a6-39d9539ad42d
+- B with ref to A: ((66995bfb-1891-47fa-95a6-39d9539ad42d))
+```
+
+<!-- tabs:end -->
+
+To get the UUID of [spawned blocks](#blocks-spawn), use *setUUID* parameter and [`dev.uuid`](reference__tags_dev.md#dev-uuid) template tag:
+
+<!-- tabs:start -->
+#### ***Template***
+- ```javascript
+  ``{
+      const uuid = dev.uuid()
+      blocks.spawn('Hello, Logseq!', null, {setUUID: uuid})
+  }``
+  ```
+- ```javascript
+  ``{
+      const uuid = dev.uuid()
+      blocks.spawn.tree({
+        content: 'Hello, Full House Templates!',
+        data: {setUUID: uuid},
+      })
+  }``
+  ```
 
 <!-- tabs:end -->
 
