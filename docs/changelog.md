@@ -4,11 +4,10 @@
   - [`.valueType`](reference__query_language.md#filter-value-type) filter with `.onlyStrings` & `.onlyNumbers` shortcuts to filter properties by values' type.
   - [`.journals` & `.day`](reference__query_language.md#filter-journals) filter deal with journal pages.
 - New template tag [`blocks.uuid`](reference__tags_advanced.md#blocks-uuid) for creating block references between template blocks.
-
   <img width="400px" src="https://github.com/user-attachments/assets/ac0d6a63-f9ff-48f6-9f92-a37d2283a8ca"/>
-
 - New array function [`.zipWith`](reference__syntax.md#extended-array-type).
 - New argument for [`dev.uuid`](reference__tags_dev.md#dev-uuid) template tag to prevent UUID collision with existed blocks & pages.
+- [Mixed way](reference__args.md#args-accessing-mixed) of accessing template arguments.
 
 
 ## v4.0 :id=v40
