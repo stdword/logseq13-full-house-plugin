@@ -915,6 +915,11 @@ function cursor(c: C) {
 
 /* «blocks» namespace */
 function blocks_uuid(c: C) {
+    // no need to set uuid for block while rendering view
+    // it is always single block
+    if (c.mode === 'view')
+        return c.currentBlock.uuid!
+
     const isHeadTemplateBlock = c.template!.includingParent
         ? c.template!.block.id === c.self!.id
         : (c.template!.block.children![0] as BlockEntity).id === c.self!.id
