@@ -359,20 +359,6 @@ async (
         return
     }
 
-    // handle replacement for all ((refs)) of head block
-    if (headProps.id && context.currentBlock.uuid !== headProps.id) {
-        const realUUID = context.currentBlock.uuid
-
-        walkBlockTree(rendered, (b, lvl, path) => {
-            const blockRefRegex = new RegExp(`\\(\\(${headProps.id}\\)\\)`, 'g')
-            b.content = b.content.replaceAll(blockRefRegex, (m, ref) => {
-                return `((${realUUID}))`
-            })
-        })
-
-        headProps.id = realUUID
-    }
-
     // WARNING: it is important to call `.insertBatchBlock` before `.updateBlock`
     // due to @logseq/lib bug on batch inserting to empty block (content == '')
     if (head.children && head.children.length)

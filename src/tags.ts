@@ -587,14 +587,35 @@ function dev_dump(obj: any) {
     })
     return '<pre>' + obj + '</pre>'
 }
-function dev_uuid(shortForm: boolean = false) {
+function dev_uuid(shortForm: boolean = false, forBlock: boolean = false) {
     if (shortForm) {
         let value = Math.random().toString(36).slice(2)
         if (value.length < 11)
             value += '0'
         return value
     }
-    return crypto.randomUUID()
+
+    if (!forBlock)
+        return crypto.randomUUID()
+
+    // prevent uuid collisions with existed blocks & pages
+    let uuid: string
+    while (true) {
+        uuid = crypto.randomUUID()
+
+        // @ts-expect-error
+        const block = top!.logseq.api.get_block(uuid)
+        if (block)
+            continue
+
+        // @ts-expect-error
+        const page = top!.logseq.api.get_page(uuid)
+        if (page)
+            continue
+
+        break
+    }
+    return uuid
 }
 function dev_parseMarkup(context: C, text: string): MLDOC_Node[] {
     text = _asString(text)
@@ -894,27 +915,17 @@ function cursor(c: C) {
 
 /* «blocks» namespace */
 function blocks_uuid(c: C) {
+    const isHeadTemplateBlock = c.template!.includingParent
+        ? c.template!.block.id === c.self!.id
+        : (c.template!.block.children![0] as BlockEntity).id === c.self!.id
+
+    const uuid = isHeadTemplateBlock
+        ? c.currentBlock.uuid!
+        : dev_uuid(false, true)
+
     const env = _env(c)
-
-    let uuid: string
-    // prevent uuid collisions
-    while (true) {
-        uuid = dev_uuid()
-
-        // @ts-expect-error
-        const block = top!.logseq.api.get_block(uuid)
-        if (block)
-            continue
-
-        // @ts-expect-error
-        const page = top!.logseq.api.get_page(uuid)
-        if (page)
-            continue
-
-        break
-    }
-
     env.state({setUUID: uuid})
+
     return uuid
 }
 

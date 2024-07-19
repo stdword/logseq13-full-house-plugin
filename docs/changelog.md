@@ -8,6 +8,7 @@
   <img width="400px" src="https://github.com/user-attachments/assets/ac0d6a63-f9ff-48f6-9f92-a37d2283a8ca"/>
 
 - New array function [`.zipWith`](reference__syntax.md#extended-array-type).
+- New argument for [`dev.uuid`](reference__tags_dev.md#dev-uuid) template tag to prevent UUID collision with existed blocks & pages.
 
 
 ## v4.0 :id=v40

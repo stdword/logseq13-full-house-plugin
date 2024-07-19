@@ -3,8 +3,9 @@
 ### `.uuid` :id=dev-uuid
 Generate random UUID identifier.
 
-`dev.uuid(shortForm? = false)`
+`dev.uuid(shortForm? = false, forBlock? = false)`
 - `shortForm`: (optional) use 11-digit form instead of long 32-digit one (default: false)
+- `forBlock`: (optional) check for existed blocks & pages UUID before (default: false)
 
 <!-- tabs:start -->
 #### ***Template***
