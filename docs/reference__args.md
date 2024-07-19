@@ -24,7 +24,7 @@ Specify named arguments in the form «:name value» (colon is required).
 `{{renderer :template, "test", :firstArg "13", value, :last-arg "with,commas"}}`
 <!-- tabs:end -->
 
-- Disable named arguments with «::» — it becomes positional
+- Escape named arguments with «::» — it becomes positional
 
 <!-- tabs:start -->
 #### ***Command***
@@ -148,14 +148,12 @@ Also the will be copied to args **without** «?» at the end of the name (if the
 <!-- panels:end -->
 
 
+
 ## Accessing :id=accessing
-<!-- panels:start -->
-<!-- div:left-panel -->
-By argument name:
 
-**Note**: argument without value is *boolean*
+### By argument name
+?> **Note**: argument without value is *boolean*
 
-<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Command***
 Boolean: `{{renderer :view, "c.args.test", :test}}` \
@@ -172,12 +170,12 @@ String: 13 \
 String: 13
 <!-- tabs:end -->
 
-<!-- div:left-panel -->
-By argument name with inappropriate characters:
+
+
+### By argument name with inappropriate characters
 
 *E.g.* «-», «+», «.», etc.
 
-<!-- div:right-panel -->
 <!-- tabs:start -->
 #### ***Command***
 `{{renderer :view, "c.args['test-arg']", :test-arg}}`
@@ -186,37 +184,29 @@ By argument name with inappropriate characters:
 true
 <!-- tabs:end -->
 
-<!-- div:left-panel -->
-By argument position:
 
-**Note**: counting starts from 1
 
-<!-- div:right-panel -->
+### By argument position
+
 <!-- tabs:start -->
 #### ***Command***
 `{{renderer :view, "c.args[0]", 13}}`: template name \
 `{{renderer :view, "c.args[1]", 13}}`: first \
 `{{renderer :view, "c.args[2]", 13}}`: second (empty value)
 
-No colon → no named arg (empty value):
-`{{renderer :view, "c.args.test", 13}}`
-
 #### ***Rendered***
 \_\_inline\_\_: template name \
 13: first \
 : second (empty value)
 
- No colon → no named arg (empty value):
-
 <!-- tabs:end -->
 
 
-<!-- div:left-panel -->
-By argument position, excluding named ones:
 
-**Note**: counting starts from 1
+### By argument position, excluding named ones
 
-<!-- div:right-panel -->
+?> **Note**: position count starts from 1
+
 <!-- tabs:start -->
 #### ***Command***
 `{{renderer :view, "c.args.$1", :first 1}}`: no positional \
@@ -227,4 +217,34 @@ By argument position, excluding named ones:
 2: second
 <!-- tabs:end -->
 
-<!-- panels:end -->
+
+
+### Mixing named & positional access
+
+<!-- tabs:start -->
+#### ***Command***
+`{{renderer :view, "c.args.name$1", 13, :name 7}}` \
+`{{renderer :view, "c.args.name$1", :name 7, 13}}` \
+`{{renderer :view, "c.args.name$1", 13, :test 7}}` \
+`{{renderer :view, "c.args.name$1", :test 7, 13}}`
+
+#### ***Rendered***
+7 \
+7 \
+13 \
+13
+<!-- tabs:end -->
+
+<!-- tabs:start -->
+#### ***Command***
+`{{renderer :view, "c.args.$1name", 13, :name 7}}` \
+`{{renderer :view, "c.args.$1name", :name 7, 13}}` \
+`{{renderer :view, "c.args.$1name", :test 13, :name 7}}` \
+`{{renderer :view, "c.args.$1name", :name 7, :test 13}}`
+
+#### ***Rendered***
+13 \
+13 \
+7 \
+7
+<!-- tabs:end -->

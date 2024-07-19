@@ -423,8 +423,30 @@ export class ArgsContext extends Context {
                 if (typeof name === 'symbol')
                     return value
 
-                if (typeof value !== 'function' && !name.startsWith('_')) {
-                    // console.debug(p`Get args.${name.toString()} :: ${value}`)
+                if (typeof value === 'function' || name.startsWith('_'))
+                    return value
+
+                // handle "name$1" special case
+                let match = /(.+?)\$(\d+)/.exec(name)
+                if (match) {
+                    const [ tryName, tryPosition ] = [ match[1], Number(match[2]) ]
+
+                    let tryValue = target[tryName]
+                    if (tryValue === undefined)
+                        tryValue = target[`$${tryPosition}`]
+                    if (tryValue !== undefined)
+                        return tryValue
+                }
+
+                // handle "$1name" special case
+                match = /\$(\d+)(.+)/.exec(name)
+                if (match) {
+                    const [ tryName, tryPosition ] = [ match[2], Number(match[1]) ]
+                    let tryValue = target[`$${tryPosition}`]
+                    if (tryValue === undefined)
+                        tryValue = target[tryName]
+                    if (tryValue !== undefined)
+                        return tryValue
                 }
 
                 if (value === undefined)
