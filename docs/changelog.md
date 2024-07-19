@@ -7,6 +7,7 @@
 
   <img width="400px" src="https://github.com/user-attachments/assets/ac0d6a63-f9ff-48f6-9f92-a37d2283a8ca"/>
 
+- New array function [`.zipWith`](reference__syntax.md#extended-array-type).
 
 
 ## v4.0 :id=v40

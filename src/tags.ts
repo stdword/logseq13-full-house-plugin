@@ -835,12 +835,16 @@ function parse_cleanMarkup(context: C, obj: string | MLDOC_Node[], opts?: {clean
 
 
 /* internal */
-function array_zip(...arr: any[]) {
+function array_zip(...arrs: any[][]) {
     return Array(
-        Math.min(...arr.map(a => a.length))
+        Math.min(...arrs.map(a => a.length))
     )
     .fill(undefined)
-    .map((_, i) => arr.map(a => a[i]))
+    .map((_, i) => arrs.map(a => a[i]))
+}
+function array_zipWith(...arrs: any[][]) {
+    // @ts-expect-error
+    return array_zip(this, ...arrs)
 }
 function array_unique() {
     // @ts-expect-error
@@ -969,6 +973,9 @@ function bindContext(f, context) {
 function _initContext() {
     // @ts-expect-error
     Array.zip = array_zip
+    // @ts-expect-error
+    Array.prototype.zipWith = array_zipWith
+
     // @ts-expect-error
     Array.prototype.unique = array_unique
     // @ts-expect-error

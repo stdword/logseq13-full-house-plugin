@@ -247,23 +247,25 @@ To position cursor inside [spawned blocks](reference__tags_advanced.md#blocks-sp
 ### Extended `Array` type :id=extended-array-type
 The `Array` type is extended with helpful functions:
 - `Array.zip(...arrays)`
-- `Array.unique()`
-- `Array.sorted(keyfunc)`
-- `Array.groupby(keyfunc, wrapToObject? = true)`
-- `Array.countby(keyfunc, wrapToObject? = true)`
+- `.zipWith(...arrays)`
+- `.unique()`
+- `.sorted(keyfunc)`
+- `.groupby(keyfunc, wrapToObject? = true)`
+- `.countby(keyfunc, wrapToObject? = true)`
 
 <!-- tabs:start -->
 #### ***Template***
 - ```javascript
-  ``Array.zip([1, 2, 3], ['a', 'b'])``
+  Array.zip([1, 2, 3], ['a', 'b'])
+  [1, 2, 3].zipWith(['a', 'b'])
   ```
 - ```javascript
-  ``[1, 2, 2, 3, 2, 1, 1].unique()``
+  [1, 2, 2, 3, 2, 1, 1].unique()
   ```
 
 #### ***Rendered***
-- [[1,"a"], [2,"b"]]
-- 1,2,3
+- [[1, "a"], [2, "b"]]
+- [1, 2, 3]
 
 <!-- tabs:end -->
 
@@ -280,14 +282,14 @@ The `Array` type is extended with helpful functions:
   ]
   ```
 - ```javascript
-  ``items.sorted((x) => [x.type, x.quantity]).join('\n')``
+  items.sorted((x) => [x.type, x.quantity]).join('\n')
   ```
 - ```javascript
-  ``items.groupby((x) => x.type)``
+  items.groupby((x) => x.type)
   ```
 - ```javascript
-  ``items.countby((x) => x.type)``
-  ``items.countby((x) => x.type, false)``
+  items.countby((x) => x.type)
+  items.countby((x) => x.type, false)
   ```
 
 #### ***Rendered***
@@ -316,13 +318,14 @@ The `Array` type is extended with helpful functions:
 }
 ```
 - ```javascript
-  // .countby
+  // .countby wrapped to object
   {
       "vegetables": 1,
       "fruit": 2,
       "meat": 2
   }
 
+  // .countby non-wrapped
   [ ["vegetables", 1], ["fruit", 2], ["meat", 2] ]
   ```
 
