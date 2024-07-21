@@ -517,6 +517,9 @@ export class ConfigContext extends Context {
     constructor(settings: any, currentGraph: any, config: any, other: any) {
         super()
 
+        // @ts-expect-error
+        this._settings = settings
+
         this.graph = {
             name: currentGraph!.name,
             path: currentGraph!.path,

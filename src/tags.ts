@@ -29,6 +29,7 @@ import {
 import { StateError } from './errors'
 import { ITemplate, prepareRenderedNode, Template } from './template'
 import { PagesQueryBuilder } from './query'
+import { query_table_no_save_state, query_table_save_state } from './ui/query-table'
 
 
 const isoDateFromat = 'YYYY-MM-DD'
@@ -78,7 +79,7 @@ function _is_bref(item: string): boolean {
     return item.startsWith('((') && item.endsWith('))')
 }
 
-function ref(item: string | BlockContext | PageContext | Dayjs, label: string | null = null): string {
+export function ref(item: string | BlockContext | PageContext | Dayjs, label: string | null = null): string {
     item = item ?? ''
 
     if (item instanceof dayjs) {
@@ -481,7 +482,6 @@ function date_from_journal(day: number | string | Dayjs): Dayjs | null {
 function query_pages() {
     return new PagesQueryBuilder()
 }
-
 function query_refsCount(context: C, page: PageContext | string = '') {
     let name = context.page.name!
     if (page instanceof PageContext)
@@ -624,7 +624,7 @@ function dev_parseMarkup(context: C, text: string): MLDOC_Node[] {
 function dev_compileMarkup(context: C, nodes: MLDOC_Node[]) {
     return new MldocASTtoHTMLCompiler(context).compile(nodes)
 }
-function dev_toHTML(context: C, text: string): string {
+export function dev_toHTML(context: C, text: string): string {
     text = _asString(text)
     return new LogseqMarkup(context).toHTML(text)
 }
@@ -886,7 +886,7 @@ function array_countby(key: Function, wrapToObject: boolean = true) {
         return Object.fromEntries(counted)
     return counted
 }
-function array_sorted(key: Function) {
+export function array_sorted(key: Function) {
     // @ts-expect-error
     return this
         .map((x) => [(key ? key(x) : x), x])
@@ -1090,6 +1090,8 @@ export function getTemplateTagsContext(context: C) {
         }),
 
         query: new Context({
+            table: bindContext(query_table_no_save_state, context),
+            table_: bindContext(query_table_save_state, context),
             pages: query_pages,
             refs: new Context({
                 count: bindContext(query_refsCount, context),

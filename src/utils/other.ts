@@ -142,17 +142,26 @@ export function escapeForHTML(unsafe: string) {
         .replaceAll('>', '&gt;')
         .replaceAll('"', "&quot;")
         .replaceAll("'", '&#039;')
- }
+}
+
+export function unescapeHTML(safe: string) {
+    return safe
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll("&quot;", '"')
+        .replaceAll('&#039;', "'")
+}
 
 export function escapeForHiccup(unsafe: string) {
     return unsafe.replaceAll('"', "'")
- }
+}
 
 export function toISODate(date: Date) {
     const m = `${date.getMonth() + 1}`
     const d = date.getDate().toString()
     return `${date.getFullYear()}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`
- }
+}
 
 export function getCSSVars(names) {
     const style = getComputedStyle(top!.document.body)

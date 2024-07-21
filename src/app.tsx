@@ -25,6 +25,8 @@ import {
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import InsertUI, { isMacOS, shortcutToOpenInsertUI, showInsertRestrictionMessage } from './ui/insert'
+import { array_sorted } from './tags'
+import { query_table_clickHeader, iconSortAsc, iconSortDesc } from './ui/query-table'
 
 
 const DEV = process.env.NODE_ENV === 'development'
@@ -411,6 +413,11 @@ function handleTemplateViewCommand(commandName: string) {
                 return
 
             logseq.App.pushState('page', { name: uuid })
+        },
+
+        async queryTableHeaderClick(e: any) {
+            const { state, slot, index, order } = e.dataset
+            query_table_clickHeader(slot, index, order, state === 'true')
         },
     })
 
