@@ -337,12 +337,15 @@ Retrieves **tags** references from the text.
 ## `query`
 
 ### `.pages`
-?> See the separate page for details: [Query language → Pages](reference__query_language.md#ql-pages)
-
+?> See the separate page for details: [Query language → Pages](reference__query_language.md)
 
 
 ### `.blocks`
-?> See the separate page for details: [Query language → Blocks](reference__query_language.md#ql-blocks)
+?> See the separate page for details: [Query language → Blocks](reference__query_language__blocks.md)
+
+
+### `.table`
+?> See the separate page for details: [Query language → Table View](reference__query_language__table.md)
 
 
 

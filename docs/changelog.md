@@ -1,13 +1,24 @@
 ## NEXT
 
-- **Query language for pages**:
-  - [`.valueType`](reference__query_language.md#filter-value-type) filter with `.onlyStrings` & `.onlyNumbers` shortcuts to filter properties by values' type.
-  - [`.journals` & `.day`](reference__query_language.md#filter-journals) filter deal with journal pages.
-- New template tag [`blocks.uuid`](reference__tags_advanced.md#blocks-uuid) for creating block references between template blocks.
+### Logseq-like query table to view query results
+  <img width="650px" src="https://github.com/user-attachments/assets/98e6aac1-4191-44e1-8f29-9bfa383a58ba" />
+
+
+### Create block references between template blocks
+- New template tag [`blocks.uuid`](reference__tags_advanced.md#blocks-uuid) to solve this task.
   <img width="400px" src="https://github.com/user-attachments/assets/ac0d6a63-f9ff-48f6-9f92-a37d2283a8ca"/>
+
+
+### Query language for pages
+- [`.valueType`](reference__query_language.md#filter-value-type) filter with `.onlyStrings` & `.onlyNumbers` shortcuts to filter properties by values' type.
+- [`.journals` & `.day`](reference__query_language.md#filter-journals) filter deal with journal pages.
+
+
+### Other
+- [Mixed way](reference__args.md#args-accessing-mixed) of accessing template arguments.
 - New array function [`.zipWith`](reference__syntax.md#extended-array-type).
 - New argument for [`dev.uuid`](reference__tags_dev.md#dev-uuid) template tag to prevent UUID collision with existed blocks & pages.
-- [Mixed way](reference__args.md#args-accessing-mixed) of accessing template arguments.
+
 
 
 ## v4.0 :id=v40
@@ -99,7 +110,7 @@
 <img width="100%" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/70fcdd38-41d6-4fb7-b577-bbc06903a77e"/>
 
 ### Query language for pages
-- `query.pages` template tag for simple [pages query building](reference__query_language.md#ql-pages)
+- `query.pages` template tag for simple [pages query building](reference__query_language.md)
 - `query.refs.*` namespace with [`.count`](reference__tags_advanced.md#query-refs-count), [`.journals`](reference__tags_advanced.md#query-refs-journals) and [`.pages`](reference__tags_advanced.md#query-refs-pages) template tags
 
 [video](https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/54bfe297-b852-4529-8ea5-865b2b0f9e57 ':include :type=video controls width=80%')

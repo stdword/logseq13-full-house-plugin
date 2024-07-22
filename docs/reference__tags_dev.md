@@ -351,7 +351,7 @@ Walks through whole tree structure. Helpful for working with Logseq API.
 ### <span style="font-weight: 550">`.context`</span>
 
 #### `.page` :id=dev-context-page
-Conversion from Logseq API page format to plugin's format. Helpful for working with [queries](reference__query_language.md#ql-pages).
+Conversion from Logseq API page format to plugin's format. Helpful for working with [queries](reference__query_language.md).
 
 `dev.context.page(entity)`
 - `entity`: page object from Logseq API
@@ -393,7 +393,7 @@ Conversion from Logseq API page format to plugin's format. Helpful for working w
 
 
 #### `.block` :id=dev-context-block
-Conversion from Logseq API block format to plugin's format. Helpful for working with [queries](reference__query_language.md#ql-blocks).
+Conversion from Logseq API block format to plugin's format. Helpful for working with [queries](reference__query_language__blocks.md).
 
 `dev.context.block(entity)`
 - `entity`: block object from Logseq API

@@ -1,4 +1,3 @@
-## `Query for pages` :id=ql-pages
 Retrieve pages information from Logseq in an easy way, *without complex datascript queries*.
 
 Use cases:
@@ -16,13 +15,13 @@ It doesn't support constructing *OR-expressions*, *sorting* and *joins*. This op
 - Chaining every filter completely copies the query, so you can assign it to variables. See an example [here](#filter-value).
 
 
-### **Retrieving results**
+## **Retrieving results**
 Use these getters to retrieve results in different ways.
 
 !> Almost every result getter accepts the `wrap?` argument for wrapping page objects with context wrappings (to be like [`c.page`](reference__context.md#page-context)). Otherwise, it will be Logseq API entities, which have differences in field names. \
 To increase performance in handling a large number of pages, specify `wrap? = false`.
 
-#### `.get`
+### `.get`
 Get an array with all resulted pages objects.
 
 `.get(wrap? = true)`
@@ -45,7 +44,7 @@ Get an array with all resulted pages objects.
 <!-- tabs:end -->
 
 
-#### `.getFirst`
+### `.getFirst`
 Get the first one from all resulted pages.
 
 `.getFirst(wrap? = true)`
@@ -61,7 +60,7 @@ The first page in my graph: [[logseq]]
 <!-- tabs:end -->
 
 
-#### `.getNames`
+### `.getNames`
 Get only names of all resulted pages.
 
 `.getNames()`
@@ -81,7 +80,7 @@ logseq/plugins/Full House Templates \
 <!-- tabs:end -->
 
 
-#### `.getRandom` & `.getSample`
+### `.getRandom` & `.getSample`
 Get random pages selected from all resulted pages.
 
 - `.getRandom(wrap? = true)`
@@ -110,7 +109,7 @@ Get random pages selected from all resulted pages.
 
 
 
-### **Examples**
+## **Examples**
 
 ?> Examples below will be in the short form for easy visual perception. Use full form to get them work in Logseq. \
 The short form: `.get().length` \
@@ -259,9 +258,9 @@ The full form with inline 🏛️view: `{{renderer :view, "query.pages().get().l
 <!-- tabs:end -->
 
 
-### **Filters** :id=filters
+## **Filters** :id=filters
 
-#### `.title`
+### `.title`
 Filter by page title.
 
 - `.title(value)` — shortcut for `.title('includes', value)`
@@ -293,7 +292,7 @@ Filter by page title.
 
 
 
-#### `.journals` & `.day` :id=filter-journals
+### `.journals` & `.day` :id=filter-journals
 Filter by journal pages.
 
 - `.journals()` — filter only journals
@@ -335,7 +334,7 @@ Filter by journal pages.
 
 
 
-#### `.namespace` & `.innerNamespace`
+### `.namespace` & `.innerNamespace`
 Filter by page namespace.
 
 - `.namespace(name)`
@@ -372,7 +371,7 @@ Filter by page namespace.
 
 
 
-#### `.property` & `.noProperty` :id=filter-property
+### `.property` & `.noProperty` :id=filter-property
 Filter by page property.
 
 - `.property(name)`
@@ -393,7 +392,7 @@ Filter by page property.
 <!-- tabs:end -->
 
 
-#### `.empty` & `.nonEmpty`
+### `.empty` & `.nonEmpty`
 Filter by page empty (or non-empty) property value. *Note*: the page may have no property at all or it may have a property with an empty value.
 
 ?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
@@ -416,7 +415,7 @@ Filter by page empty (or non-empty) property value. *Note*: the page may have no
 
 
 
-#### `.integerValue`
+### `.integerValue`
 Filter by page property **integer** value.
 
 ?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
@@ -449,7 +448,7 @@ If you need to filter out some values types, use [`.valueType`](#filter-value-ty
 
 
 
-#### `.value` :id=filter-value
+### `.value` :id=filter-value
 Filter by page property **string** value.
 
 ?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
@@ -489,7 +488,7 @@ after 2020: 10 (0 empty)
 
 
 
-#### `.valueType` & `.string` & `.number` :id=filter-value-type
+### `.valueType` & `.string` & `.number` :id=filter-value-type
 Filter by page property value type.
 
 ?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
@@ -523,7 +522,7 @@ string years: 1947-1977 (набор эссе), 1955-1963, 1991 & 2017
 
 
 
-#### `.reference` & `.tags` & `.noTags`
+### `.reference` & `.tags` & `.noTags`
 Filter by reference in page property value. *Note*: this filter searches references within properties values. And ignores all other text content.
 
 ?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
@@ -564,7 +563,7 @@ best: 13
 
 
 
-#### `.referenceCount` :id=filter-reference-count
+### `.referenceCount` :id=filter-reference-count
 Filter by references count in page property value. *Note*: this filter searches references within properties values. And ignores all other text content.
 
 ?> This filter must be preceded by [`.property`](#filter-property) as it interacts with property's value
@@ -594,8 +593,3 @@ books: 542 \
 foreign: 485
 
 <!-- tabs:end -->
-
-
-
-## `Query for blocks` :id=ql-blocks
-TBD

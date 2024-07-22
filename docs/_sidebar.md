@@ -14,7 +14,10 @@
     - [Nesting templates](reference__tags_nesting.md)
     - [Advanced](reference__tags_advanced.md)
     - [Dev](reference__tags_dev.md)
-  - [Query language](reference__query_language.md)
+  - Query language
+    - [Pages](reference__query_language.md)
+    - [Blocks](reference__query_language__blocks.md)
+    - [Table View](reference__query_language__table.md)
 
 - *Alternatives*
   - [Logseq `:macros`](alt__macros.md)
