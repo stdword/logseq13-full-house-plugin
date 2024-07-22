@@ -121,12 +121,23 @@ function query_table(
             </div>
         `
 
+    if (!Array.isArray(rows)) {
+        if (typeof rows !== 'string' && rows[Symbol.iterator]) {
+            const result: any[] = []
+            for (const row of rows as Iterable<any>)
+                result.push(row)
+            rows = result
+        }
+        else
+            rows = [rows]
+    }
+
     const first = rows[0]
 
     // auto fill fields names
     if (!fields) {
         if (Array.isArray(first))
-            fields = Array(first.length).fill('field ').map((x, i) => x + (i + 1))
+            fields = Array(first.length).fill('column ').map((x, i) => x + (i + 1))
         else if (first instanceof PageContext) {
             const propNames = Object.keys(first.props!)
             fields = ['page', ...propNames]
@@ -137,8 +148,9 @@ function query_table(
             fields = ['page', ...propNames]
         }
         else
-            fields = []
+            fields = ['column']
     }
+    fields = fields.filter(f => !!f)
 
     let orderBy: string | undefined
     if (saveState) {
@@ -279,7 +291,7 @@ function query_table(
     function wrapRow(row) {
         const index = row.at(-1)
         const htmlRow = row.slice(0, -1).map(
-            d => `<td class="whitespace-nowrap">${dev_toHTML(context, d.toString())}</td>`
+            d => `<td class="whitespace-nowrap">${dev_toHTML(context, (d ?? '').toString())}</td>`
         ).join('\n')
 
         return `<tr data-index="${index}">${htmlRow}</tr>`

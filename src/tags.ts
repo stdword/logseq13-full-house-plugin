@@ -663,22 +663,22 @@ export function dev_get(context: C, path: string, obj?: any): string {
 
             if (attr === '@') {
                 if (!parts.length) {
-                    obj = obj['props']
+                    obj = obj['props'] ?? obj['properties-text-values']
                     continue
                 }
 
                 let token = parts.at(0)  // @token1
-                const refs = obj['propsRefs'][token as string]
+                const refs = (obj['propsRefs'] ?? obj['properties'])[token as string]
 
                 if (refs === undefined || refs.length === 0) {
-                    obj = obj['props']
+                    obj = obj['props'] ?? obj['properties-text-values']
                     continue
                 }
 
                 token = parts.at(1)  // @token1.token2
                 if (token === undefined) {
                     // fallback to props text values
-                    obj = obj['props']
+                    obj = obj['props'] ?? obj['properties-text-values']
                     continue
                 }
 
