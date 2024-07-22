@@ -1,17 +1,20 @@
 ## v4.1 :id=v41
 
 ### Logseq-like query table to view query results
+- Via template tag [`query.table`](reference__query_language__table.md)
+
   <img width="650px" src="https://github.com/user-attachments/assets/98e6aac1-4191-44e1-8f29-9bfa383a58ba" />
 
 
 ### Create block references between template blocks
-- New template tag [`blocks.uuid`](reference__tags_advanced.md#blocks-uuid) to solve this task.
+- Via template tag [`blocks.uuid`](reference__tags_advanced.md#blocks-uuid)
+
   <img width="400px" src="https://github.com/user-attachments/assets/ac0d6a63-f9ff-48f6-9f92-a37d2283a8ca"/>
 
 
 ### Query language for pages
+- [`.journals` & `.day`](reference__query_language.md#filter-journals) filters to deal with journal pages.
 - [`.valueType`](reference__query_language.md#filter-value-type) filter with `.onlyStrings` & `.onlyNumbers` shortcuts to filter properties by values' type.
-- [`.journals` & `.day`](reference__query_language.md#filter-journals) filter deal with journal pages.
 
 
 ### Other
