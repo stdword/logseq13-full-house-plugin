@@ -1,5 +1,5 @@
 import { ILogseqContext as C, PageContext }  from '../context'
-import { array_sorted, dev_toHTML, ref } from "../tags"
+import { array_sorted, dev_get, dev_toHTML, ref } from "../tags"
 import { escapeForHTML, html } from "../utils"
 
 
@@ -160,53 +160,79 @@ function query_table(
     const meta = {
         fields: fields!,
         order: {
-            by: orderIndex !== -1 ? orderBy : null,
+            by: orderBy ?? null,
             index: orderIndex !== -1 ? orderIndex : null,
             desc: orderDesc ?? null,
         }
     }
 
+    const orderByNonField = meta.order.by && meta.order.index === null
+
     // auto transform page objects
     if (!Array.isArray(first)) {
-        if (first instanceof PageContext) {
-            const propNames = Object.keys(first.props!)
-            rows = rows.map(
-                p => meta.fields.map(
-                    f => {
-                        if (f === 'page')
-                            return ref(p.name)
-                        if (propNames.includes(f)) {
-                            // @ts-expect-error
-                            if ((context.config._settings['property/separated-by-commas'] ?? []).includes(f))
-                                return p.propsRefs[f].map(r => ref(r)).join(', ')
-                            return p.props[f]
-                        }
-                        return p[f]
-                    }
-                )
-            )
-        }
-        else if (typeof first === 'object' && typeof first['original-name'] === 'string') {
-            // assume this is PageEntity
-            const propNames = Object.keys(first['properties-text-values']!)
-            rows = rows.map(
-                p => meta.fields.map(
-                    f => {
-                        if (f === 'page')
-                            return ref(p['original-name'])
-                        if (propNames.includes(f)) {
-                            // @ts-expect-error
-                            if ((context.config._settings['property/separated-by-commas'] ?? []).includes(f))
-                                return p['properties'][f].map(r => ref(r)).join(', ')
-                            return p['properties-text-values'][f]
-                        }
-                        return p[f]
-                    }
-                )
-            )
-        }
-        else
+        let extendedFields = meta.fields
+        if (orderByNonField)
+            extendedFields = extendedFields.concat(meta.order.by!)
+
+        if (typeof first !== 'object')
             rows = rows.map(o => [o])
+        else {
+            if (first instanceof PageContext) {
+                const propNames = Object.keys(first.props!)
+                rows = rows.map(
+                    p => extendedFields.map(
+                        f => {
+                            if (f === 'page')
+                                return ref(p.name)
+                            if (propNames.includes(f)) {
+                                // @ts-expect-error
+                                if ((context.config._settings['property/separated-by-commas'] ?? []).includes(f))
+                                    return p.propsRefs[f].map(r => ref(r)).join(', ')
+                                return p.props[f]
+                            }
+                            return dev_get(context, f, p)
+                        }
+                    )
+                )
+            }
+            else if (typeof first['original-name'] === 'string') {
+                // assume this is PageEntity
+                const propNames = Object.keys(first['properties-text-values'] ?? {})
+                rows = rows.map(
+                    p => extendedFields.map(
+                        f => {
+                            if (f === 'page')
+                                return ref(p['original-name'])
+                            if (propNames.includes(f)) {
+                                // @ts-expect-error
+                                if ((context.config._settings['property/separated-by-commas'] ?? []).includes(f))
+                                    return p['properties'][f].map(r => ref(r)).join(', ')
+                                return p['properties-text-values'][f]
+                            }
+                            return dev_get(context, f, p)
+                        }
+                    )
+                )
+            }
+            else
+                rows = rows.map(
+                    row => extendedFields.map(
+                        field => dev_get(context, field, row)
+                    )
+                )
+
+            if (orderByNonField) {
+                console.log('TRACING', rows)
+                // @ts-expect-error
+                rows.sorted = array_sorted
+                // @ts-expect-error
+                rows = rows.sorted(row => row.at(-1))
+                rows = rows.map(row => row.slice(0, -1))
+            }
+        }
+
+        if (orderByNonField)
+            meta.order.by = null
     }
 
     // @ts-expect-error
@@ -270,7 +296,7 @@ function query_table(
     rows.sorted = array_sorted
 
     let sortedRows = rows.map((x, i) => [...x, i])
-    if (meta.order.by) {
+    if (meta.order.index !== -1) {
         // @ts-expect-error
         sortedRows = sortedRows.sorted((x) => x[meta.order.index!])
         if (meta.order.desc)
