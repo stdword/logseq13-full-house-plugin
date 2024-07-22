@@ -651,7 +651,7 @@ function dev_color(value: string): string {
         value = `#${value}`
     return value
 }
-function dev_get(context: C, path: string, obj?: any): string {
+export function dev_get(context: C, path: string, obj?: any): string {
     path = _asString(path)
 
     function getByPath(obj: any, parts: string[]) {
@@ -694,7 +694,7 @@ function dev_get(context: C, path: string, obj?: any): string {
 
                 // get ref at index
                 index = Math.min(index, refs.length - 1)
-                obj = `[[${refs[index]}]]`
+                obj = `[[${refs.at(index)}]]`
 
                 continue
             }
