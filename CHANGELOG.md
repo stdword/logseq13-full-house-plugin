@@ -1,3 +1,27 @@
+# [4.1.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.0.0...v4.1.0) (2024-07-22)
+
+
+### Bug Fixes
+
+* **inserting:** update props of current block with props from head block ([5be70b6](https://github.com/stdword/logseq13-full-house-plugin/commit/5be70b6187bcd754eeb0800da2aeff697c93206a))
+* **tags:** block.uuid return real uuid for template head block (no need to replace refs) ([5cecf97](https://github.com/stdword/logseq13-full-house-plugin/commit/5cecf976246196c2c1979f9c64f43ef52ab69439))
+* **tags:** blocks.uuid for view rendering ([9c75045](https://github.com/stdword/logseq13-full-house-plugin/commit/9c7504568198d3de67a9f53d8d0c51a642a600c6))
+* **tags:** dev.get usage of negative index ([f8ff2d6](https://github.com/stdword/logseq13-full-house-plugin/commit/f8ff2d6d93194b7ea91ebcfaf3233afa852a8705))
+* **tags:** query.table corner cases ([e9544c4](https://github.com/stdword/logseq13-full-house-plugin/commit/e9544c42a4685c69fc7fdeccb376ea8295571b3f))
+* **views:** rendering of ref to unexisted block ([3d8770f](https://github.com/stdword/logseq13-full-house-plugin/commit/3d8770f12b8ec5ef2a6b6cb543f639984bab66c7))
+
+
+### Features
+
+* **args:** mixed named & positional access to args ([6daec59](https://github.com/stdword/logseq13-full-house-plugin/commit/6daec5937c31f4d56eaea569acbb85332f7d05f7))
+* **query for pages:** filter by journals ([fa3400f](https://github.com/stdword/logseq13-full-house-plugin/commit/fa3400fd8087452c771a6d619a5d2543c559c985))
+* **query language:** .valueType filter ([106a38a](https://github.com/stdword/logseq13-full-house-plugin/commit/106a38afa55cbe018842b02abdc8249d2d8db8dc))
+* **tags:** array function .zipWith ([946f666](https://github.com/stdword/logseq13-full-house-plugin/commit/946f666dc493aeeacac9cf704415971516884db5))
+* **tags:** blocks.uuid for future block UUID ([42c7332](https://github.com/stdword/logseq13-full-house-plugin/commit/42c73329a58ae61fc911c1afe12d21310ce24496)), closes [#46](https://github.com/stdword/logseq13-full-house-plugin/issues/46)
+* **tags:** query.table & query.table_ ([b6ed240](https://github.com/stdword/logseq13-full-house-plugin/commit/b6ed240b2303c52701886ec47e1da00fa9844a93))
+* **tags:** query.table: accessing custom fields & sorting by custom field ([2eec704](https://github.com/stdword/logseq13-full-house-plugin/commit/2eec70412b37656e896f7352ed6a1afcae39d78f))
+* **tags:** setUUID support for spawned blocks ([d97f66b](https://github.com/stdword/logseq13-full-house-plugin/commit/d97f66b689ebad285764afcdfa050c950efbd4e1))
+
 # [4.0.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v3.4.0...v4.0.0) (2024-07-11)
 
 
