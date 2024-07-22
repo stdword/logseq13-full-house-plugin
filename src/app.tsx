@@ -142,6 +142,7 @@ function notifyUser() {
     logseq.updateSettings({notifications: {newTemplateSyntax: undefined}})
     logseq.updateSettings({notifications: {introducedUI: undefined}})
     logseq.updateSettings({notifications: {introducedNLPSyntax: undefined}})
+    logseq.updateSettings({notifications: {introducedSetCursorPosition: undefined}})
 
     const notifications: {[key: string]: any} = logseq.settings!.notifications as object
 
@@ -151,17 +152,18 @@ function notifyUser() {
 
     // Notify only old users
     if (previousPluginVersion && currentPluginVersion !== previousPluginVersion) {
-        if (!notifications.introducedSetCursorPosition) {
+        if (!notifications.introducedQueryTableView) {
             logseq.UI.showMsg(
                 `[:div
                     [:p [:code "🏛 Full House Templates"]]
-                    [:p [:b "Set cursor position & Core engine changes!"] [:br]
-                        "The new plugin version has introduced lots of stuff. See details "
-                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v40"}
+                    [:p [:b "Query table view, Set cursor position and more!"] [:br]
+                        "The new plugin versions have introduced lots of stuff. See details "
+                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v41"}
+                            "here"] " and " [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v40"}
                             "here"] "."]
                 ]`,
                 'info', {timeout: 60000})
-            logseq.updateSettings({notifications: {introducedSetCursorPosition: true}})
+            logseq.updateSettings({notifications: {introducedQueryTableView: true}})
         }
     }
 

@@ -1,4 +1,4 @@
-## NEXT
+## v4.1 :id=v41
 
 ### Logseq-like query table to view query results
   <img width="650px" src="https://github.com/user-attachments/assets/98e6aac1-4191-44e1-8f29-9bfa383a58ba" />
