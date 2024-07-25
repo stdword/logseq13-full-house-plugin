@@ -64,12 +64,19 @@ See info about `glass-card` in [Showroom](https://github.com/stdword/logseq13-fu
 </p>
 
 
+
 ### Insert templates from lovely UI 🤗
 <img width="500px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/47bd578b-1781-47ed-a0b8-267d7474101f"/>
+
+Use <kbd>⌘T</kbd> / <kbd>Ctrl + T</kbd> by default. See details in [documentation](https://stdword.github.io/logseq13-full-house-plugin/#/reference__commands?id=insertion-ui).
+
 
 
 ### Set cursor position after template insertion 🔱
 <img width="450px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/82dd6aa4-b268-4ee6-af95-94b778da565d" />
+
+See details in [documentation](https://stdword.github.io/logseq13-full-house-plugin/#/reference__syntax?id=cursor-positioning).
+
 
 
 ### Create parametrized data views 🪜
@@ -86,6 +93,7 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 </td></tr></table>
 
 </p>
+
 
 
 ### Add logic to templates 📖
@@ -117,7 +125,19 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 </p>
 
+
+
+### Create beutiful dashboards 🎛️
 <img width="700px" src="https://github.com/user-attachments/assets/b6d0bbaf-0577-4fb4-a295-c931ad0d6948" />
+
+<table><tr><td>
+<details><summary>details</summary><p>
+
+See info about `Monthly Pages` in [Showroom](https://github.com/stdword/logseq13-full-house-plugin/discussions/44).
+
+</p></details>
+</td></tr></table>
+
 
 
 ### Use query language to get pages info 📚
@@ -160,6 +180,13 @@ var books = query.pages()
 
 
 
+### And wrap query results to Logseq-like table view 📰
+<img width="750px" src="https://github.com/user-attachments/assets/98e6aac1-4191-44e1-8f29-9bfa383a58ba" />
+
+See details in [documentation](https://stdword.github.io/logseq13-full-house-plugin/#/reference__query_language__table).
+
+
+
 ### Mix with standard templates syntax 💥
 <p align="center">
   <b>template     →     rendered</b><br>
@@ -198,6 +225,15 @@ See details about `fold-page-ref` in [Showroom](https://github.com/stdword/logse
 </p>
 
 
+
+### Create block references between template blocks 🖇️
+
+<img width="400px" src="https://github.com/user-attachments/assets/ac0d6a63-f9ff-48f6-9f92-a37d2283a8ca"/>
+
+See details in [documentation](https://stdword.github.io/logseq13-full-house-plugin/#/reference__tags_advanced?id=blocks-uuid).
+
+
+
 ### Mix with macros: Inline properties referencing example 🔭
 <img width="800px" src="https://github.com/stdword/logseq13-full-house-plugin/assets/1984175/d360c4a6-149b-449e-ae7f-2c68979ac074"/>
 
@@ -210,6 +246,7 @@ See setup instructions in [Showroom](https://github.com/stdword/logseq13-full-ho
 </p></details> 
 
 </td></tr></table>
+
 
 
 ### See all plugin features in the [Tutorial](https://stdword.github.io/logseq13-full-house-plugin/#/tutorial)
