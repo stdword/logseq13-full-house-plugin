@@ -264,6 +264,18 @@ function compileBody(buff) {
                 continue
             }
 
+            if (meta.ignore) {
+                // just act as simple string
+                content = content.replace(/\r\n|\n|\r/g, '\\n')
+
+                // return tags
+                const [openTag, closeTag] = parseInfo.tags
+                content = openTag + content + closeTag
+
+                returnStr += '__eta.res+=\'' + content + '\'\n'
+                continue
+            }
+
             if (autoFilter)
                 content = '__eta.f(' + content + ')'
 
