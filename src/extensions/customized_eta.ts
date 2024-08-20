@@ -78,10 +78,14 @@ export const eta = new CustomizedEta({
     autoTrim: [false, false],
 
     /*
-        trim: [false, 'nl'],
-        autoFilter: false,
-        parseFunction: null,
-        compileFunction: null,
+        trim: [false, 'nl']
+        autoFilter: false
+        openTagRegex: string
+        parseFunction: null
+            → isStatemtent: bool
+            → allowMultiline: bool
+            → ignore: bool
+        compileFunction: null
     */
     parseTags: {
         '``{...}``': {
@@ -112,6 +116,7 @@ export const eta = new CustomizedEta({
             },
         },
         '``...``': {
+            openTagRegex: '(?<!`)``(?!`|$)',
             trimRight: false,
             autoFilter: true,
         },
@@ -307,7 +312,7 @@ function parse(str) {
         }
     }
 
-    const openTagsReg = Object.values(config.parseTags).map((v: any) => escapeRegExp(v.tags[0])).join("|");
+    const openTagsReg = Object.values(config.parseTags).map((v: any) => v.openTagRegex ?? escapeRegExp(v.tags[0]) ).join("|");
     const parseOpenReg = new RegExp("(" + openTagsReg + ")" + "(-|_)?\\s*", "g");
     let m: RegExpExecArray | null;
     while (m = parseOpenReg.exec(str)) {
@@ -338,7 +343,6 @@ function parse(str) {
                     val: content
                 };
                 break;
-
             } else {
                 const char = closeTag[0];
                 if (char === "/*") {
@@ -376,11 +380,29 @@ function parse(str) {
         }
 
         if (currentObj) {
-            if (config.debug) {
+            if (config.debug)
                 currentObj.lineNo = getLineNo(str, m.index);
+
+            if (!currentObj.val.includes('\n')) {
+                buffer.push(currentObj)
+                continue
             }
-            buffer.push(currentObj);
-        } else {
+            else {
+                const currentConfig = config.parseTags[currentObj.t]
+                if (currentConfig.parseFunction) {
+                    const meta = currentConfig.parseFunction(currentObj.val)
+                    if (meta.isStatement || meta.allowMultiline) {
+                        buffer.push(currentObj)
+                        continue
+                    }
+                }
+            }
+
+            // cancel current tags obj
+            parseOpenReg.lastIndex = m.index + 1
+            lastIndex = m.index
+        }
+        else {
             ParseErr("unclosed tag", str, m.index);
         }
     }
