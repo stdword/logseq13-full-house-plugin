@@ -105,13 +105,11 @@ export class Template implements ITemplate {
                 return obj
 
             if (obj instanceof dayjs) {
-                console.log('DAY',)
                 // @ts-expect-error
                 return obj.toISOString()
             }
 
             if (Array.isArray(obj)) {
-                console.log('ARRAY',)
                 return Array.from(
                     obj.map(prepare)
                 )
@@ -179,6 +177,7 @@ export class Template implements ITemplate {
             PropertiesUtils.deleteProperty(b as BlockEntity, PropertiesUtils.idProperty)
 
             // unwrap triple back-ticks block: special case for long templates
+            // use space to skip unwrapping
             const [ start, end ] = [ /^\n?```(?![ ]).*?\n/u, /\n```$/u ]
             const matchStart = b.content.match(start)
             const matchEnd = b.content.match(end)
