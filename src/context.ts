@@ -216,7 +216,9 @@ export class PageContext extends Context {
 
         obj.uuid = page.uuid
 
-        const nameID = escape(obj.name_!, ['"'])
+        let nameID = obj.name_!
+        if (nameID.search(/(?<!\\)"/) !== -1)  // there are " without escaping
+            nameID = escape(nameID, ['"'])
 
         // @ts-expect-error
         const path = top!.logseq.api.datascript_query(`[:find ?path
