@@ -234,7 +234,6 @@ function query_table(
                 )
 
             if (orderByNonField) {
-                console.log('TRACING', rows)
                 // @ts-expect-error
                 rows.sorted = array_sorted
                 // @ts-expect-error

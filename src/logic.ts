@@ -231,7 +231,7 @@ export async function getTemplate(ref: LogseqReference): Promise<Template> {
         )
 
     return template
- }
+}
 
 function getView(body: string): InlineTemplate {
     const template = new InlineTemplate(body)
@@ -240,7 +240,7 @@ function getView(body: string): InlineTemplate {
         throw new StateMessage(`[:p "Inline Template body is empty."]`, {body})
 
     return template
- }
+}
 
 /**
  * @ui show message to user
@@ -298,7 +298,7 @@ async function handleNestedRendering(
     }
 
     return false
- }
+}
 
 function provideHTML(blockUUID: string, htmlCode: string, slot: string) {
     const content = html`
@@ -314,7 +314,7 @@ function provideHTML(blockUUID: string, htmlCode: string, slot: string) {
         reset: true,
         template: content,
     })
- }
+}
 
 
 /**

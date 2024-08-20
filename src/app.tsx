@@ -259,7 +259,7 @@ async function main() {
 
     const commandViewName = 'view'
     {
-        const commandLabel = 'Insert inline 🏛view'
+        const commandLabel = 'Insert inline 🏛️view'
         const code = 'c.page.name'
         const commandGuide = RendererMacro
             .command(commandViewName)
