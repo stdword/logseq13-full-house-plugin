@@ -243,6 +243,9 @@ export function setEditingCursorPosition(pos: number) {
 }
 
 function adjustIndexForLength(i, len) {
+    if (typeof i !== 'number')
+        return null
+
     if (i > len)
         i = len
     if (i < (-len - 1))
@@ -264,7 +267,7 @@ export function setEditingCursorSelection(start: number, end: number) {
 
     const length = textAreaElement.value.length
     start = adjustIndexForLength(start, length)
-    end = adjustIndexForLength(end, length)
+    end = adjustIndexForLength(end, length) ?? start
 
     textAreaElement.selectionStart = start
     textAreaElement.selectionEnd = end
@@ -275,8 +278,15 @@ export async function editBlockWithSelection(uuid: string, selectionPositions: n
     if (selectionPositions.length === 0)
         return
 
-    if (selectionPositions.length === 1 || selectionPositions[0] === selectionPositions[1])
+    const checked = await logseq.Editor.checkEditing()
+    if (checked && checked === uuid) {
+        setEditingCursorSelection(...selectionPositions as [number, number])
+        return
+    }
+
+    if (selectionPositions.length === 1 || selectionPositions[0] === selectionPositions[1]) {
         await logseq.Editor.editBlock(uuid, { pos: selectionPositions[0] })
+    }
     else {
         await logseq.Editor.editBlock(uuid, { pos: selectionPositions[0] })
         await sleep(20)
@@ -398,19 +408,36 @@ export async function getBlock(
             return [ results[0], 'name' ]
 
         return [
-            await logseq.Editor.getBlock(
-                results[0].id,
-                {includeChildren: true},
-            ) as BlockEntity,
+            await getActualBlock(results[0].uuid, {includeChildren: true}),
             'name',
         ]
     }
 
+    if (typeof ref.value === 'number')
+        return [
+            await logseq.Editor.getBlock(ref.value, {includeChildren}),
+            'block',
+        ]
+
     return [
-        await logseq.Editor.getBlock(ref.value, {includeChildren}),
+        await getActualBlock(ref.value as string, {includeChildren}),
         'block',
     ]
  }
+
+export async function getActualBlock(uuid: string, opts?: {includeChildren?: boolean }) {
+    const includeChildren = opts?.includeChildren ?? false
+
+    const block = await logseq.Editor.getBlock(uuid, {includeChildren})
+    if (!block)
+        return null
+
+    const checked = await logseq.Editor.checkEditing()
+    if (checked && checked === uuid)
+        block.content = await logseq.Editor.getEditingBlockContent()
+
+    return block
+}
 
 export async function getPageFirstBlock(
     ref: LogseqReference,

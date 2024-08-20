@@ -81,6 +81,7 @@ export async function LogseqMock(
                 if (block)
                     block.content = newContent
             },
+            async checkEditing() { return false },
         },
         UI: {
             showMsg: jest.fn(),

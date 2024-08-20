@@ -5,6 +5,7 @@ import { render } from 'preact'
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { dayjs } from './context'
 import {
+    renderSingleBlockAsTemplate,
     renderTemplateInBlock, renderTemplateView, renderView,
     templateMacroStringForBlock, templateMacroStringForPage,
 } from './logic'
@@ -289,6 +290,10 @@ async function main() {
 
         handleViewCommand(commandViewName)
     }
+
+    logseq.Editor.registerSlashCommand('Render this 🏛️block', async (e) => {
+        await renderSingleBlockAsTemplate(e.uuid)
+    })
 
     await postInit()
 }

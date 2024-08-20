@@ -18,6 +18,7 @@ import {
     editBlockWithSelection,
     setEditingCursorSelection,
     walkBlockTree,
+    getActualBlock,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
@@ -144,7 +145,7 @@ async function getCallContext(
     }
 
     return {
-        identity: new Context({ slot, key: slot.split('__', 2)[1].trim() }),
+        identity: new Context({ slot, key: slot ? slot.split('__', 2)[1].trim() : '' }),
         config: await ConfigContext.get(),
 
         page: contextPage ? PageContext.createFromEntity(contextPage) : null,
@@ -210,7 +211,7 @@ export async function getTemplateBlock(
         name = templateBlock.uuid
 
     return [ templateBlock, name, accessedVia ]
- }
+}
 
 export async function getTemplate(ref: LogseqReference): Promise<Template> {
     const [ templateBlock, name, accessedVia ] = await getTemplateBlock(ref)
@@ -233,6 +234,28 @@ export async function getTemplate(ref: LogseqReference): Promise<Template> {
     return template
 }
 
+async function getTemplateForSingleBlock(uuid: string): Promise<Template | null> {
+    const block = await getActualBlock(uuid, {includeChildren: false})
+    if (!block)
+        throw new StateError(
+            `[:p "There's no such block with UUID: " [:i "${uuid}"] ]`,
+            {uuid},
+        )
+
+    block.children = []
+
+    const name: string | undefined = '__this__'
+    const includingParent = true
+    const accessedVia: LogseqReferenceAccessType = 'block'
+
+    const template = new Template(block, {name, includingParent, accessedVia})
+    await template.init()
+    if (template.isEmpty())
+        return null
+
+    return template
+}
+
 function getView(body: string): InlineTemplate {
     const template = new InlineTemplate(body)
 
@@ -241,6 +264,7 @@ function getView(body: string): InlineTemplate {
 
     return template
 }
+
 
 /**
  * @ui show message to user
@@ -359,26 +383,117 @@ async (
         return
     }
 
+    const positions = getCursorPositionsInTree(rendered)
+    await handleInsertion(uuid, oldContent, newContent, headProps, head.children, tail, !!positions)
+    if (positions)
+        await handleSetCursorPosition(
+            uuid,
+            template.includingParent,
+            positions.cursorPath,
+            positions.selectionPositions,
+            oldContent.search(toReplace),
+        )
+})
+
+export async function renderSingleBlockAsTemplate(uuid: string) {
+    const template = await getTemplateForSingleBlock(uuid)
+    if (!template)
+        return
+
+    const currentContext = await getCurrentContext(uuid, 'template')
+    if (!currentContext)
+        return
+
+    const result = await renderTemplate('', template, [], currentContext)
+    const {rendered, headTail: [head, tail], context} = result
+
+    const headProps = PropertiesUtils.getPropertiesFromString(head.content)
+    Object.assign(headProps, head.properties)
+
+    const oldContent = context.currentBlock.content!
+    const newContent = PropertiesUtils.deleteAllProperties(head.content)
+    if (newContent === oldContent)
+        return
+
+    const positions = getCursorPositionsInTree(rendered)
+    await handleInsertion(uuid, oldContent, newContent, headProps, head.children, tail, !!positions)
+    if (positions)
+        await handleSetCursorPosition(
+            uuid,
+            template.includingParent,
+            positions.cursorPath,
+            positions.selectionPositions,
+        )
+}
+
+
+async function handleInsertion(
+    uuid: string,
+    oldContent: string | null,
+    content: string,
+    props: Record<string, any>,
+    children: IBatchBlock[] | undefined,
+    tail: IBatchBlock[],
+    setCursorWillOccur: boolean,
+) {
+    // 1) inserting head's children stage
+
     // WARNING: it is important to call `.insertBatchBlock` before `.updateBlock`
-    // due to @logseq/lib bug on batch inserting to empty block (content == '')
-    if (head.children && head.children.length)
-        await logseq.Editor.insertBatchBlock(uuid, head.children, { sibling: false, keepUUID: true })
+    // due to Logseq BUG on batch inserting to empty block (content == '')
+    if (children && children.length)
+        await logseq.Editor.insertBatchBlock(uuid, children, { sibling: false, keepUUID: true })
 
-    await logseq.Editor.updateBlock(uuid, newContent, {properties: headProps})
 
+    // 2) updating head stage
+
+    // saving the cursor position & old content
+    let returnToEditingPosition: number | null = null
+    const checked = await logseq.Editor.checkEditing()
+    if (checked && checked === uuid) {
+        // save the editing cursor position
+        returnToEditingPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
+
+        // get the old content of block before updating
+        if (oldContent === null)
+            oldContent = (await getActualBlock(uuid, {includeChildren: false}))!.content
+    }
+
+    // WARNING: this is workaround for Logseq BUG
+    //   issue: updating of currently edited block with properties, leads to properties get lost
+    //   how to avoid: exit editing mode & return after updating
+    let wasExitedFromEditMode = false
+    if (Object.keys(props).length && returnToEditingPosition !== null) {
+        wasExitedFromEditMode = true
+        await logseq.Editor.exitEditingMode()
+        await sleep(20)
+    }
+    await logseq.Editor.updateBlock(uuid, content, {properties: props})
+
+    // restoring the cursor position
+    if (returnToEditingPosition !== null) {
+        // to avoid cursor jumping to the just rendered content
+        if (content.slice(0, returnToEditingPosition) === oldContent!.slice(0, returnToEditingPosition)) {
+            if (!wasExitedFromEditMode) {
+                await logseq.Editor.exitEditingMode()
+                await sleep(20)
+            }
+            await logseq.Editor.editBlock(uuid, {pos: returnToEditingPosition})
+        } else
+            if (wasExitedFromEditMode && !setCursorWillOccur)
+                await logseq.Editor.editBlock(uuid)
+    }
+
+
+    // 3) inserting tail trees
     if (tail.length)
         await logseq.Editor.insertBatchBlock(uuid, tail, { sibling: true, keepUUID: true })
+}
 
-
-    /////
-    // Set cursor position after insertion
-    ///
-
-    // 1) find block with cursor position
-
+function getCursorPositionsInTree(tree: IBlockNode) {
     let cursorPath: number[] | undefined
     let selectionPositions: number[] = []
-    walkBlockTree(rendered, (b, lvl, path) => {
+
+    walkBlockTree(tree, (b, lvl, path) => {
         const data = b.data ?? {}
         if (data.selectionPositions) {
             cursorPath = Array.from(path)
@@ -389,45 +504,62 @@ async (
     })
 
     if (!cursorPath)
-        return
+        return null
 
+    return { cursorPath, selectionPositions }
+}
 
-    // 2) find the appropriate inserted block
+async function handleSetCursorPosition(
+    uuid: string,
+    templateIncludingParent: boolean,
+    cursorPath: number[],
+    selectionPositions: number[],
+    shiftPositionForHeadBlock: number = 0,
+) {
+    // 1) find the appropriate block tree with block with cursor positioning
 
-    let blockTree: BlockEntity
     let currentUUID = uuid  // head
 
     // the root of cursor block can be the head block or any block from the tail
     const headTailIndex = cursorPath.shift()!
-    if (!template.includingParent && headTailIndex !== 0) {
+    if (!templateIncludingParent && headTailIndex !== 0) {
         for (let i = 0; i < headTailIndex; i++) {
             const next = await logseq.Editor.getNextSiblingBlock(currentUUID)
             if (!next) {
                 console.warn('(Assertion Error) Cannot find just inserted block')
-                return
+                return null
             }
 
             currentUUID = next.uuid
         }
     }
 
-    // retrieve appropriate inserted block with all children
-    blockTree = (await logseq.Editor.getBlock(currentUUID, {includeChildren: true}))!
+    // 2) find the appropriate inserted block with cursor positioning
 
-    // get the cursor block
-    const cursorBlock = getTreeNode(blockTree as IBlockNode, cursorPath) as BlockEntity
-    if (!cursorBlock) {
-        console.warn('(Assertion Error) Cannot find cursor block that is exist')
-        return
+    let cursorBlockUUID: string
+    // if cursor in head block — there is no need for API call
+    if (currentUUID === uuid && cursorPath.length === 0)
+        cursorBlockUUID = uuid
+    else {
+        // retrieve appropriate inserted block with all children
+        const blockTree = (await logseq.Editor.getBlock(currentUUID, {includeChildren: true}))!
+
+        // get the cursor block
+        const cursorBlock = getTreeNode(blockTree as IBlockNode, cursorPath) as BlockEntity
+        if (!cursorBlock) {
+            console.warn('(Assertion Error) Cannot find cursor block that is exist')
+            return null
+        }
+
+        cursorBlockUUID = cursorBlock.uuid
     }
 
 
     // 3) position cursor
 
     // cursor is positioned to head block
-    if (cursorBlock.uuid === uuid) {
-        const shiftPosition = oldContent.search(toReplace)
-        selectionPositions = selectionPositions.map(p => shiftPosition + p)
+    if (cursorBlockUUID === uuid) {
+        selectionPositions = selectionPositions.map(p => shiftPositionForHeadBlock + p)
 
         // head block is the only one
         // NOTE: this is future case for instant template insertions
@@ -446,9 +578,9 @@ async (
         // }
     }
 
-    // await sleep(1500)
-    editBlockWithSelection(cursorBlock.uuid, selectionPositions)
-})
+    editBlockWithSelection(cursorBlockUUID, selectionPositions)
+}
+
 
 /**
  * @raises StateError: template doesn't exist
