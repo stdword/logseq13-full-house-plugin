@@ -65,6 +65,16 @@ See documentation [here](reference__configuring.md#configure-arguments).
 
 
 
+## Render current block :id=render-this-block-command
+Render current block (without it's children). «/»-command to call from editing mode.
+
+1. Open slash commands menu by typing `/`
+2. Select the `«Render this 🏛️block»` command
+
+Useful for accessing [date-syntax](reference__syntax.md#dates-nlp-syntax), [`query.*` namespace](reference__tags_advanced#query), [blocks creation](reference__tags_advanced.md#blocks-spawn), [`dev.uuid`](reference__tags_dev.md#dev-uuid) tag, etc.
+
+
+
 ## Render view :id=template-view-command
 Render existed template block, non-template block or page as 🏛view. For views rendering occurs every time the block becomes visible.
 

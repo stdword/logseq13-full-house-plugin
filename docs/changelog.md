@@ -1,3 +1,19 @@
+## v4.2 :id=v42
+
+### «/»-command to render current block
+- For fast access to plugin's useful tools. Reference is [here](reference__commands.md#render-this-block-command).
+
+  <img width="300px" src="https://github.com/user-attachments/assets/62f9b4a6-2e11-41cc-914c-b31a96deba9d" />
+  <br/>
+  <img width="350px" src="https://github.com/user-attachments/assets/0b2a958f-1abc-4252-a5b0-b0b8e30155be" />
+  <br/>
+  <img width="450px" src="https://github.com/user-attachments/assets/9c54689a-10a8-47d6-aeec-13d4b3b4b703" />
+
+
+### Other
+
+
+
 ## v4.1 :id=v41
 
 ### Logseq-like query table to view query results
