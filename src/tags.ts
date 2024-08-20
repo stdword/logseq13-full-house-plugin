@@ -370,7 +370,10 @@ layout.args = function(c: C, ...argNames: (string | [string, string | boolean] |
 
             if (typeof value === 'string') {
                 if (positional === undefined)
-                    value = `${name_} ${value}`
+                    if (value)
+                        value = `${name_} ${value}`
+                    else
+                        return `${name_} ""`  // no escape
                 return escapeMacroArg(value, {quote: true, escape: true})
             }
 
