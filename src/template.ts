@@ -272,8 +272,11 @@ export class Template implements ITemplate {
                 data.appendedBlocks = state.appendedBlocks as IBlockNode[]
 
             // make arrays and objects looks pretty
-            if (typeof result === 'object')
+            if (typeof result === 'object' && result !== null)
                 return Template.convertValueToPretty(result)
+
+            if (result === null || result === undefined)
+                return ''
 
             return result.toString()
         })
