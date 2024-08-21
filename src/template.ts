@@ -179,10 +179,10 @@ export class Template implements ITemplate {
             // unwrap triple back-ticks block: special case for long templates
             // use space to skip unwrapping
             const [ start, end ] = [ /^\n?```(?![ ]).*?\n/u, /\n```$/u ]
-            const matchStart = b.content.match(start)
-            const matchEnd = b.content.match(end)
+            const matchStart = b.content!.match(start)
+            const matchEnd = b.content!.match(end)
             if (matchStart && matchEnd)
-                b.content = b.content.slice(matchStart[0].length, -matchEnd[0].length)
+                b.content = b.content!.slice(matchStart[0].length, -matchEnd[0].length)
         })
 
         if (this.includingParent) {
@@ -251,7 +251,7 @@ export class Template implements ITemplate {
                 level: lvl,
             })
 
-            const result: any = await eta.renderStringAsync(b.content, finalContext)
+            const result: any = await eta.renderStringAsync(b.content as string, finalContext)
 
             // get the execution state after code execution
             // @ts-expect-error
@@ -275,8 +275,11 @@ export class Template implements ITemplate {
             if (typeof result === 'object' && result !== null)
                 return Template.convertValueToPretty(result)
 
-            if (result === null || result === undefined)
+            if (result === null)
                 return ''
+
+            if (result === undefined)
+                return  // void
 
             return result.toString()
         })
@@ -315,7 +318,7 @@ export function prepareRenderedNode(node: IBlockNode, opts?: {cursorPosition?: t
         node.data = node.data ?? {}
 
         const selectionPositions = [] as number[]
-        node.content = Template.getSelectionPositions(node.content, selectionPositions)
+        node.content = Template.getSelectionPositions(node.content ?? '', selectionPositions)
 
         if (selectionPositions.length)
             node.data.selectionPositions = selectionPositions

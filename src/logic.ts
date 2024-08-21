@@ -19,6 +19,7 @@ import {
     setEditingCursorSelection,
     walkBlockTree,
     getActualBlock,
+    filterBlockTree,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
@@ -367,12 +368,12 @@ async (
     const result = await renderTemplate(slot, template, args, currentContext)
     const {rendered, headTail: [head, tail], context} = result
 
-    const headProps = PropertiesUtils.getPropertiesFromString(head.content)
+    const headProps = PropertiesUtils.getPropertiesFromString(head.content ?? '')
     Object.assign(headProps, head.properties)
 
     const oldContent = context.currentBlock.content!
     const toReplace = rawCode.toPattern()
-    const toInsert = PropertiesUtils.deleteAllProperties(head.content)
+    const toInsert = PropertiesUtils.deleteAllProperties(head.content ?? '')
     const newContent = oldContent.replace(toReplace, toInsert)
     if (newContent === oldContent) {
         if (oldContent.search(/\{\{\s*\w+\s*.*?\}\}/g) !== -1)
@@ -383,8 +384,10 @@ async (
         return
     }
 
+    const headChildren = head.content !== undefined ? head.children : []
+
     const positions = getCursorPositionsInTree(rendered)
-    await handleInsertion(uuid, oldContent, newContent, headProps, head.children, tail, !!positions)
+    await handleInsertion(uuid, oldContent, newContent, headProps, headChildren, tail, !!positions)
     if (positions)
         await handleSetCursorPosition(
             uuid,
@@ -395,7 +398,7 @@ async (
         )
 })
 
-export async function renderSingleBlockAsTemplate(uuid: string) {
+export async function renderThisBlockAsTemplate(uuid: string) {
     const template = await getTemplateForSingleBlock(uuid)
     if (!template)
         return
@@ -407,11 +410,11 @@ export async function renderSingleBlockAsTemplate(uuid: string) {
     const result = await renderTemplate('', template, [], currentContext)
     const {rendered, headTail: [head, tail], context} = result
 
-    const headProps = PropertiesUtils.getPropertiesFromString(head.content)
+    const headProps = PropertiesUtils.getPropertiesFromString(head.content ?? '')
     Object.assign(headProps, head.properties)
 
     const oldContent = context.currentBlock.content!
-    const newContent = PropertiesUtils.deleteAllProperties(head.content)
+    const newContent = PropertiesUtils.deleteAllProperties(head.content ?? '')
     if (newContent === oldContent)
         return
 
@@ -429,13 +432,27 @@ export async function renderSingleBlockAsTemplate(uuid: string) {
 
 async function handleInsertion(
     uuid: string,
-    oldContent: string | null,
-    content: string,
+    oldContent: string,
+    content: string | undefined,
     props: Record<string, any>,
-    children: IBatchBlock[] | undefined,
-    tail: IBatchBlock[],
+    children_: IBlockNode[],
+    tail_: IBlockNode[],
     setCursorWillOccur: boolean,
 ) {
+    // 0) clear nodes with undefined content
+    const criteria = async (b, lvl, children) => (b.content !== undefined)
+    const children = (
+        (
+            await filterBlockTree({content: '', children: children_}, criteria)
+        )?.children ?? []
+    ) as IBatchBlock[]
+    const tail = (
+        (
+            await filterBlockTree({content: '', children: tail_}, criteria)
+        )?.children ?? []
+    ) as IBatchBlock[]
+
+
     // 1) inserting head's children stage
 
     // WARNING: it is important to call `.insertBatchBlock` before `.updateBlock`
@@ -446,41 +463,39 @@ async function handleInsertion(
 
     // 2) updating head stage
 
-    // saving the cursor position & old content
-    let returnToEditingPosition: number | null = null
-    const checked = await logseq.Editor.checkEditing()
-    if (checked && checked === uuid) {
-        // save the editing cursor position
-        returnToEditingPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
+    if (content !== undefined) {
+        // saving the cursor position & old content
+        let returnToEditingPosition: number | null = null
+        const checked = await logseq.Editor.checkEditing()
+        if (checked && checked === uuid) {
+            // save the editing cursor position
+            returnToEditingPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
+        }
 
-        // get the old content of block before updating
-        if (oldContent === null)
-            oldContent = (await getActualBlock(uuid, {includeChildren: false}))!.content
-    }
+        // WARNING: this is workaround for Logseq BUG
+        //   issue: updating of currently edited block with properties, leads to properties get lost
+        //   how to avoid: exit editing mode & return after updating
+        let wasExitedFromEditMode = false
+        if (Object.keys(props).length && returnToEditingPosition !== null) {
+            wasExitedFromEditMode = true
+            await logseq.Editor.exitEditingMode()
+            await sleep(20)
+        }
+        await logseq.Editor.updateBlock(uuid, content, {properties: props})
 
-    // WARNING: this is workaround for Logseq BUG
-    //   issue: updating of currently edited block with properties, leads to properties get lost
-    //   how to avoid: exit editing mode & return after updating
-    let wasExitedFromEditMode = false
-    if (Object.keys(props).length && returnToEditingPosition !== null) {
-        wasExitedFromEditMode = true
-        await logseq.Editor.exitEditingMode()
-        await sleep(20)
-    }
-    await logseq.Editor.updateBlock(uuid, content, {properties: props})
-
-    // restoring the cursor position
-    if (returnToEditingPosition !== null) {
-        // to avoid cursor jumping to the just rendered content
-        if (content.slice(0, returnToEditingPosition) === oldContent!.slice(0, returnToEditingPosition)) {
-            if (!wasExitedFromEditMode) {
-                await logseq.Editor.exitEditingMode()
-                await sleep(20)
-            }
-            await logseq.Editor.editBlock(uuid, {pos: returnToEditingPosition})
-        } else
-            if (wasExitedFromEditMode && !setCursorWillOccur)
-                await logseq.Editor.editBlock(uuid)
+        // restoring the cursor position
+        if (returnToEditingPosition !== null) {
+            // to avoid cursor jumping to the just rendered content
+            if (content.slice(0, returnToEditingPosition) === oldContent!.slice(0, returnToEditingPosition)) {
+                if (!wasExitedFromEditMode) {
+                    await logseq.Editor.exitEditingMode()
+                    await sleep(20)
+                }
+                await logseq.Editor.editBlock(uuid, {pos: returnToEditingPosition})
+            } else
+                if (wasExitedFromEditMode && !setCursorWillOccur)
+                    await logseq.Editor.editBlock(uuid)
+        }
     }
 
 
@@ -593,7 +608,7 @@ export async function renderTemplate(
     args: string[],
     currentContext: ILogseqCurrentContext,
     argsContext?: ArgsContext,
-): Promise<{rendered: IBlockNode, headTail: [IBatchBlock, IBatchBlock[]], context: ILogseqContext}> {
+): Promise<{rendered: IBlockNode, headTail: [IBlockNode, IBlockNode[]], context: ILogseqContext}> {
     if (!argsContext)
         argsContext = await getArgsContext(template, args)
 
@@ -618,8 +633,8 @@ export async function renderTemplate(
         )
     }
 
-    let head: IBatchBlock
-    let tail: IBatchBlock[]
+    let head: IBlockNode
+    let tail: IBlockNode[]
     if (template.includingParent)
         [ head, tail ] = [ rendered, [] ]
     else
@@ -665,6 +680,9 @@ export async function compileTemplateView(
         )
     }
 
+    const criteria = async (b, lvl, children) => (b.content !== undefined)
+    rendered = (await filterBlockTree(rendered, criteria)) ?? {content: '', children: []}
+
     let compiled = await mapBlockTree(rendered, async (b, lvl) => {
         const content = (b.content || '').toString()
         if (!content.trim())
@@ -684,7 +702,7 @@ export async function compileTemplateView(
 
         if (level === 0) {
             if (node.children.length === 0)
-                return node.content
+                return node.content!
 
             const body = `<div class="body">${children()}</div>`
             if (node.content)

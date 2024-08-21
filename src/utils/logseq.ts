@@ -5,7 +5,7 @@ import { isEmptyString, isInteger, isUUID, unquote } from './parsing'
 
 
 export type IBlockNode = {
-    content: string,
+    content: string | void,
     children: IBlockNode[],
     properties?: Record<string, any>
     data?: {
@@ -22,10 +22,10 @@ export async function mapBlockTree(
     level: number = 0,
 ): Promise<IBlockNode> {
     const data = root.data ?? {}
-    const content = ( await callback(root, level, data) ) ?? ''
+    const content = await callback(root, level, data)
 
     const children = [] as IBlockNode[]
-    for (let child of root.children || [])
+    for (let child of root.children)
         children.push(
             await mapBlockTree(child, callback, level + 1)
         )
@@ -33,6 +33,30 @@ export async function mapBlockTree(
     return { data, content, children }
 }
 
+export async function filterBlockTree(
+    root: IBlockNode,
+    criteria: (b: IBlockNode, lvl: number, filteredChildren: (IBlockNode | null)[]) => Promise<boolean>,
+    level: number = 0,
+): Promise<IBlockNode | null> {
+    if (!root.children.length) {
+        const flag = await criteria(root, level, [])
+        if (flag)
+            return root
+        return null
+    }
+
+    const children = [] as (IBlockNode | null)[]
+    for (const child of root.children)
+        children.push(
+            await filterBlockTree(child, criteria, level + 1)
+        )
+    const flag = await criteria(root, level, children)
+    if (flag) {
+        root.children = children.filter((n) => !!n)
+        return root
+    }
+    return null
+}
 
 export async function walkBlockTreeAsync(
     root: IBlockNode,

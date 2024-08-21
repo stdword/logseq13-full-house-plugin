@@ -265,9 +265,9 @@ async function _include__runtime(c: C, layoutMode: boolean, name: string, args_?
         // return them back to be handled again by outer template
         while (selectedPositions.length) {
             const pos = selectedPositions.pop()
-            head.content = head.content.slice(0, pos)
+            head.content = head.content!.slice(0, pos)
                 + Template.carriagePositionMarker
-                + head.content.slice(pos)
+                + head.content!.slice(pos)
 
             cursor(c)  // mark block with cursor position flag
         }
@@ -279,7 +279,7 @@ async function _include__runtime(c: C, layoutMode: boolean, name: string, args_?
     for (const block of tail)
         blocks_append_tree(c, block as IBlockNode)
 
-    return head.content
+    return head.content ?? ''
 }
 
 async function include(c: C, name: string, args?: string[] | string) {
@@ -824,7 +824,7 @@ async function _parse_items(context: C, parser: Parser, source: ParseSource, wit
     const items: ReturnType<typeof parser> = []
     for (const block of blocks) {
         walkBlockTree(block as IBlockNode, (b) => {
-            for (const item of parser(context, b.content, withLabels))
+            for (const item of parser(context, b.content!, withLabels))
                 items.push(item)
         })
     }

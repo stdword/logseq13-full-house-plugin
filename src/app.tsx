@@ -5,7 +5,7 @@ import { render } from 'preact'
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { dayjs } from './context'
 import {
-    renderSingleBlockAsTemplate,
+    renderThisBlockAsTemplate,
     renderTemplateInBlock, renderTemplateView, renderView,
     templateMacroStringForBlock, templateMacroStringForPage,
 } from './logic'
@@ -200,7 +200,7 @@ async function main() {
                 const block = (await logseq.Editor.getBlock(uuid, {includeChildren: true}))!
 
                 await walkBlockTreeAsync(block as IBlockNode, async (b, lvl) => {
-                    const content = b.content
+                    const content = b.content!
                         .replaceAll(
                             new RegExp(openTagRegexp + '(?!(?:-|_)?\\s*!)\\s*(.*?)\\s*' + closeTagRegexp, 'gs'),
                             '``$1``',
@@ -292,7 +292,7 @@ async function main() {
     }
 
     logseq.Editor.registerSlashCommand('Render this 🏛️block', async (e) => {
-        await renderSingleBlockAsTemplate(e.uuid)
+        await renderThisBlockAsTemplate(e.uuid)
     })
 
     await postInit()
