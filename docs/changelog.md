@@ -1,10 +1,16 @@
 ## v4.2 :id=v42
 
-### Now templates are inserted **instantly**
+### Now templates are inserted instantly!
 - Without `{{renderer...}}` macro as intermediate step.
 - Except for the ones that use [cursor positioning for arguments](reference__configuring#control-cursor).
 
   <img width="350px" src="https://github.com/user-attachments/assets/10c62057-2f26-4d63-b2b3-3149341f5f09" />
+
+
+### Prevent the particular sub-tree from rendering
+- Just return `undefined` inside the [statement syntax](reference__syntax.md#prevent-rendering).
+
+  <img width="500px" src="https://github.com/user-attachments/assets/bc06014b-c847-42dc-b307-208e7212b70c" />
 
 
 ### «/»-command to render current block
