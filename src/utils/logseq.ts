@@ -298,6 +298,20 @@ export function setEditingCursorSelection(start: number, end: number) {
     return true
 }
 
+export function getEditingCursorSelection() {
+    const editorElement = top!.document.getElementsByClassName('editor-wrapper')[0] as HTMLDivElement
+    if (!editorElement)
+        return null
+
+    const textAreaElement = top!.document.getElementById(
+        editorElement.id.replace(/^editor-/, '')
+    ) as HTMLTextAreaElement
+    if (!textAreaElement)
+        return null
+
+    return [textAreaElement.selectionStart, textAreaElement.selectionEnd]
+}
+
 export async function editBlockWithSelection(uuid: string, selectionPositions: number[]) {
     if (selectionPositions.length === 0)
         return
@@ -699,6 +713,15 @@ export class PropertiesUtils {
         }
 
         return {values, refs}
+    }
+    static getPropertyFromString(text: string, name: string): string | null {
+        for (const n of [name, name.replaceAll('-', '_'), name.replaceAll('_', '-')]) {
+            const propRegexp = new RegExp(PropertiesUtils.propertyContentFormat({name: n}), 'gim')
+            const m = propRegexp.exec(text)
+            if (m)
+                return m[1]
+        }
+        return null
     }
     static getPropertiesFromString(text: string): Record<string, any> {
         const props: Record<string, any> = {}

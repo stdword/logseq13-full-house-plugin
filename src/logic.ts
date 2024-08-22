@@ -20,6 +20,7 @@ import {
     walkBlockTree,
     getActualBlock,
     filterBlockTree,
+    getEditingCursorSelection,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
@@ -214,8 +215,10 @@ export async function getTemplateBlock(
     return [ templateBlock, name, accessedVia ]
 }
 
-export async function getTemplate(ref: LogseqReference): Promise<Template> {
-    const [ templateBlock, name, accessedVia ] = await getTemplateBlock(ref)
+export async function getTemplate(ref: LogseqReference, opts?: {accessedViaUI: boolean}): Promise<Template> {
+    let [ templateBlock, name, accessedVia ] = await getTemplateBlock(ref)
+    if (opts?.accessedViaUI)
+        accessedVia = 'name'
 
     let includingParent: boolean | undefined
     if (ref.option)
@@ -429,6 +432,53 @@ export async function renderThisBlockAsTemplate(uuid: string) {
         )
 }
 
+export async function renderTemplateInBlockInstantly(uuid: string, template: Template) {
+    if (!template.instant)
+        return
+
+    const currentContext = await getCurrentContext(uuid, 'template')
+    if (!currentContext)
+        return
+
+    const result = await renderTemplate('', template, template.args, currentContext)
+    let {rendered, headTail: [head, tail], context} = result
+
+    const headProps = PropertiesUtils.getPropertiesFromString(head.content ?? '')
+    Object.assign(headProps, head.properties)
+
+    let oldContent = context.currentBlock.content!
+    let newContent = head.content === undefined
+        ? undefined
+        : PropertiesUtils.deleteAllProperties(head.content)
+
+    const selection = getEditingCursorSelection()
+    if (selection) {
+        const [start, end] = selection
+
+        const uuid = PropertiesUtils.getPropertyFromString(oldContent, PropertiesUtils.idProperty)
+        if (uuid)
+            oldContent = PropertiesUtils.deletePropertyFromString(oldContent, PropertiesUtils.idProperty)
+
+        newContent = oldContent.slice(0, start)
+            + (newContent !== undefined ? newContent : oldContent.slice(start, end))
+            + oldContent.slice(end)
+            + (uuid ? `\n${PropertiesUtils.idProperty}:: ${uuid}` : '')
+    }
+
+    const headChildren = head.content !== undefined ? head.children : []
+
+    const positions = getCursorPositionsInTree(rendered)
+    await handleInsertion(uuid, oldContent, newContent, headProps, headChildren, tail, !!positions)
+    if (positions)
+        await handleSetCursorPosition(
+            uuid,
+            template.includingParent,
+            positions.cursorPath,
+            positions.selectionPositions,
+            selection ? selection[0] : 0,
+        )
+}
+
 
 async function handleInsertion(
     uuid: string,
@@ -461,15 +511,19 @@ async function handleInsertion(
         await logseq.Editor.insertBatchBlock(uuid, children, { sibling: false, keepUUID: true })
 
 
-    // 2) updating head stage
+    // 2) inserting tail trees
+    if (tail.length)
+        await logseq.Editor.insertBatchBlock(uuid, tail, { sibling: true, keepUUID: true })
 
+
+    // 3) updating head stage
     if (content !== undefined) {
         // saving the cursor position & old content
         let returnToEditingPosition: number | null = null
         const checked = await logseq.Editor.checkEditing()
         if (checked && checked === uuid) {
             // save the editing cursor position
-            returnToEditingPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
+            returnToEditingPosition = (await logseq.Editor.getEditingCursorPosition())?.pos ?? 0
         }
 
         // WARNING: this is workaround for Logseq BUG
@@ -481,10 +535,11 @@ async function handleInsertion(
             await logseq.Editor.exitEditingMode()
             await sleep(20)
         }
+
         await logseq.Editor.updateBlock(uuid, content, {properties: props})
 
         // restoring the cursor position
-        if (returnToEditingPosition !== null) {
+        if (returnToEditingPosition !== null && !setCursorWillOccur) {
             // to avoid cursor jumping to the just rendered content
             if (content.slice(0, returnToEditingPosition) === oldContent!.slice(0, returnToEditingPosition)) {
                 if (!wasExitedFromEditMode) {
@@ -493,15 +548,10 @@ async function handleInsertion(
                 }
                 await logseq.Editor.editBlock(uuid, {pos: returnToEditingPosition})
             } else
-                if (wasExitedFromEditMode && !setCursorWillOccur)
+                if (wasExitedFromEditMode)
                     await logseq.Editor.editBlock(uuid)
         }
     }
-
-
-    // 3) inserting tail trees
-    if (tail.length)
-        await logseq.Editor.insertBatchBlock(uuid, tail, { sibling: true, keepUUID: true })
 }
 
 function getCursorPositionsInTree(tree: IBlockNode) {

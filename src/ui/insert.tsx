@@ -4,8 +4,12 @@ import { useEffect, useRef, useState } from 'preact/hooks'
 import fuzzysort from 'fuzzysort'
 
 import './insert.css'
-import { editBlockWithSelection, PropertiesUtils, RendererMacro, setEditingCursorSelection, sleep, unquote } from '../utils'
 import { Template } from '../template'
+import { getTemplate, renderTemplateInBlockInstantly } from '../logic'
+import {
+    editBlockWithSelection, parseReference, PropertiesUtils, RendererMacro,
+    setEditingCursorSelection, sleep, unquote,
+} from '../utils'
 
 
 export const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
@@ -14,13 +18,13 @@ export const shortcutToOpenInsertUI = [
     {label: '⌘T', key: 'mod+t'},
 ]
 
-type DataItem = {uuid: string, name: string, name_: string, label: string, page: string, usage: string}
+type DataItem = { uuid: string, name: string, name_: string, label: string, page: string }
 type Data = DataItem[]
 
 
 async function prepareDataLogic(): Promise<Data> {
     const query = `
-        [:find ?uuid ?name ?label ?page ?usage
+        [:find ?uuid ?name ?label ?page
          :where
          [?b :block/properties ?ps]
          [?b :block/page ?p]
@@ -28,13 +32,12 @@ async function prepareDataLogic(): Promise<Data> {
          [?b :block/uuid ?uuid]
          [(get ?ps :${PropertiesUtils.templateProperty}) ?name]
          [(get ?ps :${PropertiesUtils.templateListAsProperty} "") ?label]
-         [(get ?ps :${PropertiesUtils.templateUsageProperty} "") ?usage]
         ]
     `.trim()
 
     const result = await logseq.DB.datascriptQuery(query)
     const data = result
-        .map(([uuid, name, label, page, usage]) => ({uuid, name, label, page, usage}))
+        .map(([uuid, name, label, page]) => ({uuid, name, label, page}))
         .map((item) => {
             // clean .name
             item.name = item.name.trim()
@@ -47,9 +50,6 @@ async function prepareDataLogic(): Promise<Data> {
                 item.label = 'View'
             else if (lowerLabel === 'template')
                 item.label = 'Template'
-
-            // clean .usage
-            item.usage = Template.cleanUsageString(item.usage, {cleanMarkers: false})
 
             return item
         })
@@ -141,13 +141,21 @@ async function insertLogic(
     if (['View', 'Template'].includes(item.label))
         insertAs = item.label as 'View' | 'Template'  // force
 
+    const ref = parseReference(item.uuid)!
+    const template = await getTemplate(ref, {accessedViaUI: true})
+
+    if (insertAs === 'Template' && template.instant) {
+        await renderTemplateInBlockInstantly(blockUUIDs[0], template)
+        return
+    }
+
     const typeToCommandMap = {
         'Template': 'template',
         'View': 'template-view',
     }
     let content = RendererMacro.command(typeToCommandMap[insertAs])
         .arg(item.name_)
-        .arg(item.usage, {raw: true})
+        .arg(template.usage, {raw: true})
         .toString()
 
     const selectionPositions = [] as number[]

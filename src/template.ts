@@ -30,6 +30,8 @@ export class Template implements ITemplate {
 
     public block: BlockEntity
     public name: string
+    public usage: string
+    public args: string[]
     public includingParent: boolean
     public accessedVia: LogseqReferenceAccessType
 
@@ -141,9 +143,16 @@ export class Template implements ITemplate {
         accessedVia: LogseqReferenceAccessType,
     }) {
         this._initialized = false
+
         this.block = block
+
         this.name = PropertiesUtils.getProperty(
-            this.block, PropertiesUtils.templateProperty).text || args.name || ''
+            this.block,
+            PropertiesUtils.templateProperty,
+        ).text || args.name || ''
+
+        this.usage = Template.getUsageString(this.block, {cleanMarkers: false})
+        this.args = Template.getUsageArgs(this.block)
 
         this.accessedVia = args.accessedVia
 
@@ -190,6 +199,7 @@ export class Template implements ITemplate {
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.includingParentProperty)
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateListAsProperty)
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateUsageProperty)
+            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateInstantProperty)
             if (this.accessedVia === 'page') {
                 PropertiesUtils.deleteProperty(this.block, PropertiesUtils.titleProperty)
                 PropertiesUtils.deleteProperty(this.block, PropertiesUtils.filtersProperty)
@@ -213,6 +223,9 @@ export class Template implements ITemplate {
             return !hasChildren
 
         return !hasChildren && !this.block.content.trim()
+    }
+    get instant() {
+        return !this.usage.includes(Template.carriagePositionMarker)
     }
     async render(context: ILogseqContext): Promise<IBlockNode> {
         this.checkInit()
