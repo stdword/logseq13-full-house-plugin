@@ -446,18 +446,24 @@ export async function renderTemplateInBlockInstantly(uuid: string, template: Tem
     const headProps = PropertiesUtils.getPropertiesFromString(head.content ?? '')
     Object.assign(headProps, head.properties)
 
-    let oldContent = context.currentBlock.content!
+    let oldContent = (await logseq.Editor.getEditingBlockContent()) ?? context.currentBlock.content!
     let newContent = head.content === undefined
         ? undefined
         : PropertiesUtils.deleteAllProperties(head.content)
 
     const selection = getEditingCursorSelection()
+    const contentStart = selection ? selection[0] : 0
     if (selection) {
         const [start, end] = selection
 
         const uuid = PropertiesUtils.getPropertyFromString(oldContent, PropertiesUtils.idProperty)
         if (uuid)
             oldContent = PropertiesUtils.deletePropertyFromString(oldContent, PropertiesUtils.idProperty)
+
+        if (newContent !== undefined) {
+            selection.length = 0
+            selection.push(start + newContent.length)
+        }
 
         newContent = oldContent.slice(0, start)
             + (newContent !== undefined ? newContent : oldContent.slice(start, end))
@@ -468,14 +474,16 @@ export async function renderTemplateInBlockInstantly(uuid: string, template: Tem
     const headChildren = head.content !== undefined ? head.children : []
 
     const positions = getCursorPositionsInTree(rendered)
-    await handleInsertion(uuid, oldContent, newContent, headProps, headChildren, tail, !!positions)
+    await handleInsertion(
+        uuid, oldContent, newContent, headProps, headChildren, tail, !!positions, selection,
+    )
     if (positions)
         await handleSetCursorPosition(
             uuid,
             template.includingParent,
             positions.cursorPath,
             positions.selectionPositions,
-            selection ? selection[0] : 0,
+            contentStart,
         )
 }
 
@@ -488,6 +496,7 @@ async function handleInsertion(
     children_: IBlockNode[],
     tail_: IBlockNode[],
     setCursorWillOccur: boolean,
+    newEditingCursorSelection: number[] | null = null,
 ) {
     // 0) clear nodes with undefined content
     const criteria = async (b, lvl, children) => (b.content !== undefined)
@@ -518,19 +527,11 @@ async function handleInsertion(
 
     // 3) updating head stage
     if (content !== undefined) {
-        // saving the cursor position & old content
-        let returnToEditingPosition: number | null = null
-        const checked = await logseq.Editor.checkEditing()
-        if (checked && checked === uuid) {
-            // save the editing cursor position
-            returnToEditingPosition = (await logseq.Editor.getEditingCursorPosition())?.pos ?? 0
-        }
-
         // WARNING: this is workaround for Logseq BUG
         //   issue: updating of currently edited block with properties, leads to properties get lost
         //   how to avoid: exit editing mode & return after updating
         let wasExitedFromEditMode = false
-        if (Object.keys(props).length && returnToEditingPosition !== null) {
+        if (Object.keys(props).length && newEditingCursorSelection) {
             wasExitedFromEditMode = true
             await logseq.Editor.exitEditingMode()
             await sleep(20)
@@ -538,19 +539,9 @@ async function handleInsertion(
 
         await logseq.Editor.updateBlock(uuid, content, {properties: props})
 
-        // restoring the cursor position
-        if (returnToEditingPosition !== null && !setCursorWillOccur) {
-            // to avoid cursor jumping to the just rendered content
-            if (content.slice(0, returnToEditingPosition) === oldContent!.slice(0, returnToEditingPosition)) {
-                if (!wasExitedFromEditMode) {
-                    await logseq.Editor.exitEditingMode()
-                    await sleep(20)
-                }
-                await logseq.Editor.editBlock(uuid, {pos: returnToEditingPosition})
-            } else
-                if (wasExitedFromEditMode)
-                    await logseq.Editor.editBlock(uuid)
-        }
+        // restoring the cursor position (if need be)
+        if (newEditingCursorSelection && !setCursorWillOccur)
+            editBlockWithSelection(uuid, newEditingCursorSelection)
     }
 }
 
@@ -623,25 +614,8 @@ async function handleSetCursorPosition(
     // 3) position cursor
 
     // cursor is positioned to head block
-    if (cursorBlockUUID === uuid) {
+    if (cursorBlockUUID === uuid)
         selectionPositions = selectionPositions.map(p => shiftPositionForHeadBlock + p)
-
-        // head block is the only one
-        // NOTE: this is future case for instant template insertions
-        // if (!tail.length && !(head.children && head.children.length)) {
-        //     const currentPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
-
-        //     if (selectionPositions.length === 1)
-        //         selectionPositions.push(selectionPositions[0])
-
-        //     setEditingCursorSelection(
-        //         currentPosition + selectionPositions[0],
-        //         currentPosition + selectionPositions[1],
-        //     )
-
-        //     return
-        // }
-    }
 
     editBlockWithSelection(cursorBlockUUID, selectionPositions)
 }
