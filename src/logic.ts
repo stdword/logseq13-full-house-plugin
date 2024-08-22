@@ -416,13 +416,42 @@ export async function renderThisBlockAsTemplate(uuid: string) {
     const headProps = PropertiesUtils.getPropertiesFromString(head.content ?? '')
     Object.assign(headProps, head.properties)
 
-    const oldContent = context.currentBlock.content!
+    let oldContent = (await logseq.Editor.getEditingBlockContent()) ?? context.currentBlock.content!
+    const propUUID = PropertiesUtils.getPropertyFromString(oldContent, PropertiesUtils.idProperty)
+    if (propUUID)
+        oldContent = PropertiesUtils.deletePropertyFromString(oldContent, PropertiesUtils.idProperty)
+
     const newContent = PropertiesUtils.deleteAllProperties(head.content ?? '')
     if (newContent === oldContent)
         return
 
+    const selection = getEditingCursorSelection()
+    if (selection) {
+        const [start] = selection
+        selection.length = 0
+
+        // try to keep cursor position
+
+        // check left prefix
+        if (
+            start < oldContent.length &&
+            oldContent.slice(0, start) === newContent.slice(0, start)
+        )
+            selection.push(start)
+
+        // check right suffix
+        const rightIndex = start - oldContent.length
+        if (
+            start < oldContent.length &&
+            oldContent.slice(start) === newContent.slice(rightIndex)
+        )
+            selection.push(rightIndex)
+    }
+
     const positions = getCursorPositionsInTree(rendered)
-    await handleInsertion(uuid, oldContent, newContent, headProps, head.children, tail, !!positions)
+    await handleInsertion(
+        uuid, oldContent, newContent, headProps, head.children, tail, !!positions, selection,
+    )
     if (positions)
         await handleSetCursorPosition(
             uuid,
