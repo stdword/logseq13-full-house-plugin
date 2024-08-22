@@ -138,8 +138,16 @@ async function insertLogic(
     if (blockUUIDs.length === 0)
         return
 
-    if (['View', 'Template'].includes(item.label))
+    if (['View', 'Template'].includes(item.label)) {
+        if (item.label !== insertAs)
+            await logseq.UI.showMsg(
+                `[:p "Forcing insertion as " [:code "🏛️${item.label.toLowerCase()}"]
+                     " because of the " [:code "${PropertiesUtils.templateListAsProperty}::"] " property"]`,
+                'warning',
+                {timeout: 10000},
+            )
         insertAs = item.label as 'View' | 'Template'  // force
+    }
 
     const ref = parseReference(item.uuid)!
     const template = await getTemplate(ref, {accessedViaUI: true})
