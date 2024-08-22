@@ -1,5 +1,12 @@
 ## v4.2 :id=v42
 
+### Now templates are inserted **instantly**
+- Without `{{renderer...}}` macro as intermediate step.
+- Except for the ones that use [cursor positioning for arguments](reference__configuring#control-cursor).
+
+  <img width="350px" src="https://github.com/user-attachments/assets/10c62057-2f26-4d63-b2b3-3149341f5f09" />
+
+
 ### «/»-command to render current block
 - For fast access to plugin's useful tools. Reference is [here](reference__commands.md#render-this-block-command).
 

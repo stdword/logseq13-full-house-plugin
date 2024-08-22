@@ -92,6 +92,9 @@ Back-tick quotes can be used to prevent displaying property value as a page refe
 ### Control cursor position / text selection for arguments :id=control-cursor
 Use optional `template-usage` property to specify cursor position (or text selection) for template arguments.
 
+?> **Note**: Using cursor positioning forces template insertion to be *non-instant*.
+This means that before the template is inserted, a `{{renderer...}}` macro will be used as an intermediate step.
+
 <!-- panels:start -->
 <!-- div:left-panel -->
 Use a `{|}` marker to indicate the cursor position:
@@ -103,7 +106,8 @@ Use a `{|}` marker to indicate the cursor position:
 `template-usage:: :age 21{|}`
 
 #### ***Will be inserted as***
-`{{renderer :template, Name, :age 21<cursor is here>}}`
+`{{renderer :template, Name, :age 21`**|**`}}`
+The cursor will be after argument value, but before curly brackets, so you can easily type-in new arguments without navigating the cursor.
 <!-- tabs:end -->
 <!-- panels:end -->
 
@@ -118,8 +122,8 @@ Or to open **page search modal** window:
 ``template-usage:: `:page [[{|}]]` ``
 
 #### ***Will be inserted as***
-`{{renderer :template, Name, :page [[<cursor is here>]]}}`
-The page search modal will be opened, and it only requires you to type in the page name without navigating the cursor.
+`{{renderer :template, Name, :page [[`**|**`]]}}`
+The page search modal will be opened, and it only requires you to type-in the page name without navigating the cursor.
 <!-- tabs:end -->
 <!-- panels:end -->
 
@@ -134,8 +138,8 @@ Use a double `{|}` marker to indicate the text selection:
 `template-usage:: :title "{|}Meeting{|}"`
 
 #### ***Will be inserted as***
-`{{renderer :template, Name, :title "Meeting" }}`
-Meeting text will be selected , and it only requires you to type in the page name without navigating the cursor.
+`{{renderer :template, Name, :title "`<mark><tt>Meeting</tt></mark>`" }}`
+Text "Meeting" will be selected, and it only requires you to type-in the value without navigating the cursor.
 <!-- tabs:end -->
 <!-- panels:end -->
 
