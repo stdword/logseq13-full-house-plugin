@@ -6,22 +6,22 @@ import fuzzysort from 'fuzzysort'
 import './insert.css'
 import { Template } from '../template'
 import { insertTemplate } from '../logic'
-import { PropertiesUtils } from '../utils'
+import { humanizeShortcut, isMacOS, PropertiesUtils } from '../utils'
 
 
-export const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
 export const shortcutToOpenInsertUI = [
     {label: 'Ctrl+T', key: 'ctrl+t'},
     {label: '⌘T', key: 'mod+t'},
 ]
 
-type DataItem = { uuid: string, name: string, name_: string, label: string, page: string }
+
+type DataItem = { uuid: string, name: string, name_: string, label: string, page: string, shortcut: string[] | null }
 type Data = DataItem[]
 
 
 async function prepareDataLogic(): Promise<Data> {
     const query = `
-        [:find ?uuid ?name ?label ?page
+        [:find ?uuid ?name ?page ?label ?shortcut
          :where
          [?b :block/properties ?ps]
          [?b :block/page ?p]
@@ -29,12 +29,13 @@ async function prepareDataLogic(): Promise<Data> {
          [?b :block/uuid ?uuid]
          [(get ?ps :${PropertiesUtils.templateProperty}) ?name]
          [(get ?ps :${PropertiesUtils.templateListAsProperty} "") ?label]
+         [(get ?ps :${PropertiesUtils.templateShortcutProperty} "") ?shortcut]
         ]
     `.trim()
 
     const result = await logseq.DB.datascriptQuery(query)
     const data = result
-        .map(([uuid, name, label, page]) => ({uuid, name, label, page}))
+        .map(([uuid, name, page, label, shortcut]) => ({uuid, name, page, label, shortcut}))
         .map((item) => {
             // clean .name
             item.name = item.name.trim()
@@ -42,6 +43,9 @@ async function prepareDataLogic(): Promise<Data> {
 
             // clean .label
             item.label = Template.cleanLabel(item.label)
+
+            // clean .shortcut
+            item.shortcut = humanizeShortcut(item.shortcut)
 
             return item
         })
@@ -417,7 +421,7 @@ function InsertUI({ blockUUIDs, isSelectedState }) {
                         <div id="results-wrap">
                             <div id="results">
                                 <div id="items">
-                                    {results.length ? results.map(({name, label, page}) => (
+                                    {results.length ? results.map(({name, label, page, shortcut}) => (
                                         <div className="item"
                                              onClick={insertHighlightedItem}
                                              onMouseDown={highlightItem}
@@ -431,6 +435,12 @@ function InsertUI({ blockUUIDs, isSelectedState }) {
                                                         { label
                                                             ? <code className="label"
                                                                     dangerouslySetInnerHTML={{ __html: label }}></code>
+                                                            : ''
+                                                        }
+                                                        { shortcut
+                                                            ?   <div className={isMacOS ? "shortcut mac" : "shortcut"}>
+                                                                    {shortcut.map((s) => <kbd className="tile">{s}</kbd>)}
+                                                                </div>
                                                             : ''
                                                         }
                                                     </div>

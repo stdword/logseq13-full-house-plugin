@@ -4,6 +4,50 @@ import { escape, escapeForRegExp, f, indexOfNth, p, sleep } from './other'
 import { isEmptyString, isInteger, isUUID, unquote } from './parsing'
 
 
+export const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
+
+
+// source: https://gist.github.com/xyhp915/d1a6d151a99f31647a95e59cdfbf4ddc
+const shortcutNamesMap = {
+  'shift': ['Shift', '⇧'],
+  'ctrl': ['Ctrl', '^'],
+  'alt': ['Alt', '⌥'],
+  'mod': ['Mod', '⌘'],
+  'meta': ['Meta', '⌘'],
+  'win': 'Win',
+
+  'backspace': ['Backspace','⌫'],
+  'delete': ['Del', '⌦'],
+  'tab': ['Tab', '⇥'],
+  'enter': ['Enter', '↩︎'],
+
+  'insert': 'Ins',
+  'context': 'Context',
+
+  'pause': '⏸',
+  'caps-lock': ['CapsLock', '⇪'],
+  'esc': ['Esc', '⎋'],
+
+  'pg-up': ['PgUp', '⇞'],
+  'pg-down': ['PgDown', '⇟'],
+  'end': ['End', '↘'],
+  'home': ['Home', '↖'],
+  'left': '←',
+  'up': '↑',
+  'right': '→',
+  'down': '↓',
+  'space': '␣',
+
+  'semicolon': ';',
+  'equals': '=',
+  'dash': '-',
+
+  'open-square-bracket': '[',
+  'close-square-bracket': ']',
+  'single-quote': "'",
+}
+
+
 export type IBlockNode = {
     content: string | void,
     children: IBlockNode[],
@@ -14,6 +58,29 @@ export type IBlockNode = {
         spawnedBlocks?: IBlockNode[],
         appendedBlocks?: IBlockNode[],
     },
+}
+
+
+export function humanizeShortcut(shortcut: string) {
+    function get(sh) {
+        const display = shortcutNamesMap[sh]
+        if (!display)
+            return sh
+        if (typeof display === 'string')
+            return display
+        if (isMacOS)
+            return display[1]
+        return display[0]
+    }
+
+    if (!shortcut)
+        return null
+
+    return shortcut
+        .split(' ')
+        .map(
+            (s) => s.split('+').map(get).join(isMacOS ? '' : '+')
+        )
 }
 
 export async function mapBlockTree(
