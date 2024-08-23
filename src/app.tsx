@@ -1,6 +1,7 @@
 import { BlockEntity, IBatchBlock, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
-
 import { render } from 'preact'
+
+import { logseq as packageInfo } from '../package.json'
 
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
 import { dayjs } from './context'
@@ -92,11 +93,12 @@ async function init() {
 
 async function registerTemplateShortcuts() {
     const query = `
-        [:find ?uuid ?name ?shortcut
+        [:find ?uuid ?prop-uuid ?name ?shortcut
          :where
          [?b :block/page]
          [?b :block/properties ?ps]
          [?b :block/uuid ?uuid]
+         [(get ?ps :${PropertiesUtils.idProperty} "") ?prop-uuid]
          [(get ?ps :${PropertiesUtils.templateProperty}) ?name]
          [(get ?ps :${PropertiesUtils.templateShortcutProperty}) ?shortcut]
         ]
@@ -104,12 +106,41 @@ async function registerTemplateShortcuts() {
 
     const result = await logseq.DB.datascriptQuery(query)
 
-    result.forEach(([uuid, name, shortcut], i) => {
-        console.log(p`Registered shortcut #${i + 1} "${shortcut}" for template "${name}"`)
+    // workaround for Logseq BUG
+    //   on early app startup time logseq.DB.datascriptQuery doesn't work properly
+    if (!result) {
+        setTimeout(async () => await registerTemplateShortcuts(), 500)
+        return
+    }
+
+    const config = await logseq.App.getCurrentGraphConfigs()
+    const shortcuts = config?.shortcuts ?? {}
+
+    result.forEach(async ([uuid, hasIDProp, name, shortcut]) => {
+        if (!hasIDProp)
+            await logseq.Editor.upsertBlockProperty(uuid, PropertiesUtils.idProperty, uuid)
+
+        const key = `fht-template-${uuid}`
+        const shortcutKey = `plugin.${packageInfo.id}/${key}`
+
+        let savedShortcut = shortcuts[shortcutKey]
+        if (savedShortcut && typeof savedShortcut !== 'string')
+            savedShortcut = savedShortcut[0]
+
+        if (savedShortcut && savedShortcut !== shortcut) {
+            console.log(p`Updated shortcut for template "${name}": ${shortcut} → ${savedShortcut}`)
+
+            await logseq.Editor.upsertBlockProperty(
+                uuid, PropertiesUtils.templateShortcutProperty, savedShortcut)
+
+            shortcut = savedShortcut
+        }
+
+        console.log(p`Registered shortcut for template "${name}": "${shortcut}"`)
 
         logseq.App.registerCommandPalette(
             {
-                key: `fht-template-${i}`,
+                key,
                 label: `Insert 🏛️template: "${name}"`,
                 keybinding: {mode: 'global', binding: shortcut},
             }, async (e) => {
@@ -119,7 +150,7 @@ async function registerTemplateShortcuts() {
 }
 
 async function postInit() {
-    await registerTemplateShortcuts()
+    setTimeout(async () => await registerTemplateShortcuts(), 5000)
 
     notifyUser()
     await onAppSettingsChanged()  // for proper tests running
