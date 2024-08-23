@@ -7,6 +7,13 @@
   <img width="350px" src="https://github.com/user-attachments/assets/10c62057-2f26-4d63-b2b3-3149341f5f09" />
 
 
+### Shortcuts for templates
+- Can be set with the help of [`template-shortcut::` property](reference__configuring#insertion-shortcut).
+- Change it via standard Logseq Keymap (need app reloading).
+
+  <img width="450px" src="https://github.com/user-attachments/assets/96fbbc06-3a3c-4f83-b4d2-ed02d577748f" />
+
+
 ### Prevent the particular sub-tree from rendering
 - Just return `undefined` inside the [statement syntax](reference__syntax.md#prevent-rendering).
 

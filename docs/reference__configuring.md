@@ -1,6 +1,6 @@
 ## Insertion UI
 
-### Hiding template from list :id=hiding-from-list
+### Hide template from list :id=hiding-from-list
 Prepend «.» before template name to automatically hide it from UI list. Use shortcut tips in the UI footer to show them back.
 
 <!-- panels:start -->
@@ -15,7 +15,7 @@ This template will be hidden from the list:
 <!-- panels:end -->
 
 
-### Restricting the rendering: as View or as Template only :id=restricting-rendering
+### Rendering as View / Template only :id=restricting-rendering
 Use optional `template-list-as` property to do that.
 
 <!-- panels:start -->
@@ -55,7 +55,7 @@ Or use any other text to label template in the *Insertion UI*:
 <!-- panels:end -->
 
 
-### Specifying default arguments :id=default-usage
+### Default arguments :id=default-usage
 Use optional `template-usage` property to specify default template arguments.
 
 <!-- panels:start -->
@@ -89,7 +89,7 @@ Back-tick quotes can be used to prevent displaying property value as a page refe
 <!-- panels:end -->
 
 
-### Control cursor position / text selection for arguments :id=control-cursor
+### Position the cursor for arguments :id=control-cursor
 Use optional `template-usage` property to specify cursor position (or text selection) for template arguments.
 
 ?> **Note**: Using cursor positioning forces template insertion to be *non-instant*.
@@ -142,6 +142,27 @@ Use a double `{|}` marker to indicate the text selection:
 Text "Meeting" will be selected, and it only requires you to type-in the value without navigating the cursor.
 <!-- tabs:end -->
 <!-- panels:end -->
+
+
+### Shortcut for insertion :id=insertion-shortcut
+Use optional `template-shortcut` property to specify keyboard shortcut for insertion.
+
+?> The shortcut can be changed via standard **Logseq Keymap**. After changing the application need to be reloaded (or the plugin need to be reloaded separately).
+
+?> **How to know which value to set for the property?** \
+    1. Specify property for the template, but leave the value empty \
+    2. Reload the application \
+    3. Open the *Logseq Keymap* \
+    4. Find the line with the label **"Insert 🏛️template: *TEMPLATE NAME*"** \
+    5. Change shortcut \
+    6. Reload the application again \
+    7. Done!
+
+<!-- tabs:start -->
+#### ***Template***
+`template:: Name` \
+`template-shortcut:: shift+meta+d`
+<!-- tabs:end -->
 
 
 
