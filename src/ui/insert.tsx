@@ -5,11 +5,8 @@ import fuzzysort from 'fuzzysort'
 
 import './insert.css'
 import { Template } from '../template'
-import { getTemplate, renderTemplateInBlockInstantly } from '../logic'
-import {
-    editBlockWithSelection, parseReference, PropertiesUtils, RendererMacro,
-    setEditingCursorSelection, sleep, unquote,
-} from '../utils'
+import { insertTemplate } from '../logic'
+import { PropertiesUtils } from '../utils'
 
 
 export const isMacOS = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
@@ -44,12 +41,7 @@ async function prepareDataLogic(): Promise<Data> {
             item.name_ = item.name  // keep original name separately
 
             // clean .label
-            item.label = item.label.trim()
-            const lowerLabel = item.label.toLowerCase()
-            if (lowerLabel === 'view')
-                item.label = 'View'
-            else if (lowerLabel === 'template')
-                item.label = 'Template'
+            item.label = Template.cleanLabel(item.label)
 
             return item
         })
@@ -138,56 +130,7 @@ async function insertLogic(
     if (blockUUIDs.length === 0)
         return
 
-    if (['View', 'Template'].includes(item.label)) {
-        if (item.label !== insertAs)
-            await logseq.UI.showMsg(
-                `[:p "Forcing insertion as " [:code "🏛️${item.label.toLowerCase()}"]
-                     " because of the " [:code "${PropertiesUtils.templateListAsProperty}::"] " property"]`,
-                'warning',
-                {timeout: 10000},
-            )
-        insertAs = item.label as 'View' | 'Template'  // force
-    }
-
-    const ref = parseReference(item.uuid)!
-    const template = await getTemplate(ref, {accessedViaUI: true})
-
-    if (insertAs === 'Template' && template.instant) {
-        await renderTemplateInBlockInstantly(blockUUIDs[0], template)
-        return
-    }
-
-    const typeToCommandMap = {
-        'Template': 'template',
-        'View': 'template-view',
-    }
-    let content = RendererMacro.command(typeToCommandMap[insertAs])
-        .arg(item.name_)
-        .arg(template.usage, {raw: true})
-        .toString()
-
-    const selectionPositions = [] as number[]
-    content = Template.getSelectionPositions(content, selectionPositions)
-
-    const blockUUID = blockUUIDs[0]
-    if (isSelectedState) {
-        await logseq.Editor.updateBlock(blockUUID, content)
-        editBlockWithSelection(blockUUID, selectionPositions)
-        return
-    }
-
-    const currentPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
-    await logseq.Editor.insertAtEditingCursor(content)
-    if (selectionPositions.length === 0)
-        return
-
-    if (selectionPositions.length === 1)
-        selectionPositions.push(selectionPositions[0])
-
-    setEditingCursorSelection(
-        currentPosition + selectionPositions[0],
-        currentPosition + selectionPositions[1],
-    )
+    await insertTemplate(item.uuid, blockUUIDs[0], insertAs)
 }
 
 function InsertUI({ blockUUIDs, isSelectedState }) {

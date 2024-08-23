@@ -124,22 +124,6 @@ export function insertTreeNodes(root: IBlockNode, path: number[], nodes: IBlockN
 }
 
 /**
- * @returns pair [UUID, false] in case of currently editing block
- * @returns pair [UUID, true] in case of selected block (outside of editing mode)
- * @returns null in case of none of the blocks are selected (outside of editing mode)
- */
-export async function getChosenBlockUUID(): Promise<[string, boolean] | null> {
-    const selected = (await logseq.Editor.getSelectedBlocks()) ?? []
-    const editing = await logseq.Editor.checkEditing()
-    if (!editing && selected.length === 0)
-        return null
-
-    const isSelectedState = selected.length !== 0
-    const uuid = isSelectedState ? selected[0].uuid : editing as string
-    return [ uuid, isSelectedState ]
-}
-
-/**
  * @returns pair [[BlockEntity obj], false] in case of currently editing block
  * @returns pair [[BlockEntity objs], true] in case of selected block (outside of editing mode)
  * @returns pair [[], false] in case of none of the blocks are selected (outside of editing mode)
@@ -174,12 +158,12 @@ export async function insertContent(
     // Bug-or-feature with Command Palette modal: Logseq exits editing state when modal appears
     // To handle this: use selected blocks — the editing block turns to selected
 
-    const chosenBlock = await getChosenBlockUUID()
-    if (!chosenBlock) {
+    const [ blocks, isSelectedState ] = await getChosenBlocks()
+    if (!blocks.length) {
         console.warn(p`Attempt to insert content while not in editing state and no one block is selected`)
         return false
     }
-    const [ uuid, isSelectedState ] = chosenBlock
+    const uuid = blocks[0].uuid
 
     const { positionOnArg, positionOnNthText, positionBeforeText, positionAfterText, positionIndex } = options
     let position: number | undefined
@@ -580,7 +564,8 @@ export class PropertiesUtils {
     static readonly templateProperty = 'template'
     static readonly templateListAsProperty = 'template-list-as'
     static readonly templateUsageProperty = 'template-usage'
-    static readonly includingParentProperty = 'template-including-parent'
+    static readonly templateShortcutProperty = 'template-shortcut'
+    static readonly templateIncludingParentProperty = 'template-including-parent'
 
     static propertyContentFormat = f`\n?^[^\\S]*${'name'}::(.*)$`
     static propertyRestrictedChars = '\\s:;,^@#~"`/|\\(){}[\\]'

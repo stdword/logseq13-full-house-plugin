@@ -21,8 +21,12 @@ import {
     getActualBlock,
     filterBlockTree,
     getEditingCursorSelection,
+    getChosenBlocks,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
+
+
+type InsertAs = 'View' | 'Template'
 
 
 async function getCurrentContext(
@@ -649,6 +653,87 @@ async function handleSetCursorPosition(
     editBlockWithSelection(cursorBlockUUID, selectionPositions)
 }
 
+export async function insertTemplate(
+    templateUUID: string,
+    destinationUUID?: string,
+    insertAs?: InsertAs,
+    denyInstant: boolean = false,
+) {
+    const ref = parseReference(templateUUID)!
+    const template = await getTemplate(ref, {accessedViaUI: true})
+
+    if (['View', 'Template'].includes(template.label)) {
+        if (insertAs && template.label !== insertAs)
+            await logseq.UI.showMsg(
+                `[:p "Forcing insertion as " [:code "🏛️${template.label.toLowerCase()}"]
+                     " because of the " [:code "${PropertiesUtils.templateListAsProperty}::"] " property"]`,
+                'warning',
+                {timeout: 10000},
+            )
+
+        insertAs = template.label as InsertAs  // force
+    } else
+        if (!insertAs)
+            insertAs = 'Template'
+
+
+    let isSelectedState: boolean
+    if (destinationUUID) {
+        const uuid = await logseq.Editor.checkEditing()
+        const isEditingState = !!uuid && uuid === destinationUUID
+        isSelectedState = !isEditingState
+    } else {
+        const [blocks, isSelectedState_] = await getChosenBlocks()
+        if (!blocks.length) {
+            logseq.UI.showMsg(
+                `[:p "Start editing block or select one to insert "
+                     [:code "${insertAs}"]]`,
+                'warning',
+                {timeout: 5000},
+            )
+            return
+        }
+        destinationUUID = blocks[0].uuid
+        isSelectedState = isSelectedState_
+    }
+
+
+    if (!denyInstant && insertAs === 'Template' && template.instant) {
+        await renderTemplateInBlockInstantly(destinationUUID, template)
+        return
+    }
+
+    const typeToCommandMap = {
+        'Template': 'template',
+        'View': 'template-view',
+    }
+    let content = RendererMacro.command(typeToCommandMap[insertAs])
+        .arg(template.name)
+        .arg(template.usage, {raw: true})
+        .toString()
+
+    const selectionPositions = [] as number[]
+    content = Template.getSelectionPositions(content, selectionPositions)
+
+    if (isSelectedState) {
+        await logseq.Editor.updateBlock(destinationUUID, content)
+        editBlockWithSelection(destinationUUID, selectionPositions)
+        return
+    }
+
+    const currentPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
+    await logseq.Editor.insertAtEditingCursor(content)
+    if (selectionPositions.length === 0)
+        return
+
+    if (selectionPositions.length === 1)
+        selectionPositions.push(selectionPositions[0])
+
+    setEditingCursorSelection(
+        currentPosition + selectionPositions[0],
+        currentPosition + selectionPositions[1],
+    )
+}
 
 /**
  * @raises StateError: template doesn't exist

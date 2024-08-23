@@ -8,6 +8,7 @@ import {
     renderThisBlockAsTemplate,
     renderTemplateInBlock, renderTemplateView, renderView,
     templateMacroStringForBlock, templateMacroStringForPage,
+    insertTemplate,
 } from './logic'
 import {
     indexOfNth, lockOn, p, sleep,
@@ -89,7 +90,37 @@ async function init() {
     console.info(p`Loaded`)
 }
 
+async function registerTemplateShortcuts() {
+    const query = `
+        [:find ?uuid ?name ?shortcut
+         :where
+         [?b :block/page]
+         [?b :block/properties ?ps]
+         [?b :block/uuid ?uuid]
+         [(get ?ps :${PropertiesUtils.templateProperty}) ?name]
+         [(get ?ps :${PropertiesUtils.templateShortcutProperty}) ?shortcut]
+        ]
+    `.trim()
+
+    const result = await logseq.DB.datascriptQuery(query)
+
+    result.forEach(([uuid, name, shortcut], i) => {
+        console.log(p`Registered shortcut #${i + 1} "${shortcut}" for template "${name}"`)
+
+        logseq.App.registerCommandPalette(
+            {
+                key: `fht-template-${i}`,
+                label: `Insert 🏛️template: "${name}"`,
+                keybinding: {mode: 'global', binding: shortcut},
+            }, async (e) => {
+                await insertTemplate(uuid)
+        })
+    })
+}
+
 async function postInit() {
+    await registerTemplateShortcuts()
+
     notifyUser()
     await onAppSettingsChanged()  // for proper tests running
 

@@ -30,6 +30,7 @@ export class Template implements ITemplate {
 
     public block: BlockEntity
     public name: string
+    public label: string
     public usage: string
     public args: string[]
     public includingParent: boolean
@@ -70,6 +71,17 @@ export class Template implements ITemplate {
             value = value.replace(Template.carriagePositionMarker, '')
             value = value.replace(Template.carriagePositionMarker, '')
         }
+
+        return value
+    }
+    static cleanLabel(value: string) {
+        value = value.trim()
+
+        const lowerLabel = value.toLowerCase()
+        if (lowerLabel === 'view')
+            value = 'View'
+        else if (lowerLabel === 'template')
+            value = 'Template'
 
         return value
     }
@@ -151,6 +163,11 @@ export class Template implements ITemplate {
             PropertiesUtils.templateProperty,
         ).text || args.name || ''
 
+        this.label = PropertiesUtils.getProperty(
+            this.block,
+            PropertiesUtils.templateListAsProperty,
+        ).text || ''
+
         this.usage = Template.getUsageString(this.block, {cleanMarkers: false})
         this.args = Template.getUsageArgs(this.block)
 
@@ -168,7 +185,7 @@ export class Template implements ITemplate {
             //   → defaultIncludingParent = true
 
             const defaultIncludingParent = this.accessedVia === 'block'
-            const prop = PropertiesUtils.getProperty(this.block, PropertiesUtils.includingParentProperty)
+            const prop = PropertiesUtils.getProperty(this.block, PropertiesUtils.templateIncludingParentProperty)
             const value = prop.refs.length ? prop.refs[0] : prop.text
             this.includingParent = coerceToBool(
                 value, {
@@ -196,7 +213,7 @@ export class Template implements ITemplate {
 
         if (this.includingParent) {
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateProperty)
-            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.includingParentProperty)
+            PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateIncludingParentProperty)
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateListAsProperty)
             PropertiesUtils.deleteProperty(this.block, PropertiesUtils.templateUsageProperty)
             if (this.accessedVia === 'page') {
