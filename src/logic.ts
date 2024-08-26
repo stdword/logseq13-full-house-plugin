@@ -391,10 +391,8 @@ async (
         return
     }
 
-    const headChildren = head.content !== undefined ? head.children : []
-
     const positions = getCursorPositionsInTree(rendered)
-    await handleInsertion(uuid, oldContent, newContent, headProps, headChildren, tail, !!positions)
+    await handleInsertion(uuid, oldContent, newContent, headProps, head.children, tail, !!positions)
     if (positions)
         await handleSetCursorPosition(
             uuid,
@@ -425,6 +423,8 @@ export async function renderThisBlockAsTemplate(uuid: string) {
     if (propUUID)
         oldContent = PropertiesUtils.deletePropertyFromString(oldContent, PropertiesUtils.idProperty)
 
+    if (head.content === undefined)
+        return
     const newContent = PropertiesUtils.deleteAllProperties(head.content ?? '')
     if (newContent === oldContent)
         return
@@ -504,11 +504,9 @@ export async function renderTemplateInBlockInstantly(uuid: string, template: Tem
             + (uuid ? `\n${PropertiesUtils.idProperty}:: ${uuid}` : '')
     }
 
-    const headChildren = head.content !== undefined ? head.children : []
-
     const positions = getCursorPositionsInTree(rendered)
     await handleInsertion(
-        uuid, oldContent, newContent, headProps, headChildren, tail, !!positions, selection,
+        uuid, oldContent, newContent, headProps, head.children, tail, !!positions, selection,
     )
     if (positions)
         await handleSetCursorPosition(
@@ -526,36 +524,24 @@ async function handleInsertion(
     oldContent: string,
     content: string | undefined,
     props: Record<string, any>,
-    children_: IBlockNode[],
-    tail_: IBlockNode[],
+    children: IBlockNode[],
+    tail: IBlockNode[],
     setCursorWillOccur: boolean,
     newEditingCursorSelection: number[] | null = null,
 ) {
-    // 0) clear nodes with undefined content
-    const criteria = async (b, lvl, children) => (b.content !== undefined)
-    const children = (
-        (
-            await filterBlockTree({content: '', children: children_}, criteria)
-        )?.children ?? []
-    ) as IBatchBlock[]
-    const tail = (
-        (
-            await filterBlockTree({content: '', children: tail_}, criteria)
-        )?.children ?? []
-    ) as IBatchBlock[]
-
-
     // 1) inserting head's children stage
 
     // WARNING: it is important to call `.insertBatchBlock` before `.updateBlock`
     // due to Logseq BUG on batch inserting to empty block (content == '')
     if (children && children.length)
-        await logseq.Editor.insertBatchBlock(uuid, children, { sibling: false, keepUUID: true })
+        await logseq.Editor.insertBatchBlock(
+            uuid, children as IBatchBlock[], { sibling: false, keepUUID: true })
 
 
     // 2) inserting tail trees
     if (tail.length)
-        await logseq.Editor.insertBatchBlock(uuid, tail, { sibling: true, keepUUID: true })
+        await logseq.Editor.insertBatchBlock(
+            uuid, tail as IBatchBlock[], { sibling: true, keepUUID: true })
 
 
     // 3) updating head stage
@@ -817,9 +803,6 @@ export async function compileTemplateView(
             {template, error},
         )
     }
-
-    const criteria = async (b, lvl, children) => (b.content !== undefined)
-    rendered = (await filterBlockTree(rendered, criteria)) ?? {content: '', children: []}
 
     let compiled = await mapBlockTree(rendered, async (b, lvl) => {
         const content = (b.content || '').toString()

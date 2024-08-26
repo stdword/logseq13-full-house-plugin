@@ -182,28 +182,6 @@ But there are the special `out` & `outn` functions to output info within ` ``{..
 
 
 
-### Prevent the rendering for blocks tree :id=prevent-rendering
-Just return `undefined` inside the particular block to prevent whole block and it's children from being rendered.
-
-<!-- tabs:start -->
-#### ***Template***
-- This block will be rendered only in editing mode
-  ` ``{ if (!(await logseq.Editor.checkEditing())) return undefined }`` `
-  - And this one too
-- But not this one
-
-#### ***Rendered (editing mode)***
-- This block will be rendered only in editing mode
-  - And this one too
-- But not this one
-
-#### ***Rendered (selection mode)***
-- But not this one
-
-<!-- tabs:end -->
-
-
-
 ### Cursor positioning with ` ``{|}`` ` :id=cursor-positioning
 This special syntax positions the cursor after template insertion.
 

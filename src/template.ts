@@ -300,15 +300,20 @@ export class Template implements ITemplate {
             if (state.appendedBlocks)
                 data.appendedBlocks = state.appendedBlocks as IBlockNode[]
 
-            // make arrays and objects looks pretty
-            if (typeof result === 'object' && result !== null)
-                return Template.convertValueToPretty(result)
+            // check blocks skipping
+            if (state.skip)
+                data.skip = true
+            if (state.skipChildren)
+                data.skipChildren = true
 
-            if (result === null)
+
+            // handle special values
+            if (result === null || result === undefined)
                 return ''
 
-            if (result === undefined)
-                return  // void
+            // make arrays and objects looks pretty
+            if (typeof result === 'object')
+                return Template.convertValueToPretty(result)
 
             return result.toString()
         })
@@ -329,6 +334,21 @@ export class Template implements ITemplate {
         for (const [path, blocks] of insertAfter)
             insertTreeNodes(tree, path, blocks)
 
+
+        // shrink the tree: skip blocks
+        walkBlockTree(tree, (b, lvl, path) => {
+            if (b.data && b.data.skipChildren) {
+                b.children = []
+                delete b.data.skipChildren
+            }
+            if (b.data && b.data.skip) {
+                b.content = undefined
+                b.properties = {}
+                delete b.data.skip
+            }
+        })
+
+
         // setup every new node
         walkBlockTree(tree, (b, lvl, path) => {
             prepareRenderedNode(b)
@@ -347,10 +367,14 @@ export function prepareRenderedNode(node: IBlockNode, opts?: {cursorPosition?: t
         node.data = node.data ?? {}
 
         const selectionPositions = [] as number[]
-        node.content = Template.getSelectionPositions(node.content ?? '', selectionPositions)
+        node.content = node.content === undefined
+            ? undefined
+            : Template.getSelectionPositions(node.content, selectionPositions)
 
         if (selectionPositions.length)
             node.data.selectionPositions = selectionPositions
+        else
+            delete node.data.selectionPositions
     }
 
     // set the specified uuid

@@ -5,6 +5,45 @@
 
 ## `blocks`
 
+### `.skip` :id=blocks-skip
+Prevents block or it's children or both from being rendered.
+
+<!-- tabs:start -->
+#### ***Template***
+- We want to keep selected text (in edit mode) \
+  OR whole block content (in blocks selection mode)
+  \
+  ` ``{ blocks.skip() }`` `
+  - Visible block
+
+#### ***Rendered***
+- Original block content
+  - Visible block
+
+<!-- tabs:end -->
+
+<!-- tabs:start -->
+#### ***Template***
+- This block will be rendered only in editing mode
+  ```javascript
+  ``{
+    if ( !(await logseq.Editor.checkEditing()) )
+        blocks.skip({children: true})
+  }``
+  ```
+  - And this one too
+- But not this one
+
+#### ***Rendered (editing mode)***
+- This block will be rendered only in editing mode
+  - And this one too
+- But not this one
+
+#### ***Rendered (selection mode)***
+- But not this one
+
+<!-- tabs:end -->
+
 ### `.spawn` & `.append` :id=blocks-spawn
 Creates blocks related to current at runtime. There could be child blocks (*spawned*) and sibling blocks (*appended*).
 

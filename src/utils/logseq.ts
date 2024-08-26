@@ -57,6 +57,8 @@ export type IBlockNode = {
         selectionPositions?: number[],
         spawnedBlocks?: IBlockNode[],
         appendedBlocks?: IBlockNode[],
+        skip?: boolean,
+        skipChildren?: boolean,
     },
 }
 

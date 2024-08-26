@@ -1,27 +1,27 @@
 ## v4.2 :id=v42
 
 ### Now templates are inserted instantly!
-- Without `{{renderer...}}` macro as intermediate step.
-- Except for the ones that use [cursor positioning for arguments](reference__configuring#control-cursor).
+- Without `{{renderer...}}` macro as intermediate step
+- Except for the ones that use [cursor positioning for arguments](reference__configuring#control-cursor)
 
   <img width="350px" src="https://github.com/user-attachments/assets/10c62057-2f26-4d63-b2b3-3149341f5f09" />
 
 
 ### Shortcuts for templates
-- Can be set with the help of [`template-shortcut::` property](reference__configuring#insertion-shortcut).
-- Change it via standard Logseq Keymap (need app reloading).
+- Can be set with the help of [`template-shortcut::` property](reference__configuring#insertion-shortcut)
+- Change it via standard Logseq Keymap (need app reloading)
 
   <img width="250px" src="https://github.com/user-attachments/assets/9e6f5678-9a7e-413d-ad9f-7d9ed4230869" />
 
 
-### Prevent the particular sub-tree from rendering
-- Just return `undefined` inside the [statement syntax](reference__syntax.md#prevent-rendering).
+### Prevent the particular block or sub-tree from rendering
+- Via [`blocks.skip`](reference__tags_advanced.md#blocks-skip) template tag
 
-  <img width="500px" src="https://github.com/user-attachments/assets/bc06014b-c847-42dc-b307-208e7212b70c" />
+  <img width="250px" src="https://github.com/user-attachments/assets/26ca5e55-9735-4d4d-b7df-d18b41131d5d" />
 
 
 ### «/»-command to render current block
-- For fast access to plugin's useful tools. Reference is [here](reference__commands.md#render-this-block-command).
+- For fast access to plugin's useful tools. Reference is [here](reference__commands.md#render-this-block-command)
 
   <img width="300px" src="https://github.com/user-attachments/assets/62f9b4a6-2e11-41cc-914c-b31a96deba9d" />
   <br/>

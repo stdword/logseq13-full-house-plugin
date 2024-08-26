@@ -981,6 +981,24 @@ function blocks_append_tree(c: C, root: IBlockNode) {
 }
 blocks_append.tree = blocks_append_tree
 
+function blocks_skip(c:C, opts?: {self?: boolean, children?: boolean}) {
+    const env = _env(c)
+
+    opts = opts ?? {}
+
+    if (opts.children === undefined)
+        opts.children = false
+
+    if (opts.self === undefined)
+        opts.self = true
+
+    if (opts.self)
+        env.state({skip: true})
+
+    if (opts.children)
+        env.state({skipChildren: true})
+}
+
 
 function _env(c: C) {
     // @ts-expect-error
@@ -1084,6 +1102,7 @@ export function getTemplateTagsContext(context: C) {
             uuid: bindContext(blocks_uuid, context),
             spawn: blocks_spawn_,
             append: blocks_append_,
+            skip: bindContext(blocks_skip, context),
         }),
 
         parse: new Context({
