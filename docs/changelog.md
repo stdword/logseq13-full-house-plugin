@@ -11,7 +11,7 @@
 - Can be set with the help of [`template-shortcut::` property](reference__configuring#insertion-shortcut).
 - Change it via standard Logseq Keymap (need app reloading).
 
-  <img width="450px" src="https://github.com/user-attachments/assets/96fbbc06-3a3c-4f83-b4d2-ed02d577748f" />
+  <img width="250px" src="https://github.com/user-attachments/assets/9e6f5678-9a7e-413d-ad9f-7d9ed4230869" />
 
 
 ### Prevent the particular sub-tree from rendering

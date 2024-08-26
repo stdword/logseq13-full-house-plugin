@@ -1,4 +1,4 @@
-!> This tutorial uses **old** template syntax (used before `v3.0.0`). To get examples to work properly use [new syntax](reference__syntax.md).
+!> This tutorial is a bit obsolete and uses **old** template syntax (used before `v3.0.0`). To get examples to work properly use [new syntax](reference__syntax.md). Updated version TBD
 
 ## Rendering named template
 - To **create a template** from block add `template` property with its name as a value (just like Logseq standard templates)
