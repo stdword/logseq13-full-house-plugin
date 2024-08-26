@@ -20,6 +20,7 @@ import {
     escapeMacroArg,
     getBlock, getPage, getTreeNode, IBlockNode, isEmptyString, isObject, isUUID,
     LogseqReference, p, parseReference, RendererMacro,
+    rgbToHex,
     splitMacroArgs, unquote, walkBlockTree, walkBlockTreeAsync,
 } from './utils'
 import {
@@ -647,12 +648,23 @@ function dev_asset(context: C, name: string): string {
     return `${protocol}://${link}`
 }
 function dev_color(value: string): string {
-    // TODO: rgb(r, g, b) & others support
     value = _asString(value)
     value = unquote(value)
-    if (!value.startsWith('#'))
-        value = `#${value}`
-    return value
+    if (!value)
+        return ''
+
+    if (value.startsWith('#'))
+        value = value.slice(1)
+
+    if (/^(?:[0-9a-f]{3}){1,2}$/i.test(value))
+        return '#' + value
+
+    const div = document.createElement('div')
+    div.style.color = value
+
+    const color = div.style.color
+    const rgb = color.slice(4, -1).split(', ').map(x => Number(x))
+    return rgbToHex(...rgb as [number, number, number])
 }
 export function dev_get(context: C, path: string, obj?: any): string {
     path = _asString(path)

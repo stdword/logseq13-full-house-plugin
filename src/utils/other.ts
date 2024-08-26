@@ -179,6 +179,10 @@ export function loadThemeVars(vars) {
     })
 }
 
+export function rgbToHex(r, g, b) {
+    return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')
+}
+
 /**
  * source: underscore.random
  * url: https://github.com/jashkenas/underscore/blob/ffabcd443fd784e4bc743fff1d25456f7282d531/underscore.js#L1393

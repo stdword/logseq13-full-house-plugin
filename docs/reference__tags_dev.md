@@ -176,20 +176,22 @@ Expands full file path to the asset.
 
 
 ### `.color` :id=dev-color
-Convert color to CSS value. It is helpful for retrieving CSS color values from template properties.
+Convert color from any CSS value to hex format. It is helpful for retrieving CSS color values from template properties.
 
-`dev.color(hex)`
+`dev.color(value)`
+- `value`: a string representation of any CSS color value
 
 <!-- tabs:start -->
 #### ***Template***
-```
-- template:: test
-  arg-color:: fff
-    - `dev.color(c.args.color)`
-```
+- `dev.color('fff')`
+- `dev.color('rgb(128, 128, 128)')`
+- `dev.color('hsl(256, 30%, 50%)')`
 
 #### ***Rendered***
-`#fff`
+- `#fff`
+- `#808080`
+- `#6e59a6`
+
 <!-- tabs:end -->
 
 

@@ -8,6 +8,12 @@
 ### `.skip` :id=blocks-skip
 Prevents block or it's children or both from being rendered.
 
+`blocks.skip(options)` — create sibling block
+- `options`: object with options
+  - `self`: (optional) skip current block content? (default: true)
+  - `children`: (optional) skip current block's children? (default: false)
+
+
 <!-- tabs:start -->
 #### ***Template***
 - We want to keep selected text (in edit mode) \
