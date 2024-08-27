@@ -1,3 +1,10 @@
+## [4.2.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.2.0...v4.2.1) (2024-08-27)
+
+
+### Bug Fixes
+
+* add new notification for users about version release ([7179eb7](https://github.com/stdword/logseq13-full-house-plugin/commit/7179eb703ab79d899f6a304365eb93167e58887b))
+
 # [4.2.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.1.0...v4.2.0) (2024-08-27)
 
 
