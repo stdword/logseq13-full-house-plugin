@@ -650,6 +650,8 @@ export class PropertiesUtils {
     static readonly templateUsageProperty = 'template-usage'
     static readonly templateShortcutProperty = 'template-shortcut'
     static readonly templateIncludingParentProperty = 'template-including-parent'
+    static readonly numberingProperty = 'logseq.orderListType'
+    static readonly numberingProperty_ = 'logseq.order-list-type'
 
     static propertyContentFormat = f`\n?^[^\\S]*${'name'}::(.*)$`
     static propertyRestrictedChars = '\\s:;,^@#~"`/|\\(){}[\\]'
