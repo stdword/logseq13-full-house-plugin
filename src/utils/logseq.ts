@@ -1087,3 +1087,10 @@ export async function insertBatchBlockBefore(
 
     return inserted
 }
+
+// export async function ensureChildrenIncluded(node: BlockEntity): Promise<BlockEntity> {
+//     // @ts-expect-error
+//     if (node.children?.at(0)?.uuid)
+//         return node
+//     return (await logseq.Editor.getBlock(node.uuid, {includeChildren: true}))!
+// }

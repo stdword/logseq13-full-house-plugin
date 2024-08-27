@@ -23,7 +23,7 @@ export async function updateBlocksAction(
         level: number,
         block: BlockEntity,
         data: Record<string, any>
-    ) => [string, Record<string, any>] | string | void,
+    ) => Promise<[string, Record<string, any>] | string | void>,
     opts?: {
         skipTree?: boolean,
         blocks?: BlockEntity[] | string[],
@@ -123,135 +123,135 @@ export async function updateBlocksAction(
     }
 }
 
-export async function transformBlocksAction(
-    callback: (blocks: BlockEntity[]) => BlockEntity[],
-    blocks: BlockEntity[],
-    isSelectedState: boolean,
-) {
-    // if all blocks relates to one root block
-    if (blocks.length === 1) {
-        const tree = await ensureChildrenIncluded(blocks[0])
-        if (!tree.children || tree.children.length === 0)
-            return  // nothing to transform
+// export async function transformBlocksAction(
+//     callback: (blocks: BlockEntity[]) => BlockEntity[],
+//     blocks: BlockEntity[],
+//     isSelectedState: boolean,
+// ) {
+//     // if all blocks relates to one root block
+//     if (blocks.length === 1) {
+//         const tree = await ensureChildrenIncluded(blocks[0])
+//         if (!tree.children || tree.children.length === 0)
+//             return  // nothing to transform
 
-        const newRoot = await transformBlocksTreeByReplacing(tree, callback)
-        if (newRoot) {  // successfully replaced
-            if (isSelectedState)
-                await logseq.Editor.selectBlock(newRoot.uuid)
-            else
-                await logseq.Editor.editBlock(newRoot.uuid)
+//         const newRoot = await transformBlocksTreeByReplacing(tree, callback)
+//         if (newRoot) {  // successfully replaced
+//             if (isSelectedState)
+//                 await logseq.Editor.selectBlock(newRoot.uuid)
+//             else
+//                 await logseq.Editor.editBlock(newRoot.uuid)
 
-            return
-        }
+//             return
+//         }
 
-        // fallback to array of blocks
-        blocks = tree.children as BlockEntity[]
-    }
+//         // fallback to array of blocks
+//         blocks = tree.children as BlockEntity[]
+//     }
 
 
-    // if all blocks from different parents
-    transformSelectedBlocksWithMovements(blocks, callback)
-}
+//     // if all blocks from different parents
+//     transformSelectedBlocksWithMovements(blocks, callback)
+// }
 
-async function transformBlocksTreeByReplacing(
-    root: BlockEntity,
-    transformChildrenCallback: (blocks: BlockEntity[]) => BlockEntity[],
-): Promise<BlockEntity | null> {
-    root = await ensureChildrenIncluded(root)
-    if (!root || !root.children || root.children.length === 0)
-        return null  // nothing to replace
+// async function transformBlocksTreeByReplacing(
+//     root: BlockEntity,
+//     transformChildrenCallback: (blocks: BlockEntity[]) => BlockEntity[],
+// ): Promise<BlockEntity | null> {
+//     root = await ensureChildrenIncluded(root)
+//     if (!root || !root.children || root.children.length === 0)
+//         return null  // nothing to replace
 
-    // METHOD: blocks removal to replace whole tree
-    // but it is important to check if any block in the tree has references
-    // (Logseq replaces references with it's text)
-    const blocksWithReferences = await getBlocksWithReferences(root)
-    if (blocksWithReferences.length !== 0)
-        return null  // blocks removal cannot be used
+//     // METHOD: blocks removal to replace whole tree
+//     // but it is important to check if any block in the tree has references
+//     // (Logseq replaces references with it's text)
+//     const blocksWithReferences = await getBlocksWithReferences(root)
+//     if (blocksWithReferences.length !== 0)
+//         return null  // blocks removal cannot be used
 
-    const transformedBlocks = transformChildrenCallback(root.children as BlockEntity[])
-    walkBlockTree({content: '', children: transformedBlocks as IBatchBlock[]}, (b, level) => {
-        b.properties = PropertiesUtils.fromCamelCaseAll(b.properties ?? {})
-    })
+//     const transformedBlocks = transformChildrenCallback(root.children as BlockEntity[])
+//     walkBlockTree({content: '', children: transformedBlocks as IBatchBlock[]}, (b, level) => {
+//         b.properties = PropertiesUtils.fromCamelCaseAll(b.properties ?? {})
+//     })
 
-    // root is the first block in page
-    if (root.left.id === root.page.id) {
-        const page = await logseq.Editor.getPage(root.page.id)
-        await logseq.Editor.removeBlock(root.uuid)
+//     // root is the first block in page
+//     if (root.left.id === root.page.id) {
+//         const page = await logseq.Editor.getPage(root.page.id)
+//         await logseq.Editor.removeBlock(root.uuid)
 
-        // logseq bug: cannot use sibling next to root to insert whole tree to a page
-        //  so insert root of a tree separately from children
-        const properties = PropertiesUtils.fromCamelCaseAll(root.properties)
-        let prepended = await logseq.Editor.insertBlock(
-            page!.uuid, root.content,
-            {properties, before: true, customUUID: root.uuid},
-        )
-        if (!prepended) {
-            // logseq bug: for empty pages need to change `before: true → false`
-            prepended = (await logseq.Editor.insertBlock(
-                page!.uuid, root.content,
-                {properties, before: false, customUUID: root.uuid},
-            ))!
-        }
+//         // logseq bug: cannot use sibling next to root to insert whole tree to a page
+//         //  so insert root of a tree separately from children
+//         const properties = PropertiesUtils.fromCamelCaseAll(root.properties)
+//         let prepended = await logseq.Editor.insertBlock(
+//             page!.uuid, root.content,
+//             {properties, before: true, customUUID: root.uuid},
+//         )
+//         if (!prepended) {
+//             // logseq bug: for empty pages need to change `before: true → false`
+//             prepended = (await logseq.Editor.insertBlock(
+//                 page!.uuid, root.content,
+//                 {properties, before: false, customUUID: root.uuid},
+//             ))!
+//         }
 
-        await logseq.Editor.insertBatchBlock(
-            prepended.uuid, transformedBlocks as IBatchBlock[],
-            {before: false, sibling: false, keepUUID: true},
-        )
-        return prepended
-    }
+//         await logseq.Editor.insertBatchBlock(
+//             prepended.uuid, transformedBlocks as IBatchBlock[],
+//             {before: false, sibling: false, keepUUID: true},
+//         )
+//         return prepended
+//     }
 
-    // use root to insert whole tree at once
-    const oldChildren = root.children
-    root.children = transformedBlocks
+//     // use root to insert whole tree at once
+//     const oldChildren = root.children
+//     root.children = transformedBlocks
 
-    // root is the first child for its parent
-    if (root.left.id === root.parent.id) {
-        let parentRoot = (await logseq.Editor.getBlock(root.parent.id))!
-        await logseq.Editor.removeBlock(root.uuid)
-        await logseq.Editor.insertBatchBlock(
-            parentRoot.uuid, root as IBatchBlock,
-            {before: true, sibling: false, keepUUID: true},
-        )
+//     // root is the first child for its parent
+//     if (root.left.id === root.parent.id) {
+//         let parentRoot = (await logseq.Editor.getBlock(root.parent.id))!
+//         await logseq.Editor.removeBlock(root.uuid)
+//         await logseq.Editor.insertBatchBlock(
+//             parentRoot.uuid, root as IBatchBlock,
+//             {before: true, sibling: false, keepUUID: true},
+//         )
 
-        // restore original object
-        root.children = oldChildren
+//         // restore original object
+//         root.children = oldChildren
 
-        parentRoot = (await logseq.Editor.getBlock(parentRoot.uuid, {includeChildren: true}))!
-        return parentRoot.children![0] as BlockEntity
-    }
+//         parentRoot = (await logseq.Editor.getBlock(parentRoot.uuid, {includeChildren: true}))!
+//         return parentRoot.children![0] as BlockEntity
+//     }
 
-    // root is not first child of parent and is not first block on page: it has sibling
-    const preRoot = (await logseq.Editor.getPreviousSiblingBlock(root.uuid))!
-    await logseq.Editor.removeBlock(root.uuid)
-    await logseq.Editor.insertBatchBlock(
-        preRoot.uuid, root as IBatchBlock,
-        {before: false, sibling: true, keepUUID: true},
-    )
+//     // root is not first child of parent and is not first block on page: it has sibling
+//     const preRoot = (await logseq.Editor.getPreviousSiblingBlock(root.uuid))!
+//     await logseq.Editor.removeBlock(root.uuid)
+//     await logseq.Editor.insertBatchBlock(
+//         preRoot.uuid, root as IBatchBlock,
+//         {before: false, sibling: true, keepUUID: true},
+//     )
 
-    // restore original object
-    root.children = oldChildren
+//     // restore original object
+//     root.children = oldChildren
 
-    return (await logseq.Editor.getNextSiblingBlock(preRoot.uuid))!
-}
+//     return (await logseq.Editor.getNextSiblingBlock(preRoot.uuid))!
+// }
 
-async function transformSelectedBlocksWithMovements(
-    blocks: BlockEntity[],
-    transformCallback: (blocks: BlockEntity[]) => BlockEntity[],
-) {
-    // METHOD: blocks movement
+// async function transformSelectedBlocksWithMovements(
+//     blocks: BlockEntity[],
+//     transformCallback: (blocks: BlockEntity[]) => BlockEntity[],
+// ) {
+//     // METHOD: blocks movement
 
-    // Logseq sorts selected blocks, so the first is the most upper one
-    let insertionPoint = blocks[0]
+//     // Logseq sorts selected blocks, so the first is the most upper one
+//     let insertionPoint = blocks[0]
 
-    // Logseq bug: selected blocks can be duplicated (but sorted!)
-    //   just remove duplication
-    blocks = unique(blocks, (b) => b.uuid)
+//     // Logseq bug: selected blocks can be duplicated (but sorted!)
+//     //   just remove duplication
+//     blocks = unique(blocks, (b) => b.uuid)
 
-    const transformed = transformCallback(blocks)
-    for (const block of transformed) {
-        // Logseq don't add movement to history if there was no movement at all
-        //   so we don't have to save API calls: just call .moveBlock on EVERY block
-        await logseq.Editor.moveBlock(block.uuid, insertionPoint.uuid, {before: false})
-        insertionPoint = block
-    }
-}
+//     const transformed = transformCallback(blocks)
+//     for (const block of transformed) {
+//         // Logseq don't add movement to history if there was no movement at all
+//         //   so we don't have to save API calls: just call .moveBlock on EVERY block
+//         await logseq.Editor.moveBlock(block.uuid, insertionPoint.uuid, {before: false})
+//         insertionPoint = block
+//     }
+// }
