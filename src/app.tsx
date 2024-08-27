@@ -27,7 +27,7 @@ import {
     resolvePageAliases,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
-import InsertUI, { isMacOS, shortcutToOpenInsertUI, showInsertRestrictionMessage } from './ui/insert'
+import InsertUI, { shortcutToOpenInsertUI, showInsertRestrictionMessage } from './ui/insert'
 import { array_sorted } from './tags'
 import { query_table_clickHeader, iconSortAsc, iconSortDesc } from './ui/query-table'
 

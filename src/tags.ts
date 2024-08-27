@@ -31,6 +31,7 @@ import { StateError } from './errors'
 import { ITemplate, prepareRenderedNode, Template } from './template'
 import { PagesQueryBuilder } from './query'
 import { query_table_no_save_state, query_table_save_state } from './ui/query-table'
+import { updateBlocksAction } from './utils/actions'
 
 
 const isoDateFromat = 'YYYY-MM-DD'
@@ -993,7 +994,7 @@ function blocks_append_tree(c: C, root: IBlockNode) {
 }
 blocks_append.tree = blocks_append_tree
 
-function blocks_skip(c:C, opts?: {self?: boolean, children?: boolean}) {
+export function blocks_skip(c: C, opts?: {self?: boolean, children?: boolean}) {
     const env = _env(c)
 
     opts = opts ?? {}
@@ -1115,6 +1116,9 @@ export function getTemplateTagsContext(context: C) {
             spawn: blocks_spawn_,
             append: blocks_append_,
             skip: bindContext(blocks_skip, context),
+            actions: new Context({
+                update: bindContext(updateBlocksAction, context),
+            }),
         }),
 
         parse: new Context({

@@ -14,6 +14,11 @@
   <img width="250px" src="https://github.com/user-attachments/assets/9e6f5678-9a7e-413d-ad9f-7d9ed4230869" />
 
 
+### Simple actions creating
+- Via [`blocks.actions.*`](reference__tags_advanced.md#blocks-actions) template tags
+
+  <img width="350px" src="https://github.com/user-attachments/assets/800b6078-c241-4010-b4e2-9b289f047ded" />
+
 ### Prevent the particular block or sub-tree from rendering
 - Via [`blocks.skip`](reference__tags_advanced.md#blocks-skip) template tag
 

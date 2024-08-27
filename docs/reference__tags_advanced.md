@@ -159,6 +159,62 @@ To get the UUID of [spawned blocks](#blocks-spawn), use *setUUID* parameter and 
 
 
 
+### <span style="font-weight: 550">`.actions`</span> :id=blocks-actions
+
+?> There is no need to use templates to render content when working with actions, so every action disables whole tree rendering (via [`blocks.skip`](#blocks-skip)) by default (see the `skipTree` option).
+
+#### `.update` :id=blocks-actions-update
+Update multiple blocks at once in different ways.
+
+`async blocks.actions.update(callback, options)`
+- `callback`: function called for every block with arguments:
+  - `contentWithoutProperties`: block's content without properties
+  - `properties`: block's properties
+  - `level`: level # started with 0
+  - `block`: block object
+  - `data`: custom data to work with
+  - `→`: returns:
+    - nothing (to left content intact)
+    - string with new content
+    - pair: [new content, new properties]
+- `options`: object with optional keys:
+  - `skipTree`: turn rendering off (default: true),
+  - `blocks`: list of blocks's UUIDs or block objects (default: auto-filled with current blocks selection),
+  - `recursive`: walk through whole block structure (default: false),
+  - `useMinimalUndoActions`: (default: true)
+    - try to use blocks bulk insertion and removal if possible
+    - only for recursive mode
+
+<!-- tabs:start -->
+#### ***Template***
+```javascript
+``{
+  await blocks.actions.update(async (content) => {
+      return content + ' #card'
+  }, {blocks: await blocks.selected({treatSingleBlockAsChildrenList: true})})
+}``
+```
+
+#### ***Blocks***
+```
+- Cards block
+  - item 1
+  - item 2
+  - item 3
+```
+
+#### ***Rendered for the 1st block***
+```
+- Cards block
+  - item 1 #card
+  - item 2 #card
+  - item 3 #card
+```
+
+<!-- tabs:end -->
+
+
+
 ## `parse`
 
 ### `.cleanMarkup` :id=clean-markup

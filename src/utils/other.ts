@@ -66,6 +66,20 @@ export function unspace(strings: any, ...values: any[]): string {
 }
 
 /**
+ * Remove duplicates
+ */
+export function unique<X>(items: Array<X>, keyFunction?: (item: X) => any) {
+    if (!keyFunction)
+        keyFunction = x => x
+
+    return items.filter((b, i, r) => {
+        if (i === 0)
+            return true
+        return keyFunction(r[i - 1]) !== keyFunction(b)
+    })
+}
+
+/**
  * Count substrings in string
  */
 export function countOf(string: string, substring: string): number {

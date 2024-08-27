@@ -935,3 +935,138 @@ export async function resolvePageAliases(ref: string): Promise<string | null> {
 
     return ret.flat()[0].name
 }
+
+export function filterOutChildBlocks(blocks: BlockEntity[]): BlockEntity[] {
+    const filtered: BlockEntity[] = []
+
+    const uuids: string[] = []
+    for (const block of blocks) {
+        if (uuids.includes(block.uuid))
+            continue
+
+        walkBlockTree(block as IBlockNode, (b, level) => {
+            const block = b as BlockEntity
+            if (!uuids.includes(block.uuid))
+                uuids.push(block.uuid)
+        })
+
+        filtered.push(block)
+    }
+
+    return filtered
+}
+
+export function findPropertyInTree(tree: IBlockNode, propertyName: string): IBlockNode[] {
+    const found: IBlockNode[] = []
+    walkBlockTree(tree, (node, level) => {
+        if (PropertiesUtils.hasProperty(node.content ?? '', propertyName))
+            found.push(node)
+    })
+    return found
+}
+
+export async function findBlockReferences(uuid: string): Promise<Number[]> {
+    const results = await logseq.DB.datascriptQuery(`
+        [:find (pull ?b [:db/id])
+         :where
+            [?b :block/content ?c]
+            [(clojure.string/includes? ?c "((${uuid}))")]
+        ]`)
+    if (!results)
+        return []
+    return results.flat().map((item) => item.id)
+}
+
+export async function getBlocksWithReferences(root: BlockEntity): Promise<BlockEntity[]> {
+    const blocksWithPersistedID = findPropertyInTree(root as IBlockNode, PropertiesUtils.idProperty)
+    const blocksAndItsReferences = (await Promise.all(
+        blocksWithPersistedID.map(async (b): Promise<[BlockEntity, Number[]]> => {
+            const block = b as BlockEntity
+            const references = await findBlockReferences(block.uuid)
+            return [block, references]
+        })
+    ))
+    const blocksWithReferences = blocksAndItsReferences.filter(([b, rs]) => (rs.length !== 0))
+    return blocksWithReferences.map(([b, rs]) => {
+        b._references = rs
+        return b
+    })
+}
+
+/**
+ * Reason: logseq bug — `before: true` doesn't work for batch inserting
+ */
+export async function insertBatchBlockBefore(
+    srcBlock: BlockEntity,
+    blocks: IBatchBlock | IBatchBlock[],
+    opts?: Partial<{
+        keepUUID: boolean;
+    }>
+) {
+    // logseq bug: two space cut off from 2, 3, ... lines of all inserting blocks
+    //    so add fake two spaces to every line
+    // issue: https://github.com/logseq/logseq/issues/10730
+    let tree = blocks
+    if (Array.isArray(blocks))
+        tree = {content: '', children: blocks}
+    walkBlockTree(tree as IBlockNode, (b, level) => {
+        b.content = (b.content ?? '').trim().replaceAll(/\n^/gm, '\n  ')})
+
+    // first block in a page
+    if (srcBlock.left.id === srcBlock.page.id) {
+        // there is bug with first block in page: use pseudo block
+        // issue: https://github.com/logseq/logseq/issues/10871
+        const first = ( await logseq.Editor.insertBlock(
+            srcBlock.uuid, 'ø', {before: true, sibling: true}) )!
+        const result = await logseq.Editor.insertBatchBlock(
+            first.uuid, blocks, {before: false, sibling: true, ...opts})
+        await logseq.Editor.removeBlock(first.uuid)
+        return result
+    }
+
+    const prev = await logseq.Editor.getPreviousSiblingBlock(srcBlock.uuid)
+    if (prev) {
+        // special handling for numbering
+        // issue: https://github.com/logseq/logseq/issues/10729
+        let numbering = undefined
+        let properties = {}
+        if (prev.properties) {
+            numbering = prev.properties[PropertiesUtils.numberingProperty]
+            delete prev.properties[PropertiesUtils.numberingProperty]
+            properties = PropertiesUtils.fromCamelCaseAll(prev.properties)
+        }
+        if (numbering)
+            await logseq.Editor.removeBlockProperty(prev.uuid, PropertiesUtils.numberingProperty_)
+
+        const inserted = await logseq.Editor.insertBatchBlock(
+            prev.uuid, blocks, {before: false, sibling: true, ...opts})
+
+        if (numbering)
+            await logseq.Editor.upsertBlockProperty(prev.uuid, PropertiesUtils.numberingProperty_, numbering)
+
+        return inserted
+    }
+
+    // first block for parent
+    const parent = ( await logseq.Editor.getBlock(srcBlock.parent.id) )!
+
+    // special handling for numbering
+    // issue: https://github.com/logseq/logseq/issues/10729
+    let numbering = undefined
+    let properties = {}
+    if (parent.properties) {
+        numbering = parent.properties[PropertiesUtils.numberingProperty]
+        delete parent.properties[PropertiesUtils.numberingProperty]
+        properties = PropertiesUtils.fromCamelCaseAll(parent.properties)
+    }
+    if (numbering)
+        await logseq.Editor.removeBlockProperty(parent.uuid, PropertiesUtils.numberingProperty_)
+
+    const inserted = await logseq.Editor.insertBatchBlock(
+        parent.uuid, blocks, {before: true, sibling: false, ...opts})
+
+    if (numbering)
+        await logseq.Editor.upsertBlockProperty(parent.uuid, PropertiesUtils.numberingProperty_, numbering)
+
+    return inserted
+}

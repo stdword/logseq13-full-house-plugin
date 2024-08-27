@@ -47,9 +47,50 @@ export function isUUID(str: string) {
     return !!str.match(regex)
 }
 
+export function objectEquals(x: any, y: any) {
+    // source: https://stackoverflow.com/a/16788517
+
+    if (x === null || x === undefined || y === null || y === undefined)
+        return x === y
+
+    // after this just checking type of one would be enough
+    if (x.constructor !== y.constructor)
+        return false
+
+    // if they are functions, they should exactly refer to same one (because of closures)
+    if (x instanceof Function)
+        return x === y
+
+    // if they are regexps, they should exactly refer to same one
+    //   (it is hard to better equality check on current ES)
+    if (x instanceof RegExp)
+        return x === y
+
+    if (x === y || x.valueOf() === y.valueOf())
+        return true
+
+    if (Array.isArray(x) && x.length !== y.length)
+        return false
+
+    // if they are dates, they must had equal valueOf
+    if (x instanceof Date)
+        return false
+
+    // if they are strictly equal, they both need to be object at least
+    if (!(x instanceof Object))
+        return false
+    if (!(y instanceof Object))
+        return false
+
+    // recursive object equality check
+    var p = Object.keys(x)
+    return Object.keys(y).every(k => p.indexOf(k) !== -1)
+        && p.every(k => objectEquals(x[k], y[k]))
+}
+
 export function isObject(item: any): boolean {
     return (item && typeof item === 'object' && !Array.isArray(item))
- }
+}
 
 export function isBoolean(obj: any): boolean {
     // source: https://stackoverflow.com/a/28814865
@@ -60,7 +101,7 @@ export function isBoolean(obj: any): boolean {
         return true
 
     return false
- }
+}
 
 export function isInteger(str: string): boolean {
     const x = Number(str)
@@ -72,7 +113,7 @@ export function isInteger(str: string): boolean {
         return false
 
     return true
- }
+}
 
 export function isEmpty(obj: any): boolean {
     if (!obj) {
@@ -89,12 +130,12 @@ export function isEmpty(obj: any): boolean {
     }
 
     return Object.keys(obj).length === 0
- }
+}
 
 export function isEmptyString(obj: string): boolean {
     const emptyValues = [''].concat(quotesValues).concat(dashesValues)
     return emptyValues.includes(obj.trim())
- }
+}
 
 export function coerceStringToBool(str: string): boolean | null {
     const trueValues = [
