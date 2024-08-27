@@ -37,6 +37,7 @@
 
 ### Other
 - Template tag to get selected blocks: [`blocks.selected`](reference__tags_advanced.md#blocks-selected)
+- Template tag to edit block and set it's selection: [`blocks.edit`](reference__tags_advanced.md#blocks-edit)
 
 
 

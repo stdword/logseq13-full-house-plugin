@@ -15,6 +15,7 @@ import {
 import {
     cleanMacroArg,
     coerceStringToBool,
+    editBlockWithSelection,
     escape,
     escapeForHTML,
     escapeMacroArg,
@@ -1120,6 +1121,7 @@ export function getTemplateTagsContext(context: C) {
             uuid: bindContext(blocks_uuid, context),
             spawn: blocks_spawn_,
             append: blocks_append_,
+            edit: editBlockWithSelection,
             skip: bindContext(blocks_skip, context),
             actions: new Context({
                 update: bindContext(updateBlocksAction, context),

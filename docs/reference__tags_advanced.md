@@ -5,6 +5,30 @@
 
 ## `blocks`
 
+### `.edit` :id=blocks-edit
+Gets the selected blocks or the currently edited one with the last refreshed content.
+
+`async blocks.edit(uuid, selectionPositions)` — returns list of block objects
+- `uuid`: UUID of the block to edit
+- `selectionPositions`: cursor position or selection of the block's content
+
+
+<!-- tabs:start -->
+#### ***Template***
+- ` ``{ await blocks.edit(c.block.uuid, [-1]) }`` `
+- ` ``{ await blocks.edit(c.block.uuid, [7, 11]) }`` `
+
+#### ***Block***
+- Hello, USER!
+
+#### ***Block after rendering***
+- Hello, USER <b>|</b> !
+- Hello, <mark>USER</mark>!
+
+<!-- tabs:end -->
+
+
+
 ### `.selected` :id=blocks-selected
 Gets the selected blocks or the currently edited one with the last refreshed content.
 
