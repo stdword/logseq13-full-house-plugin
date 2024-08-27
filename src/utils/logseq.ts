@@ -197,14 +197,29 @@ export function insertTreeNodes(root: IBlockNode, path: number[], nodes: IBlockN
  * @returns pair [[BlockEntity objs], true] in case of selected block (outside of editing mode)
  * @returns pair [[], false] in case of none of the blocks are selected (outside of editing mode)
  */
-export async function getChosenBlocks(): Promise<[BlockEntity[], boolean]> {
+export async function getChosenBlocks(opts?: {
+    treatSingleBlockAsChildrenList?: boolean,
+}): Promise<[BlockEntity[], boolean]> {
+    async function getChildren(uuid: string): Promise<[BlockEntity[], boolean]> {
+        const tree = await logseq.Editor.getBlock(uuid, {includeChildren: true})
+        const children = tree!.children ?? []
+        return [ children as BlockEntity[], false ]
+    }
+
     const selected = await logseq.Editor.getSelectedBlocks()
-    if (selected)
+    if (selected) {
+        if (selected.length === 1 && opts?.treatSingleBlockAsChildrenList)
+            return await getChildren(selected[0].uuid)
+
         return [selected, true]
+    }
 
     const uuid = await logseq.Editor.checkEditing()
     if (!uuid)
         return [[], false]
+
+    if (opts?.treatSingleBlockAsChildrenList)
+        return await getChildren(uuid as string)
 
     const editingBlock = await logseq.Editor.getBlock(uuid as string) as BlockEntity
 

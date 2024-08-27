@@ -5,6 +5,35 @@
 
 ## `blocks`
 
+### `.selected` :id=blocks-selected
+Gets the selected blocks or the currently edited one with the last refreshed content.
+
+`async blocks.selected(options)` — returns list of block objects
+- `options`: object with options
+  - `treatSingleBlockAsChildrenList`: (optional) when only one block is selected, get it's children instead (default: false)
+
+
+<!-- tabs:start -->
+#### ***Template***
+- ` ``(await blocks.selected()).map(b => b.content)`` `
+- ` ``(await blocks.selected({treatSingleBlockAsChildrenList: true})).map(b => b.content)`` `
+
+#### ***Blocks***
+```
+- Parent block
+  - item 1
+  - item 2
+  - item 3
+```
+
+#### ***Rendered for the 1st block***
+- `Parent block`
+- `item 1, item 2, item 3`
+
+<!-- tabs:end -->
+
+
+
 ### `.skip` :id=blocks-skip
 Prevents block or it's children or both from being rendered.
 
@@ -12,7 +41,6 @@ Prevents block or it's children or both from being rendered.
 - `options`: object with options
   - `self`: (optional) skip current block content? (default: true)
   - `children`: (optional) skip current block's children? (default: false)
-
 
 <!-- tabs:start -->
 #### ***Template***
@@ -49,6 +77,8 @@ Prevents block or it's children or both from being rendered.
 - But not this one
 
 <!-- tabs:end -->
+
+
 
 ### `.spawn` & `.append` :id=blocks-spawn
 Creates blocks related to current at runtime. There could be child blocks (*spawned*) and sibling blocks (*appended*).

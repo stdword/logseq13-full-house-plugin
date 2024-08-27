@@ -930,6 +930,10 @@ function cursor(c: C) {
 
 
 /* «blocks» namespace */
+async function blocks_selected(opts?: {treatSingleBlockAsChildrenList?: boolean}) {
+    const [ blocks ] = await getChosenBlocks(opts)
+    return blocks
+}
 function blocks_uuid(c: C) {
     // no need to set uuid for block while rendering view
     // it is always single block
@@ -1112,6 +1116,7 @@ export function getTemplateTagsContext(context: C) {
         cursor: bindContext(cursor, context),
 
         blocks: new Context({
+            selected: blocks_selected,
             uuid: bindContext(blocks_uuid, context),
             spawn: blocks_spawn_,
             append: blocks_append_,
