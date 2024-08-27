@@ -158,6 +158,13 @@ Use optional `template-shortcut` property to specify keyboard shortcut for inser
     6. Reload the application again \
     7. Done!
 
+?> **Command Templates** \
+With shortcuts, you can render templates outside of edit mode and selection mode.
+Additionally, with the help of [`blocks.actions.*`](reference__tags_advanced.md#blocks-actions) template tags, templates become much like Logseq Commands, which you can call with shortcuts. \
+\
+Prepare Logseq just the way you like it.
+
+
 <!-- tabs:start -->
 #### ***Template***
 `template:: Name` \

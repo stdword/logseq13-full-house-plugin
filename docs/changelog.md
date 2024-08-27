@@ -9,6 +9,7 @@
 
 ### Shortcuts for templates
 - Can be set with the help of [`template-shortcut::` property](reference__configuring#insertion-shortcut)
+- Can be used to render templates outside edit mode & selection mode
 - Change it via standard Logseq Keymap (need app reloading)
 
   <img width="250px" src="https://github.com/user-attachments/assets/9e6f5678-9a7e-413d-ad9f-7d9ed4230869" />

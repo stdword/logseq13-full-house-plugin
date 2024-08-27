@@ -134,7 +134,7 @@ async function insertLogic(
     if (blockUUIDs.length === 0)
         return
 
-    await insertTemplate(item.uuid, blockUUIDs[0], insertAs)
+    await insertTemplate(item.uuid, {destinationUUID: blockUUIDs[0], insertAs})
 }
 
 function InsertUI({ blockUUIDs, isSelectedState }) {

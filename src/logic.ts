@@ -30,10 +30,31 @@ type InsertAs = 'View' | 'Template'
 
 
 async function getCurrentContext(
-    blockUUID: string,
+    blockUUID: string | null,
     mode: ILogseqCurrentContext['mode'],
 ): Promise<ILogseqCurrentContext | null> {
-    if (!blockUUID) {
+    // case: template insertion triggered by shortcut
+    //   outside of edit mode and no blocks are selected
+    if (blockUUID === null) {
+        let page: PageEntity | null = null
+
+        const currentPageOrBlock = await logseq.Editor.getCurrentPage()
+        if (currentPageOrBlock)
+            if (currentPageOrBlock.name)
+                page = currentPageOrBlock as PageEntity
+            else
+                page = (
+                    await logseq.Editor.getPage((currentPageOrBlock as BlockEntity).page.id)
+                )!
+
+        return {
+            mode,
+            currentPage: page ? PageContext.createFromEntity(page) : PageContext.empty(),
+            currentBlock: BlockContext.empty(),
+        }
+    }
+
+    if (blockUUID === '') {
         // Where is uuid? It definitely should be here, but this is a bug:
         //   https://github.com/logseq/logseq/issues/8904
         console.debug(p`Assertion error: this case should be filtered out in "isInsideMacro"`)
@@ -465,7 +486,7 @@ export async function renderThisBlockAsTemplate(uuid: string) {
         )
 }
 
-export async function renderTemplateInBlockInstantly(uuid: string, template: Template) {
+export async function renderTemplateInBlockInstantly(uuid: string | null, template: Template) {
     if (!template.instant)
         return
 
@@ -503,6 +524,9 @@ export async function renderTemplateInBlockInstantly(uuid: string, template: Tem
             + oldContent.slice(end)
             + (uuid ? `\n${PropertiesUtils.idProperty}:: ${uuid}` : '')
     }
+
+    if (!uuid)
+        return
 
     const positions = getCursorPositionsInTree(rendered)
     await handleInsertion(
@@ -641,12 +665,18 @@ async function handleSetCursorPosition(
 
 export async function insertTemplate(
     templateUUID: string,
-    destinationUUID?: string,
-    insertAs?: InsertAs,
-    denyInstant: boolean = false,
+    opts?: {
+        destinationUUID?: string,
+        insertAs?: InsertAs,
+        denyInstant?: boolean,
+    }
 ) {
     const ref = parseReference(templateUUID)!
     const template = await getTemplate(ref, {accessedViaUI: true})
+
+    let destinationUUID = opts?.destinationUUID ?? null
+    let insertAs = opts?.insertAs
+    const denyInstant = opts?.denyInstant ?? false
 
     if (['View', 'Template'].includes(template.label)) {
         if (insertAs && template.label !== insertAs)
@@ -662,6 +692,7 @@ export async function insertTemplate(
         if (!insertAs)
             insertAs = 'Template'
 
+    const isInstantInsertion = !denyInstant && insertAs === 'Template' && template.instant
 
     let isSelectedState: boolean
     if (destinationUUID) {
@@ -671,23 +702,34 @@ export async function insertTemplate(
     } else {
         const [blocks, isSelectedState_] = await getChosenBlocks()
         if (!blocks.length) {
-            logseq.UI.showMsg(
-                `[:p "Start editing block or select one to insert "
-                     [:code "${insertAs}"]]`,
-                'warning',
-                {timeout: 5000},
-            )
-            return
+            if (!isInstantInsertion) {
+                logseq.UI.showMsg(
+                    `[:p "Start editing block or select one to insert "
+                         [:code "${insertAs}"]]`,
+                    'warning',
+                    {timeout: 5000},
+                )
+                return
+            }
+
+            destinationUUID = null
+            isSelectedState = false
         }
-        destinationUUID = blocks[0].uuid
-        isSelectedState = isSelectedState_
+        else {
+            destinationUUID = blocks[0].uuid
+            isSelectedState = isSelectedState_
+        }
     }
 
 
-    if (!denyInstant && insertAs === 'Template' && template.instant) {
+    if (isInstantInsertion) {
         await renderTemplateInBlockInstantly(destinationUUID, template)
         return
     }
+
+    if (!destinationUUID)
+        throw new Error('destinationUUID should be empty only when isInstantInsertion is true')
+
 
     const typeToCommandMap = {
         'Template': 'template',
