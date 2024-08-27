@@ -1,3 +1,39 @@
+# [4.2.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.1.0...v4.2.0) (2024-08-27)
+
+
+### Bug Fixes
+
+* **core:** do not parse ``...`` when there is new line inside ([fe4a2be](https://github.com/stdword/logseq13-full-house-plugin/commit/fe4a2bebc11a2e90b6c7c4927614fe4df8fdaa9b))
+* **core:** fail on returning null or undefined in template body ([f40078c](https://github.com/stdword/logseq13-full-house-plugin/commit/f40078c3d81bf8167d1eecbb5e3db9efe94002b0))
+* forgotten lines ([fc88613](https://github.com/stdword/logseq13-full-house-plugin/commit/fc886139dbe46fe065ee8415a37c0e8a26e363a1))
+* linter warnings ([011147f](https://github.com/stdword/logseq13-full-house-plugin/commit/011147f07e4e52e75252ed8b10b4b44de4226cd6))
+* **tags:** dev.context.page fix for different object structures ([59d17e1](https://github.com/stdword/logseq13-full-house-plugin/commit/59d17e1addc2e544c8db4349c3f9ce4988f2c386))
+* **tags:** layout.args for boolean values ([f0bd749](https://github.com/stdword/logseq13-full-house-plugin/commit/f0bd749db27f6ebefadfd7b26e247dd082670244))
+* typescript errors & tests ([e7ca1a7](https://github.com/stdword/logseq13-full-house-plugin/commit/e7ca1a75c5da4af0f70e74720d70e45670cb3380))
+* wrong import ([5f0d181](https://github.com/stdword/logseq13-full-house-plugin/commit/5f0d1818fb6c2f5ebf1e9ae312a7a5a33c3f8b51))
+
+
+### Features
+
+* **core:** a way to skip unwrapping code block (with added space after ```) ([90c5940](https://github.com/stdword/logseq13-full-house-plugin/commit/90c5940bbd937d23051f5d1c19ea86b0a797fc29))
+* **core:** add .ignore flag to parsing options ([e1ec3d4](https://github.com/stdword/logseq13-full-house-plugin/commit/e1ec3d4a8e595dc8f7b80c1831bf745c00a1fe4e))
+* **core:** block rendering of sub-tree with `return undefined` statement ([62c9e76](https://github.com/stdword/logseq13-full-house-plugin/commit/62c9e769166c7e4a0d8183a02f34c0cfb7b6dd8a))
+* **core:** don't reqire edit mode or selection mode for templates with shortcuts ([80b197b](https://github.com/stdword/logseq13-full-house-plugin/commit/80b197b5ba26a727a87ea3b05a3741ba5e4991a2))
+* **core:** render current block slash-command ([ba52e58](https://github.com/stdword/logseq13-full-house-plugin/commit/ba52e589e1698161b3d20dda151fc3b831d46baf))
+* notify user about frocing insertion as view or template ([6f2a609](https://github.com/stdword/logseq13-full-house-plugin/commit/6f2a609b2ceea133da7bbf5baf6bd2f8c8bff7bf))
+* refactor cursor positioning after insertion ([4266e99](https://github.com/stdword/logseq13-full-house-plugin/commit/4266e994b6a60bcb951d4522c3ee65e772cbddab))
+* **rendering:** instant templates insertion ([a0320c9](https://github.com/stdword/logseq13-full-house-plugin/commit/a0320c92a49c9f62991f283572f71d37650aa255))
+* shortcuts for templates ([b75db7a](https://github.com/stdword/logseq13-full-house-plugin/commit/b75db7af80332b404b97fc67be380369d79579af))
+* sync changed shortcuts for template ([afd024d](https://github.com/stdword/logseq13-full-house-plugin/commit/afd024d5990cabde9738c89b28353cb4c03212d7))
+* **tags:** blocks.actions.update ([050e2e6](https://github.com/stdword/logseq13-full-house-plugin/commit/050e2e66b62d582f66c030b1ab8e1b3c0bc93114))
+* **tags:** blocks.edit ([12077a1](https://github.com/stdword/logseq13-full-house-plugin/commit/12077a10c15dadeeed6d506e57f3c2e144e413c0))
+* **tags:** blocks.selected ([e838d84](https://github.com/stdword/logseq13-full-house-plugin/commit/e838d8405f277ba4806cc0e97bb10a00dc0219cb))
+* **tags:** blocks.skip ([fb30043](https://github.com/stdword/logseq13-full-house-plugin/commit/fb3004342cabac86da0f02305562185e81a462bf))
+* **tags:** dev.color improved ([e38b259](https://github.com/stdword/logseq13-full-house-plugin/commit/e38b259bf49b005765840010222c1802a65fffd6))
+* **tags:** template tags: sleep, dev.cssVars, cursor.selection ([aa92538](https://github.com/stdword/logseq13-full-house-plugin/commit/aa92538557ad06ffebba75e62a3024a8dc5433f1))
+* try to keep cursor position for render-this-block command ([e1e32cd](https://github.com/stdword/logseq13-full-house-plugin/commit/e1e32cd407ad30505412abafe359f7edfe35339e))
+* **ui:** show template shortcut in the ui list ([6d5b3da](https://github.com/stdword/logseq13-full-house-plugin/commit/6d5b3da97965d2d094588ff23270f385cffc6c92))
+
 # [4.1.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.0.0...v4.1.0) (2024-07-22)
 
 
