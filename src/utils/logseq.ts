@@ -121,7 +121,7 @@ export async function filterBlockTree(
         )
     const flag = await criteria(root, level, children)
     if (flag) {
-        root.children = children.filter((n) => !!n)
+        root.children = children.filter((n) => !!n) as IBlockNode[]
         return root
     }
     return null
@@ -1088,9 +1088,9 @@ export async function insertBatchBlockBefore(
     return inserted
 }
 
-// export async function ensureChildrenIncluded(node: BlockEntity): Promise<BlockEntity> {
-//     // @ts-expect-error
-//     if (node.children?.at(0)?.uuid)
-//         return node
-//     return (await logseq.Editor.getBlock(node.uuid, {includeChildren: true}))!
-// }
+export async function ensureChildrenIncluded(node: BlockEntity): Promise<BlockEntity> {
+    // @ts-expect-error
+    if (node.children?.at(0)?.uuid)
+        return node
+    return (await logseq.Editor.getBlock(node.uuid, {includeChildren: true}))!
+}

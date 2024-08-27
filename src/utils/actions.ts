@@ -47,7 +47,7 @@ export async function updateBlocksAction(
                 .map(async (uuid) => {
                     return await logseq.Editor.getBlock(uuid)
                 })
-        )).filter((b) => b !== null)
+        )).filter((b) => b !== null) as BlockEntity[]
     else
         blocks = blocks_ as BlockEntity[]
 

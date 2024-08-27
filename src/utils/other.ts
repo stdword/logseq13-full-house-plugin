@@ -75,7 +75,7 @@ export function unique<X>(items: Array<X>, keyFunction?: (item: X) => any) {
     return items.filter((b, i, r) => {
         if (i === 0)
             return true
-        return keyFunction(r[i - 1]) !== keyFunction(b)
+        return keyFunction!(r[i - 1]) !== keyFunction!(b)
     })
 }
 

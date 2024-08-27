@@ -144,7 +144,7 @@ export async function LogseqMock(
 
                 id: this._blocks.length + 1,
                 uuid: genUUID(),
-                content: content,
+                content: content ?? '',
                 properties: props,
                 propertiesTextValues: props,
 
