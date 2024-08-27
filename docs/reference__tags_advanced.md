@@ -1,6 +1,25 @@
 ## `cursor`
 ?> See the separate page for details: [Cursor positioning](reference__syntax.md#cursor-positioning)
 
+### `.selection` :id=cursor-selection
+Gets the selected blocks or the currently edited one with the last refreshed content.
+
+`cursor.selection()` — returns `null` or pair of numbers with cursor position
+
+<!-- tabs:start -->
+#### ***Template***
+` ``cursor.selection()`` `
+
+#### ***Blocks in edit mode***
+- Hello, USER <b>|</b> !
+- Hello, <mark>USER</mark>!
+
+#### ***Rendered***
+- 11, 11
+- 7, 11
+
+<!-- tabs:end -->
+
 
 
 ## `blocks`

@@ -19,9 +19,10 @@ import {
     escape,
     escapeForHTML,
     escapeMacroArg,
-    getBlock, getPage, getTreeNode, IBlockNode, isEmptyString, isObject, isUUID,
+    getBlock, getChosenBlocks, getCSSVars, getEditingCursorSelection, getPage, getTreeNode, IBlockNode, isEmptyString, isObject, isUUID,
     LogseqReference, p, parseReference, RendererMacro,
     rgbToHex,
+    sleep,
     splitMacroArgs, unquote, walkBlockTree, walkBlockTreeAsync,
 } from './utils'
 import {
@@ -1095,9 +1096,13 @@ export function getTemplateTagsContext(context: C) {
     parse_refs_.pagesOnly = bindContext(parse_refs.pagesOnly, context)
     parse_refs_.tagsOnly = bindContext(parse_refs.tagsOnly, context)
 
+    const cursor_ = bindContext(cursor, context)
+    cursor_.selection = getEditingCursorSelection
+
     return new Context({
         __init: _initContext,
 
+        sleep,
         ref, bref, tag, embed,
         empty, bool, when, fill, zeros, spaces,
 
@@ -1114,7 +1119,7 @@ export function getTemplateTagsContext(context: C) {
         include: include_,
         layout: layout_,
 
-        cursor: bindContext(cursor, context),
+        cursor: cursor_,
 
         blocks: new Context({
             selected: blocks_selected,
@@ -1152,6 +1157,7 @@ export function getTemplateTagsContext(context: C) {
             toHTML: bindContext(dev_toHTML, context),
             asset: bindContext(dev_asset, context),
             color: dev_color,
+            cssVars: getCSSVars,
             get: bindContext(dev_get, context),
             links: bindContext(dev_links, context),
             refs: bindContext(dev_refs, context),

@@ -38,6 +38,9 @@
 ### Other
 - Template tag to get selected blocks: [`blocks.selected`](reference__tags_advanced.md#blocks-selected)
 - Template tag to edit block and set it's selection: [`blocks.edit`](reference__tags_advanced.md#blocks-edit)
+- Template tag to sleep for a specified milliseconds: [`sleep`](reference__tags_dev.md#sleep)
+- Template tag to get the CSS variables values: [`dev.cssVars`](reference__tags_dev.md#dev-css-vars)
+- Template tag to get cursor selection positions: [`cursor.selection`](reference__tags_advanced.md#cursor-selection)
 
 
 

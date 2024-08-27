@@ -1,3 +1,17 @@
+## `sleep` :id=sleep
+System wait for a specified milliseconds.
+
+`async sleep(ms)`
+- `ms`: milliseconds (number) to sleep
+
+<!-- tabs:start -->
+#### ***Template***
+` ``{ await sleep(20) }`` `
+
+<!-- tabs:end -->
+
+
+
 ## `dev`
 
 ### `.uuid` :id=dev-uuid
@@ -191,6 +205,23 @@ Convert color from any CSS value to hex format. It is helpful for retrieving CSS
 - `#fff`
 - `#808080`
 - `#6e59a6`
+
+<!-- tabs:end -->
+
+
+
+### `.cssVars` :id=dev-css-vars
+Get the CSS variables values.
+
+`dev.cssVars(names)`
+- `names`: array of string with full CSS variable names
+
+<!-- tabs:start -->
+#### ***Template***
+` ``dev.cssVars(['--ls-primary-text-color'])`` `
+
+#### ***Template***
+`hsl(27, 20%, 52%)`
 
 <!-- tabs:end -->
 
