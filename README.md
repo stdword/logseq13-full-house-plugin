@@ -127,6 +127,16 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 
 
 
+### Use shortcuts for templates 🎹
+<img width="250px" src="https://github.com/user-attachments/assets/9e6f5678-9a7e-413d-ad9f-7d9ed4230869" />
+
+
+
+### Easily perform actions on blocks 🥊
+<img width="350px" src="https://github.com/user-attachments/assets/800b6078-c241-4010-b4e2-9b289f047ded" />
+
+
+
 ### Create beutiful dashboards 🎛️
 <img width="700px" src="https://github.com/user-attachments/assets/b6d0bbaf-0577-4fb4-a295-c931ad0d6948" />
 
