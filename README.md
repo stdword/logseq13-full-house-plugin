@@ -305,7 +305,7 @@ See setup instructions in [Showroom](https://github.com/stdword/logseq13-full-ho
 ```
 
 ### How to insert frequently used templates rapidly fast?
-0. Since `v1.4.0` you can use [shortctus](https://stdword.github.io/logseq13-full-house-plugin/#/reference__configuring?id=insertion-shortcut) feature.
+0. Since `v4.2.0` you can use [shortctus](https://stdword.github.io/logseq13-full-house-plugin/#/reference__configuring?id=insertion-shortcut) feature.
 1. **OR** you can create the `:command` in `config.edn`.
    **Hint**: to perform fast searches, use any command name, but add a special character (e.g. the dot «.»)
    ```clojure
