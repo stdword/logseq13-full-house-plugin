@@ -139,6 +139,12 @@ See details in [documentation](https://stdword.github.io/logseq13-full-house-plu
 See details in [documentation](https://stdword.github.io/logseq13-full-house-plugin/#/reference__tags_advanced?id=blocks-actions).
 
 
+### Add missing Logseq commands ⌘
+<img width="450px" src="https://github.com/user-attachments/assets/1a7e21f4-a7f1-43bc-861f-bde992ffd506" />
+
+See details [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/49).
+
+
 ### Create beutiful dashboards 🎛️
 <img width="700px" src="https://github.com/user-attachments/assets/b6d0bbaf-0577-4fb4-a295-c931ad0d6948" />
 
