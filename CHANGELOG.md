@@ -1,3 +1,10 @@
+## [4.2.2](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.2.1...v4.2.2) (2024-09-02)
+
+
+### Bug Fixes
+
+* remove race condition whe positioning cursor in selection mode ([34e4a80](https://github.com/stdword/logseq13-full-house-plugin/commit/34e4a8097f4ff2834aad12ebc291e09da0bcb990))
+
 ## [4.2.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.2.0...v4.2.1) (2024-08-27)
 
 
