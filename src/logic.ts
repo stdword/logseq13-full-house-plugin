@@ -583,8 +583,10 @@ async function handleInsertion(
         await logseq.Editor.updateBlock(uuid, content, {properties: props})
 
         // restoring the cursor position (if need be)
-        if (newEditingCursorSelection && !setCursorWillOccur)
+        if (newEditingCursorSelection && !setCursorWillOccur) {
+            await sleep(20)
             editBlockWithSelection(uuid, newEditingCursorSelection)
+        }
     }
 }
 
