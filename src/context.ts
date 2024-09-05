@@ -3,10 +3,13 @@ import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import {
     cleanMacroArg, escape,
+    functionSignature,
     LogseqReference,
     p, Properties, PropertiesRefs, PropertiesUtils,
 } from './utils'
 import { ITemplate } from './template'
+import { TagsNamespace } from './tags'
+
 
 // dayjs: for tests
 // import { Dayjs }  from 'dayjs'
@@ -124,6 +127,22 @@ export class Context {
         return new Context()
     }
 
+    static filterForDisplaying_function(f) {
+        if (typeof f !== 'function')
+            return String(f)
+
+        const doc = f.toString()
+        const signature = functionSignature(f)
+        if (!signature)
+            return ''
+
+        const { args, isAsync } = signature
+
+        return `${isAsync ? 'async' : ''} function(${args})`
+            .trimStart()
+            .replaceAll('"', "'")
+    }
+
     constructor(data: {[index: string]: any} = {}) {
         Object.assign(this, data)
     }
@@ -138,6 +157,8 @@ export class Context {
             }
             else if (value instanceof Context)
                 value = value.filterForDisplaying()
+            else if (value instanceof TagsNamespace)
+                value = value.filterForDisplaying()
             else if (Array.isArray(value))
                 value = value.map(item => {
                     if (item instanceof Context)
@@ -149,13 +170,8 @@ export class Context {
                 value = `dayjs(${value.toISOString()})`
             else if (value == dayjs)
                 value = 'dayjs()'
-            else if (typeof value === 'function') {
-                const doc = value.toString()
-                const signature = doc.match(/function\s*\w*?\((.*?)\)\s*\{/)
-                value = `function(${signature[1] || ''})`.replaceAll('"', "'")
-                if (doc.startsWith('async'))
-                    value = 'async ' + value
-            }
+            else if (typeof value === 'function')
+                value = Context.filterForDisplaying_function(value)
             else if (typeof value === 'object') {
                 // do nothing
             }
@@ -166,7 +182,7 @@ export class Context {
     }
     toString() {
         // pretty print whole context body
-        let obj = JSON.stringify(this.filterForDisplaying(), null, '\t')
+        const obj = JSON.stringify(this.filterForDisplaying(), null, '\t')
         return '<pre>' + obj + '</pre>'
     }
 }

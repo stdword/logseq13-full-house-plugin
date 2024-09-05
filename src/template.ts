@@ -261,7 +261,7 @@ export class Template implements ITemplate {
         const tags = getTemplateTagsContext(contextObj as unknown as ILogseqContext)
 
         // @ts-expect-error
-        contextObj.tags = new Context(tags)
+        contextObj.tags = tags
 
         const finalContext = {c: contextObj, ...tags}
 

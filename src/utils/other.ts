@@ -208,3 +208,17 @@ export function randomRange(min: number, max?: number) {
     }
     return min + Math.floor(Math.random() * (max - min + 1))
 }
+
+export function functionSignature(f: Function) {
+    const doc = f.toString()
+    const m = doc.match(/function\s*(\w*?)\((.*?)\)\s*\{/)
+    if (!m)
+        return null
+
+    return {
+        isAsync: doc.startsWith('async '),
+        name: m[1],
+        args: m[2],
+        whole: doc.match(/^(.+\))\s*\{/)![0],
+    }
+}

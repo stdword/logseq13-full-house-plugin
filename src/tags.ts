@@ -5,7 +5,10 @@ import * as Sherlock from 'sherlockjs'
 import { neatJSON } from 'neatjson'
 
 import { LogseqDayjsState } from './extensions/dayjs_logseq_plugin'
-import { LogseqMarkup, MLDOC_Node, MldocASTtoHTMLCompiler, resolveAssetsLink, walkNodes } from './extensions/mldoc_ast'
+import {
+    LogseqMarkup, MLDOC_Node, MldocASTtoHTMLCompiler,
+    resolveAssetsLink, walkNodes,
+} from './extensions/mldoc_ast'
 import {
     ArgsContext, BlockContext, Context,
     dayjs, Dayjs,
@@ -19,7 +22,9 @@ import {
     escape,
     escapeForHTML,
     escapeMacroArg,
-    getBlock, getChosenBlocks, getCSSVars, getEditingCursorSelection, getPage, getTreeNode, IBlockNode, isEmptyString, isObject, isUUID,
+    functionSignature,
+    getBlock, getChosenBlocks, getCSSVars, getEditingCursorSelection,
+    getPage, getTreeNode, IBlockNode, isEmptyString, isObject, isUUID,
     LogseqReference, p, parseReference, RendererMacro,
     rgbToHex,
     sleep,
@@ -174,12 +179,14 @@ function bref(item: any): string {
 
     return ref(item)
 }
+bref.obsolete = true
 function embed(item: string | BlockContext | PageContext | Dayjs): string {
     const r = ref(item)
     return `{{embed ${r}}}`
 }
 
 
+/* «include» & «layout» namespaces */
 function _clean_include_args(name: string, args?: string[] | string) {
     const ref = parseReference(name ?? '')
 
@@ -201,8 +208,14 @@ async function _show_lazy_mode_restriction_message_for_views() {
     )
 }
 
-async function _include__lazy(c: C, commandName: string, layoutMode: boolean, name: string, args_?: string[] | string): Promise<string> {
-    if (c.mode === 'view') {
+async function _include__lazy(
+    context: C,
+    commandName: string,
+    layoutMode: boolean,
+    name: string,
+    args_?: string[] | string,
+): Promise<string> {
+    if (context.mode === 'view') {
         await _show_lazy_mode_restriction_message_for_views()
         return ''
     }
@@ -223,12 +236,17 @@ async function _include__lazy(c: C, commandName: string, layoutMode: boolean, na
     if (!args)
         args = Template.getUsageArgs(block)
     if (layoutMode)
-        args.push(`:transcluded-from ${c.template!.block.id}`)
+        args.push(`:transcluded-from ${context.template!.block.id}`)
     command = command.args(args)
 
     return command.toString()
 }
-async function _include__runtime(c: C, layoutMode: boolean, name: string, args_?: string[] | string): Promise<string> {
+async function _include__runtime(
+    context: C,
+    layoutMode: boolean,
+    name: string,
+    args_?: string[] | string,
+): Promise<string> {
     let {ref, args} = _clean_include_args(name, args_)
     if (!ref)
         return ''
@@ -244,19 +262,19 @@ async function _include__runtime(c: C, layoutMode: boolean, name: string, args_?
         args = Template.getUsageArgs(template.block)
 
     const argsContext = layoutMode
-        ? await getArgsContext(template, args, c.template!._obj)
+        ? await getArgsContext(template, args, context.template!._obj)
         : undefined
 
     // @ts-expect-error
-    const slot = c.identity.slot
-    const renderArgs = [slot, template, args, c, argsContext
+    const slot = context.identity.slot
+    const renderArgs = [slot, template, args, context, argsContext
         ] as [string, ITemplate, string[], ILogseqCurrentContext, ArgsContext | undefined]
 
-    if (c.mode === 'view')
+    if (context.mode === 'view')
         return await compileTemplateView(...renderArgs)
 
-    if (c.mode !== 'template') {
-        console.debug(p`Unknown rendering mode: ${c.mode}`)
+    if (context.mode !== 'template') {
+        console.debug(p`Unknown rendering mode: ${context.mode}`)
         return ''
     }
 
@@ -273,30 +291,30 @@ async function _include__runtime(c: C, layoutMode: boolean, name: string, args_?
                 + Template.carriagePositionMarker
                 + head.content!.slice(pos)
 
-            cursor(c)  // mark block with cursor position flag
+            cursor(context)  // mark block with cursor position flag
         }
     }
 
     // spawn possible blocks around head
     for (const block of head.children ?? [])
-        blocks_spawn_tree(c, block as IBlockNode)
+        blocks_spawn__tree(context, block as IBlockNode)
     for (const block of tail)
-        blocks_append_tree(c, block as IBlockNode)
+        blocks_append__tree(context, block as IBlockNode)
 
     return head.content ?? ''
 }
 
-async function include(c: C, name: string, args?: string[] | string) {
-    return await _include__runtime(c, false, name, args)
+async function include(context: C, name: string, args?: string[] | string) {
+    return await _include__runtime(context, false, name, args)
 }
-include.template = async function(c: C, name: string, args_?: string[] | string) {
-    return await _include__lazy(c, 'template', false, name, args_)
+async function include__template(context: C, name: string, args_?: string[] | string) {
+    return await _include__lazy(context, 'template', false, name, args_)
 }
-include.view = async function(c: C, name: string, args_?: string[] | string) {
-    return await _include__lazy(c, 'template-view', false, name, args_)
+async function include__view(context: C, name: string, args_?: string[] | string) {
+    return await _include__lazy(context, 'template-view', false, name, args_)
 }
-include.inlineView = async function(c: C, body: string, args_?: string[]) {
-    if (c.mode === 'view') {
+async function include__inlineView(context: C, body: string, args_?: string[]) {
+    if (context.mode === 'view') {
         await _show_lazy_mode_restriction_message_for_views()
         return ''
     }
@@ -319,20 +337,20 @@ include.inlineView = async function(c: C, body: string, args_?: string[]) {
     return command.toString()
 }
 
-async function layout(c: C, name: string, args?: string[] | string) {
-    return await _include__runtime(c, true, name, args)
+async function layout(context: C, name: string, args?: string[] | string) {
+    return await _include__runtime(context, true, name, args)
 }
-layout.template = async function(c: C, name: string, args_?: string[] | string) {
-    return await _include__lazy(c, 'template', true, name, args_)
+async function layout__template(context: C, name: string, args_?: string[] | string) {
+    return await _include__lazy(context, 'template', true, name, args_)
 }
-layout.args = function(c: C, ...argNames: (string | [string, string | boolean] | {string: string | boolean})[]) {
+function layout__args(context: C, ...argNames: (string | [string, string | boolean] | {string: string | boolean})[]) {
     if (argNames.length === 0) {
         // use all available (in context) args names
         let index = 1
-        argNames = c.args._args.map(([key, _]) => (key ? key : `$${index++}`))
+        argNames = context.args._args.map(([key, _]) => (key ? key : `$${index++}`))
     }
 
-    const args = Object.fromEntries(c.args._args)
+    const args = Object.fromEntries(context.args._args)
     return argNames
         // @ts-expect-error
         .flatMap(x => (isObject(x) ? Object.entries(x) : x))
@@ -361,7 +379,7 @@ layout.args = function(c: C, ...argNames: (string | [string, string | boolean] |
                     return null
 
                 if (positional !== undefined)
-                    value = c.args._args
+                    value = context.args._args
                         .filter(([key, val]) => key === '')
                         .map(([key, val]) => val)
                         .at(positional - 1)
@@ -793,22 +811,33 @@ function dev_refs(context: C, text: string, withLabels: boolean = false,
         return refs
     return refs.map(([t, r, l]) => [t, r])
 }
-dev_refs.blocks    = function (context: C, text: string, withLabels?: boolean) {
+function dev_refs__blocks(context: C, text: string, withLabels?: boolean) {
     return dev_refs(context, text, withLabels, ['block'])
         .map(([t, ...xs]) => withLabels ? xs : xs[0])
 }
-dev_refs.pages     = function (context: C, text: string, withLabels?: boolean) {
+function dev_refs__pages(context: C, text: string, withLabels?: boolean) {
     return dev_refs(context, text, withLabels, ['page', 'tag'])
         .map(([t, ...xs]) => withLabels ? xs : xs[0])
 }
-dev_refs.pagesOnly = function (context: C, text: string, withLabels?: boolean) {
+function dev_refs__pagesOnly(context: C, text: string, withLabels?: boolean) {
     return dev_refs(context, text, withLabels, ['page'])
         .map(([t, ...xs]) => withLabels ? xs : xs[0])
 }
-dev_refs.tagsOnly  = function (context: C, text: string, withLabels?: boolean) {
+function dev_refs__tagsOnly(context: C, text: string, withLabels?: boolean) {
     return dev_refs(context, text, withLabels, ['tag'])
         .map(([t, ...xs]) => withLabels ? xs : xs[0])
 }
+
+const dev_tree_walk__old = async function (root, callback) {
+    logseq.UI.showMsg(
+        '"dev.walkTree" is deprecated. Please use "dev.tree.walkAsync" instead',
+        'warning', {timeout: 15000}
+    )
+    console.warn(p`"dev.walkTree" is deprecated. Please use "dev.tree.walkAsync" instead`)
+
+    return walkBlockTreeAsync(root, callback)
+}
+dev_tree_walk__old.obsolete = true
 
 
 /* «parse» namespace */
@@ -847,23 +876,23 @@ async function _parse_items(context: C, parser: Parser, source: ParseSource, wit
     return items
 }
 
-async function parse_links(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
-    return await _parse_items(c, dev_links, source, withLabels)
+async function parse_links(context: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(context, dev_links, source, withLabels)
 }
-async function parse_refs(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
-    return await _parse_items(c, dev_refs, source, withLabels)
+async function parse_refs(context: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(context, dev_refs, source, withLabels)
 }
-parse_refs.blocks = async function(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
-    return await _parse_items(c, dev_refs.blocks, source, withLabels)
+async function parse_refs__blocks(context: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(context, dev_refs__blocks, source, withLabels)
 }
-parse_refs.pages = async function(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
-    return await _parse_items(c, dev_refs.pages, source, withLabels)
+async function parse_refs__pages(context: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(context, dev_refs__pages, source, withLabels)
 }
-parse_refs.pagesOnly = async function(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
-    return await _parse_items(c, dev_refs.pagesOnly, source, withLabels)
+async function parse_refs__pages_only(context: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(context, dev_refs__pagesOnly, source, withLabels)
 }
-parse_refs.tagsOnly = async function(c: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
-    return await _parse_items(c, dev_refs.tagsOnly, source, withLabels)
+async function parse_refs__tags_only(context: C, source: ParseSource, withLabels: boolean = false): Promise<string[][]> {
+    return await _parse_items(context, dev_refs__tagsOnly, source, withLabels)
 }
 
 function parse_cleanMarkup(context: C, obj: string | MLDOC_Node[], opts?: {cleanRefs?: boolean, cleanLabels?: boolean}) {
@@ -924,33 +953,34 @@ export function array_sorted(key: Function) {
 }
 
 
-function cursor(c: C) {
-    const env = _env(c)
+/* «cursor» namespace */
+function cursor(context: C) {
+    const env = _env(context)
     env.state({cursorPosition: true})
     return Template.carriagePositionMarker
 }
 
 
 /* «blocks» namespace */
-async function blocks_selected(opts?: {treatSingleBlockAsChildrenList?: boolean}) {
+async function blocks_selected(context: C, opts?: {treatSingleBlockAsChildrenList?: boolean}) {
     const [ blocks ] = await getChosenBlocks(opts)
     return blocks
 }
-function blocks_uuid(c: C) {
+function blocks_uuid(context: C) {
     // no need to set uuid for block while rendering view
     // it is always single block
-    if (c.mode === 'view')
-        return c.currentBlock.uuid!
+    if (context.mode === 'view')
+        return context.currentBlock.uuid!
 
-    const isHeadTemplateBlock = c.template!.includingParent
-        ? c.template!.block.id === c.self!.id
-        : (c.template!.block.children![0] as BlockEntity).id === c.self!.id
+    const isHeadTemplateBlock = context.template!.includingParent
+        ? context.template!.block.id === context.self!.id
+        : (context.template!.block.children![0] as BlockEntity).id === context.self!.id
 
     const uuid = isHeadTemplateBlock
-        ? c.currentBlock.uuid!
+        ? context.currentBlock.uuid!
         : dev_uuid(false, true)
 
-    const env = _env(c)
+    const env = _env(context)
     env.state({setUUID: uuid})
 
     return uuid
@@ -973,8 +1003,8 @@ function _blocks_insert_single(
     blocks.push(node)
     env.state({[attr]: blocks})
 }
-function _blocks_insert_multiple(c: C, isSibling: boolean, root: IBlockNode) {
-    const env = _env(c)
+function _blocks_insert_multiple(context: C, isSibling: boolean, root: IBlockNode) {
+    const env = _env(context)
     const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
     const blocks = env.state()[attr] ?? []
 
@@ -985,23 +1015,21 @@ function _blocks_insert_multiple(c: C, isSibling: boolean, root: IBlockNode) {
     blocks.push(root)
     env.state({[attr]: blocks})
 }
-function blocks_spawn(c: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
-    _blocks_insert_single(c, false, content, properties, opts)
+function blocks_spawn(context: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
+    _blocks_insert_single(context, false, content, properties, opts)
 }
-function blocks_spawn_tree(c: C, root: IBlockNode) {
-    _blocks_insert_multiple(c, false, root)
+function blocks_spawn__tree(context: C, root: IBlockNode) {
+    _blocks_insert_multiple(context, false, root)
 }
-blocks_spawn.tree = blocks_spawn_tree
-function blocks_append(c: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
-    _blocks_insert_single(c, true, content, properties, opts)
+function blocks_append(context: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
+    _blocks_insert_single(context, true, content, properties, opts)
 }
-function blocks_append_tree(c: C, root: IBlockNode) {
-    _blocks_insert_multiple(c, true, root)
+function blocks_append__tree(context: C, root: IBlockNode) {
+    _blocks_insert_multiple(context, true, root)
 }
-blocks_append.tree = blocks_append_tree
 
-export function blocks_skip(c: C, opts?: {self?: boolean, children?: boolean}) {
-    const env = _env(c)
+export function blocks_skip(context: C, opts?: {self?: boolean, children?: boolean}) {
+    const env = _env(context)
 
     opts = opts ?? {}
 
@@ -1019,16 +1047,108 @@ export function blocks_skip(c: C, opts?: {self?: boolean, children?: boolean}) {
 }
 
 
-function _env(c: C) {
+function _env(context: C) {
     // @ts-expect-error
-    return c.__env
+    return context.__env
 }
-function bindContext(f, context) {
-    const func = f.bind(null, context)
-    const signature = f.toString().replace('context, ', '')
-    func.toString = () => signature
-    return func
+
+
+class ContextBinder {
+    private context: C
+
+    constructor(context: C) {
+        this.context = context
+    }
+
+    bindFunction(f) {
+        const signature = functionSignature(f)
+        if (!signature)
+            return f
+
+        const { args, whole } = signature
+        const prefixArg = 'context'
+        const prefixArgs = prefixArg + ', '
+        if (!args.startsWith(prefixArgs) && args !== prefixArg)
+            return f
+
+        const func = f.bind(null, this.context)
+        func.toString = () => whole
+            .replace('(' + prefixArg + ')', '()')
+            .replace('(' + prefixArgs, '(')
+        return func
+    }
+    createNamespace(f?: Function, items: Record<string, Function | TagsNamespace | string> = {}) {
+        f = f ? this.bindFunction(f) : undefined
+
+        const itemsEntries = Object
+            .entries(items ?? {})
+            .map(([k, v]) => {
+                if (!( v instanceof TagsNamespace ))
+                    v = this.bindFunction(v)
+                return [k, v]
+            })
+        return new TagsNamespace(f, Object.fromEntries(itemsEntries))
+    }
 }
+
+
+export class TagsNamespace extends Function {
+    public __self__?: Function
+    // @ts-expect-error
+    public data: Record<string, Function | TagsNamespace | string>
+
+    constructor(f?: Function, data: Record<string, Function | TagsNamespace | string> = {}) {
+        super('...args', 'return this.call(...args)')
+
+        const self = this.bind(this, [f])
+
+        self.__self__ = f
+        self.data = data
+        Object.assign(self, data)
+
+        return self
+    }
+
+    call([func, data], ...args: any[]) {
+        if (!func)
+            throw new TypeError('This namespace cannot be called')
+        return func(...args)
+    }
+    filterForDisplaying() {
+        const self = this.__self__ ? Context.filterForDisplaying_function(this.__self__) : ''
+
+        const data = Object
+            .entries(this.data)
+            .filter(([k, v]) => !k.startsWith('_'))
+            // @ts-expect-error
+            .filter(([k, v]) => !v.obsolete)
+
+        if (!data.length)
+            return self
+
+        const result = {}
+        if (self)
+            result['()'] = self
+
+        const displayData = data.map(([k, v]) => {
+            if (v instanceof TagsNamespace)
+                return [k, v.filterForDisplaying()]
+            return [k, Context.filterForDisplaying_function(v)]
+        })
+        return Object.assign(result, Object.fromEntries(displayData))
+    }
+    toString() {
+        const value = this.filterForDisplaying()
+        if (typeof value === 'string')
+            return value
+
+        // pretty print whole namespace body
+        const obj = JSON.stringify(value, null, '\t')
+        return '<pre>' + obj + '</pre>'
+    }
+}
+
+
 function _initContext() {
     // @ts-expect-error
     Array.zip = array_zip
@@ -1070,36 +1190,9 @@ export function getTemplateTagsDatesContext() {
 }
 export function getTemplateTagsContext(context: C) {
     const datesContext = getTemplateTagsDatesContext()
+    const cb = new ContextBinder(context)
 
-    const include_ = bindContext(include, context)
-    include_.template = bindContext(include.template, context)
-    include_.view = bindContext(include.view, context)
-    include_.inlineView = bindContext(include.inlineView, context)
-
-    const layout_ = bindContext(layout, context)
-    layout_.template = bindContext(layout.template, context)
-    layout_.args = bindContext(layout.args, context)
-
-    const blocks_spawn_ = bindContext(blocks_spawn, context)
-    blocks_spawn_.tree = bindContext(blocks_spawn.tree, context)
-
-    const blocks_append_ = bindContext(blocks_append, context)
-    blocks_append_.tree = bindContext(blocks_append.tree, context)
-
-    const dev_tree_walk = function (root, callback) { return walkBlockTree(root, callback) }
-    const dev_tree_walkAsync = async function (root, callback) { return walkBlockTreeAsync(root, callback) }
-    const dev_tree_getNode = function (root, path) { return getTreeNode(root, path) }
-
-    const parse_refs_ = bindContext(parse_refs, context)
-    parse_refs_.blocks = bindContext(parse_refs.blocks, context)
-    parse_refs_.pages = bindContext(parse_refs.pages, context)
-    parse_refs_.pagesOnly = bindContext(parse_refs.pagesOnly, context)
-    parse_refs_.tagsOnly = bindContext(parse_refs.tagsOnly, context)
-
-    const cursor_ = bindContext(cursor, context)
-    cursor_.selection = getEditingCursorSelection
-
-    return new Context({
+    return cb.createNamespace(undefined, {
         __init: _initContext,
 
         sleep,
@@ -1111,72 +1204,96 @@ export function getTemplateTagsContext(context: C) {
         tomorrow: datesContext.tomorrow,
         time: datesContext.time,
 
-        date: Object.assign(datesContext.date, {
-            nlp: bindContext(date_nlp, context),
-            fromJournal: date_from_journal,
+        date: cb.createNamespace(undefined,
+            Object.assign(datesContext.date, {
+                nlp: date_nlp,
+                fromJournal: date_from_journal,
+            } as Record<string, Function>),
+        ),
+
+        include: cb.createNamespace(include, {
+            template: include__template,
+            view: include__view,
+            inlineView: include__inlineView,
+        }),
+        layout: cb.createNamespace(layout, {
+            template: layout__template,
+            args: layout__args,
         }),
 
-        include: include_,
-        layout: layout_,
+        cursor: cb.createNamespace(cursor, {
+            selection: getEditingCursorSelection,
+        }),
 
-        cursor: cursor_,
-
-        blocks: new Context({
+        blocks: cb.createNamespace(undefined, {
+            uuid: blocks_uuid,
+            skip: blocks_skip,
             selected: blocks_selected,
-            uuid: bindContext(blocks_uuid, context),
-            spawn: blocks_spawn_,
-            append: blocks_append_,
             edit: editBlockWithSelection,
-            skip: bindContext(blocks_skip, context),
-            actions: new Context({
-                update: bindContext(updateBlocksAction, context),
+
+            spawn: cb.createNamespace(blocks_spawn, {
+                tree: blocks_spawn__tree,
+            }),
+            append: cb.createNamespace(blocks_append, {
+                tree: blocks_append__tree,
+            }),
+
+            actions: cb.createNamespace(undefined, {
+                update: updateBlocksAction,
             }),
         }),
 
-        parse: new Context({
-            cleanMarkup: bindContext(parse_cleanMarkup, context),
-            links: bindContext(parse_links, context),
-            refs: parse_refs_,
+        parse: cb.createNamespace(undefined, {
+            cleanMarkup: parse_cleanMarkup,
+            links: parse_links,
+            refs: cb.createNamespace(parse_refs, {
+                blocks: parse_refs__blocks,
+                pages: parse_refs__pages,
+                pagesOnly: parse_refs__pages_only,
+                tagsOnly: parse_refs__tags_only,
+            }),
         }),
 
-        query: new Context({
-            table: bindContext(query_table_no_save_state, context),
-            table_: bindContext(query_table_save_state, context),
+        query: cb.createNamespace(undefined, {
+            table: query_table_no_save_state,
+            table_: query_table_save_state,
             pages: query_pages,
-            refs: new Context({
-                count: bindContext(query_refsCount, context),
-                journals: bindContext(query_journalRefs, context),
-                pages: bindContext(query_pageRefs, context),
-        })}),
+            refs: cb.createNamespace(undefined, {
+                count: query_refsCount,
+                journals: query_journalRefs,
+                pages: query_pageRefs,
+            }),
+        }),
 
-        dev: new Context({
+        dev: cb.createNamespace(undefined, {
             dump: dev_dump,
             uuid: dev_uuid,
-            parseMarkup: bindContext(dev_parseMarkup, context),
-            compileMarkup: bindContext(dev_compileMarkup, context),
-            toHTML: bindContext(dev_toHTML, context),
-            asset: bindContext(dev_asset, context),
+
+            parseMarkup: dev_parseMarkup,
+            compileMarkup: dev_compileMarkup,
+            toHTML: dev_toHTML,
+
+            asset: dev_asset,
             color: dev_color,
             cssVars: getCSSVars,
-            get: bindContext(dev_get, context),
-            links: bindContext(dev_links, context),
-            refs: bindContext(dev_refs, context),
 
-            walkTree: async function (root, callback) {
-                logseq.UI.showMsg(
-                    '"dev.walkTree" is deprecated. Please use "dev.tree.walkAsync" instead',
-                    'warning', {timeout: 15000}
-                )
-                console.warn(p`"dev.walkTree" is deprecated. Please use "dev.tree.walkAsync" instead`)
-
-                return dev_tree_walkAsync(root, callback)
-            },
-            tree: new Context({
-                walk: dev_tree_walk,
-                walkAsync: dev_tree_walkAsync,
-                getNode: dev_tree_getNode,
+            get: dev_get,
+            links: dev_links,
+            refs: cb.createNamespace(dev_refs, {
+                blocks: dev_refs__blocks,
+                pages: dev_refs__pages,
+                pagesOnly: dev_refs__pagesOnly,
+                tagsOnly: dev_refs__tagsOnly,
             }),
-            context: new Context({
+
+            walkTree: dev_tree_walk__old,
+            tree: cb.createNamespace(undefined, {
+                walk: function (root, callback) { return walkBlockTree(root, callback) },
+                walkAsync: async function (root, callback) { return walkBlockTreeAsync(root, callback) },
+                getNode: getTreeNode,
+            }),
+
+            context: cb.createNamespace(undefined, {
                 page: function (entity) { return PageContext.createFromEntity(entity) },
                 block: function (entity) { return BlockContext.createFromEntity(entity) },
             }),
