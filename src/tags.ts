@@ -88,6 +88,8 @@ function _is_bref(item: string): boolean {
     return item.startsWith('((') && item.endsWith('))')
 }
 
+
+/* main namespace */
 export function ref(item: string | BlockContext | PageContext | Dayjs, label: string | null = null): string {
     item = item ?? ''
 
@@ -183,6 +185,101 @@ bref.obsolete = true
 function embed(item: string | BlockContext | PageContext | Dayjs): string {
     const r = ref(item)
     return `{{embed ${r}}}`
+}
+
+function empty(obj: any, fallback: any = '') {
+    if (obj === null || obj === undefined)
+        return fallback
+
+    if (Array.isArray(obj) && obj.length === 0)
+        return fallback
+
+    if (isObject(obj) && Object.keys(obj).length === 0)
+        return fallback
+
+    const strObj = _asString(obj)
+    if (isEmptyString(strObj))
+        return fallback
+
+    return obj
+}
+function bool(value: string, fallback: any = '') {
+    if (typeof value !== 'string')
+        return fallback
+    return coerceStringToBool(value) ?? fallback
+}
+function when(obj: any, result: any, fallback: any = '') {
+    const condition = !!obj
+
+    if (condition) {
+        if (typeof result !== 'string')
+            return result
+
+        const strObj = _asString(obj)
+        return result
+            .replaceAll('${_}', strObj)
+            .replaceAll('${}', strObj)
+            .replaceAll('$1', strObj)
+    }
+
+    return fallback
+}
+function fill(
+    value: string | number,
+    char: string,
+    width: number,
+    align: 'left' | 'right' | 'center' = 'right',
+): string {
+    value = _asString(value)
+    char = _asString(char)
+    width = Number(_asString(width))
+    const count = Math.max(0, width - value.length)
+
+    const filler = char.repeat(count)
+    if (align === 'left')
+        return value + filler
+    else if (align === 'right')
+        return filler + value
+
+    const half = Math.floor(count / 2)
+    const remainder = count % 2
+    return char.repeat(half + remainder) + value + char.repeat(half)
+}
+function zeros(value: string | number, width: number) {
+    return fill(value, '0', width)
+}
+function spaces(value: string | number, width: number, align: 'left' | 'right' | 'center' = 'right') {
+    return fill(value, ' ', width, align)
+}
+
+
+/* «date» namespace  */
+function date_nlp(context: C, query: string, now: Dayjs | string = 'now'): Dayjs | null {
+    if (now === 'now')
+        Sherlock._setNow(null)
+    else if (now === 'page')
+        Sherlock._setNow(context.currentPage.day?.toDate() || null)
+    else {
+        const day = dayjs(now)
+        Sherlock._setNow(day.isValid() ? day.toDate() : null)
+    }
+
+    const parsed = Sherlock.parse(query)
+    const { isAllDay, eventTitle, startDate, endDate } = parsed
+    if (startDate) {
+        const day = dayjs(startDate)
+        return day.isValid() ? day : null
+    }
+    return null
+}
+function date_from_journal(day: number | string | Dayjs): Dayjs | null {
+    if (day instanceof dayjs)
+        return day
+    day = day.toString()
+    const obj = PageContext.parseDay(day)
+    if (!obj.isValid())
+        return null
+    return obj
 }
 
 
@@ -407,99 +504,97 @@ function layout__args(context: C, ...argNames: (string | [string, string | boole
 }
 
 
-function empty(obj: any, fallback: any = '') {
-    if (obj === null || obj === undefined)
-        return fallback
-
-    if (Array.isArray(obj) && obj.length === 0)
-        return fallback
-
-    if (isObject(obj) && Object.keys(obj).length === 0)
-        return fallback
-
-    const strObj = _asString(obj)
-    if (isEmptyString(strObj))
-        return fallback
-
-    return obj
-}
-function bool(value: string, fallback: any = '') {
-    if (typeof value !== 'string')
-        return fallback
-    return coerceStringToBool(value) ?? fallback
-}
-function when(obj: any, result: any, fallback: any = '') {
-    const condition = !!obj
-
-    if (condition) {
-        if (typeof result !== 'string')
-            return result
-
-        const strObj = _asString(obj)
-        return result
-            .replaceAll('${_}', strObj)
-            .replaceAll('${}', strObj)
-            .replaceAll('$1', strObj)
-    }
-
-    return fallback
-}
-function fill(
-    value: string | number,
-    char: string,
-    width: number,
-    align: 'left' | 'right' | 'center' = 'right',
-): string {
-    value = _asString(value)
-    char = _asString(char)
-    width = Number(_asString(width))
-    const count = Math.max(0, width - value.length)
-
-    const filler = char.repeat(count)
-    if (align === 'left')
-        return value + filler
-    else if (align === 'right')
-        return filler + value
-
-    const half = Math.floor(count / 2)
-    const remainder = count % 2
-    return char.repeat(half + remainder) + value + char.repeat(half)
-}
-function zeros(value: string | number, width: number) {
-    return fill(value, '0', width)
-}
-function spaces(value: string | number, width: number, align: 'left' | 'right' | 'center' = 'right') {
-    return fill(value, ' ', width, align)
+/* «cursor» namespace */
+function cursor(context: C) {
+    const env = _env(context)
+    env.state({cursorPosition: true})
+    return Template.carriagePositionMarker
 }
 
 
-/* «date» namespace  */
-function date_nlp(context: C, query: string, now: Dayjs | string = 'now'): Dayjs | null {
-    if (now === 'now')
-        Sherlock._setNow(null)
-    else if (now === 'page')
-        Sherlock._setNow(context.currentPage.day?.toDate() || null)
-    else {
-        const day = dayjs(now)
-        Sherlock._setNow(day.isValid() ? day.toDate() : null)
-    }
-
-    const parsed = Sherlock.parse(query)
-    const { isAllDay, eventTitle, startDate, endDate } = parsed
-    if (startDate) {
-        const day = dayjs(startDate)
-        return day.isValid() ? day : null
-    }
-    return null
+/* «blocks» namespace */
+async function blocks_selected(context: C, opts?: {treatSingleBlockAsChildrenList?: boolean}) {
+    const [ blocks ] = await getChosenBlocks(opts)
+    return blocks
 }
-function date_from_journal(day: number | string | Dayjs): Dayjs | null {
-    if (day instanceof dayjs)
-        return day
-    day = day.toString()
-    const obj = PageContext.parseDay(day)
-    if (!obj.isValid())
-        return null
-    return obj
+function blocks_uuid(context: C) {
+    // no need to set uuid for block while rendering view
+    // it is always single block
+    if (context.mode === 'view')
+        return context.currentBlock.uuid!
+
+    const isHeadTemplateBlock = context.template!.includingParent
+        ? context.template!.block.id === context.self!.id
+        : (context.template!.block.children![0] as BlockEntity).id === context.self!.id
+
+    const uuid = isHeadTemplateBlock
+        ? context.currentBlock.uuid!
+        : dev_uuid(false, true)
+
+    const env = _env(context)
+    env.state({setUUID: uuid})
+
+    return uuid
+}
+
+function _blocks_insert_single(
+    context: C, isSibling: boolean, content: string, properties?: Record<string, any>,
+    opts?: {cursorPosition?: true, setUUID?: string},
+) {
+    const env = _env(context)
+    const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
+    const blocks = env.state()[attr] ?? []
+
+    const node: IBlockNode = { content, children: [] }
+    if (properties && Object.keys(properties).length)
+        node.properties = properties
+
+    prepareRenderedNode(node, opts)
+
+    blocks.push(node)
+    env.state({[attr]: blocks})
+}
+function _blocks_insert_multiple(context: C, isSibling: boolean, root: IBlockNode) {
+    const env = _env(context)
+    const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
+    const blocks = env.state()[attr] ?? []
+
+    walkBlockTree(root, (node) => {
+        prepareRenderedNode(node)
+    })
+
+    blocks.push(root)
+    env.state({[attr]: blocks})
+}
+function blocks_spawn(context: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
+    _blocks_insert_single(context, false, content, properties, opts)
+}
+function blocks_spawn__tree(context: C, root: IBlockNode) {
+    _blocks_insert_multiple(context, false, root)
+}
+function blocks_append(context: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
+    _blocks_insert_single(context, true, content, properties, opts)
+}
+function blocks_append__tree(context: C, root: IBlockNode) {
+    _blocks_insert_multiple(context, true, root)
+}
+
+export function blocks_skip(context: C, opts?: {self?: boolean, children?: boolean}) {
+    const env = _env(context)
+
+    opts = opts ?? {}
+
+    if (opts.children === undefined)
+        opts.children = false
+
+    if (opts.self === undefined)
+        opts.self = true
+
+    if (opts.self)
+        env.state({skip: true})
+
+    if (opts.children)
+        env.state({skipChildren: true})
 }
 
 
@@ -902,7 +997,9 @@ function parse_cleanMarkup(context: C, obj: string | MLDOC_Node[], opts?: {clean
 }
 
 
-/* internal */
+/**
+ * internal
+ */
 function array_zip(...arrs: any[][]) {
     return Array(
         Math.min(...arrs.map(a => a.length))
@@ -953,99 +1050,9 @@ export function array_sorted(key: Function) {
 }
 
 
-/* «cursor» namespace */
-function cursor(context: C) {
-    const env = _env(context)
-    env.state({cursorPosition: true})
-    return Template.carriagePositionMarker
-}
-
-
-/* «blocks» namespace */
-async function blocks_selected(context: C, opts?: {treatSingleBlockAsChildrenList?: boolean}) {
-    const [ blocks ] = await getChosenBlocks(opts)
-    return blocks
-}
-function blocks_uuid(context: C) {
-    // no need to set uuid for block while rendering view
-    // it is always single block
-    if (context.mode === 'view')
-        return context.currentBlock.uuid!
-
-    const isHeadTemplateBlock = context.template!.includingParent
-        ? context.template!.block.id === context.self!.id
-        : (context.template!.block.children![0] as BlockEntity).id === context.self!.id
-
-    const uuid = isHeadTemplateBlock
-        ? context.currentBlock.uuid!
-        : dev_uuid(false, true)
-
-    const env = _env(context)
-    env.state({setUUID: uuid})
-
-    return uuid
-}
-
-function _blocks_insert_single(
-    context: C, isSibling: boolean, content: string, properties?: Record<string, any>,
-    opts?: {cursorPosition?: true, setUUID?: string},
-) {
-    const env = _env(context)
-    const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
-    const blocks = env.state()[attr] ?? []
-
-    const node: IBlockNode = { content, children: [] }
-    if (properties && Object.keys(properties).length)
-        node.properties = properties
-
-    prepareRenderedNode(node, opts)
-
-    blocks.push(node)
-    env.state({[attr]: blocks})
-}
-function _blocks_insert_multiple(context: C, isSibling: boolean, root: IBlockNode) {
-    const env = _env(context)
-    const attr = isSibling ? 'appendedBlocks' : 'spawnedBlocks'
-    const blocks = env.state()[attr] ?? []
-
-    walkBlockTree(root, (node) => {
-        prepareRenderedNode(node)
-    })
-
-    blocks.push(root)
-    env.state({[attr]: blocks})
-}
-function blocks_spawn(context: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
-    _blocks_insert_single(context, false, content, properties, opts)
-}
-function blocks_spawn__tree(context: C, root: IBlockNode) {
-    _blocks_insert_multiple(context, false, root)
-}
-function blocks_append(context: C, content: string, properties?: Record<string, any>, opts?: {cursorPosition?: true}) {
-    _blocks_insert_single(context, true, content, properties, opts)
-}
-function blocks_append__tree(context: C, root: IBlockNode) {
-    _blocks_insert_multiple(context, true, root)
-}
-
-export function blocks_skip(context: C, opts?: {self?: boolean, children?: boolean}) {
-    const env = _env(context)
-
-    opts = opts ?? {}
-
-    if (opts.children === undefined)
-        opts.children = false
-
-    if (opts.self === undefined)
-        opts.self = true
-
-    if (opts.self)
-        env.state({skip: true})
-
-    if (opts.children)
-        env.state({skipChildren: true})
-}
-
+/**
+ * setup tags context
+ */
 
 function _env(context: C) {
     // @ts-expect-error
