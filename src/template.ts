@@ -306,16 +306,7 @@ export class Template implements ITemplate {
             if (state.skipChildren)
                 data.skipChildren = true
 
-
-            // handle special values
-            if (result === null || result === undefined)
-                return ''
-
-            // make arrays and objects looks pretty
-            if (typeof result === 'object')
-                return Template.convertValueToPretty(result)
-
-            return result.toString()
+            return eta.config.filterFunction(result)
         })
 
 

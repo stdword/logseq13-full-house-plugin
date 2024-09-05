@@ -6,6 +6,7 @@ import { TemplateFunction } from 'eta/dist/types/compile'
 import * as Sherlock from 'sherlockjs'
 
 import { dayjs } from '../context'
+import { Template } from '../template'
 
 
 interface CustomizedOptions extends Options {
@@ -59,12 +60,19 @@ export const eta = new CustomizedEta({
 
     autoFilter: true,  /** Apply a `filterFunction` to every interpolation or raw interpolation */
     filterFunction: function (value: any): string {
+        if (value === null || value === undefined)
+            return ''
+
         if (value instanceof dayjs)
             // @ts-expect-error
             return value.toPage()
 
         if (typeof value === 'string')
             return value
+
+        // make arrays and objects looks pretty
+        if (typeof value === 'object')
+            return Template.convertValueToPretty(value)
 
         return String(value)
     },
