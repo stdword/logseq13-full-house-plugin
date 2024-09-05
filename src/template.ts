@@ -118,11 +118,6 @@ export class Template implements ITemplate {
             if (typeof obj !== 'object')
                 return obj
 
-            if (obj instanceof dayjs) {
-                // @ts-expect-error
-                return obj.toISOString()
-            }
-
             if (Array.isArray(obj)) {
                 return Array.from(
                     obj.map(prepare)
@@ -130,9 +125,8 @@ export class Template implements ITemplate {
             }
 
             // a class instance (not a simple object)
-            if (obj.__proto__.constructor !== Object) {
+            if (obj.__proto__.constructor !== Object)
                 return obj.toString()
-            }
 
             return Object.fromEntries(
                 Object.entries(obj)
@@ -140,7 +134,11 @@ export class Template implements ITemplate {
             )
         }
 
-        return neatJSON(prepare(obj), {
+        obj = prepare(obj)
+        if (typeof obj === 'string')
+            return obj
+
+        return neatJSON(obj, {
             wrap: false,
             short: true,
             afterComma: 1,
