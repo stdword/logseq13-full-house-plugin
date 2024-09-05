@@ -236,6 +236,7 @@ To get the UUID of [spawned blocks](#blocks-spawn), use *setUUID* parameter and 
 
 ?> There is no need to use templates to render content when working with actions, so every action disables whole tree rendering (via [`blocks.skip`](#blocks-skip)) by default (see the `skipTree` option).
 
+
 #### `.update` :id=blocks-actions-update
 Update multiple blocks at once in different ways.
 
@@ -285,6 +286,21 @@ Update multiple blocks at once in different ways.
 ```
 
 <!-- tabs:end -->
+
+
+
+#### `.split` :id=blocks-actions-split
+See feature request [here](https://github.com/stdword/logseq13-full-house-plugin/issues/52).
+
+
+
+#### `.merge` :id=blocks-actions-merge
+See feature request [here](https://github.com/stdword/logseq13-full-house-plugin/issues/53).
+
+
+
+#### `.reorder` :id=blocks-actions-reorder
+See feature request [here](https://github.com/stdword/logseq13-full-house-plugin/issues/51).
 
 
 
