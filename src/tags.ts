@@ -430,7 +430,7 @@ async function include__inlineView(context: C, body: string, args_?: string[]) {
 
     const command = RendererMacro.command('view')
         .arg(body)
-        .args(args)
+        .args(args ?? [])
     return command.toString()
 }
 
@@ -1066,7 +1066,6 @@ class ContextBinder {
     constructor(context: C) {
         this.context = context
     }
-
     bindFunction(f) {
         const signature = functionSignature(f)
         if (!signature)
@@ -1115,7 +1114,6 @@ export class TagsNamespace extends Function {
 
         return self
     }
-
     call([func, data], ...args: any[]) {
         if (!func)
             throw new TypeError('This namespace cannot be called')

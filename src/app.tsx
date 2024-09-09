@@ -10,6 +10,8 @@ import {
     renderTemplateInBlock, renderTemplateView, renderView,
     templateMacroStringForBlock, templateMacroStringForPage,
     insertTemplate,
+    renderTemplateButtonInBlock,
+    handleButtonClick,
 } from './logic'
 import {
     indexOfNth, lockOn, p, sleep,
@@ -25,6 +27,7 @@ import {
     getPage,
     getChosenBlocks,
     resolvePageAliases,
+    splitMacroArgs,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 import InsertUI, { shortcutToOpenInsertUI, showInsertRestrictionMessage } from './ui/insert'
@@ -333,16 +336,16 @@ async function main() {
             key: 'insert-inline-view',
             label: commandLabel,
         }, async (e) => {
-                const inserted = await insertContent(commandGuide, { positionAfterText: code })
-                if (!inserted) {
-                    logseq.UI.showMsg(
-                        `[:p "Start editing block or select one to insert "
-                             [:code ":view"]]`,
-                        'warning',
-                        {timeout: 5000},
-                    )
-                    return
-                }
+            const inserted = await insertContent(commandGuide, { positionAfterText: code })
+            if (!inserted) {
+                logseq.UI.showMsg(
+                    `[:p "Start editing block or select one to insert "
+                         [:code ":view"]]`,
+                    'warning',
+                    {timeout: 5000},
+                )
+                return
+            }
         })
 
         logseq.Editor.registerSlashCommand(commandLabel, async (e) => {
@@ -351,6 +354,48 @@ async function main() {
         })
 
         handleViewCommand(commandViewName)
+    }
+
+    const commandTemplateButtonName = 'template-button'
+    {
+        handleTemplateButtonCommand(commandTemplateButtonName)
+
+        logseq.provideStyle(`
+            .fht-button {
+                background-color: var(--ls-secondary-background-color, var(--rx-gray-03));
+                color: var(--fht-label-text, var(--ls-secondary-text-color, var(--rx-gray-11)));
+                border: 1px solid var(--ls-secondary-border-color, var(--rx-gray-06));
+                padding: 2px 4px;
+                border-radius: 4px;
+                user-select: none;
+            }
+
+            .fht-button:hover {
+                background-color: var(--fht-active, var(--ls-quaternary-background-color, var(--rx-gray-04)));
+                color: var(--ls-link-text-color, var(--rx-gray-12));
+            }
+        `.trim())
+
+        logseq.provideModel({
+            async insertTemplate(e: any) {
+                let {
+                    buttonUuid: buttonUUID,
+                    title,
+                    templateRef,
+                    destinationUuid: destinationUUID,
+                    actionType,
+                    args
+                } = e.dataset
+
+                destinationUUID = destinationUUID || null
+                args = splitMacroArgs(args)
+
+                await handleLogicErrors(async () => {
+                    await handleButtonClick(
+                        buttonUUID, title, templateRef, destinationUUID, actionType, args)
+                })
+            },
+        })
     }
 
     logseq.Editor.registerSlashCommand('Render this 🏛️block', async (e) => {
@@ -547,7 +592,31 @@ function handleViewCommand(commandName: string) {
     })
     logseq.beforeunload(unload as unknown as () => Promise<void>)
 }
+function handleTemplateButtonCommand(commandName: string) {
+    let unload = logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
+        const uuid = payload.uuid
+        let [ type_, templateRef_, ...args ] = payload.arguments
 
+        const rawCommand = RendererMacro.command(type_ ?? '')
+        if (rawCommand.name !== commandName)
+            return
+
+        const raw = rawCommand.arg(templateRef_).args(args)
+        // console.debug(p`Parsing:`, {macro: raw.toString()})
+
+        const templateRef = await handleRequiredRef(templateRef_, 'Template')
+        if (!templateRef)
+            return
+
+        args = args.map(arg => cleanMacroArg(arg, {escape: false, unquote: true}))
+
+        // console.debug(p`Rendering template button`, {uuid, templateRef, args})
+        await handleLogicErrors(async () => {
+            await renderTemplateButtonInBlock(slot, uuid, templateRef, raw, args)
+        })
+    })
+    logseq.beforeunload(unload as unknown as () => Promise<void>)
+}
 
 export const App = (logseq: any) => {
     if (DEV) {

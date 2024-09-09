@@ -6,6 +6,7 @@ import { InlineTemplate, ITemplate, Template } from './template'
 import {
     ILogseqContext, Context, PageContext, BlockContext,
     ArgsContext, ConfigContext, ILogseqCurrentContext, ILogseqCallContext,
+    dayjs,
 } from './context'
 import {
     p, IBlockNode, lockOn, sleep, LogseqReference, getPage, getBlock,
@@ -22,20 +23,23 @@ import {
     filterBlockTree,
     getEditingCursorSelection,
     getChosenBlocks,
+    insertBatchBlockBefore,
+    insertBatchBlockAfter,
+    splitMacroArgs,
 } from './utils'
 import { RenderError, StateError, StateMessage } from './errors'
 
 
-type InsertAs = 'View' | 'Template'
+export type InsertAs = 'View' | 'Template' | 'Button'
 
 
 async function getCurrentContext(
-    blockUUID: string | null,
+    blockOrPageUUID: string | null,
     mode: ILogseqCurrentContext['mode'],
 ): Promise<ILogseqCurrentContext | null> {
     // case: template insertion triggered by shortcut
     //   outside of edit mode and no blocks are selected
-    if (blockUUID === null) {
+    if (blockOrPageUUID === null) {
         let page: PageEntity | null = null
 
         const currentPageOrBlock = await logseq.Editor.getCurrentPage()
@@ -54,22 +58,29 @@ async function getCurrentContext(
         }
     }
 
-    if (blockUUID === '') {
+    if (blockOrPageUUID === '') {
         // Where is uuid? It definitely should be here, but this is a bug:
         //   https://github.com/logseq/logseq/issues/8904
         console.debug(p`Assertion error: this case should be filtered out in "isInsideMacro"`)
         return null
     }
 
-    const currentBlock = await logseq.Editor.getBlock(blockUUID)
-    if (!currentBlock) {
-        console.debug(p`logseq issue → rendering non-existed block / slot`)
-        return null
+    let currentPage: PageEntity | null
+    const currentBlock = await logseq.Editor.getBlock(blockOrPageUUID)
+    if (currentBlock)
+        currentPage = await logseq.Editor.getPage(currentBlock.page.id)
+    else {
+        currentPage = await logseq.Editor.getPage(blockOrPageUUID)
+        if (!currentPage) {
+            console.debug(p`logseq issue → rendering non-existed block / slot`)
+            return null
+        }
     }
 
-    const currentPage = await logseq.Editor.getPage(currentBlock.page.id) as PageEntity
-    const currentPageContext = PageContext.createFromEntity(currentPage)
-    const currentBlockContext = BlockContext.createFromEntity(currentBlock, { page: currentPageContext })
+    const currentPageContext = PageContext.createFromEntity(currentPage!)
+    const currentBlockContext = currentBlock
+        ? BlockContext.createFromEntity(currentBlock, { page: currentPageContext })
+        : BlockContext.empty()
 
     return {
         mode,
@@ -132,7 +143,12 @@ export async function getArgsContext(
 async function getCallContext(
     slot: string,
     argsContext: ArgsContext,
+    opts?: {
+        config?: boolean,
+    },
 ): Promise<ILogseqCallContext> {
+    const config = opts?.config ?? true
+
     // @ts-expect-error
     const pageRef = typeof argsContext.page === 'string' ? argsContext.page : ''
     let contextPage: PageEntity | null = null
@@ -172,8 +188,8 @@ async function getCallContext(
     }
 
     return {
+        config: config ? await ConfigContext.get() : null,
         identity: new Context({ slot, key: slot ? slot.split('__', 2)[1].trim() : '' }),
-        config: await ConfigContext.get(),
 
         page: contextPage ? PageContext.createFromEntity(contextPage) : null,
         block: contextBlock ? BlockContext.createFromEntity(contextBlock) : null,
@@ -372,6 +388,154 @@ function provideHTML(blockUUID: string, htmlCode: string, slot: string) {
 
 /**
  * @raises StateError: template doesn't exist
+ * @raises StateError: template is not instant
+ * @raises StateMessage: template doesn't have any content (empty)
+ */
+export async function renderTemplateButtonInBlock(
+    slot: string,
+    uuid: string,
+    templateRef: LogseqReference,
+    rawCode: RendererMacro,
+    args: string[],
+) {
+    const template = await getTemplate(templateRef)
+    const handled = await handleNestedRendering(template.block, args, uuid, slot, rawCode)
+    if (handled)
+        return
+
+    if (!template.instant) {
+        const html = `
+            <span title="Template '${template.name}' is not instant" class="warning"
+                >${rawCode}</span>
+        `.trim()
+        provideHTML(uuid, html, slot)
+
+        throw new StateError(
+            `[:p "Template " [:i "${template.name}"] " is not instant. "
+                 "Remove cursor markers from it's " [:code "template-usage::"]
+                 " property in order to use it with " [:code "🏛️button"]
+            ]`,
+            {template},
+        )
+    }
+
+    const argsContext = ArgsContext.create(`button: ${template.name}`, args)
+
+    // here are parsing of block & page refs and checks for its existence
+    const callContext = await getCallContext(slot, argsContext, {config: false})
+
+    const title = argsContext['title'] || template.name
+    const destinationUUID = callContext.block?.uuid || callContext.page?.uuid || ''
+    const isPageDestination = !callContext.block?.uuid && (!!destinationUUID || argsContext['page'])
+
+    const defaultAction = 'append'
+    let action = argsContext['action']
+    action = (typeof action === 'string' ? action : defaultAction).toLowerCase()
+    if (!['append', 'prepend', 'replace', 'call'].includes(action)) {
+        const code = html`
+            <span title="Unsupported button action: '${action}'"
+                  class="warning"
+                >${rawCode}</span>
+        `.trim()
+        provideHTML(uuid, code, slot)
+
+        throw new StateError(
+            `[:p "Unsupported button action. Use one of: " [:br]
+                 [:code "append"] ", " [:code "prepend"] ", "
+                 [:code "replace"] ", "  [:code "call"] "."
+            ]`,
+            {action},
+        )
+    }
+
+    if (action === 'replace' && isPageDestination) {
+        const code = html`
+            <span title="The 'replace' action is not available with page as destination"
+                  class="warning"
+                >${rawCode}</span>
+        `.trim()
+        provideHTML(uuid, code, slot)
+
+        throw new StateError(
+            `[:p "The " [:code "replace"] " action is not available with "
+                 [:b "page"] " as destination"
+            ]`,
+        )
+    }
+
+    if (action === 'replace' && !destinationUUID) {
+        const code = html`
+            <span title="The 'replace' action is not available without destination block"
+                  class="warning"
+                >${rawCode}</span>
+        `.trim()
+        provideHTML(uuid, code, slot)
+
+        throw new StateError(
+            `[:p "The " [:code "replace"] " action is not available without destination "
+                 [:b "block"]
+            ]`,
+        )
+    }
+
+    delete argsContext['title']
+    delete argsContext['action']
+    const restArgs = argsContext.toCallString()
+
+    logseq.provideUI({
+        key: `${slot}`,
+        reset: true,
+        slot: slot,
+        template: `
+            <button class="fht-button"
+                data-on-click="insertTemplate"
+                data-button-uuid="${uuid}"
+                data-template-ref="${templateRef.original}"
+                data-title="${title}"
+                data-destination-uuid="${destinationUUID}"
+                data-action-type="${action}"
+                data-args="${restArgs}"
+            >${title}</button>
+        `.trim(),
+    })
+}
+
+export async function handleButtonClick(
+    buttonUUID: string,
+    buttonTitle: string,
+    templateRef: string,
+    destinationUUID: string | null,
+    action: string,
+    args: string[],
+) {
+    destinationUUID = destinationUUID || buttonUUID
+
+    const ref = parseReference(templateRef)!
+    const template = await getTemplate(ref)
+
+    const argsContext = ArgsContext.create('', args)
+    if (argsContext['page'] && typeof argsContext['page'] === 'boolean') {
+        // @ts-expect-error
+        const name = dayjs().toPage()
+
+        argsContext['page'] = name
+        destinationUUID = ( await logseq.Editor.getPage(name) )!.uuid
+    }
+    args = splitMacroArgs(argsContext.toCallString())
+
+    if (action === 'replace')
+        await renderTemplateInBlockInstantly(destinationUUID, template, {args, ignoreEditingMode: true})
+    else if (action === 'call')
+        await renderTemplateInNewBlockInstantly(null, template, args)
+    else if (action === 'append')
+        await renderTemplateInNewBlockInstantly(destinationUUID, template, args, {before: false})
+    else if (action === 'prepend')
+        await renderTemplateInNewBlockInstantly(destinationUUID, template, args, {before: true})
+}
+
+
+/**
+ * @raises StateError: template doesn't exist
  * @raises StateMessage: template doesn't have any content (empty)
  * @raises RenderError: template rendering error
  */
@@ -486,7 +650,16 @@ export async function renderThisBlockAsTemplate(uuid: string) {
         )
 }
 
-export async function renderTemplateInBlockInstantly(uuid: string | null, template: Template) {
+export async function renderTemplateInBlockInstantly(
+    uuid: string | null,
+    template: Template,
+    opts?: {
+        args?: string[],
+        ignoreEditingMode?: boolean,
+    },
+) {
+    const ignoreEditingMode = opts?.ignoreEditingMode
+
     if (!template.instant)
         return
 
@@ -494,20 +667,29 @@ export async function renderTemplateInBlockInstantly(uuid: string | null, templa
     if (!currentContext)
         return
 
-    const result = await renderTemplate('', template, template.args, currentContext)
+    // if args are specified — we have the possibility to specify them,
+    // so no need to use default ones from template-usage::
+    // otherwise if they are not specified — we don't have the possibility to specify them
+    // so use default ones
+    // merging args will break the meaning of template-usage::
+    const args = opts?.args ? opts.args : template.args
+    const result = await renderTemplate('', template, args, currentContext)
     let {rendered, headTail: [head, tail], context} = result
 
     const headProps = PropertiesUtils.getPropertiesFromString(head.content ?? '')
     Object.assign(headProps, head.properties)
 
-    let oldContent = (await logseq.Editor.getEditingBlockContent()) ?? context.currentBlock.content!
+    let oldContent = ignoreEditingMode
+        ? context.currentBlock.content!
+        : (await logseq.Editor.getEditingBlockContent()) ?? context.currentBlock.content!
     let newContent = head.content === undefined
         ? undefined
         : PropertiesUtils.deleteAllProperties(head.content)
 
     const selection = getEditingCursorSelection()
-    const contentStart = selection ? selection[0] : 0
-    if (selection) {
+    const editingUUID = await logseq.Editor.checkEditing()
+    const contentStart = (selection && !ignoreEditingMode) ? selection[0] : 0
+    if (selection && !ignoreEditingMode) {
         const [start, end] = selection
 
         const uuid = PropertiesUtils.getPropertyFromString(oldContent, PropertiesUtils.idProperty)
@@ -530,7 +712,8 @@ export async function renderTemplateInBlockInstantly(uuid: string | null, templa
 
     const positions = getCursorPositionsInTree(rendered)
     await handleInsertion(
-        uuid, oldContent, newContent, headProps, head.children, tail, !!positions, selection,
+        uuid, oldContent, newContent, headProps, head.children, tail,
+        !!positions, selection, editingUUID ? editingUUID as string : '',
     )
     if (positions)
         await handleSetCursorPosition(
@@ -542,6 +725,103 @@ export async function renderTemplateInBlockInstantly(uuid: string | null, templa
         )
 }
 
+export async function renderTemplateInNewBlockInstantly(
+    blockOrPageUUID: string | null,
+    template: Template,
+    args: string[],
+    opts?: {
+        before: boolean,
+    },
+) {
+    const before = opts?.before ?? false
+
+    if (!template.instant)
+        return
+
+    let destinationBlock: BlockEntity | PageEntity | null = null
+    let isPageDestination = false
+    if (blockOrPageUUID) {
+        destinationBlock = await logseq.Editor.getBlock(blockOrPageUUID, {includeChildren: true})
+        if (!destinationBlock) {
+            destinationBlock = await logseq.Editor.getPage(blockOrPageUUID)
+            if (!destinationBlock)
+                throw new StateError(
+                    `[:p "Block or page" [:code "${blockOrPageUUID}"] " doesn't exist. "
+                         "Can't find the place to insert the " [:code "🏛️template"]
+                         [:i "${template.name}"] "."
+                    ]`,
+                    {template},
+                )
+
+            // @ts-expect-error
+            destinationBlock.children = await logseq.Editor.getPageBlocksTree(blockOrPageUUID)
+            isPageDestination = true
+        }
+    }
+
+    const currentContext = await getCurrentContext(blockOrPageUUID, 'template')
+    if (!currentContext)
+        return
+
+    const result = await renderTemplate('', template, args, currentContext)
+    let {rendered, headTail: [head, tail], context} = result
+    const blocks = [head, ...tail] as IBatchBlock[]
+
+    if (!destinationBlock)
+        return
+
+
+    const positions = getCursorPositionsInTree(rendered)
+
+
+    // handle insertion
+    const selection = getEditingCursorSelection()
+    const editingUUID = await logseq.Editor.checkEditing()
+    if (selection)
+        await logseq.Editor.exitEditingMode()
+
+    let insertedHead: BlockEntity
+    if (!destinationBlock.children?.length) {
+        await insertBatchBlockAfter(destinationBlock, blocks, {keepUUID: true, sibling: false})
+        if (!isPageDestination)
+            insertedHead = (await logseq.Editor.getBlock(destinationBlock.uuid, {includeChildren: true}))!
+                .children![0] as BlockEntity
+        else
+            insertedHead = (await logseq.Editor.getPageBlocksTree(destinationBlock.uuid))[0]
+    }
+    else {
+        if (before) {
+            const firstChild = destinationBlock.children![0] as BlockEntity
+            await insertBatchBlockBefore(firstChild, blocks, {keepUUID: true})
+
+            let current = firstChild
+            for (let i = 0; i < blocks.length; i++)
+                current = ( await logseq.Editor.getPreviousSiblingBlock(current.uuid) )!
+            insertedHead = current
+        }
+        else {
+            const lastChild = destinationBlock.children!.at(-1) as BlockEntity
+            await insertBatchBlockAfter(lastChild, blocks, {keepUUID: true, sibling: true})
+            insertedHead = (await logseq.Editor.getNextSiblingBlock(lastChild.uuid))!
+        }
+    }
+
+    // restoring the cursor position (if need be)
+    if (editingUUID && !positions) {
+        await sleep(20)
+        editBlockWithSelection(editingUUID as string, selection ?? [])
+    }
+
+    if (positions) {
+        await sleep(20)
+        await handleSetCursorPosition(
+            insertedHead.uuid,
+            template.includingParent,
+            positions.cursorPath,
+            positions.selectionPositions,
+        )
+    }
+}
 
 async function handleInsertion(
     uuid: string,
@@ -552,20 +832,27 @@ async function handleInsertion(
     tail: IBlockNode[],
     setCursorWillOccur: boolean,
     newEditingCursorSelection: number[] | null = null,
+    newEditingCursorBlockUUID: string = '',
 ) {
     // 1) inserting head's children stage
+
+    const block = await logseq.Editor.getBlock(uuid)
 
     // WARNING: it is important to call `.insertBatchBlock` before `.updateBlock`
     // due to Logseq BUG on batch inserting to empty block (content == '')
     if (children && children.length)
-        await logseq.Editor.insertBatchBlock(
-            uuid, children as IBatchBlock[], { sibling: false, keepUUID: true })
+        await insertBatchBlockAfter(
+            block!, children as IBatchBlock[], { sibling: false, keepUUID: true })
+        // await logseq.Editor.insertBatchBlock(
+            // uuid, children as IBatchBlock[], { sibling: false, keepUUID: true })
 
 
     // 2) inserting tail trees
     if (tail.length)
-        await logseq.Editor.insertBatchBlock(
-            uuid, tail as IBatchBlock[], { sibling: true, keepUUID: true })
+        await insertBatchBlockAfter(
+            block!, tail as IBatchBlock[], { sibling: true, keepUUID: true })
+        // await logseq.Editor.insertBatchBlock(
+        //     uuid, tail as IBatchBlock[], { sibling: true, keepUUID: true })
 
 
     // 3) updating head stage
@@ -573,9 +860,7 @@ async function handleInsertion(
         // WARNING: this is workaround for Logseq BUG
         //   issue: updating of currently edited block with properties, leads to properties get lost
         //   how to avoid: exit editing mode & return after updating
-        let wasExitedFromEditMode = false
         if (Object.keys(props).length && newEditingCursorSelection) {
-            wasExitedFromEditMode = true
             await logseq.Editor.exitEditingMode()
             await sleep(20)
         }
@@ -585,7 +870,7 @@ async function handleInsertion(
         // restoring the cursor position (if need be)
         if (newEditingCursorSelection && !setCursorWillOccur) {
             await sleep(20)
-            editBlockWithSelection(uuid, newEditingCursorSelection)
+            editBlockWithSelection(newEditingCursorBlockUUID || uuid, newEditingCursorSelection)
         }
     }
 }
@@ -665,6 +950,45 @@ async function handleSetCursorPosition(
     editBlockWithSelection(cursorBlockUUID, selectionPositions)
 }
 
+export async function insertTemplateButton(destinationUUID: string, templateUUID: string) {
+    const ref = parseReference(templateUUID)!
+    const template = await getTemplate(ref, {accessedViaUI: true})
+
+    let content = RendererMacro
+        .command(':template-button')
+        .arg(template.name)
+        .arg(`:title ${template.name}`)
+        .arg(`:action ${Template.carriagePositionMarker}append | prepend | replace | call${Template.carriagePositionMarker}`)
+        .arg(template.usage, {raw: true})
+        .toString()
+
+    const selectionPositions = [] as number[]
+    content = Template.getSelectionPositions(content, selectionPositions)
+
+    const checked = await logseq.Editor.checkEditing()
+    const isEditingState = !!checked && checked === destinationUUID
+    const isSelectedState = !isEditingState
+
+    if (isSelectedState) {
+        await logseq.Editor.updateBlock(destinationUUID, content)
+        editBlockWithSelection(destinationUUID, selectionPositions)
+        return
+    }
+
+    const currentPosition = (await logseq.Editor.getEditingCursorPosition())!.pos
+    await logseq.Editor.insertAtEditingCursor(content)
+    if (selectionPositions.length === 0)
+        return
+
+    if (selectionPositions.length === 1)
+        selectionPositions.push(selectionPositions[0])
+
+    setEditingCursorSelection(
+        currentPosition + selectionPositions[0],
+        currentPosition + selectionPositions[1],
+    )
+}
+
 export async function insertTemplate(
     templateUUID: string,
     opts?: {
@@ -679,6 +1003,9 @@ export async function insertTemplate(
     let destinationUUID = opts?.destinationUUID ?? null
     let insertAs = opts?.insertAs
     const denyInstant = opts?.denyInstant ?? false
+
+    if (insertAs === 'Button')
+        throw new Error('(Assertion Error) Use insertTemplateButton method instead')
 
     if (['View', 'Template'].includes(template.label)) {
         if (insertAs && template.label !== insertAs)
@@ -717,10 +1044,9 @@ export async function insertTemplate(
             destinationUUID = null
             isSelectedState = false
         }
-        else {
+        else
             destinationUUID = blocks[0].uuid
             isSelectedState = isSelectedState_
-        }
     }
 
 

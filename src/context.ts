@@ -99,7 +99,7 @@ export interface ILogseqCallContext {
         slot: string,
         key: string,
     }
-    config: ConfigContext
+    config: ConfigContext | null
     page: PageContext | null
     block: BlockContext | null
 }
@@ -435,6 +435,18 @@ export class ArgsContext extends Context {
         const instance = new ArgsContext(Object.fromEntries(entries), parsedArgs)
         instance._obj = instance
         const hideUndefinedInstance = new Proxy(instance, {
+            deleteProperty(target, property) {
+                const old = target._args
+                let counter = 0
+                target._args = target._args.filter(([name]) => {
+                    if (!name)
+                        name = `$${++counter}`
+                    return name !== property
+                })
+                if (target._args.length < old.length)
+                    return true
+                return false
+            },
             get(target, name, receiver) {
                 const value: any = target[name]
 
@@ -486,7 +498,25 @@ export class ArgsContext extends Context {
             return this._obj[name]
     }
     toCallString() {
-        return this._args.map(([name, value]) => `:${name} → ${value}`).join(', ')
+        return this._args
+            .map(([name, value]) => {
+                if (name) {
+                    if (typeof value === 'boolean')
+                        if (value)
+                            return `:${name}`
+                        else
+                            return `:${name} ""`
+                    else  // string
+                        if (value.includes(','))
+                            return `:${name} "${value}"`
+                        return `:${name} ${value}`
+                } else {  // positional
+                    if ((value as string).includes(','))
+                        return `"${value}"`
+                    return value
+                }
+            })
+            .join(', ')
     }
 }
 
