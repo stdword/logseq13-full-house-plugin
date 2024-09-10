@@ -426,7 +426,7 @@ export async function renderTemplateButtonInBlock(
 
     const title = argsContext['title'] || template.name
     const destinationUUID = callContext.block?.uuid || callContext.page?.uuid || ''
-    const isPageDestination = !callContext.block?.uuid && (!!destinationUUID || argsContext['page'])
+    const isPageDestination = !callContext.block?.uuid && argsContext['page']
 
     const defaultAction = 'append'
     let action = argsContext['action']
@@ -463,7 +463,7 @@ export async function renderTemplateButtonInBlock(
         )
     }
 
-    if (action === 'replace' && !destinationUUID) {
+    if (action === 'replace' && (!destinationUUID || destinationUUID === uuid)) {
         const code = html`
             <span title="The 'replace' action is not available without destination block"
                   class="warning"

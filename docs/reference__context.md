@@ -73,7 +73,7 @@ Page contexts:
 
 ### `c.block` & `c.currentBlock` :id=block-context
 Block contexts:
-- `c.block`: current block or block provided with `:block` [argument](reference__commands.md#block-argument)
+- `c.block`: current block or block provided with `:block` [argument](reference__configuring.md#block-argument)
 - `c.currentBlock` is always block rendering occurs in
 
 #### Schema

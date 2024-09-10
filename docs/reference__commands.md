@@ -75,6 +75,73 @@ Useful for accessing [date-syntax](reference__syntax.md#dates-nlp-syntax), [`que
 
 
 
+## Render template button :id=template-button-command
+Create a clickable button that inserts a template near a specific block or inside the page.
+
+1. Use `⌘t` (or `ctrl+t`) shortcut to open [Insertion UI](#insertion-ui).
+2. Then select the appropriate template.
+3. Press `⌘⇧↩︎` (or `ctrl+shift+enter` for Windows) to insert a button for the chosen template.
+
+?> You cannot create buttons for non-template blocks or pages
+
+?> You cannot create buttons to insert Views, but you can create buttons for a Template that inserts a View
+
+### Configuring with arguments
+You can specify a `:title` for the button (default: same as the template name):
+
+<!-- tabs:start -->
+#### ***Command***
+`{{renderer :template-button, Name, :title "Click Me"}}` \
+`{{renderer :template-button, Name}}`
+
+#### ***Rendered***
+`[Click Me]` \
+`[Name]`
+<!-- tabs:end -->
+
+
+And you can specify an `:action` to insert the template in different ways:
+- `append`: insert the template as the *last child* of chosen block or page (default action)
+- `prepend`: insert the template as the *first child* of chosen block or page
+- `replace`: insert the template into the chosen block, replacing its content
+- `call`: don't insert the template anywhere, but render it (to execute code)
+
+?> The short form is used in these examples for conciseness: \
+`:action append` \
+instead of: \
+`{{renderer :template-button, Name, :action append}}`
+
+
+<!-- tabs:start -->
+#### **`append`**
+`:action append` — to button's block \
+`:action append, :block ((66dcb92b-a0...))` — to specified block \
+`:action append, :page [[The Page]]` — to specified page as 1st-level block \
+`:action append, :page` — to Today's journal page as 1st-level block
+
+#### **`prepend`**
+`:action prepend` — to button's block \
+`:action prepend, :block ((66dcb92b-a0...))` — to specified block \
+`:action prepend, :page [[The Page]]` — to specified page as 1st-level block \
+`:action prepend, :page` — to Today's journal page as 1st-level block
+
+#### **`replace`**
+`:action replace, :block ((66dcb92b-a0...))` — to specified block
+
+#### **`call`**
+`:action call`
+<!-- tabs:end -->
+
+
+You can find more details about the `:page` and `:block` arguments here:
+- [`:page`](reference__configuring.md#page-argument) argument
+- [`:block`](reference__configuring.md#block-argument) argument
+
+Also available for configuration:
+- [`:delay-until-rendered`](reference__configuring.md#delay-until-rendered) argument
+
+
+
 ## Render view :id=template-view-command
 Render existed template block, non-template block or page as 🏛view. For views rendering occurs every time the block becomes visible.
 

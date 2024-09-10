@@ -1,3 +1,12 @@
+## v4.3 :id=v43
+
+### Buttons to insert templates
+- To create the template button, use the Insertion UI. Details in [reference](reference__commands.md#template-button-command).
+
+  <img width="550px" src="https://github.com/user-attachments/assets/7e1e3231-61c2-4eb2-8297-8c489c5fa9a5" />
+
+
+
 ## v4.2 :id=v42
 
 ### Now templates are inserted instantly!
