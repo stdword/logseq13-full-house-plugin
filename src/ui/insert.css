@@ -1,10 +1,45 @@
+/* Colors table for simple Black and White default logseq themees
+
+    --ls-primary-background-color: var(--rx-mauve-01);
+    --ls-secondary-background-color: var(--rx-mauve-02);
+    --ls-tertiary-background-color: var(--rx-mauve-03);
+    --ls-quaternary-background-color: var(--rx-mauve-04);
+
+    --ls-primary-text-color: var(--rx-mauve-12);
+    --ls-secondary-text-color: var(--rx-mauve-11);
+
+    --ls-link-text-color: var(--rx-red-11);
+    --ls-link-text-hover-color: var(--rx-red-12);
+    --ls-block-ref-link-text-color: var(--rx-red-09);
+
+    --ls-border-color: var(--rx-mauve-05);
+    --ls-secondary-border-color: var(--rx-red-05);
+
+    --ls-page-checkbox-color: var(--rx-mauve-07);
+    --ls-selection-background-color: var(--rx-mauve-04-alpha);
+    --ls-block-highlight-color: var(--rx-mauve-04);
+    --ls-focus-ring-color: var(--rx-red-09);
+    --ls-table-tr-even-background-color: var(--rx-mauve-04);
+    --ls-page-properties-background-color: var(--rx-mauve-04);
+    --ls-block-properties-background-color: var(--rx-mauve-03);
+    --ls-page-inline-code-bg-color: var(--rx-mauve-03);
+    --ls-cloze-text-color: var(--rx-red-08);
+
+    --ls-wb-stroke-color-default: var(--rx-red-07);
+    --ls-wb-background-color-default: var(--rx-red-04);
+    --ls-wb-text-color-default: var(--rx-mauve-12);
+
+    --ls-a-chosen-bg: var(--rx-mauve-01)
+*/
+
+
 * {
     box-sizing: border-box;
 }
 
 html ::-webkit-scrollbar-thumb {
 /*    background-color: ;*/
-    background-color: var(--fht-scrollbar-thumb, var(--lx-accent-05, color-mix(in srgb, var(--ls-scrollbar-thumb-hover-color) 50%, transparent)));
+    background-color: var(--fht-scrollbar-thumb, var(--lx-accent-05, color-mix(in srgb, var(--ls-scrollbar-thumb-hover-color, var(--rx-gray-07)) 50%, transparent)));
 }
 
 html ::-webkit-scrollbar {
@@ -14,7 +49,7 @@ html ::-webkit-scrollbar {
 }
 
 html ::-webkit-scrollbar-thumb:active {
-    background-color: var(--fht-scrollbar-thumb-hover, var(--lx-accent-09, var(--ls-scrollbar-thumb-hover-color)));
+    background-color: var(--fht-scrollbar-thumb-hover, var(--lx-accent-09, var(--ls-scrollbar-thumb-hover-color, var(--rx-gray-07))));
 }
 
 html ::-webkit-scrollbar-corner {
@@ -22,7 +57,7 @@ html ::-webkit-scrollbar-corner {
 }
 
 div {
-    color: var(--ls-primary-text-color);
+    color: var(--ls-primary-text-color, var(--rx-gray-12));
     font-size: var(--ls-page-text-size);
     font-family: var(--ls-font-family),sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
 
@@ -38,8 +73,7 @@ div {
     right: 0;
     top: 0;
 
-    background-color: var(--ls-tertiary-background-color);
-    background-color: var(--ls-quaternary-background-color);
+    background-color: var(--ls-quaternary-background-color, var(--rx-gray-04));
     opacity: 0;  /* will be set at runtime */
 
     transition-duration: .15s;
@@ -66,10 +100,10 @@ div {
 }
 
 #panel {
-    background: var(--ls-secondary-background-color);
+    background: var(--ls-secondary-background-color, var(--rx-gray-02));
 
     box-shadow: 0 0 #0000, 0 0 #0000, 0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1);
-    border: 1px solid var(--ls-border-color);
+    border: 1px solid var(--ls-border-color, var(--rx-gray-05));
     border-radius: 8px;
 
     overflow: hidden;
@@ -109,7 +143,7 @@ div {
     border: none;
     border-radius: 0;
 
-    color: var(--ls-secondary-text-color);
+    color: var(--ls-secondary-text-color, var(--rx-gray-11));
 
     background: 0 0;
     appearance: none;
@@ -156,30 +190,26 @@ div {
     border-radius: unset!important;
     transition: none;
 
-    color: var(--ls-primary-text-color);
+    color: var(--ls-primary-text-color, var(--rx-gray-12));
+/*    color: var(--ls-link-text-color);*/
 
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
 
     cursor: pointer;
+    text-decoration: none;
 
     font-size: .875rem;
     line-height: 1.25rem;
 
     padding-bottom: 0.2rem;
     padding-top: 0.3rem;
-
     padding-left: 1rem;
     padding-right: 1rem;
 
-    justify-content: space-between;
-
     display: flex;
-
-    color: var(--ls-link-text-color);
-    cursor: pointer;
-    text-decoration: none;
+    justify-content: space-between;
 }
 
 .item > span {
@@ -188,11 +218,11 @@ div {
 
 .selected {
     word-break: break-all;
-    background-color: var(--fht-active, var(--lx-accent-05, var(--ls-quaternary-background-color)));
+    background-color: var(--fht-active, var(--lx-accent-05, var(--ls-quaternary-background-color, var(--rx-gray-04))));
 }
 
 .selected span {
-    color: var(--fht-active-text, var(--lx-accent-11, var(--ls-secondary-text-color)));
+    color: var(--fht-active-text, var(--lx-accent-11, var(--ls-secondary-text-color, var(--rx-gray-11))));
 }
 
 .item.selected.will-open:hover {
@@ -244,7 +274,7 @@ div {
     -webkit-border-radius: var(--ls-border-radius-low);
     line-height: 1.45;
 
-    color: var(--fht-label-text, var(--lx-accent-11, var(--ls-page-inline-code-color)));
+    color: var(--fht-label-text, var(--lx-accent-11, var(--ls-page-inline-code-color, var(--rx-gray-11))));
     font-family: MonoLisa,Fira Code,Monaco,Menlo,Consolas,COURIER NEW,monospace;
     font-size: .9em;
     font-style: normal;
@@ -283,21 +313,21 @@ div {
     justify-content: center;
     align-items: center;
 
-    color: var(--ls-primary-text-color);
-    background-color: var(--ls-quaternary-background-color);
+    color: var(--ls-primary-text-color, var(--rx-gray-12));
+    background-color: var(--ls-quaternary-background-color, var(--rx-gray-04));
     box-shadow: inset 0 1px 0 0 hsla(0,0%,100%,.15), inset 0 -1px 0 0 rgba(0,0,0,.15);
 }
 .item.selected .shortcut {
     opacity: 1;
 }
 .item.selected .shortcut > .tile {
-    background-color: var(--ls-tertiary-background-color);
+    background-color: var(--ls-tertiary-background-color, var(--rx-gray-03));
     box-shadow: inset 0 1px 0 0 hsla(0,0%,100%,.20), inset 0 -1px 0 0 rgba(0,0,0,.25);
 }
 
 mark {
-    background-color: var(--fht-hightlight, var(--lx-accent-09-alpha, var(--ls-page-mark-bg-color)));
-    color: var(--ls-page-mark-color);
+    background-color: var(--fht-hightlight, var(--lx-accent-09-alpha, var(--ls-page-mark-bg-color, var(--rx-gray-09))));
+    color: var(--ls-page-mark-color, var(--rx-gray-12));
 }
 
 footer {
@@ -321,7 +351,7 @@ footer > ul {
 footer > ul > li {
     display: inline;
     margin-right: 16px;
-    color: var(--fht-footer-text, var(--lx-accent-09, var(--ls-page-inline-code-color)));
+    color: var(--fht-footer-text, var(--lx-accent-09, var(--ls-page-inline-code-color, var(--rx-gray-12))));
 }
 
 footer > ul > li > svg {
@@ -332,7 +362,7 @@ footer > ul > li > svg {
     margin-right: 4px;
     margin-bottom: -2px;
 
-    fill: var(--fht-footer-text, var(--lx-accent-09, var(--ls-page-inline-code-color)));
+    fill: var(--fht-footer-text, var(--lx-accent-09, var(--ls-page-inline-code-color, var(--rx-gray-12))));
 }
 
 footer > ul > li > span {
