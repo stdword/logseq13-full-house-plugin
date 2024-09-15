@@ -1086,7 +1086,7 @@ async function dev_tree__sync_raw(
             const [_, node] = idnode
             if (callbacks?.flattern) {
                 await logseq.Editor.insertBlock(
-                    blocksTree.uuid, node.content, {sibling: false, properties: node.properties})
+                    blocksTree!.uuid, node.content, {sibling: false, properties: node.properties})
                 return
             }
 
@@ -1102,7 +1102,7 @@ async function dev_tree__sync_raw(
             if (index === -1) {
                 if (callbacks?.flattern) {
                     await logseq.Editor.insertBatchBlock(
-                        blocksTree.uuid, node as IBatchBlock, {before: false, sibling: false})
+                        blocksTree!.uuid, node as IBatchBlock, {before: false, sibling: false})
                 } else {
                     let parent = getTreeNode(blocksTree as IBlockNode, path)! as BlockEntity
                     parent = (await logseq.Editor.getBlock(parent.uuid, {includeChildren: true}))!
@@ -1128,7 +1128,7 @@ async function dev_tree__sync_raw(
             const nodes = idnodes.map(idb => idb[1]) as IBatchBlock[]
             let parent = toNode as BlockEntity
             if (callbacks?.flattern)
-                parent = blocksTree
+                parent = blocksTree!
             await logseq.Editor.insertBatchBlock(parent.uuid, nodes, {sibling: false})
         },
         async onRemove(path, idnode) {

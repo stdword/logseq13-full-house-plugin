@@ -413,7 +413,7 @@ export class MldocASTtoHTMLCompiler {
         label = escapeForHTML(label.trim())
         const nameID = name.toLowerCase()
 
-        const { showBrackets } = this.context.config
+        const { showBrackets } = this.context.config!
         const wrapBrackets = (text: string) => (
                 showBrackets
                 ? `<span class="text-gray-500 bracket">${text}</span>`
@@ -517,7 +517,7 @@ export function resolveAssetsLink(context: ILogseqContext, protocol: string, lin
         if (needExpand)
             // @ts-expect-error
             link = top!.LSPlugin.pluginHelpers.path.join(
-                context.config.graph.path, 'assets', link)
+                context.config!.graph.path, 'assets', link)
     }
 
     return [protocol, link]
