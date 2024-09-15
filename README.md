@@ -133,16 +133,29 @@ See info about `pages-tagged-with` in [Showroom](https://github.com/stdword/logs
 See details in [documentation](https://stdword.github.io/logseq13-full-house-plugin/#/reference__configuring?id=insertion-shortcut).
 
 
+
+### Create template buttons 🔘
+<img width="550px" src="https://github.com/user-attachments/assets/7e1e3231-61c2-4eb2-8297-8c489c5fa9a5" />
+
+
+
 ### Easily perform actions on blocks 🥊
 <img width="350px" src="https://github.com/user-attachments/assets/800b6078-c241-4010-b4e2-9b289f047ded" />
 
 See details in [documentation](https://stdword.github.io/logseq13-full-house-plugin/#/reference__tags_advanced?id=blocks-actions).
 
 
+### Create Live Views (auto-updated blocks) ✨
+<img width="300px" src="https://github.com/user-attachments/assets/429bb925-18c0-470f-950b-346c0d981672" />
+
+See details [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/55).
+
+
 ### Add missing Logseq commands ⌘
 <img width="450px" src="https://github.com/user-attachments/assets/1a7e21f4-a7f1-43bc-861f-bde992ffd506" />
 
 See details [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/49).
+
 
 
 ### Create beutiful dashboards 🎛️
