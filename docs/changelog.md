@@ -16,6 +16,11 @@
   ?> Setup instructions for the last demo are [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/55)
 
 
+### Other
+- Fixed CSS colors for default *white* & *black* logseq themes without accent color
+- Fixed displaying of all template tags with `c.tags`
+
+
 
 ## v4.2 :id=v42
 
