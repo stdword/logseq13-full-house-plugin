@@ -1,3 +1,21 @@
+# [4.3.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.2.2...v4.3.0) (2024-09-15)
+
+
+### Bug Fixes
+
+* **context:** full overview ([6ec454a](https://github.com/stdword/logseq13-full-house-plugin/commit/6ec454a12434d4a78a7508e2372df3331dc269b2))
+* **core:** sync filtering value for ``...`` and ``{ return ...}`` ways ([4eb9ff4](https://github.com/stdword/logseq13-full-house-plugin/commit/4eb9ff410af20ed66ba4b0ccf3cc3a43068c44cd))
+* **tags:** dev.tree.sync improvements ([352b4ba](https://github.com/stdword/logseq13-full-house-plugin/commit/352b4bafa5ed639f93c32ba677d3de48d448ec2b))
+* **tags:** display all template tags on `c.tags` ([bfedf9d](https://github.com/stdword/logseq13-full-house-plugin/commit/bfedf9d8910cde8d408323d54c8b7ef6f7412d56))
+* **ui:** css colors for default white & black logseq themes ([bb2924c](https://github.com/stdword/logseq13-full-house-plugin/commit/bb2924cfe148b9d934ebc9bee1e1501d1764250c))
+* **ui:** template / view insertion modes ([986f24f](https://github.com/stdword/logseq13-full-house-plugin/commit/986f24faaca927767eeb08c8776abc3ba550d8dc))
+
+
+### Features
+
+* **commands:** template buttons ([598e21b](https://github.com/stdword/logseq13-full-house-plugin/commit/598e21b31f198aa79d075d32cb386144fd4e2ca3))
+* **tags:** live views via dev.tree.sync ([748aa66](https://github.com/stdword/logseq13-full-house-plugin/commit/748aa6663c17524333c19361f007d0ca6aaebf63))
+
 ## [4.2.2](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.2.1...v4.2.2) (2024-09-02)
 
 
