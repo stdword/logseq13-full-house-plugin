@@ -223,6 +223,7 @@ function notifyUser() {
     logseq.updateSettings({notifications: {introducedNLPSyntax: undefined}})
     logseq.updateSettings({notifications: {introducedSetCursorPosition: undefined}})
     logseq.updateSettings({notifications: {introducedQueryTableView: undefined}})
+    logseq.updateSettings({notifications: {introducedInstantInsertions: undefined}})
 
     const notifications: {[key: string]: any} = logseq.settings!.notifications as object
 
@@ -232,17 +233,17 @@ function notifyUser() {
 
     // Notify only old users
     if (previousPluginVersion && currentPluginVersion !== previousPluginVersion) {
-        if (!notifications.introducedInstantInsertions) {
+        if (!notifications.introducedButtons) {
             logseq.UI.showMsg(
                 `[:div
                     [:p [:code "🏛 Full House Templates"]]
-                    [:p [:b "Instant insertions & Shortcuts!"] [:br]
-                        "The new plugin version have introduced lots of stuff. See details "
-                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v42"}
+                    [:p [:b "Instant insertions, Shortcuts & Buttons!"] [:br]
+                        "The new plugin versions have introduced lots of stuff. See details "
+                        [:a {:href "https://stdword.github.io/logseq13-full-house-plugin/#/changelog?id=v43"}
                             "here"] "."]
                 ]`,
                 'info', {timeout: 60000})
-            logseq.updateSettings({notifications: {introducedInstantInsertions: true}})
+            logseq.updateSettings({notifications: {introducedButtons: true}})
         }
     }
 
