@@ -20,7 +20,7 @@ Full House Templates
 
 <div align="center">
 
-[![](https://img.shields.io/badge/status-active_development-e89829)](https://github.com/stdword/logseq13-full-house-plugin/releases)
+[![](https://img.shields.io/badge/status-support-e89829)](https://github.com/stdword/logseq13-full-house-plugin/releases)
 [![Version](https://img.shields.io/github/v/release/stdword/logseq13-full-house-plugin?color=5895C9)](https://github.com/stdword/logseq13-full-house-plugin/releases)
 [![Downloads](https://img.shields.io/github/downloads/stdword/logseq13-full-house-plugin/total.svg?color=D25584)](https://github.com/stdword/logseq13-full-house-plugin#from-logseq-marketplace-recommended-way)
 
