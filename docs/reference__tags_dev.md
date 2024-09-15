@@ -381,6 +381,77 @@ Walks through whole tree structure. Helpful for working with Logseq API.
 
 
 
+#### `.sync` :id=dev-tree-sync
+Sync custom blocks tree with specified block's structure.
+Helpful for creating **live views**.
+
+- `dev.tree.sync(blocks, uuid, callbacks)`
+  - `blocks`: list of `IBatchNode` blocks (in memory)
+  - `uuid`: string with UUID of block to sync structure with (in storage)
+  - `callbacks`: callbacks for different situations during sync
+    - `nodeIdentity(node: IBatchBlock, contentWithoutProps: string) => string`
+      - hash function for a sync process
+      - empty string means node will be ignored
+    - `removedIdentity(node: IBatchBlock, contentWithoutProps: string) => string`
+      - hash function for removed nodes (in case of it's existance) to restore them
+      - empty string means node will be ignored
+    - `async onInsert(path: number[], idnode: [hash, IBatchBlock], toIdNodes: [hash, IBatchBlock][])`
+      - could be used to modify inserted node
+      - can return `boolean` to prevent insertion
+      - can return `number` to indicate where to insert new node: -1 means to the end
+    - `async onAppend(path: number[], idnode: [hash, IBatchBlock][], toIdNode: [hash, IBatchBlock] | null)`
+      - could be used to modify appended node
+      - empty `toIdNode` means the very top (root) level
+      - can return `boolean` to prevent appending
+    - `async onRemove(path: number[], idnode: [hash, IBatchBlock])`
+      - could be used to modify removing node
+      - can return `boolean` to prevent removing
+    - `async onRestore(path: number[], idnode: [hash, IBatchBlock])`
+      - could be used to modify restored node
+      - can return `boolean` to prevent restoration
+
+
+<!-- tabs:start -->
+#### ***Source block***
+- source
+  - #link1
+  - #link2
+  - #link3
+
+#### ***Template***
+````javascript
+- template:: test
+  - ```javascript
+    ``{
+      const src = await logseq.Editor.getBlock('66e5c698-183...', {includeChildren: true})
+      dev.tree.sync(
+        src.children ?? [],
+        c.block.uuid,
+        {
+          nodeIdentity: (node, content) => content.startsWith('#') ? content : '',
+        },
+      )
+    }``
+    synced
+    ```
+````
+
+#### ***Before view rendering***
+- `{{renderer :template-view, test}}`
+
+#### ***After view rendering***
+- synced
+  - #link1
+  - #link2
+    - here could be any user text that will be preserved over view renderings
+  - #link3
+
+<!-- tabs:end -->
+
+?> Another great example of syncing: [*Live Namespace View*](https://github.com/stdword/logseq13-full-house-plugin/discussions/55)
+
+
+
 ### <span style="font-weight: 550">`.context`</span>
 
 #### `.page` :id=dev-context-page

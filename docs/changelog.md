@@ -6,6 +6,13 @@
   <img width="550px" src="https://github.com/user-attachments/assets/7e1e3231-61c2-4eb2-8297-8c489c5fa9a5" />
 
 
+### Live Views
+- With the help of [`dev.tree.sync`](reference__tags_dev.md#dev-tree-sync) template tag
+
+  <img width="300px" src="https://github.com/user-attachments/assets/2e0b6c41-c338-44e2-9148-5e5f5c7709a6" />
+
+
+
 
 ## v4.2 :id=v42
 

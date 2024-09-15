@@ -1,5 +1,5 @@
 import '@logseq/libs'
-import { BlockEntity, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
+import { BlockEntity, IBatchBlock, PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 
 import * as Sherlock from 'sherlockjs'
 import { neatJSON } from 'neatjson'
@@ -24,8 +24,8 @@ import {
     escapeMacroArg,
     functionSignature,
     getBlock, getChosenBlocks, getCSSVars, getEditingCursorSelection,
-    getPage, getTreeNode, IBlockNode, isEmptyString, isObject, isUUID,
-    LogseqReference, p, parseReference, RendererMacro,
+    getPage, getTreeNode, IBlockNode, insertBatchBlockAfter, insertBatchBlockBefore, isEmptyString, isObject, isUUID,
+    LogseqReference, objectEquals, p, parseReference, PropertiesUtils, RendererMacro,
     rgbToHex,
     sleep,
     splitMacroArgs, unquote, walkBlockTree, walkBlockTreeAsync,
@@ -934,6 +934,185 @@ const dev_tree_walk__old = async function (root, callback) {
 }
 dev_tree_walk__old.obsolete = true
 
+async function dev_tree__sync_raw(
+    destinationBlocks: IBatchBlock[],
+    sourceBlocks: IBatchBlock[],
+    nodeIdentity: (node: IBatchBlock, contentWithoutProps: string) => string,
+    removedIdentity: ( (node: IBatchBlock, contentWithoutProps: string) => string ) | null,
+    callbacks: {
+        onInsert: (path: number[], node: [string, IBatchBlock], toNodes: [string, IBatchBlock][]) => Promise<void>,
+        onAppend: (path: number[], node: [string, IBatchBlock][], toNode: [string, IBatchBlock] | null) => Promise<void>,
+        onRemove: (path: number[], node: [string, IBatchBlock]) => Promise<void>,
+        onRestore: (path: number[], node: [string, IBatchBlock]) => Promise<void>,
+    },
+    path: number[] = [],
+) {
+    const getIdentity = (block, identity) => {
+        const content = PropertiesUtils.deleteAllProperties(block.content)
+        return identity(block, content)
+    }
+
+    const dstIDs = destinationBlocks
+        .map(block => [getIdentity(block, nodeIdentity), block] as [string, IBatchBlock])
+        .filter(([id, block]) => !!id)
+    const removedIDs = removedIdentity
+        ? destinationBlocks
+            .map(block => [getIdentity(block, removedIdentity), block] as [string, IBatchBlock])
+            .filter(([id, block]) => !!id)
+        : []
+
+    const srcIDs = sourceBlocks
+        .map(block => [getIdentity(block, nodeIdentity), block] as [string, IBatchBlock])
+        .filter(([id, block]) => !!id)
+
+    if (!dstIDs.length) {
+        const toAppend = [] as [string, IBatchBlock][]
+        await Promise.all(
+            srcIDs.map(async ([id, child]) => {
+                const removedIdBlock = removedIDs.find(([id_, _]) => id_ === id)
+                if (removedIdBlock)
+                    await callbacks.onRestore(path, removedIdBlock)
+                else
+                    toAppend.push([id, child])
+            })
+        )
+
+        if (toAppend.length)
+            await callbacks.onAppend(path, toAppend, null)
+
+        return
+    }
+
+    const toRemove = new Set(dstIDs.map(([id, _]) => id))
+    for (let i = 0; i < srcIDs.length; i++) {
+        const item = srcIDs[i]
+        const func = async ([id, srcBlock], i) => {
+            if (!dstIDs.find(([id_, _]) => id_ === id)) {
+                const removedIdBlock = removedIDs.find(([id_, _]) => id_ === id)
+                if (removedIdBlock)
+                    await callbacks.onRestore(Array.from(path), removedIdBlock)
+                else
+                    await callbacks.onInsert(Array.from(path), [id, srcBlock], dstIDs)
+            }
+            else {
+                toRemove.delete(id)
+
+                const dstBlock = dstIDs.find(([id_, _]) => id_ === id)![1]
+                const srcChildren = srcBlock.children ?? []
+                const dstChildren = dstBlock.children ?? []
+                if (dstChildren.length && srcChildren.length)
+                    await dev_tree__sync_raw(dstChildren, srcChildren, nodeIdentity, removedIdentity, callbacks, path.concat(i))
+            }
+        }
+        await func(item, i)
+    }
+
+    await Promise.all(
+        dstIDs.map(async ([id, block]) => {
+            if (toRemove.has(id))
+                await callbacks.onRemove(Array.from(path), [id, block])
+        })
+    )
+}
+
+async function dev_tree__sync(
+    blocksToSync: IBlockNode[],
+    blockUUID: string,
+    callbacks?: {
+        nodeIdentity?: (node: IBatchBlock, contentWithoutProps: string) => string,
+        removedIdentity?: (node: IBatchBlock, contentWithoutProps: string) => string,
+
+        onInsert?: (path: number[], idnode: [string, IBatchBlock], toIdNodes: [string, IBatchBlock][]) => Promise<boolean>,
+        onAppend?: (path: number[], idnode: [string, IBatchBlock][], toIdNode: [string, IBatchBlock] | null) => Promise<boolean>,
+        onRemove?: (path: number[], idnode: [string, IBatchBlock]) => Promise<boolean>,
+        onRestore?: (path: number[], idnode: [string, IBatchBlock]) => Promise<boolean>,
+    },
+) {
+    const blocksTree = await logseq.Editor.getBlock(blockUUID, {includeChildren: true})
+    if (!blocksTree)
+        return
+
+    const destinationBlocks = (blocksTree.children ?? []) as IBatchBlock[]
+    await dev_tree__sync_raw(
+        destinationBlocks,
+        blocksToSync as IBatchBlock[],
+        callbacks?.nodeIdentity ?? ( (node, content) => content ),
+        callbacks?.removedIdentity ?? null, {
+        async onInsert(path, idnode, toIdNodes) {
+            let index: boolean | number = callbacks?.onInsert
+                ? await callbacks.onInsert(path, idnode, toIdNodes)
+                : true
+            if (typeof index === 'boolean') {
+                if (!index)
+                    return
+                index = -1  // append by default
+            }
+
+            if (index < -1)
+                index = -1
+            if (index > toIdNodes.length)
+                index = toIdNodes.length
+            if (index === toIdNodes.length)
+                index = -1
+
+            const [_, node] = idnode
+            const [__, toNode] = toIdNodes.at(index as number)!
+
+            if (index === -1) {
+                let parent = getTreeNode(blocksTree as IBlockNode, path)! as BlockEntity
+                parent = (await logseq.Editor.getBlock(parent.uuid, {includeChildren: true}))!
+                const children = (parent.children ?? []) as BlockEntity[]
+                if (!children.length)
+                    await logseq.Editor.insertBatchBlock(
+                        parent.uuid, node as IBatchBlock, {before: false, sibling: false})
+                else
+                    await logseq.Editor.insertBatchBlock(
+                        children.at(-1)!.uuid, node as IBatchBlock, {before: false, sibling: true})
+            }
+            else
+                await insertBatchBlockBefore(toNode as BlockEntity, node as IBatchBlock)
+        },
+        async onAppend(path, idnodes, toIdNode) {
+            const ok = callbacks?.onAppend
+                ? await callbacks.onAppend(path, idnodes, toIdNode)
+                : true
+            if (!ok)
+                return
+
+            const nodes = idnodes.map(idb => idb[1]) as IBatchBlock[]
+            let parent = toIdNode ? toIdNode[1] as BlockEntity : blocksTree
+            await logseq.Editor.insertBatchBlock(parent.uuid, nodes, {sibling: false})
+        },
+        async onRemove(path, idnode) {
+            const [id, node] = idnode
+            const oldContent = node.content
+
+            const ok = callbacks?.onRemove
+                ? await callbacks.onRemove(path, idnode)
+                : true
+            if (!ok) {
+                if (node.content !== oldContent)
+                    await logseq.Editor.updateBlock((node as BlockEntity).uuid, node.content)
+                return
+            }
+
+            await logseq.Editor.removeBlock((node as BlockEntity).uuid)
+        },
+        async onRestore(path, idnode) {
+            const [id, node] = idnode
+
+            const ok = callbacks?.onRestore
+                ? await callbacks.onRestore(path, idnode)
+                : true
+            if (!ok)
+                return
+
+            node.content = callbacks!.removedIdentity!(node, node.content)
+            await logseq.Editor.updateBlock((node as BlockEntity).uuid, node.content)
+        },
+    })
+}
+
 
 /* «parse» namespace */
 type ParseSource = string | PageContext | PageEntity | BlockContext | BlockEntity
@@ -1296,6 +1475,7 @@ export function getTemplateTagsContext(context: C) {
                 walk: function (root, callback) { return walkBlockTree(root, callback) },
                 walkAsync: async function (root, callback) { return walkBlockTreeAsync(root, callback) },
                 getNode: getTreeNode,
+                sync: dev_tree__sync,
             }),
 
             context: cb.createNamespace(undefined, {
