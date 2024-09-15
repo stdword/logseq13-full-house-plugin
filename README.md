@@ -363,8 +363,8 @@ But for that purpose it is better to use `:commands` to [make it faster](#how-to
 |Plugin|`🏛 Full House` support|Details|
 |:-:|:-:|:--|
 |[Dynamic Lookup](https://github.com/peanball/logseq-dynamic-lookup)| ✅ full | [→](https://stdword.github.io/logseq13-full-house-plugin/#/alternatives?id=dynamic-lookup) |
-| [Smart Blocks](https://github.com/sawhney17/logseq-smartblocks) | ⚠️ partial | 🚫 buttons, 🚫 variables |
-| [Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin) | ⚠️ partial | 🚫 buttons, 🚫 variables |
+|[Smart Blocks](https://github.com/sawhney17/logseq-smartblocks)| ⚠️ partial | 🚫 forms |
+|[Power Blocks](https://github.com/hkgnp/logseq-powerblocks-plugin)| ✅ full | |
 
 
 ## Credits
