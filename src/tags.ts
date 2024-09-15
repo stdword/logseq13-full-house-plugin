@@ -22,6 +22,7 @@ import {
     escape,
     escapeForHTML,
     escapeMacroArg,
+    filterBlockTree,
     functionSignature,
     getBlock, getChosenBlocks, getCSSVars, getEditingCursorSelection,
     getPage, getTreeNode, IBlockNode, insertBatchBlockAfter, insertBatchBlockBefore, isEmptyString, isObject, isUUID,
@@ -934,74 +935,96 @@ const dev_tree_walk__old = async function (root, callback) {
 }
 dev_tree_walk__old.obsolete = true
 
-async function dev_tree__sync_raw(
-    destinationBlocks: IBatchBlock[],
+async function _dev_tree__sync(
+    destinationRoot: IBatchBlock,
     sourceBlocks: IBatchBlock[],
     nodeIdentity: (node: IBatchBlock, contentWithoutProps: string) => string,
     removedIdentity: ( (node: IBatchBlock, contentWithoutProps: string) => string ) | null,
     callbacks: {
         onInsert: (path: number[], node: [string, IBatchBlock], toNodes: [string, IBatchBlock][]) => Promise<void>,
-        onAppend: (path: number[], node: [string, IBatchBlock][], toNode: [string, IBatchBlock] | null) => Promise<void>,
+        onAppend: (path: number[], node: [string, IBatchBlock][], toNode: IBatchBlock) => Promise<void>,
         onRemove: (path: number[], node: [string, IBatchBlock]) => Promise<void>,
         onRestore: (path: number[], node: [string, IBatchBlock]) => Promise<void>,
     },
     path: number[] = [],
 ) {
-    const getIdentity = (block, identity) => {
+    const getIdentity = (block, identity=nodeIdentity) => {
         const content = PropertiesUtils.deleteAllProperties(block.content)
         return identity(block, content)
     }
 
+    const destinationBlocks = destinationRoot.children ?? []
+
     const dstIDs = destinationBlocks
-        .map(block => [getIdentity(block, nodeIdentity), block] as [string, IBatchBlock])
+        .map(block => [getIdentity(block), block] as [string, IBatchBlock])
         .filter(([id, block]) => !!id)
-    const removedIDs = removedIdentity
+    const removedIdNodes = removedIdentity
         ? destinationBlocks
             .map(block => [getIdentity(block, removedIdentity), block] as [string, IBatchBlock])
             .filter(([id, block]) => !!id)
         : []
 
     const srcIDs = sourceBlocks
-        .map(block => [getIdentity(block, nodeIdentity), block] as [string, IBatchBlock])
+        .map(block => [getIdentity(block), block] as [string, IBatchBlock])
         .filter(([id, block]) => !!id)
+
+    async function filterNewNode(node: IBlockNode) {
+        const filtered = await filterBlockTree(
+            node,
+            async (b, lvl, filterChildren) => {
+                const childId = getIdentity(b)
+                return !!childId
+            }
+        )
+        return filtered! as IBatchBlock
+    }
 
     if (!dstIDs.length) {
         const toAppend = [] as [string, IBatchBlock][]
+        const toRestore = [] as [string, IBatchBlock][]
         await Promise.all(
             srcIDs.map(async ([id, child]) => {
-                const removedIdBlock = removedIDs.find(([id_, _]) => id_ === id)
+                const removedIdBlock = removedIdNodes.find(([id_, _]) => id_ === id)
                 if (removedIdBlock)
-                    await callbacks.onRestore(path, removedIdBlock)
+                    toRestore.push(removedIdBlock)
                 else
                     toAppend.push([id, child])
             })
         )
 
-        if (toAppend.length)
-            await callbacks.onAppend(path, toAppend, null)
+        if (toRestore.length)
+            for (const removedIdBlock of toRestore)
+                await callbacks.onRestore(path, removedIdBlock)
+
+        if (toAppend.length) {
+            const filteredToAppend = [] as typeof toAppend
+            for (const [id, node] of toAppend)
+                filteredToAppend.push([id, await filterNewNode(node as IBlockNode)])
+            await callbacks.onAppend(path, filteredToAppend, destinationRoot)
+        }
 
         return
     }
+
 
     const toRemove = new Set(dstIDs.map(([id, _]) => id))
     for (let i = 0; i < srcIDs.length; i++) {
         const item = srcIDs[i]
         const func = async ([id, srcBlock], i) => {
-            if (!dstIDs.find(([id_, _]) => id_ === id)) {
-                const removedIdBlock = removedIDs.find(([id_, _]) => id_ === id)
+            const dstIdBlock = dstIDs.find(([id_, _]) => id_ === id)
+            if (!dstIdBlock) {
+                const removedIdBlock = removedIdNodes.find(([id_, _]) => id_ === id)
                 if (removedIdBlock)
-                    await callbacks.onRestore(Array.from(path), removedIdBlock)
-                else
-                    await callbacks.onInsert(Array.from(path), [id, srcBlock], dstIDs)
+                    await callbacks.onRestore(path, removedIdBlock)
+                else {
+                    const block = await filterNewNode(srcBlock as IBlockNode)
+                    await callbacks.onInsert(path, [id, block], dstIDs)
+                }
             }
             else {
                 toRemove.delete(id)
-
-                const dstBlock = dstIDs.find(([id_, _]) => id_ === id)![1]
                 const srcChildren = srcBlock.children ?? []
-                const dstChildren = dstBlock.children ?? []
-                if (dstChildren.length && srcChildren.length)
-                    await dev_tree__sync_raw(dstChildren, srcChildren, nodeIdentity, removedIdentity, callbacks, path.concat(i))
+                await _dev_tree__sync(dstIdBlock[1], srcChildren, nodeIdentity, removedIdentity, callbacks, path.concat(i))
             }
         }
         await func(item, i)
@@ -1015,26 +1038,38 @@ async function dev_tree__sync_raw(
     )
 }
 
-async function dev_tree__sync(
-    blocksToSync: IBlockNode[],
+async function dev_tree__sync_raw(
     blockUUID: string,
+    blocksToSync: IBlockNode[],
     callbacks?: {
         nodeIdentity?: (node: IBatchBlock, contentWithoutProps: string) => string,
         removedIdentity?: (node: IBatchBlock, contentWithoutProps: string) => string,
 
-        onInsert?: (path: number[], idnode: [string, IBatchBlock], toIdNodes: [string, IBatchBlock][]) => Promise<boolean>,
-        onAppend?: (path: number[], idnode: [string, IBatchBlock][], toIdNode: [string, IBatchBlock] | null) => Promise<boolean>,
+        onInsert?: (path: number[], idnode: [string, IBatchBlock], toIdNodes: [string, IBatchBlock][]) => Promise<boolean | number>,
+        onAppend?: (path: number[], idnode: [string, IBatchBlock][], toIdNode: IBatchBlock) => Promise<boolean>,
         onRemove?: (path: number[], idnode: [string, IBatchBlock]) => Promise<boolean>,
         onRestore?: (path: number[], idnode: [string, IBatchBlock]) => Promise<boolean>,
+
+        flattern?: boolean,
     },
 ) {
-    const blocksTree = await logseq.Editor.getBlock(blockUUID, {includeChildren: true})
+    let blocksTree = await logseq.Editor.getBlock(blockUUID, {includeChildren: true})
     if (!blocksTree)
         return
 
-    const destinationBlocks = (blocksTree.children ?? []) as IBatchBlock[]
-    await dev_tree__sync_raw(
-        destinationBlocks,
+    if (callbacks?.flattern) {
+        const nodes: IBlockNode[] = []
+        walkBlockTree(blocksTree as IBlockNode, (b, lvl, path) => {
+            if (lvl > 0)
+                nodes.push(b)
+        })
+        for (const node of nodes)
+            node.children = []
+        blocksTree.children = nodes as BlockEntity[]
+    }
+
+    await _dev_tree__sync(
+        blocksTree as IBatchBlock,
         blocksToSync as IBatchBlock[],
         callbacks?.nodeIdentity ?? ( (node, content) => content ),
         callbacks?.removedIdentity ?? null, {
@@ -1048,6 +1083,13 @@ async function dev_tree__sync(
                 index = -1  // append by default
             }
 
+            const [_, node] = idnode
+            if (callbacks?.flattern) {
+                await logseq.Editor.insertBlock(
+                    blocksTree.uuid, node.content, {sibling: false, properties: node.properties})
+                return
+            }
+
             if (index < -1)
                 index = -1
             if (index > toIdNodes.length)
@@ -1055,32 +1097,38 @@ async function dev_tree__sync(
             if (index === toIdNodes.length)
                 index = -1
 
-            const [_, node] = idnode
             const [__, toNode] = toIdNodes.at(index as number)!
 
             if (index === -1) {
-                let parent = getTreeNode(blocksTree as IBlockNode, path)! as BlockEntity
-                parent = (await logseq.Editor.getBlock(parent.uuid, {includeChildren: true}))!
-                const children = (parent.children ?? []) as BlockEntity[]
-                if (!children.length)
+                if (callbacks?.flattern) {
                     await logseq.Editor.insertBatchBlock(
-                        parent.uuid, node as IBatchBlock, {before: false, sibling: false})
-                else
-                    await logseq.Editor.insertBatchBlock(
-                        children.at(-1)!.uuid, node as IBatchBlock, {before: false, sibling: true})
+                        blocksTree.uuid, node as IBatchBlock, {before: false, sibling: false})
+                } else {
+                    let parent = getTreeNode(blocksTree as IBlockNode, path)! as BlockEntity
+                    parent = (await logseq.Editor.getBlock(parent.uuid, {includeChildren: true}))!
+                    const children = (parent.children ?? []) as BlockEntity[]
+                    if (!children.length)
+                        await logseq.Editor.insertBatchBlock(
+                            parent.uuid, node as IBatchBlock, {before: false, sibling: false})
+                    else
+                        await logseq.Editor.insertBatchBlock(
+                            children.at(-1)!.uuid, node as IBatchBlock, {before: false, sibling: true})
+                }
             }
             else
                 await insertBatchBlockBefore(toNode as BlockEntity, node as IBatchBlock)
         },
-        async onAppend(path, idnodes, toIdNode) {
+        async onAppend(path, idnodes, toNode) {
             const ok = callbacks?.onAppend
-                ? await callbacks.onAppend(path, idnodes, toIdNode)
+                ? await callbacks.onAppend(path, idnodes, toNode)
                 : true
             if (!ok)
                 return
 
             const nodes = idnodes.map(idb => idb[1]) as IBatchBlock[]
-            let parent = toIdNode ? toIdNode[1] as BlockEntity : blocksTree
+            let parent = toNode as BlockEntity
+            if (callbacks?.flattern)
+                parent = blocksTree
             await logseq.Editor.insertBatchBlock(parent.uuid, nodes, {sibling: false})
         },
         async onRemove(path, idnode) {
@@ -1101,16 +1149,98 @@ async function dev_tree__sync(
         async onRestore(path, idnode) {
             const [id, node] = idnode
 
-            const ok = callbacks?.onRestore
-                ? await callbacks.onRestore(path, idnode)
-                : true
+            const callback = callbacks?.onRestore
+                ? callbacks.onRestore
+                : (path, idnode) => {
+                    node.content = callbacks!.removedIdentity!(node, node.content)
+                    return true
+                }
+
+            const ok = callback(path, idnode)
             if (!ok)
                 return
 
-            node.content = callbacks!.removedIdentity!(node, node.content)
             await logseq.Editor.updateBlock((node as BlockEntity).uuid, node.content)
         },
     })
+}
+async function dev_tree__sync(
+    blockUUID: string,
+    blocksToSync: IBlockNode[],
+    opts?: {
+        nodeIdentity?: (node: IBatchBlock, contentWithoutProps: string) => string,
+        // nodeDecoration?: (node: IBatchBlock, identity: string) => string,
+        newPrefix?: string,
+        removedPrefix?: string,
+        flattern?: boolean,
+    },
+) {
+    const newPrefix = opts?.newPrefix ?? '🆕'
+    const removedPrefix = opts?.removedPrefix ?? '❌'
+    const nodeIdentity = opts?.nodeIdentity ?? ( (node, content) => content )
+    // const nodeDecoration = opts?.nodeDecoration ?? ( (node, id) => id )
+
+    if (!newPrefix || !removedPrefix) {
+        await logseq.UI.showMsg(
+            '[:p [:b "newPrefix"] " and " [:b "removedPrefix"] "arguments shouldn\'t be empty"]',
+            'error', {timeout: 10000})
+        return
+    }
+
+    if (opts?.flattern)
+        for (let block of blocksToSync)
+            block.children = []
+
+    return await dev_tree__sync_raw(
+        blockUUID,
+        blocksToSync,
+        {
+            flattern: opts?.flattern,
+
+            nodeIdentity: (node, content) => {
+                if (content.startsWith(removedPrefix))
+                    return ''
+                if (content.startsWith(newPrefix))
+                    content = content.slice(newPrefix.length)
+
+                const id = nodeIdentity(node, content)
+                return id ? id : ''
+            },
+            removedIdentity: (node, content) => {
+                if (!content.startsWith(removedPrefix))
+                    return ''
+                content = content.slice(removedPrefix.length)
+                if (content.startsWith('`') && content.endsWith('`'))
+                    content = content.slice(1, -1)
+                const id = nodeIdentity(node, content)
+                return id ? id : ''
+            },
+
+            onInsert: async (path, [id, node], toIdNodes) => {
+                node.content = newPrefix + node.content //nodeDecoration(node, id)
+                return toIdNodes.findIndex(([id_]) => id_ > id)
+            },
+            onAppend: async (path, idnodes, toIdNode) => {
+                for (const [id, node] of idnodes)
+                    node.content = newPrefix + node.content //nodeDecoration(node, id)
+                return true
+            },
+            onRemove: async (path, [id, node]) => {
+                if (node.content.startsWith(newPrefix))
+                    node.content = node.content.slice(newPrefix.length)
+                node.content = removedPrefix + '`' + node.content + '`'
+                return false
+            },
+            onRestore: async (path, [id, node]) => {
+                if (!node.content.startsWith(removedPrefix))
+                    return false
+                node.content = node.content.slice(removedPrefix.length)
+                if (node.content.startsWith('`') && node.content.endsWith('`'))
+                    node.content = node.content.slice(1, -1)
+                return true
+            },
+        },
+    )
 }
 
 
@@ -1476,6 +1606,7 @@ export function getTemplateTagsContext(context: C) {
                 walkAsync: async function (root, callback) { return walkBlockTreeAsync(root, callback) },
                 getNode: getTreeNode,
                 sync: dev_tree__sync,
+                syncRaw: dev_tree__sync_raw,
             }),
 
             context: cb.createNamespace(undefined, {
