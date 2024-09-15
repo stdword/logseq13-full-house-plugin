@@ -7,10 +7,13 @@
 
 
 ### Live Views
-- With the help of [`dev.tree.sync`](reference__tags_dev.md#dev-tree-sync) template tag
+- With the help of [`dev.tree.sync`](reference__tags_dev.md#dev-tree-sync) & [`dev.tree.syncRaw`](reference__tags_dev.md#dev-tree-sync-raw) template tags
 
   <img width="300px" src="https://github.com/user-attachments/assets/2e0b6c41-c338-44e2-9148-5e5f5c7709a6" />
+  <br/>
+  <img width="300px" src="https://github.com/user-attachments/assets/429bb925-18c0-470f-950b-346c0d981672" />
 
+  ?> Setup instructions for the last demo are [here](https://github.com/stdword/logseq13-full-house-plugin/discussions/55)
 
 
 

@@ -942,7 +942,7 @@ async function _dev_tree__sync(
     removedIdentity: ( (node: IBatchBlock, contentWithoutProps: string) => string ) | null,
     callbacks: {
         onInsert: (path: number[], node: [string, IBatchBlock], toNodes: [string, IBatchBlock][]) => Promise<void>,
-        onAppend: (path: number[], node: [string, IBatchBlock][], toNode: IBatchBlock) => Promise<void>,
+        onAppend: (path: number[], nodes: [string, IBatchBlock][], toNode: IBatchBlock) => Promise<void>,
         onRemove: (path: number[], node: [string, IBatchBlock]) => Promise<void>,
         onRestore: (path: number[], node: [string, IBatchBlock]) => Promise<void>,
     },
@@ -1046,7 +1046,7 @@ async function dev_tree__sync_raw(
         removedIdentity?: (node: IBatchBlock, contentWithoutProps: string) => string,
 
         onInsert?: (path: number[], idnode: [string, IBatchBlock], toIdNodes: [string, IBatchBlock][]) => Promise<boolean | number>,
-        onAppend?: (path: number[], idnode: [string, IBatchBlock][], toIdNode: IBatchBlock) => Promise<boolean>,
+        onAppend?: (path: number[], idnodes: [string, IBatchBlock][], toIdNode: IBatchBlock) => Promise<boolean>,
         onRemove?: (path: number[], idnode: [string, IBatchBlock]) => Promise<boolean>,
         onRestore?: (path: number[], idnode: [string, IBatchBlock]) => Promise<boolean>,
 
@@ -1169,7 +1169,6 @@ async function dev_tree__sync(
     blocksToSync: IBlockNode[],
     opts?: {
         nodeIdentity?: (node: IBatchBlock, contentWithoutProps: string) => string,
-        // nodeDecoration?: (node: IBatchBlock, identity: string) => string,
         newPrefix?: string,
         removedPrefix?: string,
         flattern?: boolean,
@@ -1178,7 +1177,6 @@ async function dev_tree__sync(
     const newPrefix = opts?.newPrefix ?? '🆕'
     const removedPrefix = opts?.removedPrefix ?? '❌'
     const nodeIdentity = opts?.nodeIdentity ?? ( (node, content) => content )
-    // const nodeDecoration = opts?.nodeDecoration ?? ( (node, id) => id )
 
     if (!newPrefix || !removedPrefix) {
         await logseq.UI.showMsg(
@@ -1217,12 +1215,12 @@ async function dev_tree__sync(
             },
 
             onInsert: async (path, [id, node], toIdNodes) => {
-                node.content = newPrefix + node.content //nodeDecoration(node, id)
+                node.content = newPrefix + node.content
                 return toIdNodes.findIndex(([id_]) => id_ > id)
             },
             onAppend: async (path, idnodes, toIdNode) => {
                 for (const [id, node] of idnodes)
-                    node.content = newPrefix + node.content //nodeDecoration(node, id)
+                    node.content = newPrefix + node.content
                 return true
             },
             onRemove: async (path, [id, node]) => {

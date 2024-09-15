@@ -381,14 +381,15 @@ Walks through whole tree structure. Helpful for working with Logseq API.
 
 
 
-#### `.sync` :id=dev-tree-sync
+#### `.syncRaw` :id=dev-tree-sync-raw
 Sync custom blocks tree with specified block's structure.
 Helpful for creating **live views**.
 
-- `dev.tree.sync(blocks, uuid, callbacks)`
+- `dev.tree.syncRaw(blocks, uuid, callbacks)`
   - `blocks`: list of `IBatchNode` blocks (in memory)
   - `uuid`: string with UUID of block to sync structure with (in storage)
   - `callbacks`: callbacks for different situations during sync
+    - `flattern`: `boolean` flag for ignoring tree structure
     - `nodeIdentity(node: IBatchBlock, contentWithoutProps: string) => string`
       - hash function for a sync process
       - empty string means node will be ignored
@@ -399,7 +400,7 @@ Helpful for creating **live views**.
       - could be used to modify inserted node
       - can return `boolean` to prevent insertion
       - can return `number` to indicate where to insert new node: -1 means to the end
-    - `async onAppend(path: number[], idnode: [hash, IBatchBlock][], toIdNode: [hash, IBatchBlock] | null)`
+    - `async onAppend(path: number[], idnodes: [hash, IBatchBlock][], toIdNode: [hash, IBatchBlock] | null)`
       - could be used to modify appended node
       - empty `toIdNode` means the very top (root) level
       - can return `boolean` to prevent appending
@@ -448,7 +449,25 @@ Helpful for creating **live views**.
 
 <!-- tabs:end -->
 
-?> Another great example of syncing: [*Live Namespace View*](https://github.com/stdword/logseq13-full-house-plugin/discussions/55)
+
+
+#### `.sync` :id=dev-tree-sync
+Sync custom blocks tree with specified block's structure **with tracking changes**.
+Helpful for creating **live views**.
+
+- `dev.tree.sync(blocks, uuid, callbacks)`
+  - `blocks`: list of `IBatchNode` blocks (in memory)
+  - `uuid`: string with UUID of block to sync structure with (in storage)
+  - `options`: callbacks for different situations during sync
+    - `flattern`: `boolean` flag for ignoring tree structure
+    - `nodeIdentity(node: IBatchBlock, contentWithoutProps: string) => string`
+      - hash function for a sync process
+      - empty string means node will be ignored
+    - `newPrefix`: marker for just created blocks (default: 🆕)
+    - `removedPrefix`: marker for just removed blocks (default: ❌)
+
+
+?> See the great example of usage: [*Live Namespace View*](https://github.com/stdword/logseq13-full-house-plugin/discussions/55)
 
 
 
