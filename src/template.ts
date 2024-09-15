@@ -161,10 +161,12 @@ export class Template implements ITemplate {
             PropertiesUtils.templateProperty,
         ).text || args.name || ''
 
-        this.label = PropertiesUtils.getProperty(
-            this.block,
-            PropertiesUtils.templateListAsProperty,
-        ).text || ''
+        this.label = Template.cleanLabel(
+            PropertiesUtils.getProperty(
+                this.block,
+                PropertiesUtils.templateListAsProperty,
+            ).text || ''
+        )
 
         this.usage = Template.getUsageString(this.block, {cleanMarkers: false})
         this.args = Template.getUsageArgs(this.block)
