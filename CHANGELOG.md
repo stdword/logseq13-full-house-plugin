@@ -1,3 +1,10 @@
+## [4.3.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.0...v4.3.1) (2024-09-16)
+
+
+### Bug Fixes
+
+* **views:** css for displaying in breadcrumbs ([4154907](https://github.com/stdword/logseq13-full-house-plugin/commit/415490774ed27504da1ae2216ef40335cd64f4c6))
+
 # [4.3.0](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.2.2...v4.3.0) (2024-09-15)
 
 
