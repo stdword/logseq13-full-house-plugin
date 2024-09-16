@@ -551,7 +551,7 @@ function handleTemplateViewCommand(commandName: string) {
 
     logseq.provideStyle(`
         .fh_template-view {
-           display: block;
+           display: inline-flex;
         }
     `)
 
