@@ -1,3 +1,10 @@
+## [4.3.2](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.1...v4.3.2) (2024-09-18)
+
+
+### Bug Fixes
+
+* **views:** display mode for different div-blocks ([6502ad4](https://github.com/stdword/logseq13-full-house-plugin/commit/6502ad4789f5898ccbae4f8be7bf67995672cf3f))
+
 ## [4.3.1](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.0...v4.3.1) (2024-09-16)
 
 
