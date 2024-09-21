@@ -16,7 +16,7 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
       minify: forProd ? 'esbuild' : false,
     },
     esbuild: {  // docs: https://esbuild.github.io/api/#minify
-      // pure: ['console.log'],    // remove any console.log
+      // pure: ['console.log'], // remove any console.log
       minifyIdentifiers: false, // keep variable names
     },
   }
