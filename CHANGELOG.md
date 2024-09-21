@@ -1,3 +1,10 @@
+## [4.3.3](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.2...v4.3.3) (2024-09-21)
+
+
+### Bug Fixes
+
+* **core:** global issue that breaks all context-related template tags ([6401768](https://github.com/stdword/logseq13-full-house-plugin/commit/6401768cfafd1960df5b907d2f84cfdb0ff52141))
+
 ## [4.3.2](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.1...v4.3.2) (2024-09-18)
 
 
