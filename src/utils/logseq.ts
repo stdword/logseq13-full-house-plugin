@@ -625,12 +625,18 @@ export function cleanMacroArg(
 
     return escapeMacroArg(arg, {quote: false, escape: true})
 }
-export function splitMacroArgs(args: string) {
+export function splitMacroArgs(args: string, opts?: {clean: boolean}) {
+    const clean = opts?.clean ?? true
+
     // source: https://stackoverflow.com/a/53774647
-    return args
+    let argsArray = args
         .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
         .map((arg) => arg.trim())
-        .map((arg) => cleanMacroArg(arg, {escape: false, unquote: false}))
+
+    if (clean)
+        argsArray = argsArray.map((arg) => cleanMacroArg(arg, {escape: false, unquote: false}))
+
+    return argsArray
 }
 
 type LogseqProperty = { name: string, text: string, refs: string[] }

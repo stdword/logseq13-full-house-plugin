@@ -1374,20 +1374,16 @@ class ContextBinder {
         this.context = context
     }
     bindFunction(f) {
-        const signature = functionSignature(f)
-        if (!signature)
+        const sig = functionSignature(f)
+        if (!sig)
             return f
 
-        const { args, whole } = signature
-        const prefixArg = 'context'
-        const prefixArgs = prefixArg + ', '
-        if (!args.startsWith(prefixArgs) && args !== prefixArg)
+        if (!sig.args.length || sig.args[0] !== 'context')
             return f
 
         const func = f.bind(null, this.context)
-        func.toString = () => whole
-            .replace('(' + prefixArg + ')', '()')
-            .replace('(' + prefixArgs, '(')
+        const fixedSignature = `${sig.isAsync ? 'async' : ''} function(${sig.args.slice(1).join(', ')})`.trimStart()
+        func.toString = () => fixedSignature
         return func
     }
     createNamespace(f?: Function, items: Record<string, Function | TagsNamespace | string> = {}) {

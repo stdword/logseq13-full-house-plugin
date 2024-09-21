@@ -1,4 +1,5 @@
 import { logseq as packageInfo } from '../../package.json'
+import { splitMacroArgs } from './logseq'
 
 
 export let locks: LockManager | null = null
@@ -211,14 +212,19 @@ export function randomRange(min: number, max?: number) {
 
 export function functionSignature(f: Function) {
     const doc = f.toString()
-    const m = doc.match(/function\s*(\w*?)\((.*?)\)\s*\{/)
+    const m = doc.match(/function\s*(\w*?)\((.*?)\)\s*\{?/)
     if (!m)
         return null
 
+    const isAsync = doc.startsWith('async ')
+    const name = m[1]
+    const args = m[2] ? splitMacroArgs(m[2], {clean: false}) : []
+
     return {
-        isAsync: doc.startsWith('async '),
-        name: m[1],
-        args: m[2],
-        whole: doc.match(/^(.+\))\s*\{/)![0],
+        isAsync,
+        name,
+        args,
+        whole: `${isAsync ? 'async' : ''} function ${name}(${args.join(', ')})`.trimStart(),
+        whole_: `${isAsync ? 'async' : ''} function(${args.join(', ')})`.trimStart(),
     }
 }

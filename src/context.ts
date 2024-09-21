@@ -131,16 +131,11 @@ export class Context {
         if (typeof f !== 'function')
             return String(f)
 
-        const doc = f.toString()
         const signature = functionSignature(f)
         if (!signature)
             return ''
 
-        const { args, isAsync } = signature
-
-        return `${isAsync ? 'async' : ''} function(${args})`
-            .trimStart()
-            .replaceAll('"', "'")
+        return signature.whole_.replaceAll('"', "'")
     }
 
     constructor(data: {[index: string]: any} = {}) {
