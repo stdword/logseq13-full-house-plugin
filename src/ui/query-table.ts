@@ -91,17 +91,17 @@ export function query_table_clickHeader(slot, index, order, saveState) {
     table.replaceChildren(...sortedHTMLItems)
 }
 
-export function query_table_no_save_state(c: C, rows: any[], fields?: string[],
+export function query_table_no_save_state(context: C, rows: any[], fields?: string[],
     opts?: { orderBy?: string, orderDesc?: boolean },
 ) {
     const options: any = {}
     Object.assign(options, opts)
     options.fields = fields
 
-    return query_table(c, rows, false, options)
+    return query_table(context, rows, false, options)
 }
-export function query_table_save_state(c: C, rows: any[], fields?: string[]) {
-    return query_table(c, rows, true, {fields})
+export function query_table_save_state(context: C, rows: any[], fields?: string[]) {
+    return query_table(context, rows, true, {fields})
 }
 function query_table(
     context: C,
