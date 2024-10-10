@@ -1,3 +1,11 @@
+## [4.3.4](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.3...v4.3.4) (2024-10-10)
+
+
+### Bug Fixes
+
+* **context:** add child uuids to context of block ([9568758](https://github.com/stdword/logseq13-full-house-plugin/commit/956875826cf80531211a56a75064e42435e749ac))
+* **tags:** query.table doesn't work ([fe9a2d9](https://github.com/stdword/logseq13-full-house-plugin/commit/fe9a2d9e978a152bc877ac807c092b5869bade37)), closes [#57](https://github.com/stdword/logseq13-full-house-plugin/issues/57)
+
 ## [4.3.3](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.2...v4.3.3) (2024-09-21)
 
 
