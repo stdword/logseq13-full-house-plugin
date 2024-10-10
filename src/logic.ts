@@ -66,7 +66,7 @@ async function getCurrentContext(
     }
 
     let currentPage: PageEntity | null
-    const currentBlock = await logseq.Editor.getBlock(blockOrPageUUID)
+    const currentBlock = await logseq.Editor.getBlock(blockOrPageUUID, {includeChildren: true})
     if (currentBlock)
         currentPage = await logseq.Editor.getPage(currentBlock.page.id)
     else {

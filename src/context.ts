@@ -284,7 +284,7 @@ export class BlockContext extends Context {
     public prevBlock?: BlockContext | null
     public level?: number
 
-    public children?: ({} | BlockContext)[]
+    public children?: (string | BlockContext)[]
     public refs?: {id: number}[]
 
     static createFromEntity(block: BlockEntity, args: {
@@ -322,12 +322,12 @@ export class BlockContext extends Context {
         obj.level = args.level ?? 0
         const rootLevel: number = obj.level
 
-        obj.children = block.children ?? []
-        if (obj.children.length > 0) {
-            if (Array.isArray(obj.children[0]))  // non-tree mode: get only children count
-                obj.children = Array(obj.children.length).fill({})
+        const children = block.children ?? []
+        if (children.length > 0) {
+            if (Array.isArray(children[0]))  // non-tree mode: fill only with UUIDs
+                obj.children = (children as [string, string][]).map(([_, uuid]) => uuid)
             else  // tree mode
-                obj.children = obj.children.map(
+                obj.children = children.map(
                     b => BlockContext.createFromEntity(b as BlockEntity, {
                         level: rootLevel + 1,
                         page: obj.page,

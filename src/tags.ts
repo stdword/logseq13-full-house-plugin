@@ -526,7 +526,7 @@ function blocks_uuid(context: C) {
 
     const isHeadTemplateBlock = context.template!.includingParent
         ? context.template!.block.id === context.self!.id
-        : (context.template!.block.children![0] as BlockEntity).id === context.self!.id
+        : (context.template!.block.children![0] as unknown as BlockEntity).id === context.self!.id
 
     const uuid = isHeadTemplateBlock
         ? context.currentBlock.uuid!
