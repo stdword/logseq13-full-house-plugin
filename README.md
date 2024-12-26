@@ -28,6 +28,7 @@ Full House Templates
 
 <p align="center"><i>A part of the <a href="https://logseq.com"><img align="center" width="20px" src="https://github.com/stdword/logseq13-full-house-plugin/blob/main/assets/logseq.png?raw=true"/></a> <b><a href="https://github.com/search?q=owner%3Astdword+logseq13&type=repositories">Logseq13</a></b> family of plugins</i></p>
 
+> ‼️ The new Logseq DB version won't be supported.
 
 ## Summary
 
