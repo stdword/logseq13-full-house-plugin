@@ -1,343 +1,299 @@
-!> This tutorial is a bit obsolete and uses **old** template syntax (used before `v3.0.0`). To get examples to work properly use [new syntax](reference__syntax.md). Updated version TBD
+> The goal of this document is to be the step by step guide to learn the basic parts of the plugin
 
-## Rendering named template
-- To **create a template** from block add `template` property with its name as a value (just like Logseq standard templates)
-- To **render a template**:
-  - Type-in `/`-command «Full House → Insert template» or select it from `Command Palette` (Ctrl+Shift+P or ⌘⇧P)
-  - To the current editing block will be inserted special command that will render template
-  - Specify your template name
-  - Press Enter or Esc to start rendering
-- Template block will be skipped during rendering (by default)
-  - But you can change this behavior with `template-including-parent` property
-  - Use any value that can be interpreted as «Yes»
 
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/222982171-b4813611-5b1b-463a-8cab-6a6d40e1d213.gif"/>
+## Creation
 
-<table><tr><td>
+### How to create a template?
+- Just add `template` property with the name of the template as it's value (like Logseq standard templates)
 
-<details><summary>code</summary><p>
-
-```markdown
+```
 - template:: simple
-  template-including-parent:: ✔️
-  comment:: The most simple template
   - Hello, Logseq!
 ```
 
-```markdown
-- {{renderer :template, simple}}
+
+
+### How to render the template?
+- Via [Insertion UI](reference__commands.md#insertion-ui):
+  - Open it with the `⌘t` (or `ctrl+t`) default shortcut
+  - Select the appropriate template to render it
+
+?> Template's root block will be *skipped* by default. But you can [change](reference__configuring.md#parent-block-inclusion-control) this behavior
+
+
+
+### How to render the non-template block?
+- Via block's [Context Menu](reference__commands.md#indirect):
+  - Right-click on the block's bullet to open it
+  - Select the «Copy as 🏛template» item
+  - The command will be copied to clipboard. Paste it to any block.
+
+?> Template's root block will be *included* by default. But you can [change](#reference__configuring.md#parent-block-inclusion-control) this behavior
+
+?> Also the current block can be [rendered in a fast way](reference__commands.md#render-this-block-command)
+
+
+
+### What is a "view" and how to use it?
+The template that renders it's content every time it becomes visible called `view`. See details [here](reference__commands.md#template-view-command).
+
+The view can be inserted in Insertion UI with `⌘↩︎` shortcut.
+
+
+
+### What is an "inline view" and how to use it?
+Inline view is a fast way to create the single-line `view`. See details [here](reference__commands.md#inline-view-command).
+
+The inline view can be inserted with «/»-command `Insert inline 🏛️view`.
+
+
+
+### What is a "template button" and how to use it?
+Template button is a clickable button for inserting particular templates. See details [here](reference__commands.md#template-button-command).
+
+The template button can be inserted in Insertion UI with `⌘⇧↩︎` shortcut.
+
+
+
+### How to create the keyboard shortcut for the template?
+Use [this](reference__configuring.md#insertion-shortcut) instruction.
+
+
+
+### What other rendering configuration are there?
+See [detailed description](reference__configuring.md).
+
+
+
+
+
+## Template syntax
+
+### Accessing meta information
+- Use special *context variables* with the two **back-ticks** brackets inside the template:
+
 ```
-</p></details>
-
-</td><td>
-
-<details closed><summary>video</summary>
-  <video src="https://user-images.githubusercontent.com/1984175/222982183-ccc06d51-d98b-4dfd-a79b-6d4cb75c5a83.mp4"/>
-</details>
-
-</td></tr></table>
-
-## Rendering any block or page as a template
-- In fact there is no rule to have a «template» property in the block to render it
-  - Just use block or page reference instead of template name
-    - `{{renderer :template, ((64004111-...)) }}`
-    - `{{renderer :template, [[page name]] }}`
-      - First block of the page and it's sub-tree will be used as a template
-  - For first case parent block will be included by default
-  - And if you want to exclude it — use minus sign before reference:
-    - `{{renderer :template, - ((64004111-...)) }}`
-    - `{{renderer :template, + [[page name]] }}` — plus sign works as well
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/223593341-64b2f1f0-0310-49bd-b722-aeb7a97b9035.gif"/>
-
-<table><tr><td>
-
-<details closed><summary>video</summary>
-  <video src="https://user-images.githubusercontent.com/1984175/223593545-fb5bb3a8-bac6-4abf-bbc6-4e7a18dab748.mp4"/>
-</details>
-
-</td></tr></table>
-
-## Making references via context variables
-
-- Inside the template you can refer to context variables that represents various meta information:
-  - `c.block`: block you are rendering template in: you can access its uuid, properties, related blocks
-  - `c.page`: page of the block you are rendering template in: to get title, properties and journal day
-  - `c.template`: name, properties & access to template block
-  - `c.self`: template block from which current block is rendering: to get corresponding meta information
-  - *Note*: «c» means «*c*ontext» — don't forget to type it in
-- To use context variable wrap it with triple-char brackets (two **back-ticks** and curly bracket):
-  ```json
-  ``{ c.page.name }``
-  ```
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/223791469-c345b3e5-ffe0-407a-aed1-03aa46e843cd.gif"/>
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/223793090-4cd317ad-d95c-4a07-9970-35f046b3cfd5.gif"/>
-
-<table><tr><td>
-
-<details><summary>code</summary><p>
-
-```markdown
-- template:: context-vars
-  - This text was rendered from template «``{ c.template.name }``»
-  - Links to the page:
-    - [[``{ c.page.name }``]]
-    - ``{ `[[${c.page.name}]]` }``
-    - ``{ '[[' + c.page.name + ']]' }``
-    - ``{ ref(c.page.name) }``
-    - ``{ ref(c.page) }``
-    - ``[ c.page ]`` or ``[[ c.page ]]`` — future variants (not supported now)
-  - And links to blocks:
-    - ``{ ref(c.block.uuid) }``
-    - ``{ ref(c.block) }``
-  - Embedding the current block:
-    - {{embed ``{ ref(c.self.uuid) }``}}
-    - ``{ embed(c.self.uuid) }``
-    - ``{ embed(c.self) }``
+- template:: vars
+  - Current page: ``c.page.name``
+  - This text was rendered from template «``c.template.name``»
 ```
-</p></details>
 
-</td><td>
+Another variables:
+- `c.block`: block you are rendering template in: you can access its uuid, properties, related blocks
+- `c.page`: page of the block you are rendering template in: to get title, properties and journal day
+- `c.template`: name, properties & access to template block
+- `c.self`: template block from which current block is rendering: to get corresponding meta information
 
-<details closed><summary>video 1</summary>
-  <video src="https://user-images.githubusercontent.com/1984175/223789581-761e8487-4534-4638-b9db-56a9cbb64fba.mp4"/>
-</details>
 
-</td><td>
+See the full list and description [here](reference__context.md).
 
-<details closed><summary>video 2</summary>
-  <video src="https://user-images.githubusercontent.com/1984175/223789892-ef247e8a-5b0f-48a8-8548-5a3620e13e40.mp4"/>
-</details>
 
-</td></tr></table>
 
-## Accessing properties
+### Accessing properties values
+- Via `props` and `propsRefs` attributes of page and block [context objects](reference__context.md)
 
-- Access to property values via `props` and `propsRefs` attributes of page or block objects
-- Check if property is empty or missing with `empty` template tag (and fallback to some default value)
-— And context structure could be viewed just by rendering appropriate variable
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/224456470-13c8449f-7f64-4cc6-bcd7-ce9068b6266b.gif"/>
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/224459061-3388811e-70fb-4473-9d2b-1d7c4c410bfe.gif"/>
-
-<table><tr><td>
-
-<details><summary>code</summary><p>
-
-```markdown
+```
 - template:: properties
   description:: An example of how to retrieve properties values
-  - from template itself: ``{ c.template.props.description }``
-  - from current block: ``{ c.self.props.message }``
-    message:: wat!
-  - from the page: ``{ c.page.props.related }``
-  - and from the block to which rendering occurs: ``{ c.block.props.info }``
+  - from template itself: ``c.template.props.description``
+  - from current block: ``c.self.props.message``
+    message:: hello!
+  - from the page, the second tag: ``c.page.propsRefs.tags[1]``
+  - and from the destination block: ``c.block.props.info``
 ```
 
-```markdown
+```
 - {{renderer :template, properties}}
-  info:: Do we really need this?
+  info:: This is so powerful!
 ```
 
-```markdown
-- template:: property-existence
-  - Some property could be missed. Then its value is empty: ` ``{ c.self.props.missed }`` `
-  - But we can fallback to ` ``{ empty(c.self.props.missed, 'any string') }`` `
-  - ``{ empty(c.self.props.zero) }`` is non-empty!
-    zero:: 0
-  - Single dash or minus values are considered empty: ``{ empty(c.self.props.dash) }``
-    dash:: —
-  - But compare to: ``{ c.self.props.dash }``
-    dash:: —
-  - ``{ empty(c.self.props.quotes, 'Empty quotes equals empty values too') }``
-    quotes:: «»
-  - As a final — let's see the whole context structure:
-    - ``{ c }``
+
+
+### References to pages and blocks
+- Use [`ref`](reference__tags.md#ref) template tag or [special syntax](reference__syntax.md#reference-interpolation-syntax):
+
 ```
-</p></details>
-
-</td><td>
-
-<details closed><summary>video 1</summary>
-  <video src="https://user-images.githubusercontent.com/1984175/224456476-3a336408-65dd-4c08-98b7-50b9176eebbc.mp4"/>
-</details>
-
-</td><td>
-
-<details closed><summary>video 2</summary>
-  <video src="https://user-images.githubusercontent.com/1984175/224458614-229f8685-9960-4e60-9f21-7efb68f89627.mp4"/>
-</details>
-
-</td></tr></table>
-
-
-
-## Dates & times work
-### References to journal pages
-- There is a way to get `today` date and `now` time just as text in template
-  - `yesterday` and `tomorrow` works as well
-- To make a reference to appropriate journal page use `ref` template tag
-- Every journal page's `day` field and template tags `date.now`, `date.yesterday` and `date.tomorrow` is a special date objects
-  - You can access them and use full power of [Day.js](https://day.js.org/) API
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/224491262-c5b8c07e-8033-406b-af01-5260aaa5a3bc.gif"/>
-
-<table><tr><td>
-
-<details><summary>code</summary><p>
-
-```markdown
-- template-including-parent:: ✔️
-  rendered-at:: ``{ today }``
-  - ``{ time }``: There is a difference between ``{ today }`` and ``{ date.today }``
-  - ``{ time }``: But reference to a journal page can be made with both of them:
-    - ``{ ref(today) }``
-    - ``{ ref(date.today) }``
-  - ``{ time }``: References to yesterday's and tomorrow's journal pages:
-    - ``{ ref(yesterday) }``
-    - ``{ ref(tomorrow) }``
-  - ``{ time }``: Reference to current journal page: ``{ ref(c.page.day) }``
-  - ``{ time }``: And to specific journal page (date in ISO format): ``{ ref('2023-03-01') }``
+- template:: refs
+  - Links to the page:
+    - ``ref(c.page)``
+    - ``[c.page]``
+  - And links to blocks:
+    - ``ref(c.block)``
+    - ``[c.block]``
+  - Embedding the current block:
+    - ``embed(c.block)``
 ```
 
-```markdown
-- {{renderer :template, ((640c7183-70fe-474e-86d1-48e1c273ca06)), [[2023-03-01 Wed]]}}
+
+
+### References to journals
+- With [`ref`](reference__tags.md#ref) template tag or [special syntax](reference__syntax.md#reference-interpolation-syntax)
+- There is a way to get `today`, `yesterday` and `tomorrow` dates; and `now` — the current time
+  - **Note**: these values based on today's date, not on journal's date. To calculate date based on journal's date see [NLP](#nlp-references-to-journals) or [date calculation](#refs-journals)
+
 ```
-</p></details>
+- template:: refs to journals
+  template-including-parent:: yes
+  rendered-at:: ``today``, ``time``
+  - There is no difference between ``ref(today)`` and ``[today]``
+  - References to yesterday's and tomorrow's journals:
+    - ``[yesterday]``, ``[tomorrow]``
+  - Reference to current journal page: ``[c.page.day]``
+  - And to specific journal (date in ISO format): ``['2023-03-01']``
+```
 
-</td><td>
-
-<details closed><summary>video</summary>
-  <video src="https://user-images.githubusercontent.com/1984175/224491092-acb230f8-29cf-4c96-8f85-d5e889838f04.mp4"/>
-</details>
-
-</td></tr></table>
 
 
-### Formatting and constructing date objects
+#### NLP
+- With [`date.npl`](reference__tags.md#date-nlp) template tag or [special syntax](reference__syntax.md#dates-nlp-syntax):
+
+```
+- template:: nlp refs
+  - There is no difference between ``date.nlp('next friday')`` and ``@next friday``
+  - Use any simple date description in english: ``@in two days``
+  - Set the starting point date to calculate from: ``@in two days, 2023-03-01``
+  - References to yesterday's and tomorrow's journals:
+    - ``@yesterday``, ``@tomorrow``
+    - ``@yesterday, page``, ``@tomorrow, page`` — with respect to current journal
+```
+
+
+
+#### Based on journal's date  :id=refs-journals
+- Every journal page's `day` field and [template tags](reference__tags.md#date) `date.now`, `date.yesterday` and `date.tomorrow` is a special date objects
+  - You can access them and use full power of [Day.js](https://day.js.org) API
+
+
+```
+- template:: dynamic refs to journals
+  - There is a difference between ``today`` and ``date.today``
+  - But reference to a journal can be made with both of them:
+    - ``[today]``
+    - ``[date.today]``
+  - References to yesterday's and tomorrow's journals (with respect to current journal):
+    - ``@yesterday, page``, ``@tomorrow, page`` — special mode of @-syntax
+  - Calculation from current journal page: ``[c.page.day.add(1, 'week')]``
+```
+
+
+
+#### Formatting and constructing
 - You can access different parts of date object and format it as string
   - Documentation for getting date parts [→](https://day.js.org/docs/en/get-set/get-set)
   - Documentation for `.format` date pattern: [→](https://day.js.org/docs/en/display/format#list-of-all-available-formats) and [→](https://day.js.org/docs/en/plugin/advanced-format)
-- To construct references to specific journal pages use `date.from` template tag
+
+```
+- template:: formatting
+  - Accessing parts of date object:
+    - Time: ``zeros(date.now.hour(), 2)``:``zeros(date.now.minute(), 2)``
+    - Week: ``date.now.year()``-W``date.now.week()``
+  - Format to any custom string:
+    - Time: ``date.now.format('HH:mm')``
+    - Week: ``date.now.format('YYYY-[W]w')``
+  - Special formatting form to easily repeat journals name format:
+    - ``date.now.format('page')``
+    - ``date.now.toPage()``
+```
+
+
+- To construct references to specific journal pages use [`date.from`](reference__tags.md#date-from) template tag
   - Documentation for date pattern [→](https://day.js.org/docs/en/parse/string-format#list-of-all-available-parsing-tokens)
   - Documentation of available units [→](https://day.js.org/docs/en/manipulate/add#list-of-all-available-units)
 
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/224491397-360aba5e-ee22-4ed3-bf15-aaf00b0ec8b9.gif"/>
-
-<table><tr><td>
-
-<details><summary>code</summary><p>
-
-```markdown
-- template:: formatting
-  - Accessing parts of date object:
-    - Time:
-      - ``{ date.now.hour() }``:``{ date.now.minute() }``
-      - ``{ zeros(date.now.hour()) }``:``{ zeros(date.now.minute()) }``
-    - Week: ``{ date.now.year() }``-W``{ date.now.week() }``
-  - Format to any custom string:
-    - Time: ``{ date.now.format('HH:mm') }``
-    - Week: ``{ date.now.format('YYYY-[W]w') }``
-  - Special formatting form to easily create journal references:
-    - *``{ date.now.format('page') }``*
-    - *``{ date.now.toPage() }``*
 ```
-
-```markdown
-- template:: new-dates
+- template:: new dates
   - Constructing from any string with `date.from` template tag
-    - ISO string: ``{ date.from('2023-03-01') }``
-    - Custom format should be specified explicitly: ``{ date.from('2210', 'YYMM')}``
-    - Or even several formats at a time: ``{ date.from('2210', ['YYMM', 'YYYYMM']) }``
+    - ISO string: ``date.from('2023-03-01')``
+    - Custom format should be specified explicitly: ``date.from('2210', 'YYMM')``
+    - Or even several formats at a time: ``date.from('2210', ['YYMM', 'YYYYMM'])``
   - Constructing by shifting date object
-    - Last week: ``{ date.now.subtract(1, 'week').startOf('week') }``
-    - This week: ``{ date.now.startOf('week') }``
-    - Next week: ``{ date.now.add(1, 'w').startOf('w') }``
-    - Last month: ``{ date.now.startOf('month').subtract(1, 'M') }``
-    - Next year: ``{ date.now.endOf('y').add(1, 'ms') }``
-    - This week's friday: ``{ date.now.startOf('day').weekday(5) }``
-    - Next quarter: ``{ date.now.startOf('quarter').add(1, 'Q') }``
+    - Last week: ``date.now.subtract(1, 'week').startOf('week')``
+    - This week: ``date.now.startOf('week')``
+    - Next week: ``date.now.add(1, 'w').startOf('w')``
+    - Last month: ``date.now.startOf('month').subtract(1, 'M')``
+    - Next year: ``date.now.endOf('y').add(1, 'ms')``
+    - This week's friday: ``date.now.startOf('day').weekday(5)``
+    - Next quarter: ``date.now.startOf('quarter').add(1, 'Q')``
 ```
-</p></details>
 
-</td><td>
 
-<details closed><summary>video</summary>
-  <video src="https://user-images.githubusercontent.com/1984175/224491399-d1fd34e7-6b83-4175-b791-d93fceda79c6.mp4"/>
-</details>
+### Cursor positioning
+- You can position cursor after template insertion with [`cursor`](reference__syntax.md#cursor-positioning) template tag
 
-</td></tr></table>
+
+
 
 ## JavaScript environment
 - All that templates magic is possible with JavaScript language
 - Template parts is literally JavaScript code, so if you familiar with JavaScript — you can use it extensively
 
-<table><tr><td>
-
-![image](https://user-images.githubusercontent.com/1984175/224792552-39310ca7-e30f-4872-981f-19634f56566a.png)
-
-<details closed><summary>code</summary>
-
-```markdown
-- `template:: js-env`
-  - Full page name: «``{ c.page.name }``»
-  - Page's namespace: «``{ c.page.name.split('/', 1) }``»
-  - The base name of this page: «``{ c.page.name.split('/').slice(-1) }``»
-  - Plugin's name: «``{ c.page.name.match(/plugins\/(?<name>[^\/]+)/).groups.name }``»
 ```
-</details>
-</td></tr><tr><td>
-
-![image](https://user-images.githubusercontent.com/1984175/224793360-84dc9927-c7ed-492b-9510-fda656111a96.png)
-</td></tr></table>
-
-
-- And there is a quick way to replace `page` context variable: use `:page` named argument to specify another page
-
-<table><tr><td>
-<img src="https://user-images.githubusercontent.com/1984175/224791169-3f9482cd-fef4-4594-b619-4c8d900df007.png"/>
-<details closed><summary>code</summary>
-
-```markdown
-- `template:: page-overriding`
-  - authors:: ``{ c.page.name.split(' — ', 1)[0].split(', ').map(a => `[[${a}]]`).join('; ') }``
-    title:: ``{ c.page.name.split(' — ', 2).slice(-1) }``
-    rating:: ``{ '⭐️'.repeat(1 + Math.floor(Math.random() * 5)) }``
+- template:: js env
+  - Full page name: «``c.page.name``»
+  - The last word in page name: «``c.page.name.split('/').slice(-1)``»
+  - PLugin's name: ``c.page.name.match(/plugins\/(?<name>[^\/]+)/).groups.name``
 ```
-</details>
-</td></tr><tr><td>
-<img src="https://user-images.githubusercontent.com/1984175/224791554-5e257d29-0441-4f7a-a672-67e8abf882c6.png"/>
-</td></tr></table>
 
-## Conditional contexts
-- As a part of [JavaScript environment](#javascript-environment) — you can write a fully supported JavaSscript code just inside template
-- Use exclamation mark before the code to do it:
-  - ```typescript
-    ``{ ! js code goes here }``
-    ```
-<img width="60%" src="https://user-images.githubusercontent.com/1984175/224825504-713f65cb-b32f-4e15-b08e-2254b85d02fe.gif"/>
+```
+- Full page name: «logseq/plugins/full-house/tutorial»
+- The last word in page name: «tutorial»
+- Plugin's name: «full-house»
+```
 
-<table><tr><td>
 
-<img src="https://user-images.githubusercontent.com/1984175/224812776-e7c40283-9af7-4a26-970a-69325b62ea7f.png"/>
-<details><summary>code</summary><p>
 
-```markdown
-- template:: if-logic
-  - ``{ !
+### Accessing another page (or block) from template
+- There is a quick way to replace `page` (`block`) context variable: use `:page` (`:block`) named argument to specify another page. See [details](reference__args.md) about different rendering arguments.
+
+
+```
+- `template:: page overriding`
+  - authors:: ``c.page.name.split(' — ', 1)[0].split(', ').map(a => `[[${a}]]`).join(', ')``
+    title:: ``c.page.name.split(' — ', 2).slice(-1)``
+    rating:: ``'⭐️'.repeat(1 + Math.floor(Math.random() * 5))``
+```
+
+```
+{{renderer :template, page overriding, :page "Author1, Author2 - Some book name"}}
+
+will be rendered to ↓
+
+- authors:: [[Author1]], [[Author2]]
+  title:: Some book name
+  rating:: ⭐️⭐️
+```
+
+
+
+### Conditional contexts
+- As a part of [JavaScript environment](#javascript-environment) — you can write a fully supported JavaSscript code just inside template. Use the [syntax](reference__syntax.md#statement-syntax) to do it.
+
+```
+- template:: if logic
+  - ``{
             if ((c.page.propsRefs.tags || []).includes('book')) {
                 let [ authors, title ] = c.page.name.split(' — ', 2)
                 authors = authors.split(', ').map(ref)
-     }``
+    }``
     name:: ``{ title }``
     authors:: ``{ authors.join('; ') }``
-    ``{ !
+    ``{
             } else logseq.App.showMsg('The page is not a book', 'info', {timeout: 3000})
      }``
 ```
-</p></details>
 
-</td><td>
 
-<details closed><summary>video</summary>
-  <video src="https://user-images.githubusercontent.com/1984175/224824830-1ae60e38-fe22-48dc-8bc0-72b7d1b294f9.mp4"/>
-</details>
 
-</td></tr></table>
+## See also
+
+> This tutorial is cover only a basic parts of the plugin. See the whole reference for the rest ones:
+>  - List of [simple](reference__tags.md) and [advanced](reference__tags_advanced.md) template tags
+>  - [Reusing templates](reference__tags_nesting.md)
+>  - Lot's of [tools](reference__tags_dev.md) for complex tasks
+>  - Special [query language for pages](reference__query_language.md) with it's own [table view](reference__query_language__table.md)
+>    - It is more easy to use, than standard Logseq's queries!
+
+> Also see the [Showroom](https://github.com/stdword/logseq13-full-house-plugin/discussions/categories/showroom?discussions_q=is%3Aopen+label%3Aoriginal+category%3AShowroom) for advanced examples. The most exciting ones is:
+> - [Glass Card view](https://github.com/stdword/logseq13-full-house-plugin/discussions/9)
+> - [Live Namespace View](https://github.com/stdword/logseq13-full-house-plugin/discussions/55)
+> - [Switching headers colors with a shortcut](https://github.com/stdword/logseq13-full-house-plugin/discussions/49)

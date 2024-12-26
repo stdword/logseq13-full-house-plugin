@@ -21,7 +21,6 @@
 
 - *Alternatives*
   - [Logseq `:macros`](alt__macros.md)
-  - [Dynamic Lookup plugin](alt__plugin-dynamic-lookup.md)
 
 - *Links*
   - [🏛  ***Showroom***](https://github.com/stdword/logseq13-full-house-plugin/discussions/categories/showroom?discussions_q=is%3Aopen+label%3Aoriginal+category%3AShowroom)

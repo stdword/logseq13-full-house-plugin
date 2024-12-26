@@ -150,7 +150,7 @@ Use optional `template-shortcut` property to specify keyboard shortcut for inser
 ?> The shortcut can be changed via standard **Logseq Keymap**. After changing the application need to be reloaded (or the plugin need to be reloaded separately).
 
 ?> **How to know which value to set for the property?** \
-    1. Specify property for the template, but leave the value empty \
+    1. Specify the property `template-shortcut::` for the template, but leave the value empty \
     2. Reload the application \
     3. Open the *Logseq Keymap* \
     4. Find the line with the label **"Insert 🏛️template: *TEMPLATE NAME*"** \
