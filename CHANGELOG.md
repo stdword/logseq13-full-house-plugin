@@ -1,3 +1,10 @@
+## [4.3.5](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.4...v4.3.5) (2025-01-02)
+
+
+### Bug Fixes
+
+* **tags:** different object types on query.pages() fails to render ([1c76ff8](https://github.com/stdword/logseq13-full-house-plugin/commit/1c76ff88a02455d6f6c050a6a1ef1e4df7fa620b)), closes [#59](https://github.com/stdword/logseq13-full-house-plugin/issues/59)
+
 ## [4.3.4](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.3...v4.3.4) (2024-10-10)
 
 
