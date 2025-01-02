@@ -114,7 +114,10 @@ function query_table(
     },
 ) {
     let fields = opts?.fields
-    if (!rows || rows.length === 0 || (fields && fields.length === 0))
+    if (fields && fields.length === 0)
+        fields = undefined
+
+    if (!rows || rows.length === 0)
         return html`
             <div class="custom-query">
                 <div class="text-sm mt-2 opacity-90">No matched result</div>
@@ -140,11 +143,13 @@ function query_table(
             fields = Array(first.length).fill('column ').map((x, i) => x + (i + 1))
         else if (first instanceof PageContext) {
             const propNames = Object.keys(first.props!)
+                .filter(p => p !== 'title')
             fields = ['page', ...propNames]
         }
         else if (typeof first === 'object' && typeof first['original-name'] === 'string') {
             // assume this is PageEntity
             const propNames = Object.keys(first['properties-text-values']!)
+                .filter(p => p !== 'title')
             fields = ['page', ...propNames]
         }
         else
@@ -186,6 +191,9 @@ function query_table(
         if (orderByNonField)
             extendedFields = extendedFields.concat(meta.order.by!)
 
+        // @ts-expect-error
+        const listProps = context.config._settings['property/separated-by-commas'] ?? []
+
         if (typeof first !== 'object')
             rows = rows.map(o => [o])
         else {
@@ -197,9 +205,12 @@ function query_table(
                             if (f === 'page')
                                 return ref(p.name)
                             if (propNames.includes(f)) {
-                                // @ts-expect-error
-                                if ((context.config._settings['property/separated-by-commas'] ?? []).includes(f))
-                                    return p.propsRefs[f].map(r => ref(r)).join(', ')
+                                if (listProps.includes(f)) {
+                                    const value = p.propsRefs[f]
+                                    return value
+                                        ? value.map(r => ref(r)).join(', ')
+                                        : value
+                                }
                                 return p.props[f]
                             }
                             return dev_get(context, f, p)
@@ -216,9 +227,12 @@ function query_table(
                             if (f === 'page')
                                 return ref(p['original-name'])
                             if (propNames.includes(f)) {
-                                // @ts-expect-error
-                                if ((context.config._settings['property/separated-by-commas'] ?? []).includes(f))
-                                    return p['properties'][f].map(r => ref(r)).join(', ')
+                                if (listProps.includes(f)) {
+                                    const value = p['properties'][f]
+                                    return value
+                                        ? value.map(r => ref(r)).join(', ')
+                                        : value
+                                }
                                 return p['properties-text-values'][f]
                             }
                             return dev_get(context, f, p)
