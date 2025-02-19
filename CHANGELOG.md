@@ -1,3 +1,10 @@
+## [4.3.6](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.5...v4.3.6) (2025-02-19)
+
+
+### Bug Fixes
+
+* **views:** properly display page references without double brackets mode ([02a0f56](https://github.com/stdword/logseq13-full-house-plugin/commit/02a0f56732cb3de4e2083d2cceea183ab97899a7))
+
 ## [4.3.5](https://github.com/stdword/logseq13-full-house-plugin/compare/v4.3.4...v4.3.5) (2025-01-02)
 
 
