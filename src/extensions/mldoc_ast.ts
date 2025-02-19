@@ -421,14 +421,12 @@ export class MldocASTtoHTMLCompiler {
 
         return html`
             <span data-ref="${name}" class="page-reference">
-                ${wrapBrackets('[[')}
-                <div style="display: inline;">
+                ${wrapBrackets('[[')}<div style="display: inline;">
                     <a class="page-ref"
                        data-ref="${nameID}"
                        data-on-click="clickRef"
                        >${label || name}</a>
-                </div>
-                ${wrapBrackets(']]')}
+                </div>${wrapBrackets(']]')}
             </span>
         `
     }
